@@ -1,9 +1,15 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from . import views
+from rest_framework import routers
+import rest_framework.authtoken.views as aviews
+
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+router.register(r'transactions', views.TransactionViewSet)
+router.register(r'counter_signatures', views.CounterSignatureViewSet)
+router.register(r'payment_data', views.PaymentDataViewSet)
 
 urlpatterns = [
-  url(r'^transactions/$', views.transactions, name="transactions"),
-  url(r'^transactions/new/$', views.new_transaction, name="new_transaction"),
-  url(r'^transactions/countersign/$', views.csign_transaction, name="csign_transaction"),
-  url(r'^', views.index, name="index"),
+  url(r'^', include(router.urls)),
+  url(r'^token/', aviews.obtain_auth_token),
 ]

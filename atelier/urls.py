@@ -22,5 +22,5 @@ from . import web
 urlpatterns = [
   url(r'^admin/', admin.site.urls),
   url(r'^api/', include('atelier.api.urls')),
-  url(r'', include('atelier.web.urls')),
+ #  url(r'', include('atelier.web.urls')),
 ]
