@@ -5,7 +5,7 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = amodels.User
-    fields = '__all__'
+    fields = ("id", "password", "username", "first_name", "last_name", "email")
 
 class PaymentDataSerializer(serializers.ModelSerializer):
   class Meta:
@@ -23,4 +23,5 @@ class TransactionSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Transaction
     fields = '__all__'
-    depth = 1 
+    depth = 1
+ 

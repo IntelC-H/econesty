@@ -4,9 +4,9 @@ from rest_framework import routers
 import rest_framework.authtoken.views as aviews
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'transactions', views.TransactionViewSet)
-router.register(r'counter_signatures', views.CounterSignatureViewSet)
+router.register(r'user', views.UserViewSet)
+router.register(r'transaction', views.TransactionViewSet)
+router.register(r'counter_signature', views.CounterSignatureViewSet)
 router.register(r'payment_data', views.PaymentDataViewSet)
 
 urlpatterns = [
