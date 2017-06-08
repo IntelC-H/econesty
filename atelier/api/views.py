@@ -7,7 +7,14 @@ from rest_framework import permissions
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 
-# TODO: permissions instead of silently hiding sensitive information
+class IsOwned(permissions.BasePermission):
+  def has_object_permission(self, request, view, obj):
+    u = request.auth.user
+    user_attr = getattr(obj, "user", None)
+    buyer_attr = getattr(obj, "buyer", None)
+    seller_attr = getattr(obj, "seller", None)
+    return (u == user_attr) | (u == buyer_attr) | (u == seller_attr)
+
 
 # TODO: this is NOT a modelviewset.
 # shit, this breaks REST
@@ -22,26 +29,32 @@ class UserViewSet(viewsets.ModelViewSet):
   serializer_class = serializers.UserSerializer
 
 class PaymentDataViewSet(viewsets.ModelViewSet):
-  permission_classes = (permissions.IsAuthenticated)
+  permission_classes = (permissions.IsAuthenticated, IsOwned)
   serializer_class = serializers.PaymentDataSerializer
 
   def get_queryset(self):
-    return models.PaymentData.objects.filter(user=self.request.user)
+    qs = models.PaymentData.objects.all()
+    if self.request.user is not None:
+      qs = qs.filter(user=self.request.user)
+    return qs
 
 class CounterSignatureViewSet(viewsets.ModelViewSet):
-  permission_classes = (permissions.IsAuthenticated)
+  permission_classes = (permissions.IsAuthenticated, IsOwned)
   serializer_class = serializers.CounterSignatureSerializer
 
   def get_queryset(self):
     return models.CounterSignature.objects.filter(user=self.request.user)
-
+  
 class TransactionViewSet(viewsets.ModelViewSet):
-  permission_classes = (permissions.IsAuthenticated)
+  permission_classes = (permissions.IsAuthenticated, IsOwned)
   serializer_class = serializers.TransactionSerializer
 
   def get_queryset(self):
     u = self.request.user
-    return (models.Transaction.objects.filter(buyer=u) | models.Transaction.objects.filter(seller=u)).order_by("-date_proposed")
+    qs = models.Transaction.objects.all()
+    if u is not None:
+      qs = qs.filter(buyer=u) | qs.filter(seller=u)
+    return qs.order_by("-date_proposed")
 
   @detail_route()
   def countersignatures(self, request, pk=None):
