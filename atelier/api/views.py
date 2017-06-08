@@ -21,12 +21,16 @@ class IsOwned(permissions.BasePermission):
 # this ultimately needs to hide the password field when returning results.
 
 # current_user **DETAIL**
-# any given user with a pk **DETAIL**
 # search by name/username **LIST**
-# create - this requires modifying the password field as it comes in
 class UserViewSet(viewsets.ModelViewSet):
   queryset = User.objects.all()
   serializer_class = serializers.UserSerializer
+
+  # requires authentication
+  # override to get the current user
+  def list(self, request, *args, **kwargs):
+    ser = self.get_serializer(request.auth.user, many=False)
+    return Response(ser.data)
 
 class PaymentDataViewSet(viewsets.ModelViewSet):
   permission_classes = (permissions.IsAuthenticated, IsOwned)
