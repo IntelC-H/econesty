@@ -9,20 +9,26 @@ from rest_framework.response import Response
 
 class IsOwned(permissions.BasePermission):
   def has_object_permission(self, request, view, obj):
+    if request.auth is None:
+      return False
     u = request.auth.user
     user_attr = getattr(obj, "user", None)
     buyer_attr = getattr(obj, "buyer", None)
     seller_attr = getattr(obj, "seller", None)
     return (u == user_attr) | (u == buyer_attr) | (u == seller_attr)
 
+class IsOwnedOrCreating(IsOwned):
+  def has_object_permission(self, request, view, obj):
+    if request.method == "POST":
+      return True
+    else:
+      return super().has_object_permission(request, view, obj)
 
-# TODO: this is NOT a modelviewset.
-# shit, this breaks REST
-# this ultimately needs to hide the password field when returning results.
-
-# current_user **DETAIL**
-# search by name/username **LIST**
+# Add methods like this:
+# /user/current **DETAIL**
+# /user/search **LIST**
 class UserViewSet(viewsets.ModelViewSet):
+  permission_classes = (IsOwnedOrCreating,)
   queryset = User.objects.all()
   serializer_class = serializers.UserSerializer
 
