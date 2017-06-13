@@ -2,6 +2,12 @@ from . import models
 import django.contrib.auth.models as amodels
 from rest_framework import serializers
 
+def writing_field(model_clazz, source):
+  """
+  Define a field for writing to a nested property
+  """
+  return serializers.PrimaryKeyRelatedField(queryset=model_clazz.objects.all(), source=source, write_only=True)
+
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = amodels.User
@@ -32,22 +38,29 @@ class UserSerializer(serializers.ModelSerializer):
 
 class PaymentDataSerializer(serializers.ModelSerializer):
   user = UserSerializer(many=False, read_only=True)
+  user_id = writing_field(amodels.User, "user")
   class Meta:
     model = models.PaymentData
     fields = '__all__'
 
 class TransactionSerializer(serializers.ModelSerializer):
-  buyer = UserSerializer(many=False, read_only=True)
-  buyer_payment_data = PaymentDataSerializer(many=False, read_only=True)
-  seller = UserSerializer(many=False, read_only=True)
-  seller_payment_data = PaymentDataSerializer(many=False, read_only=True)
+  buyer = UserSerializer(read_only=True)
+  buyer_id = writing_field(amodels.User, "buyer")
+  buyer_payment_data = PaymentDataSerializer(read_only=True)
+  buyer_payment_data_id = writing_field(models.PaymentData, "buyer_payment_data")
+  seller = UserSerializer(read_only=True)
+  seller_id = writing_field(amodels.User, "seller")
+  seller_payment_data = PaymentDataSerializer(read_only=True)
+  seller_payment_data_id = writing_field(models.PaymentData, "seller_payment_data")
   class Meta:
     model = models.Transaction
     fields = '__all__'
 
 class CounterSignatureSerializer(serializers.ModelSerializer):
   user = UserSerializer(many=False, read_only=True)
+  user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
+  transaction_id = writing_field(models.Transaction, "transaction")
   class Meta:
     model = models.CounterSignature
     fields = '__all__'

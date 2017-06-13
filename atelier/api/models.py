@@ -21,6 +21,7 @@ class PaymentData(models.Model):
   data = models.TextField()
   encrypted = models.BooleanField()
   user = models.ForeignKey(User, on_delete=models.CASCADE)
+  created_at = models.DateTimeField(default=timezone.now)
   # data can be encrypted with a key that is stored exclusively in the user's mind.
 
 class Transaction(models.Model):
@@ -30,9 +31,9 @@ class Transaction(models.Model):
   seller_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_pd")
   required_witnesses = models.IntegerField(default=0)
   offer = models.DecimalField(max_digits=11, decimal_places=2)
-  offer_currency = models.CharField(max_length=3)
-  date_proposed = models.DateTimeField(default=timezone.now)
-  date_finalized = models.DateTimeField(null=True)
+  offer_currency = models.CharField(max_length=3, default="USD")
+  created_at = models.DateTimeField(default=timezone.now)
+  finalized_at = models.DateTimeField(null=True)
 
   # TODO: other information about what the transaction was for?
 
@@ -43,6 +44,7 @@ class CounterSignature(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
   signature = models.TextField() # stored as x,y|x,y|x,y
+  created_at = models.DateTimeField(default=timezone.now)
 
   def signature_list(self):
     return list(map(lambda x: list(map(int, x.split(','))), self.signature.split('|')))

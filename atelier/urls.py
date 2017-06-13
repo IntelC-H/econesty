@@ -19,6 +19,6 @@ from . import api
 from . import web
 
 urlpatterns = [
-  url(r'^api/', include('atelier.api.urls')),
+  url(r'\Aapi/', include('atelier.api.urls')),
  #  url(r'', include('atelier.web.urls')),
 ]
