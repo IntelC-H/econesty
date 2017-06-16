@@ -39,8 +39,8 @@ REST_FRAMEWORK = {
 # Application definition
 
 INSTALLED_APPS = [
-    'atelier.api',
-    'atelier.web',
+    'econesty.api',
+    'econesty.web',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.admin',
@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'atelier.urls'
+ROOT_URLCONF = 'econesty.urls'
 
 TEMPLATES = [
     {
@@ -79,7 +79,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'atelier.wsgi.application'
+WSGI_APPLICATION = 'econesty.wsgi.application'
 
 
 # Database
@@ -125,8 +125,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+  os.path.join(BASE_DIR, ".econesty_webpack_build")
+]
+

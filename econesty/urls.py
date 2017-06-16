@@ -19,6 +19,6 @@ from . import api
 from . import web
 
 urlpatterns = [
-  url(r'\Aapi/', include('atelier.api.urls')),
- #  url(r'', include('atelier.web.urls')),
+  url(r'\Aapi/', include('econesty.api.urls')),
+ #  url(r'', include('econesty.web.urls')),
 ]
