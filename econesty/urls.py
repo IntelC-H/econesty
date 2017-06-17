@@ -20,5 +20,5 @@ from . import web
 
 urlpatterns = [
   url(r'\Aapi/', include('econesty.api.urls')),
- #  url(r'', include('econesty.web.urls')),
+  url(r'', include('econesty.web.urls')),
 ]

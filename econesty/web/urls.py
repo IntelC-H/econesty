@@ -3,5 +3,5 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-  url(r'.*', views.spa_page, "spa_app") 
+  url(r'.*', views.spa_page, name="spa_app") 
 ]

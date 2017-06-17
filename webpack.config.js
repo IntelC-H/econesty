@@ -2,9 +2,10 @@ var path = require('path');
 var webpack = require('webpack');
 var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
+// TODO: bundle CSS
+
 module.exports = {
-  context: __dirname,
-  entry: './frontend/entry.js',
+  entry: './frontend/js/index.js',
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
     filename: 'app.js',
@@ -21,8 +22,14 @@ module.exports = {
       }
     ]
   },
-  plugins: [
-    new UglifyJSPlugin({comments: false})
-  ]
+  resolve: {
+    alias: {
+      app: path.resolve("./frontend/js/")
+    },
+    extensions: ['.js', '.jsx'],
+  },
+//  plugins: [
+//    new UglifyJSPlugin({comments: false})
+//  ]
 };
 
