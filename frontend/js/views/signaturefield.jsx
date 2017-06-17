@@ -41,9 +41,9 @@ export default class SignatureField extends React.Component {
   render() {
     return <canvas
             className="signaturefield"
-            style={this.props.style}
-            width={this.props.width}
-            height={this.props.height}
+            style={this.props.style || {}}
+            width={this.props.width || "200"}
+            height={this.props.height || "320"}
             onMouseDown={(e) => this.onMouseDown(e)}
             onMouseUp={(e) => this.onMouseUp(e)}
             onMouseMove={(e) => this.onMouseMove(e)}></canvas>;
@@ -54,6 +54,7 @@ export default class SignatureField extends React.Component {
   drawCanvas() {
     var cvs = ReactDOM.findDOMNode(this);
     var ctx = cvs.getContext('2d');
+    ctx.lineWidth = this.props.lineWidth || "2"
     ctx.clearRect(0, 0, cvs.width, cvs.height);
     ctx.beginPath();
     for (var i = 0; i < this.state.signature.length; i++) {
@@ -68,7 +69,6 @@ export default class SignatureField extends React.Component {
       ctx.moveTo(stroke[0][0], stroke[0][1]);
       for (var i = 0; i < stroke.length; i++) {
         var pair = stroke[i];
-        // console.log("PAIR: " + pair);
         ctx.lineTo(pair[0], pair[1]);
       }
     }
