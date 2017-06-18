@@ -30,10 +30,11 @@ class ProfilePage extends React.Component {
 
 class UserRepresentation extends React.Component {
   render() {
-    if (this.props.error) {
-      return <h1>Error: {this.props.error}</h1>;
-    } else if (this.props.object != null) {
-      var user = this.props.object;
+    var model = this.props.model;
+    if (model.error != null) {
+      return <h1>Error: {model.error}</h1>;
+    } else if (model.object != null) {
+      var user = model.object;
       return <h1>Welcome, @{user.username}!</h1>;
     } else {
       return <h3></h3>;
