@@ -116,6 +116,10 @@ class RESTModel {
   }
 }
 
+// props:
+// resource: the rest resource to download
+// object: either a REST object id or collection method
+
 class RESTComponent extends React.Component {
   constructor(props) {
     super(props);
