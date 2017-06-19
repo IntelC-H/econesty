@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import { Switch, Route, browserHistory } from 'react-router';
+import { Switch, Route, Link, browserHistory } from 'react-router';
 import { Auth, JSON, JSONObject, JSONCollection } from 'app/json';
 
 var container = document.getElementById("main");
@@ -114,6 +114,8 @@ class TransactionRepresentation extends React.Component {
       <div> 
         <input type="text" defaultValue={e.object.offer} onBlur={(e) => this.handleCurrencyChange(e)} />
         <span>{e.object.offer_currency}</span>
+        <a href={"/user/" + e.object.buyer.id}>Buyer: {e.object.buyer.username}</a>
+        <a href={"/user/" + e.object.seller.id}>Seller: {e.object.seller.username}</a>
       </div>
     );
   }
