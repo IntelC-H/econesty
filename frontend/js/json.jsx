@@ -5,15 +5,14 @@ import Networking from 'app/networking';
 
 class Auth {
   static authenticate(username, password, callback) {
-    Networking.root
-              .appendPath("api", "token")
-              .withMethod("POST")
-              .asJSON()
-              .withBody({
-                username: username,
-                password: password
-              })
-              .go((res) => {
+    new Networking().appendPath("api", "token")
+                    .withMethod("POST")
+                    .asJSON()
+                    .withBody({
+                      username: username,
+                      password: password
+                    })
+                   .go((res) => {
       localStorage.setItem("token", (res.body || {token: null}).token);
       callback(res.error || null);
     });
@@ -27,29 +26,23 @@ class Auth {
 class JSON extends React.Component {
   constructor(props) {
     super(props);
+    this.networking = this.props.networking || (new Networking().appendPath(this.props.path).asJSON().withLocalTokenAuth("token"));
     this.state = {
       object: this.props.object || null,
-      error: this.props.error || null,
-      networking: this.props.networking || Networking.root.appendPath(this.props.path).asJSON().withLocalTokenAuth("token") 
+      error: this.props.error || null
     }
   }
 
   get object() { return this.state.object; }
-  set object(v) { this.setState((st) => { return {object: v, error: null, path: st.path }}); }
+  set object(v) { this.setState((st) => { return {object: v, error: null }}); }
 
   get error() { return this.state.error; }
-  set error(v) { this.setState((st) => { return {object: null, error: v, path: st.path }}); }
+  set error(v) { this.setState((st) => { return {object: null, error: v }}); }
 
-  componentDidMount() {
-    this.load()
-  }
+  componentDidMount() { this.load(); }
 
   load() {
-    this.state.networking.go((res) => {
-      this.setState((st) => {
-        return {object: res.body || null, error: res.error || null, networking: st.networking };
-      });
-    });
+    this.networking.go((res) => this.setState({object: res.body || null, error: res.error || null}));
   }
 
   render() {
@@ -58,92 +51,71 @@ class JSON extends React.Component {
 }
 
 class JSONObject extends JSON {
-  get isPersisted() {
-    return this.objectID != null; 
-  }
-
-  get objectID() {
-    return (this.state.object || {id: null}).id;
-  }
+  get isPersisted() { return this.objectID != null; }
+  get objectID() { return (this.state.object || {id: null}).id; }
 
   save() {
-    this.state.networking.withMethod("PUT").withBody(flattenID(this.state.object)).go((res) => {
-      this.setState((st) => {
-        return {object: res.body || null, error: res.error || null, networking: st.networking };
-      });
+    this.networking.withMethod("PATCH").withBody(this.flattenedObject).go((res) => {
+      this.setState({object: res.body || null, error: res.error || null});
     });
   }
-}
 
-function flattenID(obj) {
-  var n = {}
-  for (var key in obj) {
-    var val = obj[key];
-    if ((val || {}).id != undefined) {
-      n[(key + "_id")] = val.id;
-    } else {
-      n[key] = val;
+  // Returns a copy of this.state.object where nested fields with an .id attribute
+  // are flattened:
+  // { "user": { "id": 1 }, "bar": "baz" }
+  // becomes
+  // { "user_id": 1, "bar": "baz" }
+  get flattenedObject() {
+    var n = {};
+    var obj = this.state.object;
+    for (var k in obj) {
+      var v = obj[k];
+      var hasID = (v || {}).id != undefined;
+      n[hasID ? (k + "_id") : k] = hasID ? v.id : v;
     }
+    return n;
   }
-  return n;
 }
 
 // paginated JSON collection.
 class JSONCollection extends JSON {
-  get count() {
-    return (this.object || {}).count;
-  }
-
-  get hasNext() {
-    return (this.object || {next: null}).next != null;
-  }
-
-  get hasPrevious() {
-    return (this.object || {previous: null}).previous != null;
-  }
+  get count() { return (this.object || {}).count; }
+  get hasNext() { return (this.object || {next: null}).next != null; }
+  get hasPrevious() { return (this.object || {previous: null}).previous != null; }
 
   next() {
     if (this.hasNext) {
-      this.setState((st) => {
-        st.networking = this.networking.setURL(this.object.next);
-        return st;
-      });
+      this.networking = this.networking.withURL(this.object.next);
+      this.load();
     }
   }
 
   previous() {
     if (this.hasPrevious) {
-      this.setState((st) => {
-        st.networking = this.networking.setURL(this.object.previous);
-        return st;
-      });
+      this.networking = this.networking.withURL(this.object.previous);
+      this.load();
     }
   }
 
   render() {
-    var obj = this.state.object;
-    var error = this.state.error;
-
-    var children = []
-    if (obj != null) {
-      for (var i = 0; i < obj.results.length; i++) {
-        var child = obj.results[i];
-        children.push(<JSONObject
-                       key={i}
-                       object={child}
-                       error={null}
-                       networking={this.state.networking.appendPath(child.id)}
-                       component={this.props.component} />);
-      }
+    if (this.object != null) {
       return (
-        <div>
-          {this.hasPrevious && <button onClick={this.previous}>Previous</button>}
-          {this.hasNext && <button onClick={this.next}>Next</button>}
-          <div>{children}</div>
+        <div className="collection">
+          {this.hasPrevious && <button className="collection-nav-button" onClick={this.previous}>❮ Previous</button>}
+          {this.hasNext && <button className="collection-nav-button" onClick={this.next}>Next ❯</button>}
+          <div>
+            {this.object.results.map((child, i) => <JSONObject
+                                                    key={i}
+                                                    collection={this}
+                                                    object={child}
+                                                    error={null}
+                                                    networking={this.networking.appendPath(child.id)}
+                                                    component={this.props.component} />)}
+          </div>
         </div>
       ); 
-    } else if (error != null) {
-      return <h1>{error.message}</h1>;
+    } else if (this.error != null) {
+      return <h1>{this.error.message}</h1>;
     } else {
       return <div></div>;
     }

@@ -4,8 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route, Link, browserHistory } from 'react-router';
 import { Auth, JSON, JSONObject, JSONCollection } from 'app/json';
 
-var container = document.getElementById("main");
-
+var body = document.getElementsByTagName("body")[0];
+var container = document.createElement("div");
+body.appendChild(container);
 // TODO: caching using browser sessionStorage
 
 // Login
@@ -122,6 +123,7 @@ class TransactionRepresentation extends React.Component {
 
   handleCurrencyChange(e) {
     e.persist();
+    console.log(this.props.element);
     this.props.element.object.offer = parseFloat(e.target.value);
     this.props.element.save();
   }

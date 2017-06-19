@@ -5,10 +5,10 @@ var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 // TODO: bundle CSS
 
 module.exports = {
-  entry: ["whatwg-fetch", './frontend/js/index.js'],
+  entry: ['./frontend/js/index.js'],
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
-    filename: '[name].js',
+    filename: 'app.js',
   },
   module: {
     loaders: [
