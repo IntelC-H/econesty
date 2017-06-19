@@ -90,6 +90,16 @@ class JSONCollection extends JSON {
     }
   }
 
+  create(json) {
+    this.networking.withMethod("POST").withBody(json).go((res) => {
+      if ((res.body || null) != null) {
+        this.object = res.body;
+      } else if ((res.error || null) != null) {
+        this.error = res.error;
+      }
+    });
+  }
+
   previous() {
     if (this.hasPrevious) {
       this.networking = this.networking.withURL(this.object.previous);
@@ -101,6 +111,7 @@ class JSONCollection extends JSON {
     if (this.object != null) {
       return (
         <div className="collection">
+          {this.props.headerComponent != undefined && React.createElement(this.props.headerComponent, { collection: this }, null)};
           {this.hasPrevious && <button className="collection-nav-button" onClick={this.previous}>❮ Previous</button>}
           {this.hasNext && <button className="collection-nav-button" onClick={this.next}>Next ❯</button>}
           <div>
