@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route, browserHistory } from 'react-router';
-import { RESTComponent, RESTModel, JSON, JSONObject, JSONCollection } from 'app/restobject';
+import { Auth, JSON, JSONObject, JSONCollection } from 'app/json';
 
 var container = document.getElementById("main");
 
@@ -34,7 +34,7 @@ class Login extends React.Component {
   }
  
   handleLogin() {
-    RESTModel.authenticate(this.state.username, this.state.password, this.goToUser);
+    Auth.authenticate(this.state.username, this.state.password, this.goToUser);
   }
 
   goToUser(error) {
