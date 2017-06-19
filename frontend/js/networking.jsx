@@ -187,10 +187,6 @@ export default class Networking {
       opts.body = this.isJSON ? JSON.stringify(this.body) : this.body;
     }
 
-    console.log(this.formattedURL);
-    console.log(opts);
-
-
     fetch(this.formattedURL, opts).then((res) => {
       if (res.ok) {
         return res;

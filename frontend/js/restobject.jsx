@@ -6,7 +6,6 @@ import Networking from 'app/networking';
 class JSON extends React.Component {
   constructor(props) {
     super(props);
-    console.log("PATH: " + this.props.path);
     this.state = {
       object: this.props.object || null,
       error: this.props.error || null,
@@ -25,10 +24,7 @@ class JSON extends React.Component {
   }
 
   load() {
-    console.log("Loading");
     this.state.networking.go((res) => {
-      console.log("LOADED: " + this.state.networking.formattedURL);
-      console.log(res);
       this.setState((st) => {
         return {object: res.body || null, error: res.error || null, networking: st.networking };
       });
@@ -50,15 +46,25 @@ class JSONObject extends JSON {
   }
 
   save() {
-    console.log("SAVING");
-    this.state.networking.withMethod("PUT").withBody(this.state.object).go((res) => {
-      console.log("SAVED");
-      console.log(res);
+    this.state.networking.withMethod("PUT").withBody(flattenID(this.state.object)).go((res) => {
       this.setState((st) => {
         return {object: res.body || null, error: res.error || null, networking: st.networking };
       });
     });
   }
+}
+
+function flattenID(obj) {
+  var n = {}
+  for (var key in obj) {
+    var val = obj[key];
+    if ((val || {}).id != undefined) {
+      n[(key + "_id")] = val.id;
+    } else {
+      n[key] = val;
+    }
+  }
+  return n;
 }
 
 // paginated JSON collection.
@@ -97,10 +103,6 @@ class JSONCollection extends JSON {
     var obj = this.state.object;
     var error = this.state.error;
 
-    console.log("RENDERING COLLECTION");
-    console.log(obj);
-    console.log(error != null);
-
     var children = []
     if (obj != null) {
       for (var i = 0; i < obj.results.length; i++) {
@@ -112,7 +114,6 @@ class JSONCollection extends JSON {
                        networking={this.state.networking.appendPath(child.id)}
                        component={this.props.component} />);
       }
-      console.log("RENDERING CHILDREN");
       return (
         <div>
           {this.hasPrevious && <button onClick={this.previous}>Previous</button>}
@@ -121,11 +122,9 @@ class JSONCollection extends JSON {
         </div>
       ); 
     } else if (error != null) {
-      console.log("RENDERING ERROR");
       return <h1>{error.message}</h1>;
     } else {
-      console.log("OH FUCK");
-      return <h1>HAHAH</h1>;
+      return <div></div>;
     }
   }
 }
@@ -187,7 +186,6 @@ class RESTModel {
               })
               .go((res) => {
       localStorage.setItem("token", (res.body || {token: null}).token);
-      console.log(res);
       callback(res.error || null);
     });
   }

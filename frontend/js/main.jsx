@@ -120,7 +120,7 @@ class TransactionRepresentation extends React.Component {
 
   handleCurrencyChange(e) {
     e.persist();
-    this.props.element.object.currency = parseFloat(e.target.value);
+    this.props.element.object.offer = parseFloat(e.target.value);
     this.props.element.save();
   }
 }
