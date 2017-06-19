@@ -15,9 +15,9 @@ class OwnedOrReadonly(permissions.BasePermission):
     if request.auth is None:
       return False
     u = request.auth.user
-    user_attr = obj.getattr("user", None)
-    buyer_attr = obj.getattr("buyer", None)
-    seller_attr = obj.getattr("seller", None)
+    user_attr = getattr(obj, "user", None)
+    buyer_attr = getattr(obj, "buyer", None)
+    seller_attr = getattr(obj, "seller", None)
     return (u == user_attr) | (u == buyer_attr) | (u == seller_attr)
 
 class OwnedOrReadonlyOrCreating(OwnedOrReadonly):
@@ -49,8 +49,8 @@ class PaymentDataViewSet(viewsets.ModelViewSet):
 
   def get_queryset(self):
     qs = models.PaymentData.objects.all()
-    if self.request.user is not None:
-      qs = qs.filter(user=self.request.user)
+    if self.request.auth.user is not None:
+      qs = qs.filter(user=self.request.auth.user)
     return qs.order_by("-created_at")
 
 class CounterSignatureViewSet(viewsets.ModelViewSet):
@@ -58,14 +58,14 @@ class CounterSignatureViewSet(viewsets.ModelViewSet):
   serializer_class = serializers.CounterSignatureSerializer
 
   def get_queryset(self):
-    return models.CounterSignature.objects.filter(user=self.request.user)
+    return models.CounterSignature.objects.filter(user=self.request.auth.user)
   
 class TransactionViewSet(viewsets.ModelViewSet):
   permission_classes = (permissions.IsAuthenticated, OwnedOrReadonly)
   serializer_class = serializers.TransactionSerializer
 
   def get_queryset(self):
-    u = self.request.user
+    u = self.request.auth.user
     qs = models.Transaction.objects.all()
     if u is not None:
       qs = qs.filter(buyer=u) | qs.filter(seller=u)

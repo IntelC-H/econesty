@@ -1,6 +1,134 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'whatwg-fetch';
+import Networking from 'app/networking';
+
+class JSON extends React.Component {
+  constructor(props) {
+    super(props);
+    console.log("PATH: " + this.props.path);
+    this.state = {
+      object: this.props.object || null,
+      error: this.props.error || null,
+      networking: this.props.networking || Networking.root.appendPath(this.props.path).asJSON().withLocalTokenAuth("token") 
+    }
+  }
+
+  get object() { return this.state.object; }
+  set object(v) { this.setState((st) => { return {object: v, error: null, path: st.path }}); }
+
+  get error() { return this.state.error; }
+  set error(v) { this.setState((st) => { return {object: null, error: v, path: st.path }}); }
+
+  componentDidMount() {
+    this.load()
+  }
+
+  load() {
+    console.log("Loading");
+    this.state.networking.go((res) => {
+      console.log("LOADED: " + this.state.networking.formattedURL);
+      console.log(res);
+      this.setState((st) => {
+        return {object: res.body || null, error: res.error || null, networking: st.networking };
+      });
+    });
+  }
+
+  render() {
+    return React.createElement(this.props.component, { element: this }, null);
+  }
+}
+
+class JSONObject extends JSON {
+  get isPersisted() {
+    return this.objectID != null; 
+  }
+
+  get objectID() {
+    return (this.state.object || {id: null}).id;
+  }
+
+  save() {
+    console.log("SAVING");
+    this.state.networking.withMethod("PUT").withBody(this.state.object).go((res) => {
+      console.log("SAVED");
+      console.log(res);
+      this.setState((st) => {
+        return {object: res.body || null, error: res.error || null, networking: st.networking };
+      });
+    });
+  }
+}
+
+// paginated JSON collection.
+class JSONCollection extends JSON {
+  get count() {
+    return (this.object || {}).count;
+  }
+
+  get hasNext() {
+    return (this.object || {next: null}).next != null;
+  }
+
+  get hasPrevious() {
+    return (this.object || {previous: null}).previous != null;
+  }
+
+  next() {
+    if (this.hasNext) {
+      this.setState((st) => {
+        st.networking = this.networking.setURL(this.object.next);
+        return st;
+      });
+    }
+  }
+
+  previous() {
+    if (this.hasPrevious) {
+      this.setState((st) => {
+        st.networking = this.networking.setURL(this.object.previous);
+        return st;
+      });
+    }
+  }
+
+  render() {
+    var obj = this.state.object;
+    var error = this.state.error;
+
+    console.log("RENDERING COLLECTION");
+    console.log(obj);
+    console.log(error != null);
+
+    var children = []
+    if (obj != null) {
+      for (var i = 0; i < obj.results.length; i++) {
+        var child = obj.results[i];
+        children.push(<JSONObject
+                       key={i}
+                       object={child}
+                       error={null}
+                       networking={this.state.networking.appendPath(child.id)}
+                       component={this.props.component} />);
+      }
+      console.log("RENDERING CHILDREN");
+      return (
+        <div>
+          {this.hasPrevious && <button onClick={this.previous}>Previous</button>}
+          {this.hasNext && <button onClick={this.next}>Next</button>}
+          <div>{children}</div>
+        </div>
+      ); 
+    } else if (error != null) {
+      console.log("RENDERING ERROR");
+      return <h1>{error.message}</h1>;
+    } else {
+      console.log("OH FUCK");
+      return <h1>HAHAH</h1>;
+    }
+  }
+}
 
 function baseURL() {
   return window.location.protocol + "//" + window.location.host + "/api/"; 
@@ -14,6 +142,7 @@ class RESTModel {
     this.error = null; 
     this.objectId = null;
     this.isLoading = false;
+    this.root = Networking.root.appendPath("api", rsc);
   }
 
   get isPersisted() {
@@ -48,67 +177,40 @@ class RESTModel {
   }
 
   static authenticate(username, password, callback) {
-    var body = { username: username, password: password };
-    fetch(baseURL() + "token/", {method: "POST", body: JSON.stringify(body), headers: {"Content-Type": "application/json"}}).then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        var error = new Error(res.statusText);
-        error.response = res;
-        throw error;
-      }
-    }).then((json) => {
-      localStorage.setItem("token", json.token);
-      callback(null);
-    }).catch((err) => {
-      callback(err);
+    Networking.root
+              .appendPath("api", "token")
+              .withMethod("POST")
+              .asJSON()
+              .withBody({
+                username: username,
+                password: password
+              })
+              .go((res) => {
+      localStorage.setItem("token", (res.body || {token: null}).token);
+      console.log(res);
+      callback(res.error || null);
     });
   }
 
   static isAuthenticated() {
-    var t = localStorage.getItem("token");
-    return t != null && t != undefined;
+    return localStorage.getItem("token") != null;
   }
 
   fetchJSON(url, opts, callback) {
     this.loading = true;
-    if (this.callback != null) {
-      this.callback(this);
+
+    var n = new Networking(url).asJSON()
+                               .withMethod(opts.method || "GET")
+                               .withBody(opts.body)
+
+    if (RESTModel.isAuthenticated()) {
+      n = n.withAuth("Token " + localStorage.getItem("token"));
     }
 
-    var optsp = opts;
-    optsp.headers = {}
-    if (optsp.json != undefined) {
-      optsp.body = JSON.stringify(optsp.json);
-      optsp.headers["Content-Type"] = "application/json";
-    }
-
-    var tok = localStorage.getItem("token");
-    if (tok != null && tok != undefined) {
-      optsp.headers.Authorization = "Token " + tok;
-    }
-
-    optsp.method = optsp.method || "GET"; 
-
-    fetch(url, optsp).then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        var error = new Error(res.statusText);
-        error.response = res;
-        throw error;
-      }
-    }).then((json) => {
-      this.loading = true;
-      this.object = json;
-      this.error = null;
-      if (this.callback != null) {
-        this.callback(this);
-      }
-    }).catch((err) => {
+    n.go((res) => {
       this.loading = false;
-      this.object = null;
-      this.error = err;
+      this.object = res.body || null;
+      this.error = res.error || null;
       if (this.callback != null) {
         this.callback(this);
       }
@@ -155,4 +257,4 @@ class RESTComponent extends React.Component {
   }
 }
 
-export { RESTComponent, RESTModel }
+export { RESTComponent, RESTModel, JSON, JSONObject, JSONCollection }
