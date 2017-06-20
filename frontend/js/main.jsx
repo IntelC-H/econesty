@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route, Link, browserHistory } from 'react-router';
 import { Auth, JSON, JSONObject, JSONCollection } from 'app/json';
+import Networking from 'app/networking';
 
 var body = document.getElementsByTagName("body")[0];
 var container = document.createElement("div");
@@ -75,13 +76,29 @@ class HomePage extends React.Component {
 }
 
 class Profile extends React.Component {
+  constructor(props) {
+    super(props);
+    this.buyFrom = this.buyFrom.bind(this);
+    this.sellTo = this.sellTo.bind(this);
+  }
+
   render() {
     return (
       <div>
         <JSONObject path={"/api/user/" + this.props.match.params.user + "/"} component={UserRepresentation} />
+        <button onClick={this.buyFrom}>Buy From</button>
+        <button onClick={this.sellTo}>Sell To</button>
         <JSONCollection path="/api/transaction/" component={TransactionRepresentation} />
       </div>
     );
+  }
+
+  buyFrom() {
+    this.props.history.push("/user/" + this.props.match.params.user + "/transaction/buy");
+  }
+
+  sellTo() {
+    this.props.history.push("/user/" + this.props.match.params.user + "/transaction/sell");
   }
 }
 
@@ -122,20 +139,78 @@ class TransactionRepresentation extends React.Component {
   }
 
   handleCurrencyChange(e) {
-    e.persist();
-    console.log(this.props.element);
     this.props.element.object.offer = parseFloat(e.target.value);
     this.props.element.save();
+  }
+}
+
+// TODO: create-or-render component
+
+class CreateTransaction extends React.Component {
+  constructor(props) {
+    super(props);
+    this.create = this.create.bind(this);
+    this.renderCreateForm = this.renderCreateForm.bind(this);
+  }
+
+  render() {
+    return <JSONObject path="/api/transaction/" autoload={false} component={TransactionRepresentation} createComponent={this.renderCreateForm} />;
+  }
+
+  renderCreateForm(props) {
+    var e = props.element;
+    e.state.object = e.object || {};
+    return (
+      <div>
+        <input type="text" placeholder="offer" onChange={(ev) => e.object.offer = parseInt(ev.target.value)}/>
+        <input type="text" placeholder="currency" onChange={(ev) => e.object.offer_currency = ev.target.value}/>
+        <button onClick={(_) => this.create(props.element)}>Create Transaction</button>
+      </div>
+    );
+  }
+
+  create(element) {
+    var otherId = parseInt(this.props.match.params.user);
+    var isBuyer = this.props.match.params.action == "buy";
+
+    var n = Networking.create.appendPath("api").asJSON().withLocalTokenAuth("token");
+    n.appendPath("user", "me").go((user) => {
+      var meId = parseInt(user.body.id);
+      if (otherId == "me") {
+        otherId = meId;
+      }
+      n.appendPath("user", otherId, "payment").go((payment) => {
+        element.object = element.object || {};
+        element.object.buyer_id = isBuyer ? meId : otherId;
+        element.object.buyer_payment_data_id = isBuyer ? payment.body.me.id : payment.body.them.id;
+        element.object.seller_id = isBuyer ? otherId : meId;
+        element.object.seller_payment_data_id = isBuyer ? payment.body.them.id : payment.body.me.id;
+        element.object.required_witnesses = 0;
+        element.save();
+      });
+    });
+  }
+}
+
+class Header extends React.Component {
+  render() {
+    return (
+      <div>
+        <h1>Econesty</h1>
+      </div>
+    );
   }
 }
 
 ReactDOM.render((
    <BrowserRouter>
      <div>
+       <Header/>
        <Route exact path="/" component={HomePage} />
        <Route exact path="/login" component={Login} />
        <Route exact path="/signup" component={Profile} />
        <Route path='/user/:user' component={Profile} />
+       <Route path='/user/:user/transaction/:action' component={CreateTransaction} />
      </div>
    </BrowserRouter>
 ), container);

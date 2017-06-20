@@ -8,10 +8,12 @@ class PaymentData(models.Model):
   CREDIT_CARD='cdt'
   DEBIT_CARD='dbt'
   GENERIC='gnc'
+  KINDS = [BITCOIN, CASH, CREDIT_CARD, DEBIT_CARD, GENERIC]
   kind = models.CharField(
     max_length=3,
     choices=(
       (BITCOIN, 'Bitcoin'),
+      (CASH, 'Cash'),
       (CREDIT_CARD, 'Credit Card'),
       (DEBIT_CARD, 'Debit Card'),
       (GENERIC, 'Other')

@@ -7,6 +7,7 @@ from rest_framework import permissions
 from rest_framework import filters
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 class OwnedOrReadonly(permissions.BasePermission):
   def has_object_permission(self, request, view, obj):
@@ -42,6 +43,37 @@ class UserViewSet(viewsets.ModelViewSet):
   def me(self, request):
     ser = self.get_serializer(request.auth.user, many=False)
     return Response(ser.data)
+
+  @detail_route(permission_classes=[permissions.IsAuthenticated])
+  def payment(self, request, pk = None):
+    pk = request.auth.user if pk == "me" else  pk
+    common = self.find_common(request.auth.user.id, pk);
+    if common is None:
+      raise NotFound(detail="No common payment data.", code=404)
+    return Response(common)
+
+  def find_common(self, me, them):
+    me = models.PaymentData.objects.filter(user__id=me).all()
+    them = models.PaymentData.objects.filter(user__id=them).all()
+   
+    me_hsh = {}
+    for x in me:
+      me_hsh[x.kind] = x
+
+    them_hsh = {}
+    for x in them:
+      them_hsh[x.kind] = x
+
+    for k in models.PaymentData.KINDS:
+      m = me_hsh.get(k, None);
+      t = them_hsh.get(k, None);
+      if m is not None and t is not None:
+        return {
+          'me': serializers.PaymentDataSerializer(m).data,
+          'them': serializers.PaymentDataSerializer(t).data
+        }
+
+    return None
 
 class PaymentDataViewSet(viewsets.ModelViewSet):
   permission_classes = (permissions.IsAuthenticated, OwnedOrReadonly)

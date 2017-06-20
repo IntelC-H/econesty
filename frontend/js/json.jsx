@@ -39,7 +39,11 @@ class JSON extends React.Component {
   get error() { return this.state.error; }
   set error(v) { this.setState((st) => { return {object: null, error: v }}); }
 
-  componentDidMount() { this.load(); }
+  componentDidMount() {
+    if (this.props.autoload == undefined || this.props.autoload) {
+      this.load();
+    }
+  }
 
   load() {
     this.networking.go((res) => this.setState({object: res.body || null, error: res.error || null}));
@@ -52,10 +56,13 @@ class JSON extends React.Component {
 
 class JSONObject extends JSON {
   get isPersisted() { return this.objectID != null; }
-  get objectID() { return (this.state.object || {id: null}).id; }
+  get objectID() { return (this.object || {id: null}).id; }
 
   save() {
-    this.networking.withMethod("PATCH").withBody(this.flattenedObject).go((res) => {
+    this.networking.withMethod(this.isPersisted ? "PATCH" : "POST").withBody(this.flattenedObject).go((res) => {
+      if (!this.isPersisted && (res.error || null) != null) {
+        this.networking = this.networking.appendPath(res.body.id);
+      }
       this.setState({object: res.body || null, error: res.error || null});
     });
   }
@@ -67,13 +74,21 @@ class JSONObject extends JSON {
   // { "user_id": 1, "bar": "baz" }
   get flattenedObject() {
     var n = {};
-    var obj = this.state.object;
+    var obj = this.object;
     for (var k in obj) {
       var v = obj[k];
       var hasID = (v || {}).id != undefined;
       n[hasID ? (k + "_id") : k] = hasID ? v.id : v;
     }
     return n;
+  }
+
+  render() {
+    if (this.isPersisted || this.props.createComponent == undefined) {
+      return super.render();
+    } else {
+      return React.createElement(this.props.createComponent, { element: this }, null);
+    }
   }
 }
 
