@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route, Link, browserHistory } from 'react-router';
-import { Auth, JSON, JSONObject, JSONCollection } from 'app/json';
+import { JSON, JSONObject, JSONCollection } from 'app/json';
 import Networking from 'app/networking';
 
 var body = document.getElementsByTagName("body")[0];
@@ -36,15 +36,21 @@ class Login extends React.Component {
   }
  
   handleLogin() {
-    Auth.authenticate(this.state.username, this.state.password, this.goToUser);
-  }
-
-  goToUser(error) {
-    if (error != null) {
-      this.props.history.push("/login");
-    } else {
-      this.props.history.push("/user/me");
-    }
+    Networking.create.appendPath("api", "token")
+                     .withMethod("POST")
+                     .asJSON()
+                     .withBody({
+                       username: this.state.username,
+                       password: this.state.password
+                     })
+                    .go((res) => {
+      localStorage.setItem("token", (res.body || {token: null}).token);
+      if (res.error != null) {
+        this.props.history.push("/login");
+      } else {
+        this.props.history.push("/user/me");
+      }
+    });
   }
 
   handleUsernameChange(e) {
@@ -94,11 +100,11 @@ class Profile extends React.Component {
   }
 
   buyFrom() {
-    this.props.history.push("/user/" + this.props.match.params.user + "/transaction/buy");
+    this.context.history.push("/user/" + this.props.match.params.user + "/transaction/buy");
   }
 
   sellTo() {
-    this.props.history.push("/user/" + this.props.match.params.user + "/transaction/sell");
+    this.context.history.push("/user/" + this.props.match.params.user + "/transaction/sell");
   }
 }
 
@@ -129,7 +135,7 @@ class TransactionRepresentation extends React.Component {
   render() {
     var e = this.props.element;
     return (
-      <div> 
+      <div>
         <input type="text" defaultValue={e.object.offer} onBlur={(e) => this.handleCurrencyChange(e)} />
         <span>{e.object.offer_currency}</span>
         <a href={"/user/" + e.object.buyer.id}>Buyer: {e.object.buyer.username}</a>
@@ -209,7 +215,7 @@ ReactDOM.render((
        <Route exact path="/" component={HomePage} />
        <Route exact path="/login" component={Login} />
        <Route exact path="/signup" component={Profile} />
-       <Route path='/user/:user' component={Profile} />
+       <Route exact path='/user/:user' component={Profile} />
        <Route path='/user/:user/transaction/:action' component={CreateTransaction} />
      </div>
    </BrowserRouter>

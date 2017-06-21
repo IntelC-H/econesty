@@ -1,35 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'whatwg-fetch';
 import Networking from 'app/networking';
-
-class Auth {
-  static authenticate(username, password, callback) {
-    new Networking().appendPath("api", "token")
-                    .withMethod("POST")
-                    .asJSON()
-                    .withBody({
-                      username: username,
-                      password: password
-                    })
-                   .go((res) => {
-      localStorage.setItem("token", (res.body || {token: null}).token);
-      callback(res.error || null);
-    });
-  }
-
-  static isAuthenticated() {
-    return localStorage.getItem("token") != null;
-  }
-}
+import PropTypes from 'prop-types';
 
 class JSON extends React.Component {
   constructor(props) {
     super(props);
-    this.networking = this.props.networking || (new Networking().appendPath(this.props.path).asJSON().withLocalTokenAuth("token"));
+    this.networking = this.props.networking || (Networking.create.appendPath(this.props.path).asJSON().withLocalTokenAuth("token"));
     this.state = {
-      object: this.props.object || null,
-      error: this.props.error || null
+      object: this.props.object,
+      error: this.props.error
     }
   }
 
@@ -40,9 +20,19 @@ class JSON extends React.Component {
   set error(v) { this.setState((st) => { return {object: null, error: v }}); }
 
   componentDidMount() {
-    if (this.props.autoload == undefined || this.props.autoload) {
+    if (!this.props.deferLoad) {
       this.load();
     }
+  }
+
+  shouldComponentUpdate(newProps, newState) {
+    if (this.state.object !== newState.object) {
+      return true;
+    }
+    if (this.state.error !== newState.error) {
+      return true;
+    }
+    return false; 
   }
 
   load() {
@@ -50,13 +40,60 @@ class JSON extends React.Component {
   }
 
   render() {
+    if (this.error != null) {
+      if (this.props.errorComponent) {
+        return React.createElement(this.props.errorComponent, { element: this }, null);
+      } else {
+        return <div/>
+      }
+    }
+
+    if (this.object != null) {
+      return this.renderJSON();
+    }
+
+    if (this.loadingComponent != null) {
+      return React.createElement(this.props.loadingComponent, { element: this }, null);
+    }
+    return <div/>
+  }
+
+  renderJSON() {
     return React.createElement(this.props.component, { element: this }, null);
   }
 }
 
+JSON.propTypes = {
+  object: PropTypes.shape({ id: PropTypes.number }), // JSON that's been loaded.
+  error: PropTypes.object, // The most recent error encountered.
+  path: PropTypes.string, // Path of resource 
+  networking: PropTypes.instanceOf(Networking),
+  component: PropTypes.func.isRequired, // Function used to render the JSON using React
+  errorComponent: PropTypes.func, // Function used to render an error
+  loadingComponent: PropTypes.func, // Function used to render a loading page
+  deferLoad: PropTypes.bool // Whether or not to load the resource upon mounting
+};
+
+JSON.defaultProps = {
+  error: null,
+  object: null,
+  deferLoad: false,
+  errorComponent: null,
+  loadingComponent: null
+};
+
 class JSONObject extends JSON {
   get isPersisted() { return this.objectID != null; }
   get objectID() { return (this.object || {id: null}).id; }
+  get flattenedObject() {
+    var n = {};
+    for (var k in this.object) {
+      var v = this.object[k];
+      var hasID = (v || {}).id != undefined;
+      n[hasID ? (k + "_id") : k] = hasID ? v.id : v;
+    }
+    return n;
+  }
 
   save() {
     this.networking.withMethod(this.isPersisted ? "PATCH" : "POST").withBody(this.flattenedObject).go((res) => {
@@ -67,52 +104,41 @@ class JSONObject extends JSON {
     });
   }
 
-  // Returns a copy of this.state.object where nested fields with an .id attribute
-  // are flattened:
-  // { "user": { "id": 1 }, "bar": "baz" }
-  // becomes
-  // { "user_id": 1, "bar": "baz" }
-  get flattenedObject() {
-    var n = {};
-    var obj = this.object;
-    for (var k in obj) {
-      var v = obj[k];
-      var hasID = (v || {}).id != undefined;
-      n[hasID ? (k + "_id") : k] = hasID ? v.id : v;
-    }
-    return n;
-  }
-
-  render() {
-    if (this.isPersisted || this.props.createComponent == undefined) {
-      return super.render();
+  renderJSON() {
+    if (this.isPersisted || this.props.createComponent == null) {
+      return super.renderJSON();
     } else {
       return React.createElement(this.props.createComponent, { element: this }, null);
     }
   }
 }
 
+JSONObject.propTypes = Object.assign(JSONObject.propTypes, {
+  createComponent: PropTypes.func
+});
+
+JSONObject.defaultProps = Object.assign(JSONObject.defaultProps, {
+  createComponent: null
+});
+
 // paginated JSON collection.
 class JSONCollection extends JSON {
-  get count() { return (this.object || {}).count; }
+  get count() { return (this.object || {count: 0}).count; }
+  get lastPageNum() { return Math.ceil(this.count/10); }
   get hasNext() { return (this.object || {next: null}).next != null; }
   get hasPrevious() { return (this.object || {previous: null}).previous != null; }
+
+  constructor(props) {
+    super(props);
+    this.next = this.next.bind(this);
+    this.previous = this.previous.bind(this);
+  }
 
   next() {
     if (this.hasNext) {
       this.networking = this.networking.withURL(this.object.next);
       this.load();
     }
-  }
-
-  create(json) {
-    this.networking.withMethod("POST").withBody(json).go((res) => {
-      if ((res.body || null) != null) {
-        this.object = res.body;
-      } else if ((res.error || null) != null) {
-        this.error = res.error;
-      }
-    });
   }
 
   previous() {
@@ -122,30 +148,31 @@ class JSONCollection extends JSON {
     }
   }
 
-  render() {
-    if (this.object != null) {
-      return (
-        <div className="collection">
-          {this.props.headerComponent != undefined && React.createElement(this.props.headerComponent, { collection: this }, null)};
-          {this.hasPrevious && <button className="collection-nav-button" onClick={this.previous}>❮ Previous</button>}
-          {this.hasNext && <button className="collection-nav-button" onClick={this.next}>Next ❯</button>}
-          <div>
-            {this.object.results.map((child, i) => <JSONObject
-                                                    key={i}
-                                                    collection={this}
-                                                    object={child}
-                                                    error={null}
-                                                    networking={this.networking.appendPath(child.id)}
-                                                    component={this.props.component} />)}
-          </div>
+  renderJSON() {
+    return (
+      <div className="collection">
+        {this.props.headerComponent != null && React.createElement(this.props.headerComponent, { collection: this }, null)}
+        <div className="collection-objects">
+          {this.object.results.map((child, i) => <JSONObject
+                                                  key={child.id}
+                                                  object={child}
+                                                  networking={this.networking.appendPath(child.id)}
+                                                  component={this.props.component} />)}
         </div>
-      ); 
-    } else if (this.error != null) {
-      return <h1>{this.error.message}</h1>;
-    } else {
-      return <div></div>;
-    }
+        {this.hasPrevious && <button className="collection-nav-button" onClick={this.previous}>❮ Previous</button>}
+        {this.hasNext && <button className="collection-nav-button" onClick={this.next}>Next ❯</button>}
+      </div>
+    ); 
   }
 }
 
-export { Auth, JSON, JSONObject, JSONCollection }
+JSONCollection.propTypes = Object.assign(JSONCollection.propTypes, {
+  headerComponent: PropTypes.func
+});
+
+JSONCollection.defaultProps = Object.assign(JSONCollection.defaultProps, {
+  headerComponent: null
+});
+
+export { JSON, JSONObject, JSONCollection }
+

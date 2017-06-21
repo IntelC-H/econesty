@@ -1,5 +1,7 @@
 import 'whatwg-fetch';
 
+// TODO: Don't load auth tokens until formattedURL
+
 /*
 
 new Networking().appendPath("path", "to", "resource").asJSON().withMethod("POST").withAuth("Token 38495782947").withBody({ foo: "bar" }).go((res) => {
@@ -109,33 +111,19 @@ export default class Networking {
     return that;
   }
 
+  // .withURL(url)
+  // +chainable
+  // url: 
+  // Sets the Networking instance to use the url url.
   withURL(url) {
     var that = copy(this);
-    var p = parseURL(url);
+    var p = this.parseURL(url);
     that.pathComps = p.pathComponents;
     that.host = p.host;
     that.protocol = p.protocol;
     that.urlParams = p.query;
     return that;
   }
-
-  parseQueryString(q) {
-    return (q.startsWith("?")?q.slice(1):q).split("&").map((v) => v.split("=")).reduce((a, v) => (a || {})[v[0]] = v[1]);
-  }
-
-  parseURL(href) {
-    var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
-    return match && {
-        href: href,
-        protocol: match[1],
-        host: match[2],
-        hostname: match[3],
-        port: match[4],
-        pathComponents: match[5].split("/").filter((v) => v.length > 0),
-        query: this.parseQueryString(match[6]),
-        hash: match[7]
-    }
-  } 
 
   // .withURLParam(k, v)
   // k: url param name
@@ -148,6 +136,8 @@ export default class Networking {
     return that;
   }
 
+  // formattedURL
+  // The completely formatted URL that this Networking uses.
   get formattedURL() {
     var url = (this.protocol || window.location.protocol) + "//" + (this.host || window.location.host) + "/";
     url += this.pathComps.join("/");
@@ -200,4 +190,32 @@ export default class Networking {
       callback({ body: body });
     });
   }
+
+  // PRIVATE
+
+  parseQueryString(q) {
+    var qp = q.startsWith("?") ? q.slice(1) : q;
+    var a = qp.split("&");
+    var b = a.map((v) => v.split("="));
+    var c = b.reduce((a, v) => {
+      var ap = a || {};
+      ap[v[0]] = v[1];
+      return ap;
+    });
+    return c;
+  }
+
+  parseURL(href) {
+    var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+    return match && {
+        href: href,
+        protocol: match[1],
+        host: match[2],
+        hostname: match[3],
+        port: match[4],
+        pathComponents: match[5].split("/").filter((v) => v.length > 0),
+        query: this.parseQueryString(match[6]),
+        hash: match[7]
+    }
+  } 
 }
