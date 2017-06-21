@@ -95,6 +95,8 @@ class JSONObject extends JSON {
     return n;
   }
 
+  // TODO: custom save action!
+  // onSave?
   save() {
     this.networking.withMethod(this.isPersisted ? "PATCH" : "POST").withBody(this.flattenedObject).go((res) => {
       if (!this.isPersisted && (res.error || null) != null) {

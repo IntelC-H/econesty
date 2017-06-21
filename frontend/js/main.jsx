@@ -100,11 +100,11 @@ class Profile extends React.Component {
   }
 
   buyFrom() {
-    this.context.history.push("/user/" + this.props.match.params.user + "/transaction/buy");
+    this.props.history.push("/user/" + this.props.match.params.user + "/transaction/buy");
   }
 
   sellTo() {
-    this.context.history.push("/user/" + this.props.match.params.user + "/transaction/sell");
+    this.props.history.push("/user/" + this.props.match.params.user + "/transaction/sell");
   }
 }
 
@@ -150,13 +150,21 @@ class TransactionRepresentation extends React.Component {
   }
 }
 
-// TODO: create-or-render component
-
+// TODO: redirect
 class CreateTransaction extends React.Component {
   constructor(props) {
     super(props);
     this.create = this.create.bind(this);
     this.renderCreateForm = this.renderCreateForm.bind(this);
+  }
+
+  get isBuyer() {
+    return this.props.match.params["action"] == "buy";
+  }
+
+  get otherUserId() {
+    var u = this.props.match.params["user"];
+    return parseInt(this.props.match.params["user"]);
   }
 
   render() {
@@ -168,6 +176,11 @@ class CreateTransaction extends React.Component {
     e.state.object = e.object || {};
     return (
       <div>
+        <JSONObject path={"/api/user/" + this.otherUserId + "/"} component={(props) => {
+          return (
+            <h3>{this.isBuyer ? "Buying from" : "Selling to"} @{props.element.object.username}</h3>
+          );
+        }} />
         <input type="text" placeholder="offer" onChange={(ev) => e.object.offer = parseInt(ev.target.value)}/>
         <input type="text" placeholder="currency" onChange={(ev) => e.object.offer_currency = ev.target.value}/>
         <button onClick={(_) => this.create(props.element)}>Create Transaction</button>
@@ -176,22 +189,15 @@ class CreateTransaction extends React.Component {
   }
 
   create(element) {
-    var otherId = parseInt(this.props.match.params.user);
-    var isBuyer = this.props.match.params.action == "buy";
-
     var n = Networking.create.appendPath("api").asJSON().withLocalTokenAuth("token");
     n.appendPath("user", "me").go((user) => {
       var meId = parseInt(user.body.id);
-      if (otherId == "me") {
-        otherId = meId;
-      }
-      n.appendPath("user", otherId, "payment").go((payment) => {
+      n.appendPath("user", this.otherUserId || meId, "payment").go((payment) => {
         element.object = element.object || {};
-        element.object.buyer_id = isBuyer ? meId : otherId;
-        element.object.buyer_payment_data_id = isBuyer ? payment.body.me.id : payment.body.them.id;
-        element.object.seller_id = isBuyer ? otherId : meId;
-        element.object.seller_payment_data_id = isBuyer ? payment.body.them.id : payment.body.me.id;
-        element.object.required_witnesses = 0;
+        element.object.buyer_id = this.isBuyer ? meId : (this.otherUserId || meId);
+        element.object.buyer_payment_data_id = this.isBuyer ? payment.body.me.id : payment.body.them.id;
+        element.object.seller_id = this.isBuyer ? (this.otherUserId || meId) : meId;
+        element.object.seller_payment_data_id = this.isBuyer ? payment.body.them.id : payment.body.me.id;
         element.save();
       });
     });
@@ -216,7 +222,7 @@ ReactDOM.render((
        <Route exact path="/login" component={Login} />
        <Route exact path="/signup" component={Profile} />
        <Route exact path='/user/:user' component={Profile} />
-       <Route path='/user/:user/transaction/:action' component={CreateTransaction} />
+       <Route exact path='/user/:user/transaction/:action' component={CreateTransaction} />
      </div>
    </BrowserRouter>
 ), container);
