@@ -185,9 +185,9 @@ export default class Networking {
     }).then((res) => {
       return this.isJSON ? res.json() : res.text();
     }).catch((err) => {
-      callback({ error: err })
+      callback({ error: err, body: null })
     }).then((body) => {
-      callback({ body: body });
+      callback({ error: null, body: body });
     });
   }
 

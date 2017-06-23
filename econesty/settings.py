@@ -130,6 +130,7 @@ USE_TZ = True
 
 STATIC_URL = '/code/'
 STATICFILES_DIRS = [
-  os.path.join(BASE_DIR, ".econesty_webpack_build")
+  os.path.join(BASE_DIR, ".econesty_webpack_build"),
+  os.path.join(BASE_DIR, "frontend")
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, ".static")

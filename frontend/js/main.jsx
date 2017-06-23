@@ -2,8 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route, Link, browserHistory } from 'react-router';
-import { JSON, JSONObject, JSONCollection } from 'app/json';
+import { JSON, JSONObject, JSONCollection, JSONSearchField } from 'app/json';
 import Networking from 'app/networking';
+import User from 'app/layout/repr/user';
+import 'style/main';
 
 var body = document.getElementsByTagName("body")[0];
 var container = document.createElement("div");
@@ -91,7 +93,7 @@ class Profile extends React.Component {
   render() {
     return (
       <div>
-        <JSONObject path={"/api/user/" + this.props.match.params.user + "/"} component={UserRepresentation} />
+        <JSONObject path={"/api/user/" + this.props.match.params.user + "/"} component={User} />
         <button onClick={this.buyFrom}>Buy From</button>
         <button onClick={this.sellTo}>Sell To</button>
         <JSONCollection path="/api/transaction/" component={TransactionRepresentation} />
@@ -108,23 +110,6 @@ class Profile extends React.Component {
   }
 }
 
-class UserRepresentation extends React.Component {
-  render() {
-    var element = this.props.element;
-    if (element.isPersisted) {
-      if (element.error != null) {
-        return <h1>Error: {element.error}</h1>;
-      } else if (element.object != null) {
-        var user = element.object;
-        return <h1>Welcome, @{user.username}!</h1>;
-      } else {
-        return <h3></h3>;
-      }
-    } else {
-      return <h1>Signup Needed</h1>;
-    } 
-  }
-}
 
 class TransactionRepresentation extends React.Component {
   constructor(props) {
@@ -138,8 +123,8 @@ class TransactionRepresentation extends React.Component {
       <div>
         <input type="text" defaultValue={e.object.offer} onBlur={(e) => this.handleCurrencyChange(e)} />
         <span>{e.object.offer_currency}</span>
-        <a href={"/user/" + e.object.buyer.id}>Buyer: {e.object.buyer.username}</a>
-        <a href={"/user/" + e.object.seller.id}>Seller: {e.object.seller.username}</a>
+        <a href={"/user/" + e.object.buyer.id}>&nbsp;Buyer: {e.object.buyer.username}</a>
+        <a href={"/user/" + e.object.seller.id}>&nbsp;Seller: {e.object.seller.username}</a>
       </div>
     );
   }
@@ -206,9 +191,13 @@ class CreateTransaction extends React.Component {
 
 class Header extends React.Component {
   render() {
+    var inline = { display: "inline-block", padding: "5px" };
     return (
-      <div>
-        <h1>Econesty</h1>
+      <div style={{ backgroundColor: "blue" }}>
+        <ul style={{ listStyleType: "none", padding: "0", margin: "0" }}>
+          <li style={inline}><h1>Econesty</h1></li>
+          <li style={inline}><JSONSearchField path="/api/user/" component={(props) => <a href={"/user/" + props.element.object.id.toString()}>{props.element.object.username}\n</a>} placeholder="Search Users" /></li>
+        </ul>
       </div>
     );
   }

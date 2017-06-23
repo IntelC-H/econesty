@@ -15,42 +15,32 @@ class JSON extends React.Component {
 
   get object() { return this.state.object; }
   set object(v) { this.setState((st) => { return {object: v, error: null }}); }
-
   get error() { return this.state.error; }
   set error(v) { this.setState((st) => { return {object: null, error: v }}); }
 
   componentDidMount() {
-    if (!this.props.deferLoad) {
-      this.load();
-    }
+    if (!this.props.deferLoad) this.load();
   }
 
   shouldComponentUpdate(newProps, newState) {
-    if (this.state.object !== newState.object) {
-      return true;
-    }
-    if (this.state.error !== newState.error) {
-      return true;
-    }
+    if (this.state.object !== newState.object) return true;
+    if (this.state.error !== newState.error) return true;
     return false; 
   }
 
   load() {
-    this.networking.go((res) => this.setState({object: res.body || null, error: res.error || null}));
+    this.networking.go((res) => this.setState({object: res.body, error: res.error}));
   }
 
   render() {
     if (this.error != null) {
       if (this.props.errorComponent) {
         return React.createElement(this.props.errorComponent, { element: this }, null);
-      } else {
-        return <div/>
       }
+      return <div/>;
     }
 
-    if (this.object != null) {
-      return this.renderJSON();
-    }
+    if (this.object != null) return this.renderJSON();
 
     if (this.loadingComponent != null) {
       return React.createElement(this.props.loadingComponent, { element: this }, null);
@@ -89,8 +79,7 @@ class JSONObject extends JSON {
     var n = {};
     for (var k in this.object) {
       var v = this.object[k];
-      var hasID = (v || {}).id != undefined;
-      n[hasID ? (k + "_id") : k] = hasID ? v.id : v;
+      v.hasOwnProperty("id") ? (n[k + "_id"] = v.id) : (n[k] = v);
     }
     return n;
   }
@@ -99,10 +88,14 @@ class JSONObject extends JSON {
   // onSave?
   save() {
     this.networking.withMethod(this.isPersisted ? "PATCH" : "POST").withBody(this.flattenedObject).go((res) => {
-      if (!this.isPersisted && (res.error || null) != null) {
-        this.networking = this.networking.appendPath(res.body.id);
+      if (res.error != null) {
+        this.setState({object: this.object, error: res.error});
+      } else {
+        if (!this.isPersisted) {
+          this.networking = this.networking.appendPath(res.body.id);
+        }
+        this.setState({object: res.body, error: res.error});
       }
-      this.setState({object: res.body || null, error: res.error || null});
     });
   }
 
@@ -125,15 +118,23 @@ JSONObject.defaultProps = Object.assign(JSONObject.defaultProps, {
 
 // paginated JSON collection.
 class JSONCollection extends JSON {
-  get count() { return (this.object || {count: 0}).count; }
+  get count() { return (this.object || {}).count || 0; }
   get lastPageNum() { return Math.ceil(this.count/10); }
-  get hasNext() { return (this.object || {next: null}).next != null; }
-  get hasPrevious() { return (this.object || {previous: null}).previous != null; }
+  get hasNext() { return (this.object || {}).next != null; }
+  get hasPrevious() { return (this.object || {}).previous != null; }
 
   constructor(props) {
     super(props);
     this.next = this.next.bind(this);
     this.previous = this.previous.bind(this);
+    this.setPage = this.setPage.bind(this);
+  }
+
+  setPage(p) {
+    if (p > 0 && p <= this.lastPageNum) {
+      this.networking = this.networking.withURLParam("page", p.toString());
+      this.load();
+    }
   }
 
   next() {
@@ -151,6 +152,14 @@ class JSONCollection extends JSON {
   }
 
   renderJSON() {
+    var pageLinks = [];
+    for (var i = 1; i <= this.lastPageNum; i++) {
+      var j = i;
+      pageLinks.push(<button key={i} value={i} onClick={(e) => {
+       console.log(e.target.value);
+       this.setPage(e.target.value);
+     }}>{i.toString()}</button>);
+    }
     return (
       <div className="collection">
         {this.props.headerComponent != null && React.createElement(this.props.headerComponent, { collection: this }, null)}
@@ -163,6 +172,7 @@ class JSONCollection extends JSON {
         </div>
         {this.hasPrevious && <button className="collection-nav-button" onClick={this.previous}>❮ Previous</button>}
         {this.hasNext && <button className="collection-nav-button" onClick={this.next}>Next ❯</button>}
+        {pageLinks}
       </div>
     ); 
   }
@@ -176,5 +186,53 @@ JSONCollection.defaultProps = Object.assign(JSONCollection.defaultProps, {
   headerComponent: null
 });
 
-export { JSON, JSONObject, JSONCollection }
+// TODO: Should inherit from JSONCollection
+class JSONSearchField extends JSON {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this); 
+  }
+
+  handleChange(e) {
+    this.networking = this.networking.withURLParam("search", e.target.value);
+    this.load();
+  }
+
+  renderJSON() {
+    return (
+      <div className="searchfield">
+        <input type="text" onChange={this.handleChange} placeholder={this.props.placeholder} />
+        <div className="searchfield-dropdown" style={{zindex: "100", position: "absolute"}}>
+          <span>Showing {this.object.results.length} of {this.object.count}</span>
+          {this.object.results.map((res) => <JSONObject
+                                             key={res.id} object={res}
+                                             networking={this.networking.appendPath(res.id)}
+                                             component={this.props.component} />)}
+        </div>
+      </div>
+    );
+  }
+}
+
+JSONSearchField.propTypes = Object.assign(JSONSearchField.propTypes, {
+  placeholder: PropTypes.string
+});
+
+JSONSearchField.defaultProps = Object.assign(JSONSearchField.defaultProps, {
+  placeholder: "search"
+});
+
+class JSONComponent extends React.Component {
+  get json() { return this.props.element.object; }
+  get isPersisted() { return this.props.element.isPersisted; }
+  save() {
+    this.props.element.save();
+  }
+}
+
+JSONComponent.propTypes = {
+  element: PropTypes.instanceOf(JSONObject).isRequired
+};
+
+export { JSON, JSONObject, JSONCollection, JSONSearchField, JSONComponent }
 
