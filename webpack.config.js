@@ -2,6 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 //var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var pkg = require("./package.json");
 
 module.exports = {
@@ -37,6 +38,7 @@ module.exports = {
     extensions: ['.js', '.jsx', '.scss'],
   },
   plugins: [
+    new ProgressBarPlugin(),
     new ExtractTextPlugin('app.css'),
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
