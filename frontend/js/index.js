@@ -1,2 +1,2 @@
-import 'app/main';
-import 'style/main';
+import 'app/main'; // import our JavaScript
+import 'style/main'; // import our SCSS

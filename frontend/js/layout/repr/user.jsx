@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { JSONComponent } from 'app/json';
 
 export default class User extends JSONComponent {

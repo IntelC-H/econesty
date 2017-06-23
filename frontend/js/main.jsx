@@ -5,6 +5,8 @@ import { Switch, Route, Link, browserHistory } from 'react-router';
 import { JSON, JSONObject, JSONCollection, JSONSearchField } from 'app/json';
 import Networking from 'app/networking';
 import User from 'app/layout/repr/user';
+import Transaction from 'app/layout/repr/transaction';
+import TextField from 'app/layout/element/textfield';
 
 var body = document.getElementsByTagName("body")[0];
 var container = document.createElement("div");
@@ -94,7 +96,7 @@ class Profile extends React.Component {
         <JSONObject path={"/api/user/" + this.props.match.params.user + "/"} component={User} />
         <button onClick={this.buyFrom}>Buy From</button>
         <button onClick={this.sellTo}>Sell To</button>
-        <JSONCollection path="/api/transaction/" component={TransactionRepresentation} />
+        <JSONCollection path="/api/transaction/" component={Transaction} />
       </div>
     );
   }
@@ -105,31 +107,6 @@ class Profile extends React.Component {
 
   sellTo() {
     this.props.history.push("/user/" + this.props.match.params.user + "/transaction/sell");
-  }
-}
-
-
-class TransactionRepresentation extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleCurrencyChange = this.handleCurrencyChange.bind(this);
-  }
-
-  render() {
-    var e = this.props.element;
-    return (
-      <div>
-        <input type="text" defaultValue={e.object.offer} onBlur={(e) => this.handleCurrencyChange(e)} />
-        <span>{e.object.offer_currency}</span>
-        <a href={"/user/" + e.object.buyer.id}>&nbsp;Buyer: {e.object.buyer.username}</a>
-        <a href={"/user/" + e.object.seller.id}>&nbsp;Seller: {e.object.seller.username}</a>
-      </div>
-    );
-  }
-
-  handleCurrencyChange(e) {
-    this.props.element.object.offer = parseFloat(e.target.value);
-    this.props.element.save();
   }
 }
 
@@ -151,7 +128,7 @@ class CreateTransaction extends React.Component {
   }
 
   render() {
-    return <JSONObject path="/api/transaction/" autoload={false} component={TransactionRepresentation} createComponent={this.renderCreateForm} />;
+    return <JSONObject path="/api/transaction/" autoload={false} component={Transaction} createComponent={this.renderCreateForm} />;
   }
 
   renderCreateForm(props) {
@@ -188,15 +165,31 @@ class CreateTransaction extends React.Component {
 }
 
 class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.showUserInSearch = this.showUserInSearch.bind(this);
+  }
+
   render() {
     return (
       <div className="header">
         <ul>
-          <li><h1>Econesty</h1></li>
-          <li><JSONSearchField path="/api/user/" component={(props) => <a href={"/user/" + props.element.object.id.toString()}>{props.element.object.username}\n</a>} placeholder="Search Users" /></li>
+          <li>Econesty</li>
+          <li><JSONSearchField path="/api/user/" component={this.showUserInSearch} placeholder="Search Users" /></li>
         </ul>
       </div>
     );
+  }
+
+  showUserInSearch(props) {
+    var obj = props.element.object;
+    return <div><a className="primary" href={"/user/" + obj.id.toString()}>{obj.username}</a></div>;
+  }
+}
+
+class Testbed extends React.Component {
+  render() {
+    return <TextField label="Label" text="" />
   }
 }
 
@@ -204,11 +197,14 @@ ReactDOM.render((
    <BrowserRouter>
      <div>
        <Header/>
-       <Route exact path="/" component={HomePage} />
-       <Route exact path="/login" component={Login} />
-       <Route exact path="/signup" component={Profile} />
-       <Route exact path='/user/:user' component={Profile} />
-       <Route exact path='/user/:user/transaction/:action' component={CreateTransaction} />
+       <div className="content">
+         <Route exact path="/" component={HomePage} />
+         <Route exact path="/login" component={Login} />
+         <Route exact path="/signup" component={Profile} />
+         <Route exact path='/user/:user' component={Profile} />
+         <Route exact path='/user/:user/transaction/:action' component={CreateTransaction} />
+         <Route exact path='/testbed' component={Testbed} />
+       </div>
      </div>
    </BrowserRouter>
 ), container);

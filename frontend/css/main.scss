@@ -1,24 +1,63 @@
 @import "palette";
 
-.header {
+body {
+  background-color: $primary-color-light;
+}
+
+$header-font-size: 30px;
+$header-height: $header-font-size + 16;
+
+.header > ul {
+  list-style-type: none;
   background-color: $primary-color;
   color: $primary-color-text;
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-
-    li {
-      display: inline-block;
-      padding: 5px;
-    }
+  padding: 0px;
+  margin: 0px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  list-style: none;
+  height: $header-height;
+  li {
+    display: inline-block;
+    vertical-align: middle;
   }
+}
+
+.content {
+  top: $header-height;
+  position: relative; 
 }
 
 .searchfield {
   .searchfield-dropdown {
     zindex: 100;
     position: absolute;
+    background-color: $primary-color-light;
+    color: $primary-color-text;
+    margin: 0px;
+    padding: 5px;
+  }
+}
+
+hr {
+  color: $divider-color;
+  height: 1px; // material design says that dividers should be thin.
+}
+
+a {
+  &:visited, &:link {
+    text-decoration: none;
+  }
+
+  // When hovering over
+  &:hover {
+    color: $accent-color;
+  }
+
+  // When clicking down
+  &:active {
+
   }
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Networking from 'app/networking';
 import PropTypes from 'prop-types';
+import TextField from 'app/layout/element/textfield';
 
 // TODO: caching using browser sessionStorage
 
@@ -81,7 +82,7 @@ class JSONObject extends JSON {
     var n = {};
     for (var k in this.object) {
       var v = this.object[k];
-      v.hasOwnProperty("id") ? (n[k + "_id"] = v.id) : (n[k] = v);
+      (v || {}).hasOwnProperty("id") ? (n[k + "_id"] = v.id) : (n[k] = v);
     }
     return n;
   }
@@ -92,7 +93,7 @@ class JSONObject extends JSON {
     this.networking.withMethod(this.isPersisted ? "PATCH" : "POST").withBody(this.flattenedObject).go((res) => {
       if (res.error != null) {
         this.setState({object: this.object, error: res.error});
-      } else {
+      } else if (res.body) {
         if (!this.isPersisted) {
           this.networking = this.networking.appendPath(res.body.id);
         }
@@ -195,37 +196,39 @@ class JSONSearchField extends JSON {
     this.handleChange = this.handleChange.bind(this);
     this.onFocus = this.onFocus.bind(this);
     this.onBlur = this.onBlur.bind(this);
+    this.showsResults = false;
   }
 
-  handleChange(e) {
-    this.networking = this.networking.withURLParam("search", e.target.value);
+  handleChange(tf) {
+    this.networking = this.networking.withURLParam("search", tf.text);
     this.load();
   }
 
   renderJSON() {
     return (
       <div className="searchfield">
-        <input type="text"
-               onChange={this.handleChange}
+        <TextField onChange={this.handleChange}
                onFocus={this.onFocus} onBlur={this.onBlur}
-               placeholder={this.props.placeholder} />
-        <div className="searchfield-dropdown">
+               label={this.props.placeholder} />
+        {this.showsResults && <div className="searchfield-dropdown">
           <span>Showing {this.object.results.length} of {this.object.count}</span>
           {this.object.results.map((res) => <JSONObject
                                              key={res.id} object={res}
                                              networking={this.networking.appendPath(res.id)}
                                              component={this.props.component} />)}
-        </div>
+        </div>}
       </div>
     );
   }
 
   onFocus() {
-
+    this.showsResults = true;
+    this.forceUpdate();
   }
 
   onBlur() {
-
+    this.showsResults = false;
+    this.forceUpdate();
   }
 }
 
@@ -240,9 +243,7 @@ JSONSearchField.defaultProps = Object.assign(JSONSearchField.defaultProps, {
 class JSONComponent extends React.Component {
   get json() { return this.props.element.object; }
   get isPersisted() { return this.props.element.isPersisted; }
-  save() {
-    this.props.element.save();
-  }
+  save() { this.props.element.save(); }
 }
 
 JSONComponent.propTypes = {
