@@ -2,14 +2,16 @@ var path = require('path');
 var webpack = require('webpack');
 //var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-// TODO: bundle CSS
+var pkg = require("./package.json");
 
 module.exports = {
-  entry: ['./frontend/js/index.js'],
+  entry: {
+    app: ['./frontend/js/index.js'],
+    vendor: Object.keys(pkg.dependencies)
+  },
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
-    filename: 'app.js',
+    filename: '[name].js',
   },
   module: {
     loaders: [
@@ -35,7 +37,11 @@ module.exports = {
     extensions: ['.js', '.jsx', '.scss'],
   },
   plugins: [
-    new ExtractTextPlugin('app.css')
+    new ExtractTextPlugin('app.css'),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: "vendor",
+      minChunks: Infinity
+    })
 //    new UglifyJSPlugin({comments: false})
   ]
 };

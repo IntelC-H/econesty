@@ -1,5 +1,24 @@
-$primary-color: #333;
+@import "palette";
 
-body {
-  color: $primary-color;
+.header {
+  background-color: $primary-color;
+  color: $primary-color-text;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      display: inline-block;
+      padding: 5px;
+    }
+  }
+}
+
+.searchfield {
+  .searchfield-dropdown {
+    zindex: 100;
+    position: absolute;
+  }
 }

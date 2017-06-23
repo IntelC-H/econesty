@@ -5,12 +5,10 @@ import { Switch, Route, Link, browserHistory } from 'react-router';
 import { JSON, JSONObject, JSONCollection, JSONSearchField } from 'app/json';
 import Networking from 'app/networking';
 import User from 'app/layout/repr/user';
-import 'style/main';
 
 var body = document.getElementsByTagName("body")[0];
 var container = document.createElement("div");
 body.appendChild(container);
-// TODO: caching using browser sessionStorage
 
 // Login
 
@@ -191,12 +189,11 @@ class CreateTransaction extends React.Component {
 
 class Header extends React.Component {
   render() {
-    var inline = { display: "inline-block", padding: "5px" };
     return (
-      <div style={{ backgroundColor: "blue" }}>
-        <ul style={{ listStyleType: "none", padding: "0", margin: "0" }}>
-          <li style={inline}><h1>Econesty</h1></li>
-          <li style={inline}><JSONSearchField path="/api/user/" component={(props) => <a href={"/user/" + props.element.object.id.toString()}>{props.element.object.username}\n</a>} placeholder="Search Users" /></li>
+      <div className="header">
+        <ul>
+          <li><h1>Econesty</h1></li>
+          <li><JSONSearchField path="/api/user/" component={(props) => <a href={"/user/" + props.element.object.id.toString()}>{props.element.object.username}\n</a>} placeholder="Search Users" /></li>
         </ul>
       </div>
     );

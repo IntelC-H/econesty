@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import Networking from 'app/networking';
 import PropTypes from 'prop-types';
 
+// TODO: caching using browser sessionStorage
+
 class JSON extends React.Component {
   constructor(props) {
     super(props);
@@ -190,7 +192,9 @@ JSONCollection.defaultProps = Object.assign(JSONCollection.defaultProps, {
 class JSONSearchField extends JSON {
   constructor(props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this); 
+    this.handleChange = this.handleChange.bind(this);
+    this.onFocus = this.onFocus.bind(this);
+    this.onBlur = this.onBlur.bind(this);
   }
 
   handleChange(e) {
@@ -201,8 +205,11 @@ class JSONSearchField extends JSON {
   renderJSON() {
     return (
       <div className="searchfield">
-        <input type="text" onChange={this.handleChange} placeholder={this.props.placeholder} />
-        <div className="searchfield-dropdown" style={{zindex: "100", position: "absolute"}}>
+        <input type="text"
+               onChange={this.handleChange}
+               onFocus={this.onFocus} onBlur={this.onBlur}
+               placeholder={this.props.placeholder} />
+        <div className="searchfield-dropdown">
           <span>Showing {this.object.results.length} of {this.object.count}</span>
           {this.object.results.map((res) => <JSONObject
                                              key={res.id} object={res}
@@ -211,6 +218,14 @@ class JSONSearchField extends JSON {
         </div>
       </div>
     );
+  }
+
+  onFocus() {
+
+  }
+
+  onBlur() {
+
   }
 }
 
