@@ -1,6 +1,7 @@
 import React from 'react';
 import { JSONComponent } from 'app/json';
 import TextField from 'app/layout/element/textfield';
+import 'style/transaction';
 
 export default class Transaction extends JSONComponent {
   constructor(props) {
@@ -11,11 +12,18 @@ export default class Transaction extends JSONComponent {
 
   render() {
     return (
-      <div>
-        <TextField label="Offer" text={this.json.offer} onChange={this.handleOfferChange} />
-        <TextField label="Currency" maxLength={3} text={this.json.offer_currency} onChange={this.handleCurrencyChange} />
-        <a href={"/user/" + this.json.buyer.id}>Buyer: {this.json.buyer.username}</a>
-        <a href={"/user/" + this.json.seller.id}>Seller: {this.json.seller.username}</a>
+      <div className="transaction">
+        <div className="left-box">
+          <TextField label="Offer" text={this.json.offer} onChange={this.handleOfferChange} />
+          <TextField label="Currency" maxLength={3} text={this.json.offer_currency} onChange={this.handleCurrencyChange} />
+        </div>
+        <div className="center-box">
+          <a href={"/user/" + this.json.buyer.id}>View Buyer</a>
+          <a href={"/user/" + this.json.seller.id}>View Seller</a>
+        </div>
+        <div className="right-box">
+
+        </div>
       </div>
     );
   }

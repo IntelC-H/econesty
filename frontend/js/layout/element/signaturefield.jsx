@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import PropTypes from 'prop-types';
 
 // SignatureField
 // props:
@@ -9,6 +9,8 @@ import ReactDOM from 'react-dom';
 // - lineWidth - how thick the "pen" appears
 // - style - the style for the canvas element
 // - signature - If present, display this and don't allow editing
+
+// TODO: prop-types
 
 export default class SignatureField extends React.Component {
   constructor(props) {

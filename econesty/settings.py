@@ -79,6 +79,8 @@ TEMPLATES = [
     },
 ]
 
+APPEND_SLASH = True
+
 WSGI_APPLICATION = 'econesty.wsgi.application'
 
 

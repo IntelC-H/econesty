@@ -1,0 +1,47 @@
+@import "palette";
+@import "constants";
+@import "fonts";
+
+.header > ul {
+  z-index: 70;
+  list-style-type: none;
+  background: $primary-color;
+  color: $primary-color-text;
+  padding: 0px;
+  margin: 0px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  list-style: none;
+  height: $header-height;
+  li {
+    padding: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: $header-font-size;
+    font-family: 'Open Sans', sans-serif;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+.searchfield {
+  .searchfield-dropdown {
+    z-index: 100;
+    position: fixed;
+    background: $primary-color-light;
+    color: $primary-color-text;
+    margin: 0px;
+    padding: 5px;
+  }
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+

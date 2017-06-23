@@ -3,11 +3,14 @@
 
 $textfield-padding: 8px;
 $textfield-fontsize: 16px;
-$textfield-width: 100px;
+$textfield-width: 120px;
 
 .textfield {
+  vertical-align: initial;
+  font-size: initial;
   line-height: initial;
-  height: ($textfield-padding * 3) + $textfield-fontsize;
+  height: ($textfield-padding * 4) + $textfield-fontsize;
+  margin: 0;
   input[type=text], input[type=password] {
     padding-bottom: $textfield-padding; 
     padding-top: $textfield-padding * 2;
@@ -21,7 +24,7 @@ $textfield-width: 100px;
       border: none;
 
       & ~ .textfield-bar:before, & ~ .textfield-bar:after {
-        width: ($textfield-width/2);
+        width: 50%;
       }
     }
 
@@ -49,7 +52,7 @@ $textfield-width: 100px;
 
     &:before, &:after {
       content: '';
-      height: 2px; 
+      height: 1px; 
       width: 0;
       bottom: 1px; 
       position: absolute;
@@ -58,11 +61,11 @@ $textfield-width: 100px;
     }
 
     &:before {
-      left: ($textfield-width/2);
+      left: 50%;
     }
 
     &:after {
-      right: ($textfield-width/2);
+      right: 50%;
     }
   }
 }

@@ -9,6 +9,8 @@ export default class TextField extends React.Component {
       text: this.props.text
     }
     this.onChange = this.onChange.bind(this);
+    this.onBlur = this.onBlur.bind(this);
+    this.onFocus = this.onFocus.bind(this);
   }
 
   get text() { return this.state.text; }
@@ -28,18 +30,29 @@ export default class TextField extends React.Component {
                value={this.text}
                type={this.isSecure ? "password" : "text"}
                maxLength={Number(this.props.maxLength)}
-               onFocus={(_) => this.props.onChange(this)}
-               onBlur={(_) => this.props.onBlur(this)}
-               onChange={this.onChange} />
+               onFocus={this.onFocus}
+               onBlur={this.onBlur}
+               onChange={(e) => this.onChange(e)} />
         <div className="textfield-bar" />
         <label className="textfield-label">{this.props.label}</label>
       </div>
     );
   }
 
+  onFocus(e) {
+    this.props.onFocus(this);
+  }
+
+  onBlur(e) {
+    this.props.onBlur(this);
+  }
+
   onChange(e) {
-    this.text = e.target.value;
+    console.log("HERE");
+    console.log(e);
+    this.state.text = e.target.value;
     this.props.onChange(this);
+    this.forceUpdate();
   }
 }
 

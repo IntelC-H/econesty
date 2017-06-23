@@ -1,0 +1,23 @@
+@import "palette";
+@import "constants";
+
+.transaction {
+  margin: 5px;
+  height: 150px;
+  width: 100%;
+  .left-box {
+    display: inline-block;
+    width: 40%;
+  }
+  .center-box {
+    display: inline-block;
+    width: 35%;
+    * {
+      display: block;
+    }
+  }
+  .right-box {
+    display: inline-block;
+    width: 25%; 
+  }
+}
