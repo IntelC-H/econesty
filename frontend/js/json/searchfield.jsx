@@ -5,6 +5,7 @@ import TextField from 'app/layout/element/textfield';
 import JSONBase from 'app/json/base';
 import JSONObject from 'app/json/object';
 
+// FIXME: clicking in the dropdown closes the dropdown. This is unworkable.
 // TODO: Should inherit from JSONCollection
 export default class JSONSearchField extends JSONBase {
   constructor(props) {
@@ -27,7 +28,7 @@ export default class JSONSearchField extends JSONBase {
                onFocus={this.onFocus} onBlur={this.onBlur}
                label={this.props.label} />
         {this.showsResults && <div className="searchfield-dropdown">
-          <span>Showing {this.object.results.length} of {this.object.count}</span>
+          {this.props.headerComponent != null && React.createElement(this.props.headerComponent, { element: this }, null)}
           {this.object.results.map((res) => <JSONObject
                                              key={res.id} object={res}
                                              networking={this.networking.appendPath(res.id)}
@@ -49,9 +50,11 @@ export default class JSONSearchField extends JSONBase {
 }
 
 JSONSearchField.propTypes = Object.assign(JSONBase.propTypes, {
-  label: PropTypes.string
+  label: PropTypes.string,
+  headerComponent: PropTypes.func
 });
 
 JSONSearchField.defaultProps = Object.assign(JSONBase.defaultProps, {
-  label: "search"
+  label: "search",
+  headerComponent: null
 });
