@@ -42,7 +42,7 @@ export default class JSONCollection extends JSONBase {
   renderJSON() {
     var pageLinks = [];
     for (var i = 1; i <= this.lastPageNum; i++) {
-      pageLinks.push(<button key={i} value={i} onClick={(e) => { this.setPage(e.target.value); }}>{i.toString()}</button>);
+      pageLinks.push(<button className="collection-page-button" key={i} value={i} onClick={(e) => { this.setPage(e.target.value); }}>{i.toString()}</button>);
     }
     return (
       <div className="collection">

@@ -73,6 +73,20 @@ $collection-border-radius: 5px;
 
 .collection-controls {
   margin-top: $collection-border-radius * 2;
+  display: flex;
+  justify-content: space-between;
+
+  .collection-page-button {
+    margin-left: auto;
+  }
+
+  .collection-page-button ~ .collection-page-button {
+    margin-left: initial;
+  }
+
+  .collection-nav-button:last-child {
+    margin-left: auto;
+  }
 }
 
 hr {
