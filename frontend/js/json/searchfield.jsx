@@ -11,22 +11,19 @@ export default class JSONSearchField extends JSONBase {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-    this.onFocus = this.onFocus.bind(this);
-    this.onBlur = this.onBlur.bind(this);
     this.showsResults = false;
   }
 
   handleChange(tf) {
     this.networking = this.networking.withURLParam("search", tf.text);
+    this.showsResults = tf.text.length > 0;
     this.load();
   }
 
   renderJSON() {
     return (
       <div className="searchfield">
-        <TextField onChange={this.handleChange}
-               onFocus={this.onFocus} onBlur={this.onBlur}
-               label={this.props.label} />
+        <TextField label={this.props.label} onChange={this.handleChange} />
         {this.showsResults && <div className="searchfield-dropdown">
           {this.props.headerComponent != null && React.createElement(this.props.headerComponent, { element: this }, null)}
           {this.object.results.map((res) => <JSONObject
@@ -36,16 +33,6 @@ export default class JSONSearchField extends JSONBase {
         </div>}
       </div>
     );
-  }
-
-  onFocus(tf) {
-    this.showsResults = true;
-    this.forceUpdate();
-  }
-
-  onBlur(tf) {
-    this.showsResults = false;
-    this.forceUpdate();
   }
 }
 

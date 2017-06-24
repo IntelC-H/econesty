@@ -2,22 +2,21 @@
 @import "constants";
 
 .transaction {
-  margin: 5px;
-  height: 150px;
+  margin-left: 5px;
+  margin-right: 5px;
+  height: 50px;
   width: 100%;
-  .left-box {
+  vertical-align: middle;
+  display: inline-block;
+  .box {
+    // border-top: 2px solid $divider-color;
+    // border-bottom: 2px solid $divider-color;
+    height: 50px;
+    line-height: 50px;
+    margin-left: 1%;
+    margin-right: 1%;
+    width: 30%;
+    vertical-align: middle;
     display: inline-block;
-    width: 40%;
-  }
-  .center-box {
-    display: inline-block;
-    width: 35%;
-    * {
-      display: block;
-    }
-  }
-  .right-box {
-    display: inline-block;
-    width: 25%; 
   }
 }

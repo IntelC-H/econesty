@@ -12,11 +12,9 @@ export default class Header extends React.Component {
   render() {
     return (
       <div className="header">
-        <ul>
-          <li className="right"><JSONSearchField path="/api/user/" headerComponent={this.showCount} component={this.showUser} label="Search Users" /></li>
-          <li className="left"><a href="/"><span>Econesty</span></a></li>
-          <li className="right"><a href="/user/me">Profile</a></li> 
-        </ul>
+        <div className="header-item left"><a href="/" className="light">Econesty</a></div>
+        <div className="header-item right light"><JSONSearchField path="/api/user/" headerComponent={this.showCount} component={this.showUser} label="Search Users" /></div>
+        <div className="header-item right"><a href="/user/me" className="light">Profile</a></div> 
       </div>
     );
   }

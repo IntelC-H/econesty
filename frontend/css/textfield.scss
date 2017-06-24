@@ -9,6 +9,7 @@ $textfield-width: 120px;
   vertical-align: initial;
   font-size: initial;
   line-height: initial;
+  color: inherit;
   height: ($textfield-padding * 4) + $textfield-fontsize;
   margin: 0;
   input[type=text], input[type=password] {
@@ -17,7 +18,10 @@ $textfield-width: 120px;
     border: none;
     border-bottom: 1px solid $divider-color;
     background-color: inherit;
+    color: inherit;
     width: $textfield-width;
+    font-size: $textfield-fontsize;
+    font-weight: normal;
 
     &:focus {
       outline: none;
@@ -29,7 +33,7 @@ $textfield-width: 120px;
     }
 
     &:focus ~ label, &:valid ~ label {
-      top: -(($textfield-padding * 3) + $textfield-fontsize);
+      top: -(($textfield-padding * 4) + $textfield-fontsize);
       font-size: $textfield-fontsize - 2px;
       color: $accent-color;
     }
@@ -41,7 +45,7 @@ $textfield-width: 120px;
     position: relative;
     pointer-events: none;
     left: $textfield-padding;
-    top: -($textfield-padding + $textfield-fontsize);
+    top: -(($textfield-padding * 2) + $textfield-fontsize);
     @include transition('0.2s ease all');
   }
  

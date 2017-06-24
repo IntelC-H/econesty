@@ -46,7 +46,12 @@ export default class JSONCollection extends JSONBase {
     }
     return (
       <div className="collection">
-        {this.props.headerComponent != null && React.createElement(this.props.headerComponent, { collection: this }, null)}
+        {this.props.headerComponent != null &&
+          <div className="collection-header">
+            {React.createElement(this.props.headerComponent, { collection: this }, null)}
+          </div>
+        }
+        
         <div className="collection-objects">
           {this.object.results.map((child, i) => <JSONObject
                                                   key={child.id}
@@ -54,9 +59,11 @@ export default class JSONCollection extends JSONBase {
                                                   networking={this.networking.appendPath(child.id)}
                                                   component={this.props.component} />)}
         </div>
-        {this.hasPrevious && <button className="collection-nav-button" onClick={this.previous}>❮ Previous</button>}
-        {pageLinks}
-        {this.hasNext && <button className="collection-nav-button" onClick={this.next}>Next ❯</button>}
+        <div className="collection-controls">
+          {this.hasPrevious && <button className="collection-nav-button" onClick={this.previous}>❮ Previous</button>}
+          {pageLinks}
+          {this.hasNext && <button className="collection-nav-button" onClick={this.next}>Next ❯</button>}
+        </div>
       </div>
     ); 
   }

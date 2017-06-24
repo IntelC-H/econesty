@@ -17,9 +17,13 @@ export default class Profile extends React.Component {
         <JSONObject path={"/api/user/" + this.props.match.params.user + "/"} component={User} />
         <button onClick={this.buyFrom}>Buy From</button>
         <button onClick={this.sellTo}>Sell To</button>
-        <JSONCollection path="/api/transaction/" component={Transaction} />
+        <JSONCollection path="/api/transaction/" component={Transaction} headerComponent={this.renderTransactionHeader} />
       </div>
     );
+  }
+
+  renderTransactionHeader(props) {
+    return <span className="primary light">Transactions</span>;
   }
 
   buyFrom() {

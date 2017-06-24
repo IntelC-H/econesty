@@ -21,6 +21,13 @@
   color: $secondary-text-color;
 }
 
+.light {
+  color: white;
+  &:visited, &:link {
+    color: white;
+  }
+}
+
 body {
   background-color: $primary-color-light;
 }
@@ -31,6 +38,41 @@ body {
   min-width: 320px;
   max-width: 700px;
   margin: 0 auto;
+}
+
+$collection-border-radius: 5px;
+
+.collection {
+  border-radius: $collection-border-radius;
+  background: $primary-color-dark;
+  padding: $collection-border-radius * 2;
+  margin: $collection-border-radius * 2;
+}
+
+.collection-header {
+  padding-bottom: $collection-border-radius;
+  padding-left: $collection-border-radius;
+}
+
+.collection-objects {
+  background: $primary-color;
+  border-radius: $collection-border-radius;
+  padding: $collection-border-radius;
+  margin: $collection-border-radius;
+
+  & > * {
+    &:first-child {
+     border-radius: $collection-border-radius $collection-border-radius 0px 0px;
+    }
+
+    &:last-child {
+      border-radius: 0px 0px $collection-border-radius $collection-border-radius;
+    }
+  }
+}
+
+.collection-controls {
+  margin-top: $collection-border-radius * 2;
 }
 
 hr {
