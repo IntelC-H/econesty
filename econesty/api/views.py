@@ -1,6 +1,7 @@
 from . import models
 from . import serializers
 from django.contrib.auth.models import User
+from django.db.models.aggregates import Count
 
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -46,11 +47,19 @@ class UserViewSet(viewsets.ModelViewSet):
 
   @detail_route(permission_classes=[permissions.IsAuthenticated])
   def payment(self, request, pk = None):
-    pk = request.auth.user if pk == "me" else  pk
+    pk = request.auth.user.id if pk == "me" else  pk
     common = self.find_common(request.auth.user.id, pk);
     if common is None:
       raise NotFound(detail="No common payment data.", code=404)
     return Response(common)
+
+  # TODO: stats detail route
+  # @detail_route()
+  # def stats(self, request, pk = None):
+  #   qs = models.Transaction.objects.all().aggregate(Count('id'), Sum('offer'))
+  #   filter(buyer=pk).aggregate(aggregates.Count('id'))
+
+  #   qs = qs.filter(buyer=pk) || qs.filter(seller=pk)
 
   def find_common(self, me, them):
     me = models.PaymentData.objects.filter(user__id=me).all()

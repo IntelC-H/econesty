@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
       'password': {'write_only': True},
       'id': {'read_only': True},
       'date_joined': {'read_only': True},
-    } 
+    }
 
   def create(self, data):
     passwd = data.pop("password", None)
