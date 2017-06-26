@@ -11,7 +11,6 @@ export default class Login extends React.Component {
     this.handleUsernameChange = this.handleUsernameChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
-    this.goToUser = this.goToUser.bind(this);
   }
 
   render() {
@@ -44,13 +43,13 @@ export default class Login extends React.Component {
 
   handleUsernameChange(tf) {
     this.setState((st) => {
-      return { username: tf.text, password: st.password };
+      return { username: tf.value, password: st.password };
     });
   }
   
   handlePasswordChange(tf) {
     this.setState((st) => {
-      return { username: st.username, password: tf.text };
+      return { username: st.username, password: tf.value };
     });
   }
 }

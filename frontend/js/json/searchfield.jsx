@@ -15,8 +15,8 @@ export default class JSONSearchField extends JSONBase {
   }
 
   handleChange(tf) {
-    this.networking = this.networking.withURLParam("search", tf.text);
-    this.showsResults = tf.text.length > 0;
+    this.networking = this.networking.withURLParam("search", tf.value);
+    this.showsResults = tf.value.length > 0;
     this.load();
   }
 

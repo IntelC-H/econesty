@@ -34,7 +34,7 @@ body {
 
 .content {
   position: relative; 
-  top: $header-height;
+  top: $header-height + 10px;
   min-width: 320px;
   max-width: 700px;
   margin: 0 auto;
