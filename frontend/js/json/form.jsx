@@ -5,14 +5,14 @@ import PropTypes from 'prop-types';
 
 /*
   // Example Usage
-  <JSONForm path="/api/transaction/" create afterSubmit={}>
+  <JSONForm path="/api/transaction/" create afterSubmit={myfunc}>
     // standard form elements
     // can also nest forms
   </JSONForm>
 */
 
-// TODO: implement me!
-// use <form onSubmit={myfunc}> to evaluate form to JSON.
+// TODO:
+// 1. Prefill values
 
 export default class JSONForm extends React.Component {
   constructor(props) {
@@ -30,20 +30,6 @@ export default class JSONForm extends React.Component {
 
   onSubmit(e) {
     e.preventDefault();
-
-    function f(acc, e) {
-      var accp = acc || {};
-      console.log(e);
-      if (e.type == "input" && e.props.type != "submit") {
-        accp[e.props.name] = e.props.value;
-      }
-      if (e.children != undefined || e.children != null) {
-        for (var i = 0; i < e.children.length; i++) {
-          accp = f(accp, e.children[i]);
-        }
-      }
-      return accp;
-    }
 
     var node = ReactDOM.findDOMNode(this);
     var descendants = Array.from(node.getElementsByTagName("*"));

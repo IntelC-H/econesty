@@ -14,7 +14,6 @@ import TextField from 'app/layout/element/textfield';
 // Representations
 import Transaction from 'app/layout/repr/transaction';
 
-// TODO: redirect
 export default class CreateTransaction extends React.Component {
   constructor(props) {
     super(props);
