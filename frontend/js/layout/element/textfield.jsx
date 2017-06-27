@@ -16,6 +16,8 @@ export default class TextField extends React.Component {
   get value() { return this.state.value; }
   set value(v) { this.setState({value: v}); }
 
+  get name() { return this.props.name; }
+
   get isSecure() { return this.props.secure; }
 
   shouldComponentUpdate(nextProps, nextState) {

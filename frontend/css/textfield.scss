@@ -11,7 +11,6 @@ $textfield-width: 120px;
   line-height: initial;
   color: inherit;
   height: ($textfield-padding * 4) + $textfield-fontsize;
-  margin: 0;
   input[type=text], input[type=password] {
     padding-bottom: $textfield-padding; 
     padding-top: $textfield-padding * 2;

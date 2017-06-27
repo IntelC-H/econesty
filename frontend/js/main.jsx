@@ -9,7 +9,7 @@ import Header from 'app/layout/element/header';
 // pages
 import Profile from 'app/layout/page/profile';
 import Login from 'app/layout/page/login';
-import CreateTransaction from 'app/layout/page/create_transaction';
+import TransactionForm from 'app/layout/page/transaction_form';
 import TransactionDetail from 'app/layout/page/transaction_detail';
 import Home from 'app/layout/page/home';
 import Signup from 'app/layout/page/signup';
@@ -29,7 +29,7 @@ ReactDOM.render((
          <Route exact path="/login" component={Login} />
          <Route exact path="/signup" component={Signup} />
          <Route exact path='/user/:user' component={Profile} />
-         <Route exact path='/user/:user/transaction/:action' component={CreateTransaction} />
+         <Route exact path='/user/:user/transaction/:action' component={TransactionForm} />
          <Route exact path='/transaction/:id' component={TransactionDetail} />
          <Route exact path='/transaction/:id/countersign' component={NewCounterSignature} />
          <Route exact path='/payment/new' component={NewPaymentData} />

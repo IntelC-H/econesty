@@ -11,9 +11,6 @@ import PropTypes from 'prop-types';
   </JSONForm>
 */
 
-// TODO:
-// 1. Prefill values
-
 export default class JSONForm extends React.Component {
   constructor(props) {
     super(props);
@@ -41,23 +38,24 @@ export default class JSONForm extends React.Component {
       obj[inp.name] = inp.value;
     }
 
-    var create = this.props.create == true && this.props.update == false;
-    var verb = create ? "POST" : "PATCH";
+    var verb = this.props.objectId ? "PATCH" : "POST";
 
-    Networking.create.appendPath(this.props.path).asJSON().withLocalTokenAuth("token").withBody(obj).withMethod(verb).go(this.props.afterSubmit);
+    var n = Networking.create.appendPath(this.props.path);
+    if (this.props.objectId) {
+      n = n.appendPath(this.props.objectId.toString());
+    }
+    n.asJSON().withLocalTokenAuth("token").withBody(obj).withMethod(verb).go(this.props.afterSubmit);
   }
 }
 
 JSONForm.defaultProps = {
   path: "",
-  create: true,
-  update: false,
+  objectId: null,
   afterSubmit: ((_) => {})
 }
 
 JSONForm.propTypes = {
   path: PropTypes.string,
-  create: PropTypes.bool,
-  update: PropTypes.bool,
+  objectId: PropTypes.number,
   afterSubmit: PropTypes.func
 }
