@@ -1,10 +1,8 @@
-import 'whatwg-fetch';
-
-// TODO: Don't load auth tokens until formattedURL
+// TODO: Refresh auth tokens periodically
 
 /*
 
-new Networking().appendPath("path", "to", "resource").asJSON().withMethod("POST").withAuth("Token 38495782947").withBody({ foo: "bar" }).go((res) => {
+Networking.create.appendPath("path", "to", "resource").asJSON().withMethod("POST").withAuth("Token 38495782947").withBody({ foo: "bar" }).go((res) => {
   // now use res.body and res.error
 });
 
@@ -35,6 +33,7 @@ export default class Networking {
     this.body = null; // request body, null means no body.
     this.isJSON = false; // whether or not this object will handle JSON requests.
     this.trailingSlash = true; // whether or not to append a slash to the end of the path.
+    this.authStorageKey = null;
   }
 
   static get create() {
@@ -46,10 +45,7 @@ export default class Networking {
   // k: The localStorage key for the token.
   withLocalTokenAuth(k) {
     var that = copy(this);
-    var token = localStorage.getItem(k);
-    if (token != null) {
-      that = that.withHeader("Authorization", "Token " + token);
-    }
+    that.authStorageKey = k;
     return that;
   }
 
@@ -75,9 +71,7 @@ export default class Networking {
   asJSON() {
     var that = copy(this);
     that.isJSON = true;
-    that.headers["Content-Type"] = "application/json";
-    that.headers["Accept"] = "application/json";
-    return that.withURLParam("format", "json");
+    return that;
   }
 
   // .withMethod(meth)
@@ -152,11 +146,52 @@ export default class Networking {
       }
     }
 
-    if (this.urlParams != null) {
-     url += "?" + Object.keys(this.urlParams).filter((k) => this.urlParams[k] != null).map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(this.urlParams[k])).join("&"); 
+    if (this.urlParams) {
+      var ups = this.urlParams;
+      if (this.isJSON) {
+        ups["format"] = "json";
+      }
+      url += "?" + Object.keys(ups).filter((k) => ups[k] != null).map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(ups[k])).join("&"); 
     }
 
     return url;
+  }
+
+  // .promise()
+  // -not chainable
+  // returns a promise representing the networking operation built up thus far.
+  promise() {
+    var opts  = { 
+      method: this.method,
+      headers: this.headers
+    };
+
+    if (this.isJSON) {
+      opts.headers["Content-Type"] = "application/json";
+      opts.headers["Accept"] = "application/json";
+    }
+
+    if (this.body) {
+      opts.body = this.isJSON ? JSON.stringify(this.body) : this.body;
+    }
+
+    if (this.authStorageKey) {
+      var token = localStorage.getItem(this.authStorageKey);
+      if (token) {
+        opts.headers["Authorization"] = "Token " + token;
+      }
+    }
+
+    return fetch(this.formattedURL, opts).then((res) => {
+      if (res.ok) {
+        return res;
+      }
+      var e = new Error(res.statusText);
+      e.response = res;
+      throw e;
+    }).then((res) => {
+      return this.isJSON ? res.json() : res.text();
+    });
   }
 
   // .go(callback)
@@ -166,25 +201,7 @@ export default class Networking {
   // on whether or not .asJSON() has been called, body is either a String
   // or a JSON object.
   go(callback) {
-    var opts  = { 
-      method: this.method,
-      headers: this.headers
-    }
-
-    if (this.body != null) {
-      opts.body = this.isJSON ? JSON.stringify(this.body) : this.body;
-    }
-
-    fetch(this.formattedURL, opts).then((res) => {
-      if (res.ok) {
-        return res;
-      }
-      var e = new Error(res.statusText);
-      e.response = res;
-      throw e;
-    }).then((res) => {
-      return this.isJSON ? res.json() : res.text();
-    }).catch((err) => {
+    this.promise().catch((err) => {
       callback({ error: err, body: null })
     }).then((body) => {
       callback({ error: null, body: body });

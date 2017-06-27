@@ -18,31 +18,6 @@ export default class JSONObject extends JSONBase {
   isValidJSON(o) {
     return o != null && o.hasOwnProperty("id");
   }
-
-  // TODO: custom save action!
-  // onSave?
-  save() {
-    this.networking.withMethod(this.isPersisted ? "PATCH" : "POST").withBody(this.flattenedObject).go((res) => {
-      if (res.error != null) {
-        this.setState(this.validateState({object: this.object, error: res.error}));
-      } else if (res.body) {
-        if (!this.isPersisted) {
-          this.networking = this.networking.appendPath(res.body.id);
-        }
-        this.setState(this.validateState({object: res.body, error: res.error}));
-      }
-    });
-  }
-
-  renderJSON() {
-    if (this.isPersisted) {
-      return super.renderJSON();
-    }
-    if (this.props.errorComponent) {
-      return React.createElement(this.props.errorComponent, { element: this }, null);
-    }
-    return <div/>;
-  }
 }
 
 JSONObject.propTypes = JSONBase.propTypes;

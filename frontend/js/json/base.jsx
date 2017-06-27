@@ -20,7 +20,7 @@ export default class JSONBase extends React.Component {
   set error(v) { this.setState((st) => { return {object: null, error: v }}); }
 
   validateState(st) {
-    if (st.object != null && !this.isValidJSON(st.object)) {
+    if (st.object && !this.isValidJSON(st.object)) {
       return { object: st.object, error: new Error("invalid JSON") };
     }
     return st;
@@ -41,16 +41,16 @@ export default class JSONBase extends React.Component {
   }
 
   render() {
-    if (this.error != null) {
+    if (this.error) {
       if (this.props.errorComponent) {
         return React.createElement(this.props.errorComponent, { element: this }, null);
       }
       return null;
     }
 
-    if (this.object != null) return this.renderJSON();
+    if (this.object) return this.renderJSON();
 
-    if (this.loadingComponent != null) {
+    if (this.loadingComponent) {
       return React.createElement(this.props.loadingComponent, { element: this }, null);
     }
     return null;
