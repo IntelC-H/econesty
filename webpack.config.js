@@ -1,6 +1,5 @@
 var path = require('path');
 var webpack = require('webpack');
-//var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var pkg = require("./package.json");
@@ -35,7 +34,7 @@ module.exports = {
       app: path.resolve("./frontend/js/"),
       style: path.resolve("./frontend/css/")
     },
-    extensions: ['.js', '.jsx', '.scss'],
+    extensions: ['.js', '.jsx', '.scss', '.css']
   },
   plugins: [
     new ProgressBarPlugin(),
@@ -44,7 +43,6 @@ module.exports = {
       name: "vendor",
       minChunks: Infinity
     })
-//    new UglifyJSPlugin({comments: false})
   ]
 };
 

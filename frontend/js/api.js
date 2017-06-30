@@ -8,19 +8,9 @@
   API.user.read(2).catch((err) => {}).then((user) => {});
 */
 
-/*
-  // Idea for use with JSX
-  // Children are wrapped in a form that creates/updates
-  // the API resource.
-  <APIView api={API.user} errorComponent={} component={}>
-    <input type="text" name="first_name"/>
-    <input type="submit" value="Submit"/>
-  <APIView />
-*/
-
 export default class API {
-  static makeFetch(method, path, urlparams, body) {
-    var opts  = { 
+  static fetch(method, path, urlparams, body) {
+    var opts  = {
       method: method,
       redirect: "follow",
       headers: {
@@ -39,7 +29,7 @@ export default class API {
     }
 
     var ups = urlparams;
-    urls["format"] = "json";
+    ups["format"] = "json";
 
     var url = window.location.protocol + "//" + window.location.host + "/api" + path + "/";
     url += "?" + Object.keys(ups)
@@ -54,19 +44,24 @@ export default class API {
   }
 
   static create(resource, body = null) {
-    return this.makeFetch("POST", "/" + resource, {}, body);
+    return this.fetch("POST", "/" + resource, {}, body);
   }
 
   static read(resource, id) {
-    return this.makeFetch("GET", "/" + resource + "/" + id, {}, null);
+    return this.fetch("GET", "/" + resource + "/" + id, {}, null);
   }
 
   static list(resource, page) {
-    return this.makeFetch("GET", "/" + resource, {page: page}, null);
+    return this.fetch("GET", "/" + resource, {page: page}, null).then((res) => {
+      res.page = page;
+      if (res.next) res.next = page + 1;
+      if (res.previous) res.previous = page - 1;
+      return res;
+    });
   }
 
   static update(resource, id, body = null) {
-    return this.makeFetch("PATCH", "/" + resource + "/" + id, {}, body);
+    return this.fetch("PATCH", "/" + resource + "/" + id, {}, body);
   }
 
   static delete(resource, id) {
@@ -74,22 +69,28 @@ export default class API {
   }
 
   static class_method(resource, httpmeth, method, body = null) {
-    return this.makeFetch(httpmeth, "/" + resource + "/" + method, {} body);
+    return this.fetch(httpmeth, "/" + resource + "/" + method, {}, body);
   }
 
   static instance_method(resource, httpmeth, method, id, body = null) {
-    return this.makeFetch(httpmeth, "/" + resource + "/" + id + "/" + method, {} body);
+    return this.fetch(httpmeth, ("/" + resource + "/" + id + "/" + method), {}, body);
+  }
+
+  static search(resource, q, page) {
+    return this.fetch(httpmeth, "/" + resource, {search: q, page: page}, null);
   }
 
   static makeRESTObject(resource) {
     return {
+      resource: resource,
       create: (body) => this.create(resource, body),
       read: (id) => this.read(resource, id),
-      list: (page) => this.list(resource, page),
       update: (id, body) => this.update(resource, id, body),
       delete: (id) => this.delete(resource, id),
+      list: (page) => this.list(resource, page),
       class_method: (httpmeth, method, body = null) => this.class_method(resource, httpmeth, method, body),
-      instance_method: (httpmeth, method, id, body = null) => this.instance_method(resource, httpmeth, method, id, body)
+      instance_method: (httpmeth, method, id, body = null) => this.instance_method(resource, httpmeth, method, id, body),
+      search: (q, page) => this.search(resource, q, page)
     };
   }
 }
@@ -98,3 +99,4 @@ API.user = API.makeRESTObject("user");
 API.transaction = API.makeRESTObject("transaction");
 API.payment_data = API.makeRESTObject("paymentdata");
 API.countersignature = API.makeRESTObject("countersignature");
+API.token = API.makeRESTObject("token");
