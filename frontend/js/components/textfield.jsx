@@ -2,27 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import 'style/textfield';
 
-export default class TextField extends React.Component {
+export default class TextField extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       value: this.props.value
-    }
+    };
     this.onChange = this.onChange.bind(this);
     this.onBlur = this.onBlur.bind(this);
     this.onFocus = this.onFocus.bind(this);
   }
 
-  get value() { return this.state.value; }
-  set value(v) { this.setState({value: v}); }
-
-  get name() { return this.props.name; }
-
-  get isSecure() { return this.props.secure; }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.value !== this.state.value) return true;
-    return false;
+  componentWillReceiveProps(nextProps) {
+    this.setState({value: nextProps.value});
   }
 
   render() {
@@ -30,8 +22,8 @@ export default class TextField extends React.Component {
       <div className="textfield">
         <input required
                name={this.props.name}
-               value={this.value}
-               type={this.isSecure ? "password" : "text"}
+               value={this.state.value}
+               type={this.props.secure ? "password" : "text"}
                maxLength={Number(this.props.maxLength)}
                onFocus={this.onFocus}
                onBlur={this.onBlur}
@@ -76,5 +68,5 @@ TextField.defaultProps = {
   onFocus: (_) => {},
   onBlur: (_) => {},
   secure: false,
-  maxLength: 524288,
+  maxLength: 524288, // max text length for <input>.
 };

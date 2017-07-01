@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TextField from './textfield';
 import API from 'app/api';
-import APIComponent from './apicomponent';
+import Higher from './higher';
 
 const propTypes = {
-  label: PropTypes.string,
   headerComponent: PropTypes.func,
   component: PropTypes.func,
   api: PropTypes.shape({
@@ -29,9 +28,7 @@ class SearchField extends React.Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-    this.state = {
-      search: ""
-    }
+    this.state = { search: "" };
   }
 
   handleChange(tf) {
@@ -39,12 +36,12 @@ class SearchField extends React.Component {
   }
 
   render() {
+    var label = ;
     return (
       <div className="searchfield">
-        <TextField label={this.props.label} onChange={this.handleChange} />
+        <TextField label={this.props.api.resource.} onChange={this.handleChange} />
         {this.state.search.length > 0 && <div className="searchfield-dropdown">
-          {this.props.headerComponent != null && React.createElement(this.props.headerComponent, { element: this }, null)}
-          <APIComponent list search={this.state.search} api={this.props.api} component={this.props.component}/>
+          {Higher.API.collection(this.props.api, 1, this.state.search, this.props.headerComponent, this.props.component)}
         </div>}
       </div>
     );

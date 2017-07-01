@@ -1,84 +1,49 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-import Promised from './components/promised';
-import APIComponent from './components/apicomponent';
-import ObjectForm from './components/objectform';
+import SignatureField from './components/signaturefield';
 import TextField from './components/textfield';
+import Higher from './components/higher';
 
-function sideBySide(xs) {
-  return (props) => <div>{xs.map((x) => React.createElement(x, props, null))}</div>
+function redirectWith(path, p=null) {
+  if (p) return withPromise(p, (props) => props.history.replace(path + props.object.id));
+  else return (props) => props.history.replace(path + res.id);
 }
 
-function form(form, fallback) {
-  fallback = fallback || {};
-  return (props) => {
-    var elems = [];
-    for (var k in form) {
-      var v = form[k];
-      if (v == "hidden") {
-        elems.push(<input type="hidden" key={"form-" + k} name={k} value={props.object[k] || fallback[k]} />);
-      } else if (v instanceof Function) {
-        elems.push(React.createElement(v, {key: "form-" + k, label: k.toUpperCase(), name: k, value: props.object[k] || fallback[k]}, null));
-      }
-    }
-    elems.push(<input key={"submit"} type="submit" value="Save" />);
-    return <div>{elems}</div>;
-  };
+function rewrite(compName, value) {
+  if (value instanceof Promise) return withPromise(value, (props) => return rewrite(compName, props.object)(props));
+  return (props) => props.history.replace(props.location.pathname.replace("/" + compName, "/" + value));
 }
 
-function redirectWith(path, promise=null) {
-  return (props) => {
-    if (!promise) {
-      props.history.replace(path);
-    } else {
-      promise.catch(console.log).then((res) => {
-        props.history.replace(path + res.id);
-      });
-    }
+function money(value, currency) {
+  function toSymbol(curr) {
+    if (curr == 'USD') return '$';
+    if (curr == 'EUR') return '€';
+    if (curr == 'JPY') return '¥';
+    if (curr == 'GBP') return '£';
+    if (curr == 'CAD') return '$';
+    if (curr == 'AUD') return '$';
+    if (curr == 'HKD') return '$';
     return null;
-  };
-}
-
-function showAPI(api, repr) {
-  return (props) => {
-    return <APIComponent objectId={parseInt(props.match.params["id"])} api={api} component={repr} />;
-  };
-}
-
-function apiForm(api, formDict, fallback=null) {
-  class InternalForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { fallback: fallback };
   }
 
-  componentDidMount() {
-    if (this.state.fallback instanceof Promise) {
-      this.state.fallback.catch(console.log).then((res) => this.setState({fallback: res}))
-    }
-  }
-
-  render() {
-    return <APIComponent
-             api={api}
-             objectId={parseInt(this.props.match.params["id"])}
-             form={Components.form(formDict, ((this.state.fallback instanceof Promise) ? {} : this.state.fallback))}
-             onCreation={(res) => this.props.history.push("/" + api.resource + "/" + res.id)} />;
-  }
-}
-  return (props) => React.createElement(InternalForm, props, null);
+  return (props) => <span>{toSymbol(currency.toUpperCase()) || curr} {value}</span>;
 }
 
 const Components = {
-  Promised: Promised,
   APIComponent: APIComponent,
-  ObjectForm: ObjectForm,
   TextField: TextField,
-  form: form,
-  showAPI: showAPI,
-  apiForm: apiForm,
+  SignatureField: SignatureField,
+
+  Higher: Higher,
+
   redirectWith: redirectWith,
-  sideBySide: sideBySide
-}
+  rewrite: rewrite,
+  apiView: apiView,
+  form: form,
+  apiForm: apiForm,
+
+  money: money
+};
 
 export default Components;

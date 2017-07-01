@@ -1,6 +1,5 @@
 import React from 'react';
-import TextField from 'app/components/textfield';
-import Currency from 'app/components/currency';
+import Components from 'app/components';
 import 'style/transaction';
 
 export default class Transaction extends React.Component {
@@ -9,7 +8,7 @@ export default class Transaction extends React.Component {
     return (
       <div className="transaction">
         <div className="box">
-          <Currency currency={obj.offer_currency} value={parseFloat(obj.offer)} />
+          {Components.money(parseFloat(obj.offer), obj.offer_currency)}
         </div>
         <div className="box">
           <a href={"/user/" + obj.buyer.id}>View Buyer</a>

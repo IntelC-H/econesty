@@ -8,7 +8,9 @@
   API.user.read(2).catch((err) => {}).then((user) => {});
 */
 
-export default class API {
+// Promise-based API access
+
+class API {
   static fetch(method, path, urlparams, body) {
     var opts  = {
       method: method,
@@ -51,8 +53,9 @@ export default class API {
     return this.fetch("GET", "/" + resource + "/" + id, {}, null);
   }
 
-  static list(resource, page) {
-    return this.fetch("GET", "/" + resource, {page: page}, null).then((res) => {
+  static list(resource, page, q = null) {
+    var ps = q ? {page: page, search: q} : {page: page};
+    return this.fetch("GET", "/" + resource, ps, null).then((res) => {
       res.page = page;
       if (res.next) res.next = page + 1;
       if (res.previous) res.previous = page - 1;
@@ -76,22 +79,16 @@ export default class API {
     return this.fetch(httpmeth, ("/" + resource + "/" + id + "/" + method), {}, body);
   }
 
-  static search(resource, q, page) {
-    return this.fetch(httpmeth, "/" + resource, {search: q, page: page}, null);
-  }
-
   static makeRESTObject(resource) {
-    return {
-      resource: resource,
-      create: (body) => this.create(resource, body),
-      read: (id) => this.read(resource, id),
-      update: (id, body) => this.update(resource, id, body),
-      delete: (id) => this.delete(resource, id),
-      list: (page) => this.list(resource, page),
-      class_method: (httpmeth, method, body = null) => this.class_method(resource, httpmeth, method, body),
-      instance_method: (httpmeth, method, id, body = null) => this.instance_method(resource, httpmeth, method, id, body),
-      search: (q, page) => this.search(resource, q, page)
-    };
+    var v = {resource: resource};
+    v.create = function(body) { this.create(v.resource, body); };
+    v.read = function(id) { this.read(v.resource, id); };
+    v.update = function(id, body) { this.update(v.resource, id, body); };
+    v.delete = function(id) { this.delete(v.resource, id); };
+    v.list = function(page, q = null) { this.list(v.resource, page, q); };
+    v.class_method = function(httpmeth, method, body = null) { this.class_method(v.resource, httpmeth, method, body); };
+    v.instance_method = function(httpmeth, method, id, body = null) { this.instance_method(v.resource, httpmeth, method, id, body); };
+    return v;
   }
 }
 
@@ -100,3 +97,5 @@ API.transaction = API.makeRESTObject("transaction");
 API.payment_data = API.makeRESTObject("paymentdata");
 API.countersignature = API.makeRESTObject("countersignature");
 API.token = API.makeRESTObject("token");
+
+export default API;
