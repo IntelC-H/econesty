@@ -3,7 +3,6 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Route } from 'react-router';
 
 import API from 'app/api';
-import APIComponent from 'app/components/apicomponent';
 
 // Misc
 import Header from 'app/header';
@@ -32,10 +31,14 @@ function joinPromises(psDict) {
 function profile(props) {
   return (
     <div>
-      <APIComponent api={API.user} objectId={props.match.params.user} component={User} />
+      {Components.API.view(API.user, User)}
       <button onClick={() => props.history.push("/user/" + props.match.params.user + "/transaction/buy")}>Buy From</button>
       <button onClick={() => props.history.push("/user/" + props.match.params.user + "/transaction/sell")}>Sell To</button>
-      <APIComponent api={API.transaction} list component={Transaction} headerComponent={(props) => <span className="primary light">Transactions</span> } />
+      {Components.API.collection(API.transaction,
+                                 1,
+                                 null,
+                                 (props) => <span className="primary light">Transactions</span>,
+                                 Transaction)}
     </div>
   );
 }
@@ -45,22 +48,23 @@ function home(props) {
 }
 
 const loginForm = {
-  username: Components.TextField,
-  password: Components.TextField
-}
+  username: <Components.TextField label="Username" />,
+  password: <Components.TextField secure label="Password" />
+};
 
 const signupForm = {
-  first_name: Components.TextField,
-  last_name: Components.TextField,
-  username: Components.TextField,
-  email: Components.TextField
+  first_name: <Components.TextField label="First Name" />,
+  last_name: <Components.TextField label="Last Name" />,
+  email: <Components.TextField label="Email" />,
+  username: <Components.TextField label="Username" />,
+  password: <Components.TextField secure label="Password" />
 };
 
 const countersignForm = {
   user_id: "hidden",
   transaction_id: "hidden",
   signature: Components.SignatureField
-}
+};
 
 const countersignDefaults = (props) => {
   var transid = parseInt(props.match.params["transid"]);
@@ -72,10 +76,10 @@ const countersignDefaults = (props) => {
     transaction_id: res.transaction.id,
     signature: ""
   }));
-}
+};
 
 const paymentDataForm = {
-  data: TextField,
+  data: Components.TextField,
   encryped: "checkbox",
   user_id: "hidden",
 };
@@ -127,19 +131,19 @@ const App = (
       <div className="content">
         <Route exact path="/" component={home} />
 
-        <Route exact path="/login" component={Components.Higher.API.form(API.token, loginForm)} />
-        <Route exact path="/signup" component={Components.Higher.API.form(API.user, signupForm)} />
+        <Route exact path="/login" component={Components.API.form(API.token, loginForm)} />
+        <Route exact path="/signup" component={Components.API.form(API.user, signupForm)} />
 
         <Route       path="/token" component={Components.redirectWith("/user/me")} />
         <Route exact path="/user/me" component={Components.redirectWith("me", API.user.class_method("GET", "me").then((res) => res.id))} />
 
         <Route exact path='/user/:user' component={profile} />
-        <Route exact path='/user/:user/transaction/:action' component={Components.Higher.API.form(API.transaction, transactionForm, transactionDefaults)} />
+        <Route exact path='/user/:user/transaction/:action' component={Components.API.form(API.transaction, transactionForm, transactionDefaults)} />
 
-        <Route exact path='/transaction/:id' component={Components.Higher.API.view(API.transaction, Transaction)} />
-        <Route exact path='/transaction/:transid/countersign' component={Components.Higher.API.form(API.countersignature, countersignForm, countersignDefaults)} />
+        <Route exact path='/transaction/:id' component={Components.API.view(API.transaction, Transaction)} />
+        <Route exact path='/transaction/:transid/countersign' component={Components.API.form(API.countersignature, countersignForm, countersignDefaults)} />
 
-        <Route exact path='/payment/new' component={Components.Higher.API.form(API.payment_data, paymentDataForm, paymentDataDefaults)} />
+        <Route exact path='/payment/new' component={Components.API.form(API.payment_data, paymentDataForm, paymentDataDefaults)} />
       </div>
    </div>
   </Router>

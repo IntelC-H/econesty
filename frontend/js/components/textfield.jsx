@@ -2,7 +2,31 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import 'style/textfield';
 
-export default class TextField extends React.PureComponent {
+const propTypes = {
+  name: PropTypes.string,
+  value: PropTypes.string,
+  label: PropTypes.string,
+  onChange: PropTypes.func,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
+  secure: PropTypes.bool,
+  email: PropTypes.bool,
+  maxLength: PropTypes.number
+};
+
+const defaultProps = {
+  name: "",
+  value: "",
+  label: "",
+  onChange: (_) => {},
+  onFocus: (_) => {},
+  onBlur: (_) => {},
+  secure: false,
+  email: false,
+  maxLength: 524288, // max text length for <input>.
+};
+
+class TextField extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -23,7 +47,7 @@ export default class TextField extends React.PureComponent {
         <input required
                name={this.props.name}
                value={this.state.value}
-               type={this.props.secure ? "password" : "text"}
+               type={this.props.secure ? "password" : (this.props.email ? "email" : "text")}
                maxLength={Number(this.props.maxLength)}
                onFocus={this.onFocus}
                onBlur={this.onBlur}
@@ -49,24 +73,7 @@ export default class TextField extends React.PureComponent {
   }
 }
 
-TextField.propTypes = {
-  name: PropTypes.string,
-  value: PropTypes.string,
-  label: PropTypes.string,
-  onChange: PropTypes.func,
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
-  secure: PropTypes.bool,
-  maxLength: PropTypes.number
-};
+TextField.defaultProps = defaultProps;
+TextField.propTypes = propTypes;
 
-TextField.defaultProps = {
-  name: "",
-  value: "",
-  label: "",
-  onChange: (_) => {},
-  onFocus: (_) => {},
-  onBlur: (_) => {},
-  secure: false,
-  maxLength: 524288, // max text length for <input>.
-};
+export default TextField;

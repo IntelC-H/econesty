@@ -1,5 +1,16 @@
 import React from 'react';
 
+function guid() {
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+function s4() {
+  return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
+}
+
 function withPromise(promise, component) {
   class PromiseRenderer extends React.Component {
     componentDidMount() {
@@ -43,38 +54,45 @@ function collection(Header, Body, setPage) {
   };
 }
 
-const _makeForm = (formDict) => (props) => {
+function _makeForm(formDict, onSubmit) {
+  var formId = guid();
   var elems = [];
   for (var name in formDict) {
-    var formValue = props.object[name];
     var v = formDict[name];
     if (v instanceof String) {
-      elems.push(<input type={v} key={"form-" + name} name={name} value={formValue} />);
+      elems.push(<input type={v} key={formId + '-' + name} name={name} />);
     } else if (v instanceof Function) {
-      elems.push(React.createElement(v, {key: "form-" + k, label: k.toUpperCase(), name: k, value: formValue}, null));
-    } else if (v instanceof React.Component) {
-      v.props.name = k;
-      v.props.key = "form-" + k;
-      v.props.value = formValue;
-      v.props.label = k.toUpperCase();
-      elems.push(v);
+      elems.push(React.createElement(v, {key: formId + '-' + name, name: name}, null));
+    } else {
+      elems.push(React.cloneElement(v, {key: formId + '-' + name, name: name}, v.props.children));
     }
   }
-  elems.push(<input key={"submit"} type="submit" value="Save" />);
+  elems.push(<button key={formId + "-submit"} type="submit">Save</button>);
 
-  return <form onSubmit={(e) => {
-                e.preventDefault();
-                const isInput = (el) => el.nodeName.toLowerCase() == "input";
-                const isNotSubmit = (el) => el.type.toLowerCase() != "submit";
-                const reduceInputs = (acc, i) => {
-                  acc[i.name] = i.value;
-                  return acc;
-                }
-                var descendants = Array.from(e.target.getElementsByTagName("*"));
-                onSubmit(descendants.filter(isInput).filter(isNotSubmit).reduce(reduceInputs, {}));
-              }}
-         >{elems}</form>;
-};
+  const onSubmitForm = (e) => {
+    console.log("event", e);
+    e.preventDefault();
+    const isInput = (el) => el.nodeName.toLowerCase() == "input";
+    const reduceInputs = (acc, i) => {
+      acc[i.name] = i.value;
+      return acc;
+    }
+    var descendants = Array.from(e.target.getElementsByTagName("*"));
+    var obj = descendants.filter(isInput).reduce(reduceInputs, {});
+    console.log("object", JSON.stringify(obj));
+    onSubmit(obj);
+  }
+
+  function setValueWithObj(obj) {
+    return (e) => {
+      var v = obj[e.props.name];
+      if (v) return React.cloneElement(e, {value: v}, e.props.children);
+      else   return e;
+    }
+  }
+
+  return (props) => <form onSubmit={onSubmitForm}>{elems.map(setValueWithObj(props.object))}</form>;
+}
 
 // form()
 // formDict: { string => oneOf(String, Function, React.Component) }
@@ -87,59 +105,18 @@ const _makeForm = (formDict) => (props) => {
 //           >> Object: use these defaults.
 //           >> Function: apply defaults to props, and then use the result.
 function form(formDict, defaults, onSubmit = ((_) => undefined)) {
-  if (!defaults) return _makeForm(formDict);
-  else if (defaults instanceof Promise)  return Higher.withPromise(defaults(props), _makeForm(formDict));
+  if (defaults instanceof Promise)       return Higher.withPromise(defaults, _makeForm(formDict, onSubmit));
   else if (defaults instanceof Function) return (props) => form(formDict, defaults(props), onSubmit)(props);
-  else                                   return Higher.withObject(defaults(props), _makeForm(formDict));
-}
-
-const API = {
-  view: (api, component, objectId = null) => {
-    return (props) => {
-      var oid = (props.match ? props.match.params["id"] : null) || props.objectId;
-      if (!oid) return React.createElement(component, props, null);
-      return Higher.withPromise(api.read(oid), component)(props);
-    };
-  },
-  collection: (api, page, searchQuery, header, component) => {
-    class APICollInternal extends React.Component {
-      constructor(props) {
-        super(props);
-        this.setPage = this.setPage.bind(this);
-        this.state = { page: page };
-      }
-      render() {
-        return Higher.withPromise(
-          api.list(this.state.page, searchQuery),
-          Higher.collection(header, component, this.setPage)
-        )(this.props);
-      }
-  
-      setPage(p) {
-        this.setState({page: p});
-      }
-    }
-    return (props) => React.createElement(APICollInternal, props, null);
-  },
-  form: (api, formDict, defaults, objectId = null) => {
-    return (props) => {
-      var oid = (props.match ? props.match.params["id"] : null) || objectId;
-      return Components.Higher.API.view(api, Components.Higher.form(formDict, defaults, (obj) => {
-        var p = oid ? api.update(oid, obj) : api.create(obj);
-        p.catch(console.log).then((res) => props.history.push("/" + api.resource + "/" + res.id))
-      }));
-    }
-  }
+  return Higher.withObject(defaults || {}, _makeForm(formDict, onSubmit));
 }
 
 const Higher = {
-  API: API,
   withPromise: withPromise,
   collection: collection,
   form: form,
   withProps: (addlProps, component) => (props) => React.createElement(component, Object.assign({}, props, addlProps), null),
-  withObjectId: (objectId, component) => (props) => Higher.withProps({objectId: objectId}, component),
-  withObject: (obj, component) => (props) => Higher.withProps({object: obj}, component)
+  withObjectId: (objectId, component) => Higher.withProps({objectId: objectId}, component),
+  withObject: (obj, component) => Higher.withProps({object: obj}, component)
 }
 
 export default Higher;

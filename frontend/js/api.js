@@ -46,7 +46,13 @@ class API {
   }
 
   static create(resource, body = null) {
-    return this.fetch("POST", "/" + resource, {}, body);
+    return this.fetch("POST", "/" + resource, {}, body).then((res) => {
+      if (res.token && resource == "token" && typeof(Storage) !== "undefined") {
+        console.log("token", res.token);
+        localStorage.setItem("token", res.token);
+      }
+      return res;
+    });
   }
 
   static read(resource, id) {
@@ -80,14 +86,15 @@ class API {
   }
 
   static makeRESTObject(resource) {
+    var that = this;
     var v = {resource: resource};
-    v.create = function(body) { this.create(v.resource, body); };
-    v.read = function(id) { this.read(v.resource, id); };
-    v.update = function(id, body) { this.update(v.resource, id, body); };
-    v.delete = function(id) { this.delete(v.resource, id); };
-    v.list = function(page, q = null) { this.list(v.resource, page, q); };
-    v.class_method = function(httpmeth, method, body = null) { this.class_method(v.resource, httpmeth, method, body); };
-    v.instance_method = function(httpmeth, method, id, body = null) { this.instance_method(v.resource, httpmeth, method, id, body); };
+    v.create = function(body) { return that.create(v.resource, body); };
+    v.read = function(id) { return that.read(v.resource, id); };
+    v.update = function(id, body) { return that.update(v.resource, id, body); };
+    v.delete = function(id) { return that.delete(v.resource, id); };
+    v.list = function(page, q = null) { return that.list(v.resource, page, q); };
+    v.class_method = function(httpmeth, method, body = null) { return that.class_method(v.resource, httpmeth, method, body); };
+    v.instance_method = function(httpmeth, method, id, body = null) { return that.instance_method(v.resource, httpmeth, method, id, body); };
     return v;
   }
 }

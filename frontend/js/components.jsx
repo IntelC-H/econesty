@@ -4,18 +4,21 @@ import PropTypes from 'prop-types';
 import SignatureField from './components/signaturefield';
 import TextField from './components/textfield';
 import Higher from './components/higher';
+import API from './components/api';
 
-function redirectWith(path, p=null) {
-  if (p) return withPromise(p, (props) => props.history.replace(path + props.object.id));
-  else return (props) => props.history.replace(path + res.id);
+export function redirectWith(path, p=null) {
+  if (p) return Higher.withPromise(p, (props) => props.history.replace(path + props.object.id));
+  else return (props) => props.history.replace(path);
 }
 
-function rewrite(compName, value) {
-  if (value instanceof Promise) return withPromise(value, (props) => return rewrite(compName, props.object)(props));
+export function rewrite(compName, value) {
+  if (value instanceof Promise) {
+    return Higher.withPromise(value, (props) => rewrite(compName, props.object)(props));
+  }
   return (props) => props.history.replace(props.location.pathname.replace("/" + compName, "/" + value));
 }
 
-function money(value, currency) {
+export function money(value, currency) {
   function toSymbol(curr) {
     if (curr == 'USD') return '$';
     if (curr == 'EUR') return '€';
@@ -30,20 +33,13 @@ function money(value, currency) {
   return (props) => <span>{toSymbol(currency.toUpperCase()) || curr} {value}</span>;
 }
 
-const Components = {
-  APIComponent: APIComponent,
+export default {
+  Higher: Higher,
+  API: API,
+
   TextField: TextField,
   SignatureField: SignatureField,
-
-  Higher: Higher,
-
+  
   redirectWith: redirectWith,
-  rewrite: rewrite,
-  apiView: apiView,
-  form: form,
-  apiForm: apiForm,
-
   money: money
 };
-
-export default Components;

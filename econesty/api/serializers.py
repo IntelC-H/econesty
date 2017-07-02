@@ -42,6 +42,9 @@ class PaymentDataSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.PaymentData
     fields = '__all__'
+    extra_kwargs = {
+      'id': {'read_only': True},
+    }
 
 class TransactionSerializer(serializers.ModelSerializer):
   buyer = UserSerializer(read_only=True)
@@ -55,6 +58,9 @@ class TransactionSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Transaction
     fields = '__all__'
+    extra_kwargs = {
+      'id': {'read_only': True},
+    }
 
 class CounterSignatureSerializer(serializers.ModelSerializer):
   user = UserSerializer(many=False, read_only=True)
@@ -64,4 +70,6 @@ class CounterSignatureSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.CounterSignature
     fields = '__all__'
-
+    extra_kwargs = {
+      'id': {'read_only': True},
+    }

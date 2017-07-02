@@ -1,7 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var pkg = require("./package.json");
 
 module.exports = {
@@ -25,9 +24,16 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract("css-loader!sass-loader")
+        loader: ExtractTextPlugin.extract({ fallback: "style-loader", use: "css-loader!sass-loader" })
+      },
+      {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract({ fallback: "style-loader", use: "css-loader" })
       }
     ]
+  },
+  watchOptions: {
+    ignored: /node_modules/
   },
   resolve: {
     alias: {
@@ -37,12 +43,17 @@ module.exports = {
     extensions: ['.js', '.jsx', '.scss', '.css']
   },
   plugins: [
-    new ProgressBarPlugin(),
-    new ExtractTextPlugin('app.css'),
+    new ExtractTextPlugin({
+      filename: '[name].css',
+      allChunks: true
+    }),
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
       minChunks: Infinity
-    })
+    }),
+    new webpack.DefinePlugin({
+      ENV: process.env.ENV || '"development"'
+    }),
   ]
 };
 
