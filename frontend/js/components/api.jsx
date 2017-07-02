@@ -5,22 +5,22 @@ export function collection(api, page, searchQuery, header, component) {
   class APICollInternal extends React.PureComponent {
     constructor(props) {
       super(props);
-      var that = this;
       this.state = { page: page };
+      const setPage = ((p) => this.setState({ page: p })).bind(this);
       this.render = Higher.withPromise(
-        api.list(that.state.page, searchQuery),
-        Higher.collection(header, component, (p) => that.setState({ page: p }))
-      )
+        api.list(this.state.page, searchQuery),
+        Higher.collection(header, component, setPage)
+      );
     }
   }
-  return (props) => React.createElement(APICollInternal, props, null);
+  return (props) => <APICollInternal {...props} />;
 }
 
-export function view(api, component) {
+export function view(api, Component) {
   return (props) => {
-    var oid = (props.match ? props.match.params["id"] : null) || props.objectId;
-    if (!oid) return React.createElement(component, props, null);
-    return Higher.withPromise(api.read(oid), component)(props);
+    var oid = (props.match ? parseInt(props.match.params["id"]) : null) || props.objectId;
+    const ComponentPrime = oid ? Higher.withPromise(api.read(oid), Component) : Component;
+    return <ComponentPrime {...props} />;
   };
 }
 
@@ -28,14 +28,18 @@ export function form(api, formDict, defaults = null) {
   return (props) => {
     var oid = (props.match ? props.match.params["id"] : null) || props.objectId;
 
+    var Form = null;
+
     if (oid && !defaults) {
-      return Higher.withPromise(api.read(oid), (props) => form(api, formDict, props.object));
+      Form = Higher.withPromise(api.read(oid), (props) => React.createElement(form(api, formDict, props.object), props, null));
+    } else {
+      Form = Higher.form(formDict, defaults, (obj) => {
+        var p = oid ? api.update(oid, obj) : api.create(obj);
+        p.catch(console.log).then((res) => props.history.push("/" + api.resource + "/" + res.id));
+      });
     }
 
-    return Higher.form(formDict, defaults, (obj) => {
-      var p = oid ? api.update(oid, obj) : api.create(obj);
-      p.catch(console.log).then((res) => props.history.push("/" + api.resource + "/" + res.id));
-    })(props);
+    return <Form {...props} />;
   }
 }
 

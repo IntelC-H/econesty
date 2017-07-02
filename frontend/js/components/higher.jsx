@@ -1,41 +1,37 @@
 import React from 'react';
 
 function guid() {
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
+  const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  return s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
 }
 
-function s4() {
-  return Math.floor((1 + Math.random()) * 0x10000)
-    .toString(16)
-    .substring(1);
-}
+class PromiseRenderer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
-function withPromise(promise, component) {
-  class PromiseRenderer extends React.Component {
-    componentDidMount() {
-      if (promise) {
-        promise.catch(function(err) { this.setState({error: err}); })
-               .then(function(res) { this.setState({object: res}); });
-      }
-    }
-
-    render() {
-      if (this.state.error)  return <div className="error"><p>{this.state.error.message}</p></div>;
-      if (this.state.object) return Higher.withObject(this.state.object, component)(this.props);
-      return <div className="loading" />;
+  componentDidMount() {
+    if (this.props.promise) {
+      var that = this;
+      this.props.promise.catch(function(err) { that.setState({error: err}); })
+                        .then(function(res) { that.setState({object: res}); });
     }
   }
 
-  return (props) => React.createElement(PromiseRenderer, props, null);
+  render() {
+    if (this.state.error)  return <div className="error"><p>{this.state.error.message}</p></div>;
+    if (this.state.object) return React.createElement(Higher.withObject(this.state.object, this.props.component), this.props, null);
+    return <div className="loading" />;
+  }
 }
 
-function collection(Header, Body, setPage) {
+function collection(header, body, setPage) {
+  const Header = header || ((_) => null);
+  const Body = body || ((_) => null);
+
   return (props) => {
     var obj = props.object;
-    Header = Header || ((_) => null);
-    Body = Body || ((_) => null);
-
     return (
       <div className="collection">
         <div className="collection-header">
@@ -61,16 +57,13 @@ function _makeForm(formDict, onSubmit) {
     var v = formDict[name];
     if (v instanceof String) {
       elems.push(<input type={v} key={formId + '-' + name} name={name} />);
-    } else if (v instanceof Function) {
-      elems.push(React.createElement(v, {key: formId + '-' + name, name: name}, null));
-    } else {
+    } else if (React.isValidElement(v)) {
       elems.push(React.cloneElement(v, {key: formId + '-' + name, name: name}, v.props.children));
     }
   }
   elems.push(<button key={formId + "-submit"} type="submit">Save</button>);
 
   const onSubmitForm = (e) => {
-    console.log("event", e);
     e.preventDefault();
     const isInput = (el) => el.nodeName.toLowerCase() == "input";
     const reduceInputs = (acc, i) => {
@@ -78,9 +71,7 @@ function _makeForm(formDict, onSubmit) {
       return acc;
     }
     var descendants = Array.from(e.target.getElementsByTagName("*"));
-    var obj = descendants.filter(isInput).reduce(reduceInputs, {});
-    console.log("object", JSON.stringify(obj));
-    onSubmit(obj);
+    onSubmit(descendants.filter(isInput).reduce(reduceInputs, {}));
   }
 
   function setValueWithObj(obj) {
@@ -106,15 +97,15 @@ function _makeForm(formDict, onSubmit) {
 //           >> Function: apply defaults to props, and then use the result.
 function form(formDict, defaults, onSubmit = ((_) => undefined)) {
   if (defaults instanceof Promise)       return Higher.withPromise(defaults, _makeForm(formDict, onSubmit));
-  else if (defaults instanceof Function) return (props) => form(formDict, defaults(props), onSubmit)(props);
+  else if (defaults instanceof Function) return (props) => React.createElement(form(formDict, defaults(props), onSubmit), props, null);
   return Higher.withObject(defaults || {}, _makeForm(formDict, onSubmit));
 }
 
 const Higher = {
-  withPromise: withPromise,
   collection: collection,
   form: form,
-  withProps: (addlProps, component) => (props) => React.createElement(component, Object.assign({}, props, addlProps), null),
+  withPromise: (promise, comp) => Higher.withProps({promise: promise, component: comp}, PromiseRenderer), // FIXME: this clobbers components!
+  withProps: (addlProps, Component) => (props) => <Component {...Object.assign({}, props, addlProps)} />,
   withObjectId: (objectId, component) => Higher.withProps({objectId: objectId}, component),
   withObject: (obj, component) => Higher.withProps({object: obj}, component)
 }

@@ -6,16 +6,26 @@ import TextField from './components/textfield';
 import Higher from './components/higher';
 import API from './components/api';
 
-export function redirectWith(path, p=null) {
-  if (p) return Higher.withPromise(p, (props) => props.history.replace(path + props.object.id));
-  else return (props) => props.history.replace(path);
+export function redirect(path) {
+  return (props) => {
+    props.history.replace(path);
+    return null; // Appease react
+  }
 }
 
-export function rewrite(compName, value) {
+export function redirectWith(path, p=null) {
+  if (p) return Higher.withPromise(p, (props) => props.history.replace(path + props.object.id));
+  else return redirect(path); //(props) => props.history.replace(path);
+}
+
+export function rewritePath(compName, value) {
   if (value instanceof Promise) {
-    return Higher.withPromise(value, (props) => rewrite(compName, props.object)(props));
+    return Higher.withPromise(value, (props) => React.createElement(rewritePath(compName, props.object), props, null));
   }
-  return (props) => props.history.replace(props.location.pathname.replace("/" + compName, "/" + value));
+  return (props) => {
+    props.history.replace(props.location.pathname.replace("/" + compName, "/" + value));
+    return null; // appease React
+  };
 }
 
 export function money(value, currency) {
@@ -33,6 +43,8 @@ export function money(value, currency) {
   return (props) => <span>{toSymbol(currency.toUpperCase()) || curr} {value}</span>;
 }
 
+export { Higher, API, TextField, SignatureField }
+
 export default {
   Higher: Higher,
   API: API,
@@ -41,5 +53,6 @@ export default {
   SignatureField: SignatureField,
   
   redirectWith: redirectWith,
+  rewritePath: rewritePath,
   money: money
 };

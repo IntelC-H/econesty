@@ -31,14 +31,14 @@ function joinPromises(psDict) {
 function profile(props) {
   return (
     <div>
-      {Components.API.view(API.user, User)}
+      {React.createElement(Components.API.view(API.user, User), props, null)}
       <button onClick={() => props.history.push("/user/" + props.match.params.user + "/transaction/buy")}>Buy From</button>
       <button onClick={() => props.history.push("/user/" + props.match.params.user + "/transaction/sell")}>Sell To</button>
-      {Components.API.collection(API.transaction,
+      {React.createElement(Components.API.collection(API.transaction,
                                  1,
                                  null,
                                  (props) => <span className="primary light">Transactions</span>,
-                                 Transaction)}
+                                 Transaction), props, null)}
     </div>
   );
 }
@@ -63,7 +63,7 @@ const signupForm = {
 const countersignForm = {
   user_id: "hidden",
   transaction_id: "hidden",
-  signature: Components.SignatureField
+  signature: <Components.SignatureField />
 };
 
 const countersignDefaults = (props) => {
@@ -79,7 +79,7 @@ const countersignDefaults = (props) => {
 };
 
 const paymentDataForm = {
-  data: Components.TextField,
+  data: <Components.TextField label="Data" />,
   encryped: "checkbox",
   user_id: "hidden",
 };
@@ -91,9 +91,9 @@ const paymentDataDefaults = API.user.class_method("GET", "me").then((user) => ({
 }));
 
 const transactionForm = {
-  "offer": Components.TextField,
-  "offer_currency": Components.TextField,
-  "required_witnesses": Components.TextField,
+  "offer": <Components.TextField label="Offer" />,
+  "offer_currency": <Components.TextField label="Currency" />,
+  "required_witnesses": <Components.TextField label="Number of Witnesses" />,
   "buyer_id": "hidden",
   "buyer_payment_data_id": "hidden",
   "seller_id": "hidden",
@@ -137,7 +137,7 @@ const App = (
         <Route       path="/token" component={Components.redirectWith("/user/me")} />
         <Route exact path="/user/me" component={Components.redirectWith("me", API.user.class_method("GET", "me").then((res) => res.id))} />
 
-        <Route exact path='/user/:user' component={profile} />
+        <Route exact path='/user/:id' component={profile} />
         <Route exact path='/user/:user/transaction/:action' component={Components.API.form(API.transaction, transactionForm, transactionDefaults)} />
 
         <Route exact path='/transaction/:id' component={Components.API.view(API.transaction, Transaction)} />

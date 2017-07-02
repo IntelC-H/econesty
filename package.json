@@ -5,10 +5,10 @@
   "license": "AllRightsReserved",
   "main": ".econesty_webpack_build/app.js",
   "scripts": {
-    "build": "./node_modules/.bin/webpack          --progress --config webpack.config.js",
-    "build_prod": "./node_modules/.bin/webpack     --progress --config webpack.config.js -p",
+    "build": "./node_modules/.bin/webpack --progress --config webpack.config.js",
+    "build_prod": "./node_modules/.bin/webpack --progress --config webpack.config.js -p",
     "build_detailed": "./node_modules/.bin/webpack --progress --config webpack.config.js --displayModules | grep './frontend/' | awk '{print $3$4\"  \"$2}' | grep -v bytes | sort -n | tail -100",
-    "watch": "./node_modules/.bin/webpack          --progress --config webpack.config.js --watch"
+    "watch": "./node_modules/.bin/webpack --progress --config webpack.config.js --watch"
   },
   "repository": {
     "type": "git",

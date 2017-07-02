@@ -4,6 +4,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var pkg = require("./package.json");
 
 module.exports = {
+  devtool: "cheap-module-source-map",
   entry: {
     app: ['./frontend/js/index.js'],
     vendor: Object.keys(pkg.dependencies)

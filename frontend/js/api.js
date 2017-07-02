@@ -62,6 +62,7 @@ class API {
   static list(resource, page, q = null) {
     var ps = q ? {page: page, search: q} : {page: page};
     return this.fetch("GET", "/" + resource, ps, null).then((res) => {
+      console.log(res);
       res.page = page;
       if (res.next) res.next = page + 1;
       if (res.previous) res.previous = page - 1;

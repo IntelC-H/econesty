@@ -36,12 +36,12 @@ class SearchField extends React.Component {
   }
 
   render() {
+    const canSearch = (this.state.search || "").length > 0;
+    var Coll = CompAPI.collection(this.props.api, 1, this.state.search, this.props.headerComponent, this.props.component)
     return (
       <div className="searchfield">
         <TextField label={"Search " + this.props.api.resource + "s"} onChange={this.handleChange} value={this.state.search} />
-        {this.state.search && this.state.search.length > 0 && <div className="searchfield-dropdown">
-          {CompAPI.collection(this.props.api, 1, this.state.search, this.props.headerComponent, this.props.component)}
-        </div>}
+        {canSearch && <div className="searchfield-dropdown"><Coll /></div>}
       </div>
     );
   }

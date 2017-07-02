@@ -8,7 +8,7 @@ export default class Transaction extends React.Component {
     return (
       <div className="transaction">
         <div className="box">
-          {Components.money(parseFloat(obj.offer), obj.offer_currency)}
+          {React.createElement(Components.money(parseFloat(obj.offer), obj.offer_currency), this.props, null)}
         </div>
         <div className="box">
           <a href={"/user/" + obj.buyer.id}>View Buyer</a>
