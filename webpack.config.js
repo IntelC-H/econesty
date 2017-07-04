@@ -20,7 +20,8 @@ module.exports = {
         loader: 'babel-loader',
         exclude: /node_modules/,
         query: {
-          presets: ['es2015', 'react']
+          presets: ['latest', 'react', ],
+          plugins: ["transform-object-rest-spread"]
         }
       },
       {
@@ -53,7 +54,7 @@ module.exports = {
       minChunks: Infinity
     }),
     new webpack.DefinePlugin({
-      ENV: process.env.ENV || '"development"'
+      ENV: '"development"'
     }),
   ]
 };

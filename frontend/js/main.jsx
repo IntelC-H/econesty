@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Route } from 'react-router';
 
-import API from 'app/api';
+import { API, APICollection, APIActionCollection } from 'app/api';
 
 // Misc
 import Header from 'app/header';
@@ -12,6 +12,13 @@ import Transaction from 'app/repr/transaction';
 import User from 'app/repr/user';
 
 import Components from 'app/components';
+
+// Setup API
+API.user = new APICollection("user");
+API.transaction = new APICollection("transaction");
+API.payment_data = new APICollection("paymentdata");
+API.countersignature = new APICollection("countersignature");
+API.token =  new APIActionCollection("token", res => API.setToken(res.token));
 
 function joinPromises(psDict) {
   var ps = [];
@@ -25,7 +32,7 @@ function joinPromises(psDict) {
       }));
     }
   }
-  return Promise.all(ps).then((xs) => xs.reduce((acc, x) => Object.assign(acc, x), {}));
+  return Promise.all(ps).then(xs => xs.reduce((acc, x) => Object.assign(acc, x), {}));
 }
 
 function profile(props) {
@@ -37,7 +44,7 @@ function profile(props) {
       {React.createElement(Components.API.collection(API.transaction,
                                  1,
                                  null,
-                                 (props) => <span className="primary light">Transactions</span>,
+                                 props => <span className="primary light">Transactions</span>,
                                  Transaction), props, null)}
     </div>
   );
@@ -55,7 +62,7 @@ const loginForm = {
 const signupForm = {
   first_name: <Components.TextField label="First Name" />,
   last_name: <Components.TextField label="Last Name" />,
-  email: <Components.TextField label="Email" />,
+  email: <Components.TextField email label="Email" />,
   username: <Components.TextField label="Username" />,
   password: <Components.TextField secure label="Password" />
 };
@@ -66,12 +73,12 @@ const countersignForm = {
   signature: <Components.SignatureField />
 };
 
-const countersignDefaults = (props) => {
+const countersignDefaults = props => {
   var transid = parseInt(props.match.params["transid"]);
   return joinPromises({
-    me: API.user.class_method("GET", "me"),
+    me: API.user.classMethod("GET", "me"),
     transaction: API.transaction.read(transid),
-  }).then((res) => ({
+  }).then(res => ({
     user_id: res.me.id,
     transaction_id: res.transaction.id,
     signature: ""
@@ -84,7 +91,7 @@ const paymentDataForm = {
   user_id: "hidden",
 };
 
-const paymentDataDefaults = API.user.class_method("GET", "me").then((user) => ({
+const paymentDataDefaults = API.user.classMethod("GET", "me").then(user => ({
   data: "",
   encrypted: false,
   user_id: user.id
@@ -100,7 +107,7 @@ const transactionForm = {
   "seller_payment_data_id": "hidden",
 };
 
-const transactionDefaults = (props) => {
+const transactionDefaults = props => {
   var isBuyer = undefined;
   var otherId = undefined;
 
@@ -111,9 +118,9 @@ const transactionDefaults = (props) => {
   }
 
   return joinPromises({
-    me: API.user.class_method("GET", "me"),
-    payment: API.user.instance_method("GET", "payment", otherId)
-  }).then((res) => ({
+    me: API.user.classMethod("GET", "me"),
+    payment: API.user.instanceMethod("GET", "payment", otherId)
+  }).then(res => ({
      "offer": "0.00",
      "offer_currency": "USD",
      "required_witnesses": "0",
@@ -135,7 +142,7 @@ const App = (
         <Route exact path="/signup" component={Components.API.form(API.user, signupForm)} />
 
         <Route       path="/token" component={Components.redirectWith("/user/me")} />
-        <Route exact path="/user/me" component={Components.redirectWith("me", API.user.class_method("GET", "me").then((res) => res.id))} />
+        <Route exact path="/user/me" component={Components.redirectWith("me", API.user.classMethod("GET", "me").then(res => res.id))} />
 
         <Route exact path='/user/:id' component={profile} />
         <Route exact path='/user/:user/transaction/:action' component={Components.API.form(API.transaction, transactionForm, transactionDefaults)} />

@@ -25,16 +25,11 @@ export default class SignatureField extends React.Component {
     this.onMouseMove = this.onMouseMove.bind(this);
   }
 
-  get signature() {
-    return this.props.signature || this.state.signature;
-  }
-
-  get canEdit() {
-    return this.props.signature == undefined;
-  }
+  get signature() { return this.props.signature || this.state.signature; }
+  get canEdit() { return this.props.signature === undefined; }
 
   reset() {
-    this.setState((prevState, _) => {
+    this.setState(prevState => {
       return {
         signature: [],
         currentStroke: prevState.currentStroke,
@@ -97,7 +92,7 @@ export default class SignatureField extends React.Component {
       e.preventDefault();
       const x = e.clientX;
       const y = e.clientY;
-      this.setState((prevState, _) => {
+      this.setState(prevState => {
          return {
            isMouseDown: true,
            signature: prevState.signature,
@@ -113,7 +108,7 @@ export default class SignatureField extends React.Component {
       e.preventDefault();
       const x = e.clientX;
       const y = e.clientY;
-      this.setState((prevState, _) => {
+      this.setState(prevState => {
         if (prevState.isMouseDown) {
           var sig = prevState.signature;
           var stroke = prevState.currentStroke

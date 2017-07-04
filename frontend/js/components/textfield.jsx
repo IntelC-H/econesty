@@ -7,34 +7,43 @@ const propTypes = {
   value: PropTypes.string,
   label: PropTypes.string,
   onChange: PropTypes.func,
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
   secure: PropTypes.bool,
   email: PropTypes.bool,
-  maxLength: PropTypes.number
+  url: PropTypes.bool,
+  search: PropTypes.bool
 };
 
 const defaultProps = {
   name: "",
   value: "",
   label: "",
-  onChange: (_) => {},
-  onFocus: (_) => {},
-  onBlur: (_) => {},
+  onChange: _ => {},
+  onFocus: _ => {},
+  onBlur: _ => {},
   secure: false,
   email: false,
   maxLength: 524288, // max text length for <input>.
 };
 
+// Abstract me!
+// class TextField extends Input
+
 class TextField extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      value: this.props.value
-    };
+    this.state = { value: this.props.value };
     this.onChange = this.onChange.bind(this);
-    this.onBlur = this.onBlur.bind(this);
-    this.onFocus = this.onFocus.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+  }
+
+  get name() { return this.props.name; }
+  get value() { return this.state.value; }
+  get type() {
+    if (this.props.secure) return "password";
+    if (this.props.email) return "email";
+    if (this.props.url) return "url";
+    if (this.props.search) return "search";
+    return "text";
   }
 
   componentWillReceiveProps(nextProps) {
@@ -42,34 +51,27 @@ class TextField extends React.PureComponent {
   }
 
   render() {
+    var {secure, email, url, search, label, onChange, value, ...filteredProps} = this.props;
     return (
       <div className="textfield">
         <input required
-               name={this.props.name}
+               type={this.type}
                value={this.state.value}
-               type={this.props.secure ? "password" : (this.props.email ? "email" : "text")}
-               maxLength={Number(this.props.maxLength)}
-               onFocus={this.onFocus}
-               onBlur={this.onBlur}
-               onChange={(e) => this.onChange(e)} />
-        <div className="textfield-bar" />
-        <label className="textfield-label">{this.props.label}</label>
+               onChange={this.onChange}
+               {...filteredProps} />
+        <label>{this.props.label}</label>
       </div>
     );
   }
 
-  onFocus(e) {
-    this.props.onFocus(this);
-  }
-
-  onBlur(e) {
-    this.props.onBlur(this);
-  }
-
   onChange(e) {
-    this.state.value = e.target.value;
-    this.props.onChange(this);
+    this.state.value = e.target.value; // done hacky because onChange needs
+    this.props.onChange(this);         // this.state.value to be set before it's called.
     this.forceUpdate();
+  }
+
+  onSearch(_) {
+    this.props.onSearch(this);
   }
 }
 

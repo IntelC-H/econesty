@@ -1,21 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TextField from './textfield';
-import API from 'app/api';
+import { API, APICollection } from 'app/api';
 import CompAPI from './api';
 
 const propTypes = {
   headerComponent: PropTypes.func,
   component: PropTypes.func,
-  api: PropTypes.shape({
-    create: PropTypes.func,
-    read: PropTypes.func,
-    update: PropTypes.func,
-    delete: PropTypes.func,
-    list: PropTypes.func,
-    class_method: PropTypes.func,
-    instance_method: PropTypes.func
-  }).isRequired
+  api: PropTypes.instanceOf(APICollection).isRequired
 }
 
 const defaultProps = {

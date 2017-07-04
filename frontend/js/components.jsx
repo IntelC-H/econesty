@@ -30,13 +30,13 @@ export function rewritePath(compName, value) {
 
 export function money(value, currency) {
   function toSymbol(curr) {
-    if (curr == 'USD') return '$';
-    if (curr == 'EUR') return '€';
-    if (curr == 'JPY') return '¥';
-    if (curr == 'GBP') return '£';
-    if (curr == 'CAD') return '$';
-    if (curr == 'AUD') return '$';
-    if (curr == 'HKD') return '$';
+    if (curr === 'USD') return '$';
+    if (curr === 'EUR') return '€';
+    if (curr === 'JPY') return '¥';
+    if (curr === 'GBP') return '£';
+    if (curr === 'CAD') return '$';
+    if (curr === 'AUD') return '$';
+    if (curr === 'HKD') return '$';
     return null;
   }
 
