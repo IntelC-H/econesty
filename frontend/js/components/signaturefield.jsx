@@ -1,18 +1,43 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-// SignatureField
-// props:
-// - width - width of canvas element
-// - height - height of canvas element
-// - lineWidth - how thick the "pen" appears
-// - style - the style for the canvas element
-// - signature - If present, display this and don't allow editing
+// TODO: prop-types:
+// 1. signature: string or array?
+// All other props are passed onto the canvas
 
-// TODO: prop-types
+function sigToCSV(sig) {
+  if (!sig) return "x,y\n";
+  if (sig instanceof String) return sig;
+  var lines = ["x,y"];
+  sig.forEach(s => {
+    s.forEach(pt => lines.push(pt.join(",")));
+    lines.push("null,null");
+  });
+  return lines.join("\n");
+}
 
-export default class SignatureField extends React.Component {
+function sigFromCSV(csv) {
+  if (!csv) return [];
+  if (csv instanceof Array) return csv;
+  var lines = csv.split("\n");
+  if (lines.length == 0) return null;
+  var header = lines.shift();
+  if (header != "x,y") return null;
+  if (lines.length == 0) return [];
+  var sig = [];
+  var currentStroke = [];
+  lines.forEach(l => {
+    if (l == "null,null") {
+      sig.push(currentStroke);
+      currentStroke = [];
+    } else {
+      currentStroke.push(l.split(',').map(parseInt));
+    }
+  });
+  return sig;
+}
+
+class SignatureField extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -20,125 +45,104 @@ export default class SignatureField extends React.Component {
       currentStroke: [], // stroke currently being draw. Array of Point's
       isMouseDown: false
     };
+    this.canvas = null;
+    this.onMouseOut = this.onMouseOut.bind(this);
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
   }
 
-  get signature() { return this.props.signature || this.state.signature; }
+  get signature() { return sigToCSV(this.props.signature || this.state.signature); }
   get canEdit() { return this.props.signature === undefined; }
 
-  reset() {
-    this.setState(prevState => {
-      return {
-        signature: [],
-        currentStroke: prevState.currentStroke,
-        isMouseDown: prevState.isMouseDown
-      };
-    });
-  }
+  reset() { this.setState(st => ({ ...st, signature: [], currentStroke: [] })); }
 
   // ReactJS overrides
 
-  componentDidUpdate() {
-    this.drawCanvas();
-  }
-
-  componentDidMount() {
-    this.drawCanvas();
-  }
+  componentDidMount() { this.drawCanvas(); }
+  componentDidUpdate() { this.drawCanvas(); }
 
   render() {
+    const {className, onMouseDown, onMouseUp, onMouseMove, signature, ...props} = this.props;
     return <canvas
-            className="signaturefield"
-            style={this.props.style || {}}
-            width={this.props.width || "200"}
-            height={this.props.height || "320"}
-            onMouseDown={(e) => this.onMouseDown(e)}
-            onMouseUp={(e) => this.onMouseUp(e)}
-            onMouseMove={(e) => this.onMouseMove(e)}></canvas>;
+            ref={((e) => this.canvas = e).bind(this)}
+            className={"signaturefield " + className}
+            onMouseOut={this.onMouseOut}
+            onMouseDown={this.onMouseDown}
+            onMouseUp={this.onMouseUp}
+            onMouseMove={this.onMouseMove}
+            {...props}
+           />;
   }
 
   // Internal Rendering Helpers
 
   drawCanvas() {
-    var cvs = ReactDOM.findDOMNode(this);
-    var ctx = cvs.getContext('2d');
+    var ctx = this.canvas.getContext('2d');
     ctx.lineWidth = this.props.lineWidth || "2"
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
     ctx.beginPath();
-    for (var i = 0; i < this.signature.length; i++) {
-      this.drawStroke(this.signature[i], ctx);
-    }
-    this.drawStroke(this.state.currentStroke, ctx);
+    var sig = sigFromCSV(this.props.signature || this.state.signature);
+    console.log(this.state.signature);
+    sig.concat([this.state.currentStroke])
+       .filter(s => s.length > 0)
+       .forEach(s => {
+      ctx.moveTo(s[0][0], s[0][1]);
+      s.slice(1).forEach(pt => ctx.lineTo(pt[0], pt[1]));
+    });
     ctx.stroke();
   }
 
-  drawStroke(stroke, ctx) {
-    if (stroke.length > 0) {
-      ctx.moveTo(stroke[0][0], stroke[0][1]);
-      for (var i = 0; i < stroke.length; i++) {
-        var pair = stroke[i];
-        ctx.lineTo(pair[0], pair[1]);
-      }
+  // State Helpers
+
+  finishStroke(x = null, y = null) {
+    this.setState(st => ({
+      ...st,
+      isMouseDown: !x && !y,
+      signature: st.signature.concat([x && y ? st.currentStroke.concat([[x, y]]) : st.currentStroke]),
+      currentStroke: []
+    }));
+  }
+
+  mapCurrentStroke(f) {
+    this.setState(st => ({
+      ...st,
+      isMouseDown: true,
+      currentStroke: f(st.currentStroke)
+    })); 
+  }
+
+  // DRY
+
+  editSignature(e, f) {
+    if (this.canEdit) {
+      e.preventDefault();
+      const rect = this.canvas.getBoundingClientRect();
+      f({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     }
   }
 
   // SyntheticEvent handlers
 
+  onMouseOut(e) {
+    if (this.state.isMouseDown) this.finishStroke();
+    if (this.props.onMouseOut) this.props.onMouseOut(e);
+  }
+
   onMouseDown(e) {
-    if (this.canEdit) {
-      e.persist();
-      e.preventDefault();
-      const x = e.clientX;
-      const y = e.clientY;
-      this.setState(prevState => {
-         return {
-           isMouseDown: true,
-           signature: prevState.signature,
-           currentStroke: [[x, y]]
-         };
-      });
-    }
+    this.editSignature(e, ({x, y}) => this.mapCurrentStroke(_ => [[x, y]]));
+    if (this.props.onMouseDown) this.props.onMouseDown(e);
   }
     
   onMouseUp(e) {
-    if (this.canEdit) {
-      e.persist();
-      e.preventDefault();
-      const x = e.clientX;
-      const y = e.clientY;
-      this.setState(prevState => {
-        if (prevState.isMouseDown) {
-          var sig = prevState.signature;
-          var stroke = prevState.currentStroke
-          stroke.push([x, y]);
-          sig.push(stroke);
-          return {isMouseDown: false, signature: sig, currentStroke: []};
-        }
-        return prevState;
-      });
-    }
+    this.editSignature(e, ({x, y}) => this.finishStroke(x, y));
+    if (this.props.onMouseUp) this.props.onMouseUp(e);
   }
-   
+  
   onMouseMove(e) {
-    if (this.canEdit) {
-      e.persist();
-      e.preventDefault();
-      const x = e.clientX;
-      const y = e.clientY;
-      if (this.state.isMouseDown) {
-        this.setState((prevState, _) => {
-          var stroke = prevState.currentStroke;
-          stroke.push([x, y]);
-          return {
-            isMouseDown: true,
-            signature: prevState.signature,
-            currentStroke: stroke
-          };
-        });  
-      }
-    }
+    this.editSignature(e, ({x, y}) => this.state.isMouseDown ? this.mapCurrentStroke(cs => cs.concat([[x, y]])) : undefined);
+    if (this.props.onMouseMove) this.props.onMouseMove(e);
   }
 }
 
+export default SignatureField;

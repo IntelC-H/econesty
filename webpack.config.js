@@ -1,7 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var pkg = require("./package.json");
+var pkg = require('./package.json');
 
 module.exports = {
   devtool: "cheap-module-source-map",
@@ -11,16 +11,25 @@ module.exports = {
   },
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
-    filename: '[name].js',
+    filename: "[name].js",
   },
   module: {
     loaders: [
       {
-        test: /\.jsx?$/,
-        loader: 'babel-loader',
+        test: /\.jsx$/,
+        loader: "babel-loader",
         exclude: /node_modules/,
         query: {
-          presets: ['latest', 'react', ],
+          presets: ["latest", "react"],
+          plugins: ["transform-object-rest-spread"]
+        }
+      },
+      {
+        test: /\.js$/,
+        loader: "babel-loader",
+        exclude: /node_modules/,
+        query: {
+          presets: ["latest"],
           plugins: ["transform-object-rest-spread"]
         }
       },
@@ -39,10 +48,10 @@ module.exports = {
   },
   resolve: {
     alias: {
-      app: path.resolve("./frontend/js/"),
-      style: path.resolve("./frontend/css/")
+      app: path.resolve('./frontend/js/'),
+      style: path.resolve('./frontend/css/')
     },
-    extensions: ['.js', '.jsx', '.scss', '.css']
+    extensions: [".js", ".jsx", ".scss", ".css"]
   },
   plugins: [
     new ExtractTextPlugin({
@@ -58,4 +67,3 @@ module.exports = {
     }),
   ]
 };
-

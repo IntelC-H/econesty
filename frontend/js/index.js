@@ -1,9 +1,5 @@
 console.log("using " + ENV + " environment");
 
-// Polyfills
-import 'whatwg-fetch';
-
-// App
 import 'style/main'; // import our SCSS
 import App from 'app/main'; // import our JavaScript & JSX
 

@@ -51,7 +51,7 @@ function profile(props) {
 }
 
 function home(props) {
-  return null;
+  return <Components.SignatureField width="320" height="200" />;
 }
 
 const loginForm = {

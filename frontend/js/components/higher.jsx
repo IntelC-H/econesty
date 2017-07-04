@@ -55,11 +55,8 @@ function _makeForm(formDict, onSubmit) {
   var elems = [];
   for (var name in formDict) {
     var v = formDict[name];
-    if (v instanceof String) {
-      elems.push(<input type={v} key={formId + '-' + name} name={name} />);
-    } else if (React.isValidElement(v)) {
-      elems.push(React.cloneElement(v, {key: formId + '-' + name, name: name}, v.props.children));
-    }
+    if (v instanceof String)          elems.push(<input type={v} key={formId + '-' + name} name={name} />);
+    else if (React.isValidElement(v)) elems.push(React.cloneElement(v, {key: formId + '-' + name, name: name}, v.props.children));
   }
   elems.push(<button key={formId + "-submit"} type="submit">Save</button>);
 
@@ -77,8 +74,7 @@ function _makeForm(formDict, onSubmit) {
   function setValueWithObj(obj) {
     return (e) => {
       var v = obj[e.props.name];
-      if (v) return React.cloneElement(e, {value: v}, e.props.children);
-      else   return e;
+      return !v ? e : React.cloneElement(e, {value: v}, e.props.children);
     }
   }
 
