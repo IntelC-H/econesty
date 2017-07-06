@@ -1,9 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+//import PropTypes from 'prop-types';
 
 // TODO: prop-types:
 // 1. signature: string or array?
+// 2. editable: bool
 // All other props are passed onto the canvas
+// except name and value, which are passed onto the hidden input.
 
 function sigToCSV(sig) {
   if (!sig) return "x,y\n";
@@ -20,14 +22,13 @@ function sigFromCSV(csv) {
   if (!csv) return [];
   if (csv instanceof Array) return csv;
   var lines = csv.split("\n");
-  if (lines.length == 0) return null;
-  var header = lines.shift();
-  if (header != "x,y") return null;
-  if (lines.length == 0) return [];
+  if (lines.length === 0) return null;
+  if (lines.shift() !== "x,y") return null;
+  if (lines.length === 0) return [];
   var sig = [];
   var currentStroke = [];
   lines.forEach(l => {
-    if (l == "null,null") {
+    if (l === "null,null") {
       sig.push(currentStroke);
       currentStroke = [];
     } else {
@@ -37,7 +38,7 @@ function sigFromCSV(csv) {
   return sig;
 }
 
-class SignatureField extends React.Component {
+class SignatureField extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -52,38 +53,47 @@ class SignatureField extends React.Component {
     this.onMouseMove = this.onMouseMove.bind(this);
   }
 
-  get signature() { return sigToCSV(this.props.signature || this.state.signature); }
-  get canEdit() { return this.props.signature === undefined; }
-
-  reset() { this.setState(st => ({ ...st, signature: [], currentStroke: [] })); }
+  reset() {
+    this.setState(st => ({ ...st, signature: [], currentStroke: [] }));
+  }
 
   // ReactJS overrides
 
-  componentDidMount() { this.drawCanvas(); }
-  componentDidUpdate() { this.drawCanvas(); }
+  componentDidMount() {
+    this.drawCanvas();
+  }
+
+  componentDidUpdate() {
+    this.drawCanvas();
+  }
 
   render() {
-    const {className, onMouseDown, onMouseUp, onMouseMove, signature, ...props} = this.props;
-    return <canvas
-            ref={((e) => this.canvas = e).bind(this)}
+    const signatureCSV = sigToCSV(this.props.value || this.state.signature);
+    const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, ...props} = this.props;
+    return (
+      <div>
+        <input type="hidden" name={this.props.name} value={signatureCSV} />
+        <canvas
+            ref="canvas"
             className={"signaturefield " + className}
             onMouseOut={this.onMouseOut}
             onMouseDown={this.onMouseDown}
             onMouseUp={this.onMouseUp}
             onMouseMove={this.onMouseMove}
             {...props}
-           />;
+           />
+      </div>
+    );
   }
 
-  // Internal Rendering Helpers
+  // Canvas Rendering Helpers
 
   drawCanvas() {
     var ctx = this.canvas.getContext('2d');
     ctx.lineWidth = this.props.lineWidth || "2"
     ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
     ctx.beginPath();
-    var sig = sigFromCSV(this.props.signature || this.state.signature);
-    console.log(this.state.signature);
+    var sig = sigFromCSV(this.props.value || this.state.signature);
     sig.concat([this.state.currentStroke])
        .filter(s => s.length > 0)
        .forEach(s => {
@@ -109,13 +119,13 @@ class SignatureField extends React.Component {
       ...st,
       isMouseDown: true,
       currentStroke: f(st.currentStroke)
-    })); 
+    }));
   }
 
   // DRY
 
   editSignature(e, f) {
-    if (this.canEdit) {
+    if (this.props.editable) {
       e.preventDefault();
       const rect = this.canvas.getBoundingClientRect();
       f({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -125,7 +135,8 @@ class SignatureField extends React.Component {
   // SyntheticEvent handlers
 
   onMouseOut(e) {
-    if (this.state.isMouseDown) this.finishStroke();
+    e.preventDefault();
+    if (this.props.editable && this.state.isMouseDown) this.finishStroke();
     if (this.props.onMouseOut) this.props.onMouseOut(e);
   }
 
@@ -133,12 +144,12 @@ class SignatureField extends React.Component {
     this.editSignature(e, ({x, y}) => this.mapCurrentStroke(_ => [[x, y]]));
     if (this.props.onMouseDown) this.props.onMouseDown(e);
   }
-    
+
   onMouseUp(e) {
     this.editSignature(e, ({x, y}) => this.finishStroke(x, y));
     if (this.props.onMouseUp) this.props.onMouseUp(e);
   }
-  
+
   onMouseMove(e) {
     this.editSignature(e, ({x, y}) => this.state.isMouseDown ? this.mapCurrentStroke(cs => cs.concat([[x, y]])) : undefined);
     if (this.props.onMouseMove) this.props.onMouseMove(e);

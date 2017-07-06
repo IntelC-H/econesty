@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TextField from './textfield';
 import { API, APICollection } from 'app/api';
-import CompAPI from './api';
+import Higher from './higher';
 
 const propTypes = {
   headerComponent: PropTypes.func,
@@ -29,7 +29,11 @@ class SearchField extends React.Component {
 
   render() {
     const canSearch = (this.state.search || "").length > 0;
-    var Coll = CompAPI.collection(this.props.api, 1, this.state.search, this.props.headerComponent, this.props.component)
+    var Coll = Higher.asyncCollection(
+      this.props.headerComponent,
+      this.props.component,
+      page => this.props.api.list(page, this.state.search)
+    );
     return (
       <div className="searchfield">
         <TextField label={"Search " + this.props.api.resource + "s"} onChange={this.handleChange} value={this.state.search} />

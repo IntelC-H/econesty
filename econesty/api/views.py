@@ -48,11 +48,26 @@ class UserViewSet(viewsets.ModelViewSet):
 
   @detail_route(permission_classes=[permissions.IsAuthenticated])
   def payment(self, request, pk = None):
-    pk = request.auth.user.id if pk == "me" else  pk
-    common = self.find_common(request.auth.user.id, pk);
+    pk = request.auth.user.id if pk == "me" else int(pk)
+    common = self.find_common_payment(request.auth.user.id, pk);
     if common is None:
       raise NotFound(detail="No common payment data.", code=404)
     return Response(common)
+
+  @detail_route(permission_classes=[permissions.IsAuthenticated])
+  def transactions(self, request, pk = None):
+    uid = request.auth.user.id
+    pk = uid if pk == "me" else int(pk) # the primary key of the user to load transactions for
+    qs = models.Transaction.objects.all();
+    qs = qs.filter(buyer__id=pk) | qs.filter(seller__id=pk) # Ensure only user #{pk}'s transactions are fetched
+    qs = qs & (qs.filter(buyer__id=uid) | qs.filter(seller__id=uid)) # Ensure only transactions the authenticated user can see are fetched.
+    qs = qs.order_by("-created_at") # Order newest to lodest
+    page = self.paginate_queryset(qs)
+    ser = serializers.TransactionSerializer(page or qs, many=True)
+    if page is not None:
+      return self.get_paginated_response(ser.data)
+    else:
+      return Response(ser.data)
 
   # TODO: stats detail route
   # @detail_route()
@@ -62,9 +77,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
   #   qs = qs.filter(buyer=pk) || qs.filter(seller=pk)
 
-  def find_common(self, me, them):
-    me = models.PaymentData.objects.filter(user__id=me).all()
-    them = models.PaymentData.objects.filter(user__id=them).all()
+  def find_common_payment(self, me_id, them_id):
+    me = models.PaymentData.objects.filter(user__id=me_id).all()
+    them = models.PaymentData.objects.filter(user__id=them_id).all()
    
     me_hsh = {}
     for x in me:
@@ -75,8 +90,8 @@ class UserViewSet(viewsets.ModelViewSet):
       them_hsh[x.kind] = x
 
     for k in models.PaymentData.KINDS:
-      m = me_hsh.get(k, None);
-      t = them_hsh.get(k, None);
+      m = me_hsh.get(k, None)
+      t = them_hsh.get(k, None)
       if m is not None and t is not None:
         return {
           'me': serializers.PaymentDataSerializer(m).data,
@@ -100,7 +115,7 @@ class CounterSignatureViewSet(viewsets.ModelViewSet):
   serializer_class = serializers.CounterSignatureSerializer
 
   def get_queryset(self):
-    return models.CounterSignature.objects.filter(user=self.request.auth.user)
+    return models.CounterSignature.objects.filter(user__id=self.request.auth.user.id)
   
 class TransactionViewSet(viewsets.ModelViewSet):
   permission_classes = (permissions.IsAuthenticated, OwnedOrReadonly)
@@ -110,7 +125,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     u = self.request.auth.user
     qs = models.Transaction.objects.all()
     if u is not None:
-      qs = qs.filter(buyer=u) | qs.filter(seller=u)
+      qs = qs.filter(buyer__id=u.id) | qs.filter(seller__id=u.id)
     return qs.order_by("-created_at")
 
   @detail_route()
@@ -135,4 +150,3 @@ class TransactionViewSet(viewsets.ModelViewSet):
     else:
       serializer = self.get_serializer([sig.transaction for sig in q], many=True)
       return Response(serializer.data)
- 

@@ -22,7 +22,7 @@ const defaultProps = {
   onBlur: _ => {},
   secure: false,
   email: false,
-  maxLength: 524288, // max text length for <input>.
+  maxLength: 524288 // max text length for <input>.
 };
 
 // Abstract me!
@@ -36,8 +36,14 @@ class TextField extends React.PureComponent {
     this.onSearch = this.onSearch.bind(this);
   }
 
-  get name() { return this.props.name; }
-  get value() { return this.state.value; }
+  get name() {
+    return this.props.name;
+  }
+
+  get value() {
+    return this.state.value;
+  }
+
   get type() {
     if (this.props.secure) return "password";
     if (this.props.email) return "email";

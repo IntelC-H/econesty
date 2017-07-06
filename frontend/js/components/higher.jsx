@@ -5,30 +5,100 @@ function guid() {
   return s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
 }
 
-class PromiseRenderer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  componentDidMount() {
-    if (this.props.promise) {
-      var that = this;
-      this.props.promise.catch(function(err) { that.setState({error: err}); })
-                        .then(function(res) { that.setState({object: res}); });
+// Comp: a component whose props should be loaded asynchronously.
+// func(setAsyncProps) => { ... code that uses setAsyncProps ... }: A function to async load props
+export function asyncWithProps(Comp, onMount = _ => undefined, onUnmount = _ => undefined) {
+  return class extends React.PureComponent {
+    constructor(props) {
+      super(props);
+      this.state = {};
+      this.setState = this.setState.bind(this);
     }
-  }
 
-  render() {
-    if (this.state.error)  return <div className="error"><p>{this.state.error.message}</p></div>;
-    if (this.state.object) return React.createElement(Higher.withObject(this.state.object, this.props.component), this.props, null);
-    return <div className="loading" />;
-  }
+    componentDidMount() {
+      onMount(this.setState);
+    }
+
+    componentWillUnmount() {
+      onUnmount(this.setState);
+    }
+
+    render() {
+      return <Comp {...Object.assign({}, {setAsync: this.setState}, this.props, this.state)} />;
+    }
+  };
+}
+
+export function asyncWithObject(Comp, onMount = _ => undefined, onUnmount = _ => undefined) {
+  return asyncWithProps(
+    props => {
+      if (props.object) return <Comp {...props} />;
+      if (props.error) return <div className="error"><p>{props.error.message}</p></div>;
+      return <div className="loading" />;
+    },
+    setAsyncProps => onMount({ setAsyncProps: setAsyncProps, setError: e => setAsyncProps({error: e}), setObject: o => setAsyncProps({object: o}) }),
+    setAsyncProps => onUnmount({ setAsyncProps: setAsyncProps, setError: e => setAsyncProps({error: e}), setObject: o => setAsyncProps({object: o}) })
+  );
+}
+
+export function withWebSocket(url, component, protocols=[]) {
+  return asyncWithObject(
+    component,
+    funcs => {
+      function makeWebSocket() {
+        var ws = new WebSocket(url, protocols);
+        ws.onopen = _ => funcs.setAsyncProps({ws: ws});
+        ws.onmessage = e => funcs.setAsyncProps({ws: ws, object: JSON.parse(e.data) });
+        ws.onclose = e => {
+          var reason = null;
+          // See http://tools.ietf.org/html/rfc6455#section-7.4.1
+          // TODO: this is a switch statement.
+          if (e.code === 1001)
+            reason = "An endpoint is \"going away\", such as a server going down or a browser having navigated away from a page.";
+          else if (e.code === 1002)
+            reason = "An endpoint is terminating the connection due to a protocol error";
+          else if (e.code === 1003)
+            reason = "An endpoint is terminating the connection because it has received a type of data it cannot accept (e.g., an endpoint that understands only text data MAY send this if it receives a binary message).";
+          else if (e.code === 1004)
+            reason = "Reserved. The specific meaning might be defined in the future.";
+          else if (e.code === 1005)
+            reason = "No status code was actually present.";
+          else if (e.code === 1006)
+            reason = "The connection was closed abnormally, e.g., without sending or receiving a Close control frame";
+          else if (e.code === 1007)
+            reason = "An endpoint is terminating the connection because it has received data within a message that was not consistent with the type of the message (e.g., non-UTF-8 [http://tools.ietf.org/html/rfc3629] data within a text message).";
+          else if (e.code === 1008)
+            reason = "An endpoint is terminating the connection because it has received a message that \"violates its policy\". This reason is given either if there is no other sutible reason, or if there is a need to hide specific details about the policy.";
+          else if (e.code === 1009)
+            reason = "An endpoint is terminating the connection because it has received a message that is too big for it to process.";
+          else if (e.code === 1010)
+            reason = "An endpoint (client) is terminating the connection because it has expected the server to negotiate one or more extension, but the server didn't return them in the response message of the WebSocket handshake.\n\n Specifically, the extensions that are needed are: " + event.reason;
+          else if (e.code === 1011)
+            reason = "A server is terminating the connection because it encountered an unexpected condition that prevented it from fulfilling the request.";
+          else if (e.code === 1015)
+            reason = "The connection was closed due to a failure to perform a TLS handshake (e.g., the server certificate can't be verified).";
+          else
+            reason = "Unknown websocket failure.";
+
+          if (!reason) funcs.setAsyncProps({});
+          else         funcs.setAsyncProps({error: new Error(reason)});
+          makeWebSocket();
+        };
+      }
+
+      makeWebSocket();
+    },
+    _ => ws.close()
+  );
+}
+
+export function withPromise(promise, Comp) {
+  return asyncWithObject(Comp, ({setError, setObject}) => promise.catch(setError).then(setObject));
 }
 
 function collection(header, body, setPage) {
-  const Header = header || ((_) => null);
-  const Body = body || ((_) => null);
+  const Header = header || (_ => null);
+  const Body = body || (_ => null);
 
   return (props) => {
     var obj = props.object;
@@ -50,6 +120,16 @@ function collection(header, body, setPage) {
   };
 }
 
+export function asyncCollection(header, body, makePromise) {
+  return Higher.asyncWithProps(props => {
+    const Promised = Higher.withPromise(
+      makePromise(props.page || 1),
+      Higher.collection(header, body, p => props.setAsync({page: p}))
+    );
+    return <Promised {...props} />;
+  });
+}
+
 function _makeForm(formDict, onSubmit) {
   var formId = guid();
   var elems = [];
@@ -62,7 +142,7 @@ function _makeForm(formDict, onSubmit) {
 
   const onSubmitForm = (e) => {
     e.preventDefault();
-    const isInput = (el) => el.nodeName.toLowerCase() == "input";
+    const isInput = el => el.nodeName.toLowerCase() === "input";
     const reduceInputs = (acc, i) => {
       acc[i.name] = i.value;
       return acc;
@@ -88,22 +168,25 @@ function _makeForm(formDict, onSubmit) {
 //                       >> React.Component: value and name set, then added to the view hierarchy.
 // defaults: oneOf(null, Promise, Object, Function)
 //           >> null: only use defaults from existing props.object
-//           >> Promise: evaluate a promise down to an object and use it as defaults.
+//           >> Promise: evaluate a promise down to a function or object and use it as defaults.
 //           >> Object: use these defaults.
 //           >> Function: apply defaults to props, and then use the result.
 function form(formDict, defaults, onSubmit = ((_) => undefined)) {
-  if (defaults instanceof Promise)       return Higher.withPromise(defaults, _makeForm(formDict, onSubmit));
-  else if (defaults instanceof Function) return (props) => React.createElement(form(formDict, defaults(props), onSubmit), props, null);
+  console.log("FORM", formDict, defaults);
+  if (defaults instanceof Promise) return Higher.withPromise(defaults, props => React.createElement(form(formDict, props.object, onSubmit), props, null));
+  else if (defaults instanceof Function) return props => React.createElement(form(formDict, defaults(props), onSubmit), props, null);
   return Higher.withObject(defaults || {}, _makeForm(formDict, onSubmit));
 }
 
 const Higher = {
   collection: collection,
+  asyncCollection: asyncCollection,
   form: form,
-  withPromise: (promise, comp) => Higher.withProps({promise: promise, component: comp}, PromiseRenderer), // FIXME: this clobbers components!
   withProps: (addlProps, Component) => (props) => <Component {...Object.assign({}, props, addlProps)} />,
-  withObjectId: (objectId, component) => Higher.withProps({objectId: objectId}, component),
-  withObject: (obj, component) => Higher.withProps({object: obj}, component)
+  withObject: (obj, component) => Higher.withProps({object: obj}, component),
+  asyncWithProps: asyncWithProps,
+  asyncWithObject: asyncWithObject,
+  withPromise: withPromise
 }
 
 export default Higher;

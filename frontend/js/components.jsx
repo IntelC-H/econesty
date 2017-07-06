@@ -1,34 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Redirect, withRouter } from 'react-router';
 
 import SignatureField from './components/signaturefield';
 import TextField from './components/textfield';
 import Higher from './components/higher';
 import API from './components/api';
+import Decorators from './components/decorators';
 
-export function redirect(path) {
-  return (props) => {
-    props.history.replace(path);
-    return null; // Appease react
-  }
+function rewritePath(regex, v) {
+  var p = v instanceof Promise ? v : Promise.resolve(v);
+  return withRouter(Higher.withPromise(p, props => <Redirect
+                                                     push={false}
+                                                     from={props.location.pathname}
+                                                     to={props.location.pathname.replace(regex, props.object)}
+                                                   />));
 }
 
-export function redirectWith(path, p=null) {
-  if (p) return Higher.withPromise(p, (props) => props.history.replace(path + props.object.id));
-  else return redirect(path); //(props) => props.history.replace(path);
-}
-
-export function rewritePath(compName, value) {
-  if (value instanceof Promise) {
-    return Higher.withPromise(value, (props) => React.createElement(rewritePath(compName, props.object), props, null));
-  }
-  return (props) => {
-    props.history.replace(props.location.pathname.replace("/" + compName, "/" + value));
-    return null; // appease React
-  };
-}
-
-export function money(value, currency) {
+function money(value, currency) {
   function toSymbol(curr) {
     if (curr === 'USD') return '$';
     if (curr === 'EUR') return '€';
@@ -40,19 +29,19 @@ export function money(value, currency) {
     return null;
   }
 
-  return (props) => <span>{toSymbol(currency.toUpperCase()) || curr} {value}</span>;
+  return props => <span>{toSymbol(currency.toUpperCase()) || currency} {value}</span>;
 }
 
-export { Higher, API, TextField, SignatureField }
+export { Higher, API, TextField, SignatureField, rewritePath, money }
 
 export default {
-  Higher: Higher,
-  API: API,
+  Higher: Higher, // Contains higher-level components
+  API: API, // Contains API-related higher-level components.
+  Decorators: Decorators, // Contains decorators
 
   TextField: TextField,
   SignatureField: SignatureField,
   
-  redirectWith: redirectWith,
   rewritePath: rewritePath,
   money: money
 };

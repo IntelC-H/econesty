@@ -15,7 +15,7 @@ export default class Header extends React.Component {
       <div className="header">
         <div className="header-item left"><a href="/" className="light">Econesty</a></div>
         <div className="header-item right light"><SearchField api={API.user} headerComponent={this.showCount} component={this.showUser} /></div>
-        <div className="header-item right"><a href="/user/me" className="light">Profile</a></div> 
+        <div className="header-item right"><a href="/user/me" className="light">Profile</a></div>
       </div>
     );
   }

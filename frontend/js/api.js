@@ -44,8 +44,13 @@
 
 
 class API {
-  static getToken() { return localStorage.getItem("token"); }
-  static setToken(token) { localStorage.setItem("token", token); }
+  static getToken() {
+    return localStorage.getItem("token");
+  }
+
+  static setToken(token) {
+    localStorage.setItem("token", token);
+  }
 
   static networking(method, path, urlparams, body) {
     var opts  = {
@@ -56,28 +61,52 @@ class API {
         "Accept": "application/json"
       }
     };
-  
+
     if (body) {
       opts.body = JSON.stringify(body);
     }
-  
+
     var token = this.getToken();
     if (token) {
-      opts.headers["Authorization"] = "Token " + token;
+      opts.headers.Authorization = "Token " + token;
     }
   
     var ups = urlparams;
-    ups["format"] = "json";
-  
+    ups.format = "json";
+
     var url = window.location.protocol + "//" + window.location.host + "/api" + path + "/";
     url += "?" + Object.keys(ups)
-                       .filter(k => ups[k] != null)
+                       .filter(k => ups[k])
                        .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(ups[k]))
-                       .join("&"); 
-  
-    return fetch(url, opts).then((res) => {
-      if (res.ok) return res.json();
-      else        throw new Error(res.statusText);
+                       .join("&");
+
+    return fetch(url, opts).then(res => res.json()
+                                           .then(j => ({ object: j, res: res })))
+                           .then(({object, res}) => {
+      if (res.ok) return object;
+      throw new Error(object.detail || res.statusText);
+    })
+  }
+
+  static parseQuery(url) {
+    const regex = /[?&]([^=#]+)=([^&#]*)/g;
+    var params = {};
+    while (true) {
+      const match = regex.exec(url);
+      if (!match) break;
+      params[match[1]] = match[2];
+    }
+    return params;
+  }
+
+  static paginate(promise, collection) {
+    var that = this;
+    return promise.then(res => {
+      if (res.next) res.next = parseInt(this.parseQuery(res.next).page);
+      if (res.previous) res.previous = parseInt(this.parseQuery(res.previous).page);
+      res.page = res.next ? res.next - 1 : (res.previous ? res.previous + 1 : 1)
+      res.results = Array.from(res.results.map(collection.onInstance));
+      return res;
     });
   }
 }
@@ -101,14 +130,7 @@ class APICollection {
   list(page, q = null) {
     var that = this;
     var ps = q ? {page: page, search: q} : {page: page};
-    return API.networking("GET", "/" + this.resource, ps, null).then(res => {
-      console.log(res);
-      res.page = page;
-      if (res.next) res.next = page + 1;
-      if (res.previous) res.previous = page - 1;
-      res.results = Array.from(res.results.map(that.onInstance));
-      return res;
-    });
+    return API.paginate(API.networking("GET", "/" + this.resource, ps, null), this);
   }
 
   update(id, body = null) {
@@ -119,12 +141,12 @@ class APICollection {
     return API.networking(soft ? "PATCH" : "DELETE", "/" + this.resource + "/" + id, {}, soft ? {deleted: true} : null).then((_) => null);
   }
 
-  classMethod(httpmeth, method, body = null) {
-    return API.networking(httpmeth, "/" + this.resource + "/" + method, {}, body);
+  classMethod(httpmeth, method, body = null, urlparams = {}) {
+    return API.networking(httpmeth, "/" + this.resource + "/" + method, urlparams, body);
   }
 
-  instanceMethod(httpmeth, method, id, body = null) {
-    return API.networking(httpmeth, ("/" + this.resource + "/" + id + "/" + method), {}, body);
+  instanceMethod(httpmeth, method, id, body = null, urlparams = {}) {
+    return API.networking(httpmeth, ("/" + this.resource + "/" + id.toString() + "/" + method), urlparams, body);
   }
 
   // called on every instance that 

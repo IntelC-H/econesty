@@ -1,6 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { Route } from 'react-router';
+import { Router, Route } from 'react-router';
+import createBrowserHistory from 'history/createBrowserHistory'
 
 import { API, APICollection, APIActionCollection } from 'app/api';
 
@@ -15,6 +15,8 @@ import Components from 'app/components';
 
 // Setup API
 API.user = new APICollection("user");
+API.user.me = () => API.user.classMethod("GET", "me");
+API.user.transactions = (userId, page = 1) => API.user.instanceMethod("GET", "transactions", userId, null, {page: page});
 API.transaction = new APICollection("transaction");
 API.payment_data = new APICollection("paymentdata");
 API.countersignature = new APICollection("countersignature");
@@ -36,16 +38,19 @@ function joinPromises(psDict) {
 }
 
 function profile(props) {
+  const userId = props.match.params.id;
+  const UserView = Components.API.view(API.user, User);
+  const TransactionCollection = Components.Higher.asyncCollection(
+    _ => <span className="primary light">Transactions</span>,
+    Transaction,
+    page => API.paginate(API.user.transactions(userId, page), API.transaction)
+  );
   return (
     <div>
-      {React.createElement(Components.API.view(API.user, User), props, null)}
-      <button onClick={() => props.history.push("/user/" + props.match.params.user + "/transaction/buy")}>Buy From</button>
-      <button onClick={() => props.history.push("/user/" + props.match.params.user + "/transaction/sell")}>Sell To</button>
-      {React.createElement(Components.API.collection(API.transaction,
-                                 1,
-                                 null,
-                                 props => <span className="primary light">Transactions</span>,
-                                 Transaction), props, null)}
+      <UserView {...props} />
+      <button onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</button>
+      <button onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</button>
+      <TransactionCollection {...props} />
     </div>
   );
 }
@@ -70,14 +75,14 @@ const signupForm = {
 const countersignForm = {
   user_id: "hidden",
   transaction_id: "hidden",
-  signature: <Components.SignatureField />
+  signature: <Components.SignatureField editable />
 };
 
 const countersignDefaults = props => {
-  var transid = parseInt(props.match.params["transid"]);
+  var transid = parseInt(props.match.params.id);
   return joinPromises({
-    me: API.user.classMethod("GET", "me"),
-    transaction: API.transaction.read(transid),
+    me: API.user.me(),
+    transaction: API.transaction.read(transid)
   }).then(res => ({
     user_id: res.me.id,
     transaction_id: res.transaction.id,
@@ -88,10 +93,10 @@ const countersignDefaults = props => {
 const paymentDataForm = {
   data: <Components.TextField label="Data" />,
   encryped: "checkbox",
-  user_id: "hidden",
+  user_id: "hidden"
 };
 
-const paymentDataDefaults = API.user.classMethod("GET", "me").then(user => ({
+const paymentDataDefaults = API.user.me().then(user => ({
   data: "",
   encrypted: false,
   user_id: user.id
@@ -104,7 +109,7 @@ const transactionForm = {
   "buyer_id": "hidden",
   "buyer_payment_data_id": "hidden",
   "seller_id": "hidden",
-  "seller_payment_data_id": "hidden",
+  "seller_payment_data_id": "hidden"
 };
 
 const transactionDefaults = props => {
@@ -112,9 +117,9 @@ const transactionDefaults = props => {
   var otherId = undefined;
 
   if (props.match) {
-    isBuyer = props.match.params["action"] == "buy";
-    otherId = props.match.params["user"];
-    otherId = otherId == "me" ? undefined : parseInt(otherId);
+    isBuyer = props.match.params.action === "buy";
+    otherId = props.match.params.id;
+    otherId = otherId === "me" ? undefined : parseInt(otherId);
   }
 
   return joinPromises({
@@ -127,12 +132,14 @@ const transactionDefaults = props => {
      "buyer_id": isBuyer ? res.me.id : otherId,
      "buyer_payment_data_id": isBuyer ? res.payment.me.id : res.payment.them.id,
      "seller_id": isBuyer ? otherId : res.me.id,
-     "seller_payment_data_id": isBuyer ? res.payment.them.id : res.payment.me.id,
+     "seller_payment_data_id": isBuyer ? res.payment.them.id : res.payment.me.id
   }));
 };
 
-const App = (
-  <Router>
+const history = createBrowserHistory({forceRefresh: true});
+
+const App = () => (
+  <Router history={history} >
     <div>
       <Header title="Home" />
       <div className="content">
@@ -141,18 +148,21 @@ const App = (
         <Route exact path="/login" component={Components.API.form(API.token, loginForm)} />
         <Route exact path="/signup" component={Components.API.form(API.user, signupForm)} />
 
-        <Route       path="/token" component={Components.redirectWith("/user/me")} />
-        <Route exact path="/user/me" component={Components.redirectWith("me", API.user.classMethod("GET", "me").then(res => res.id))} />
+        <Route exact path="/token" component={Components.rewritePath(/.*/, "/user/me")} />
+        <Route exact path="/user/me" component={Components.rewritePath(
+            /.*/,
+            API.user.me().then(res => "/user/" + res.id.toString())
+          )} />
 
         <Route exact path='/user/:id' component={profile} />
-        <Route exact path='/user/:user/transaction/:action' component={Components.API.form(API.transaction, transactionForm, transactionDefaults)} />
+        <Route exact path='/user/:id/transaction/:action' component={Components.API.form(API.transaction, transactionForm, transactionDefaults)} />
 
         <Route exact path='/transaction/:id' component={Components.API.view(API.transaction, Transaction)} />
-        <Route exact path='/transaction/:transid/countersign' component={Components.API.form(API.countersignature, countersignForm, countersignDefaults)} />
+        <Route exact path='/transaction/:id/countersign' component={Components.API.form(API.countersignature, countersignForm, countersignDefaults)} />
 
         <Route exact path='/payment/new' component={Components.API.form(API.payment_data, paymentDataForm, paymentDataDefaults)} />
       </div>
-   </div>
+    </div>
   </Router>
 );
 

@@ -24,7 +24,7 @@ $textfield-width: 120px;
     outline: none;
 
     &:focus {
-      border-bottom: 1px solid $accent-color;
+      border-bottom: 2px solid $accent-color;
     }
 
     &:focus ~ label, &:valid ~ label {
