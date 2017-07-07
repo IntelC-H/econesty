@@ -33,15 +33,15 @@ $textfield-width: 120px;
       color: $accent-color;
       @include transition('0.2s ease all');
     }
-  }
-
-  label {
-    display: block;
-    font-size: $textfield-fontsize;
-    font-weight: normal;
-    position: relative;
-    pointer-events: none;
-    top: -(($textfield-padding * 2) + $textfield-fontsize);
-    @include transition('0.2s ease all');
+    
+    & ~ label {
+      display: block;
+      font-size: $textfield-fontsize;
+      font-weight: normal;
+      position: relative;
+      pointer-events: none;
+      top: -(($textfield-padding * 2) + $textfield-fontsize);
+      @include transition('0.2s ease all');
+    }
   }
 }

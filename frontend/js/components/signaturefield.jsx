@@ -1,5 +1,6 @@
 import React from 'react';
 //import PropTypes from 'prop-types';
+import { Element } from './form';
 
 // TODO: prop-types:
 // 1. signature: string or array?
@@ -72,9 +73,9 @@ class SignatureField extends React.PureComponent {
     const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, ...props} = this.props;
     return (
       <div>
-        <input type="hidden" name={this.props.name} value={signatureCSV} />
+        <Element hidden name={this.props.name} value={signatureCSV} />
         <canvas
-            ref="canvas"
+            ref={e => (this.canvas = e) && undefined }
             className={"signaturefield " + className}
             onMouseOut={this.onMouseOut}
             onMouseDown={this.onMouseDown}
@@ -141,7 +142,7 @@ class SignatureField extends React.PureComponent {
   }
 
   onMouseDown(e) {
-    this.editSignature(e, ({x, y}) => this.mapCurrentStroke(_ => [[x, y]]));
+    this.editSignature(e, ({x, y}) => this.mapCurrentStroke(() => [[x, y]]));
     if (this.props.onMouseDown) this.props.onMouseDown(e);
   }
 

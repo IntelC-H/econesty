@@ -70,7 +70,7 @@ class API {
     if (token) {
       opts.headers.Authorization = "Token " + token;
     }
-  
+
     var ups = urlparams;
     ups.format = "json";
 
@@ -102,9 +102,9 @@ class API {
   static paginate(promise, collection) {
     var that = this;
     return promise.then(res => {
-      if (res.next) res.next = parseInt(this.parseQuery(res.next).page);
-      if (res.previous) res.previous = parseInt(this.parseQuery(res.previous).page);
-      res.page = res.next ? res.next - 1 : (res.previous ? res.previous + 1 : 1)
+      if (res.next) res.next = parseInt(that.parseQuery(res.next).page);
+      if (res.previous) res.previous = parseInt(that.parseQuery(res.previous).page);
+      res.page = res.next ? res.next - 1 : res.previous ? res.previous + 1 : 1;
       res.results = Array.from(res.results.map(collection.onInstance));
       return res;
     });
@@ -119,7 +119,6 @@ class APICollection {
   }
 
   create(body) {
-    var that = this;
     return API.networking("POST", "/" + this.resource, {}, body).then(this.onInstance);
   }
 
@@ -128,7 +127,6 @@ class APICollection {
   }
 
   list(page, q = null) {
-    var that = this;
     var ps = q ? {page: page, search: q} : {page: page};
     return API.paginate(API.networking("GET", "/" + this.resource, ps, null), this);
   }
@@ -138,7 +136,7 @@ class APICollection {
   }
 
   delete(id, soft = false) {
-    return API.networking(soft ? "PATCH" : "DELETE", "/" + this.resource + "/" + id, {}, soft ? {deleted: true} : null).then((_) => null);
+    return API.networking(soft ? "PATCH" : "DELETE", "/" + this.resource + "/" + id, {}, soft ? {deleted: true} : null).then(() => null);
   }
 
   classMethod(httpmeth, method, body = null, urlparams = {}) {
@@ -146,7 +144,7 @@ class APICollection {
   }
 
   instanceMethod(httpmeth, method, id, body = null, urlparams = {}) {
-    return API.networking(httpmeth, ("/" + this.resource + "/" + id.toString() + "/" + method), urlparams, body);
+    return API.networking(httpmeth, "/" + this.resource + "/" + id.toString() + "/" + method, urlparams, body);
   }
 
   // called on every instance that 

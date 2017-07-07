@@ -4,14 +4,12 @@ import createBrowserHistory from 'history/createBrowserHistory'
 
 import { API, APICollection, APIActionCollection } from 'app/api';
 
-// Misc
-import Header from 'app/header';
-
 // Representations
 import Transaction from 'app/repr/transaction';
 import User from 'app/repr/user';
 
-import Components from 'app/components';
+// Components
+import Components, { Form } from 'app/components';
 
 // Setup API
 API.user = new APICollection("user");
@@ -21,6 +19,9 @@ API.transaction = new APICollection("transaction");
 API.payment_data = new APICollection("paymentdata");
 API.countersignature = new APICollection("countersignature");
 API.token =  new APIActionCollection("token", res => API.setToken(res.token));
+
+// setup browser history
+const browserHistory = createBrowserHistory({forceRefresh: true});
 
 function joinPromises(psDict) {
   var ps = [];
@@ -37,11 +38,41 @@ function joinPromises(psDict) {
   return Promise.all(ps).then(xs => xs.reduce((acc, x) => Object.assign(acc, x), {}));
 }
 
+function saveFormTo(api, f = null) {
+  return obj => {
+    var p = oid ? api.update(oid, obj) : api.create(obj);
+    p.catch(e => {
+      throw e;
+    }).then(f || (() => undefined));
+  };
+}
+
+function upsertFormTo(api, oid, f = null) {
+  return obj => {
+    var p = oid ? api.update(oid, obj) : api.create(obj);
+    p.catch(e => {
+      throw e;
+    }).then(f || (() => undefined));
+  };
+}
+
+function withAPI(api, form) {
+  const flattenObject = obj => {
+    return obj;
+  };
+  return props => {
+    const WrappedForm = Component.Higher.withPromise(api.read(props.match.params.id).then(flattenObject), form);
+    return <WrappedForm {...props} />;
+  };
+}
+
+////////// APP JSX
+
 function profile(props) {
   const userId = props.match.params.id;
-  const UserView = Components.API.view(API.user, User);
+  const UserView = withAPI(API.user, User);
   const TransactionCollection = Components.Higher.asyncCollection(
-    _ => <span className="primary light">Transactions</span>,
+    () => <span className="primary light">Transactions</span>,
     Transaction,
     page => API.paginate(API.user.transactions(userId, page), API.transaction)
   );
@@ -55,28 +86,42 @@ function profile(props) {
   );
 }
 
-function home(props) {
-  return <Components.SignatureField width="320" height="200" />;
-}
+const home = props =>
+  <div>
+  </div>
+;
 
-const loginForm = {
-  username: <Components.TextField label="Username" />,
-  password: <Components.TextField secure label="Password" />
-};
+///// FORMS
 
-const signupForm = {
-  first_name: <Components.TextField label="First Name" />,
-  last_name: <Components.TextField label="Last Name" />,
-  email: <Components.TextField email label="Email" />,
-  username: <Components.TextField label="Username" />,
-  password: <Components.TextField secure label="Password" />
-};
+// Create-Only
 
-const countersignForm = {
-  user_id: "hidden",
-  transaction_id: "hidden",
-  signature: <Components.SignatureField editable />
-};
+const loginForm = props =>
+  <Form.Form onSubmit={saveFormTo(API.token, obj => {
+    API.setToken(obj.token);
+    browserHistory.push("/user/me");
+  })}>
+    <Form.Element required text name="username" label="Username" wrapperClass="textfield" />
+    <Form.Element required password name="password" label="Password" wrapperClass="textfield" />
+  </Form.Form>
+;
+
+const signupForm = props =>
+  <Form.Form onSubmit={saveFormTo(API.user, user => browserHistory.push("/user/" + user.id))}>
+    <Form.Element required text     name="first_name" label="First Name" wrapperClass="textfield" />
+    <Form.Element required text     name="last_name"  label="Last Name" wrapperClass="textfield" />
+    <Form.Element required email    name="email"      label="Email" wrapperClass="textfield" />
+    <Form.Element required text     name="username"   label="New Username" wrapperClass="textfield" />
+    <Form.Element required password name="password"   label="New Password" wrapperClass="textfield" />
+  </Form.Form>
+;
+
+const countersignForm = props =>
+  <Form.Form onSubmit={saveFormTo(API.countersignature, cs => browserHistory.push("/transaction/" + cs.transaction.id))}>
+    <Form.Element hidden name="user_id" />
+    <Form.Element hidden name="transaction_id" />
+    <Components.SignatureField editable />
+  </Form.Form>
+;
 
 const countersignDefaults = props => {
   var transid = parseInt(props.match.params.id);
@@ -90,11 +135,15 @@ const countersignDefaults = props => {
   }));
 };
 
-const paymentDataForm = {
-  data: <Components.TextField label="Data" />,
-  encryped: "checkbox",
-  user_id: "hidden"
-};
+// Create/update forms.
+
+const paymentDataForm = props =>
+  <Form.Form onSubmit={upsertFormTo(API.payment_data, props.match.params.id, pd => browserHistory.push("/payment/" + pd.id))}>
+    <Form.Element required text name="data" label="Data" wrapperClass="textfield" />
+    <Form.Element checkbox name="encrypted" label="Encrypted" />
+    <Form.Element hidden name="user_id" />
+  </Form.Form>
+;
 
 const paymentDataDefaults = API.user.me().then(user => ({
   data: "",
@@ -102,15 +151,17 @@ const paymentDataDefaults = API.user.me().then(user => ({
   user_id: user.id
 }));
 
-const transactionForm = {
-  "offer": <Components.TextField label="Offer" />,
-  "offer_currency": <Components.TextField label="Currency" />,
-  "required_witnesses": <Components.TextField label="Number of Witnesses" />,
-  "buyer_id": "hidden",
-  "buyer_payment_data_id": "hidden",
-  "seller_id": "hidden",
-  "seller_payment_data_id": "hidden"
-};
+const transactionForm = props =>
+  <Form.Form onSubmit={saveFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
+    <Form.Element required text name="offer" label="Offer" wrapperClass="textfield" />
+    <Form.Element required text name="offer_currency" label="Currency" wrapperClass="textfield" />
+    <Form.Element required text name="required_witnesses" label="Number of Witnesses" wrapperClass="textfield" />
+    <Form.Element hidden name="buyer_id" />
+    <Form.Element hidden name="buyer_payment_data_id" />
+    <Form.Element hidden name="seller_id" />
+    <Form.Element hidden name="seller_payment_data_id" />
+  </Form.Form>
+;
 
 const transactionDefaults = props => {
   var isBuyer = undefined;
@@ -136,34 +187,52 @@ const transactionDefaults = props => {
   }));
 };
 
-const history = createBrowserHistory({forceRefresh: true});
+const showCount = props => {
+  var obj = props.object;
+  return  <div className="secondary">Showing {obj.results.length} of {obj.count}</div>
+};
 
-const App = () => (
-  <Router history={history} >
+const showUser = props => {
+  var obj = props.object;
+  return <div><a className="primary" href={"/user/" + obj.id.toString()}>{obj.username}</a></div>;
+};
+
+const App =
+  <Router history={browserHistory} >
     <div>
-      <Header title="Home" />
+      <div className="header">
+        <div className="header-item left">
+          <a href="/" className="light">Econesty</a>
+        </div>
+        <div className="header-item right light">
+          <Components.SearchField api={API.user} headerComponent={showCount} component={showUser} />
+        </div>
+        <div className="header-item right">
+          <a href="/user/me" className="light">Profile</a>
+        </div>
+      </div>
       <div className="content">
         <Route exact path="/" component={home} />
 
-        <Route exact path="/login" component={Components.API.form(API.token, loginForm)} />
-        <Route exact path="/signup" component={Components.API.form(API.user, signupForm)} />
+        <Route exact path="/login" component={loginForm} />
+        <Route exact path="/signup" component={signupForm} />
 
-        <Route exact path="/token" component={Components.rewritePath(/.*/, "/user/me")} />
-        <Route exact path="/user/me" component={Components.rewritePath(
+        <Route exact path="/user/me" component={Components.Higher.rewritePath(
             /.*/,
             API.user.me().then(res => "/user/" + res.id.toString())
           )} />
 
         <Route exact path='/user/:id' component={profile} />
-        <Route exact path='/user/:id/transaction/:action' component={Components.API.form(API.transaction, transactionForm, transactionDefaults)} />
+        <Route exact path='/user/:id/transaction/:action' component={Components.Higher.withPromiseFactory(transactionDefaults, transactionForm)} />
 
-        <Route exact path='/transaction/:id' component={Components.API.view(API.transaction, Transaction)} />
-        <Route exact path='/transaction/:id/countersign' component={Components.API.form(API.countersignature, countersignForm, countersignDefaults)} />
+        <Route exact path='/transaction/:id' component={withAPI(API.transaction, Transaction)} />
+        <Route exact path='/transaction/:id/countersign' component={Components.Higher.withPromiseFactory(countersignDefaults, countersignForm)} />
 
-        <Route exact path='/payment/new' component={Components.API.form(API.payment_data, paymentDataForm, paymentDataDefaults)} />
+        <Route exact path='/payment/new' component={Components.Higher.withPromise(paymentDataDefaults, paymentDataForm)} />
+        <Route exact path='/payment/:id' component={withAPI(API.payment_data, paymentDataForm)} />
       </div>
     </div>
   </Router>
-);
+;
 
 export default App;

@@ -4,8 +4,7 @@
   "main": "./frontend/js/index.js",
   "scripts": {
     "watch": "npm run build -- --watch",
-    "build": "./node_modules/.bin/webpack --config webpack.config.js --progress --sortModulesBy size",
-    "build_prod": "npm run build -- --define ENV=\"production\""
+    "build": "./node_modules/.bin/webpack --config webpack.config.js --progress --sortModulesBy size"
   },
   "dependencies": {
     "prop-types": "^15.5.10",
@@ -20,15 +19,14 @@
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.24.1",
-    "css-loader": "^0.28.4",
     "eslint": "^4.1.1",
     "eslint-loader": "^1.9.0",
     "eslint-plugin-react": "^7.1.0",
     "extract-text-webpack-plugin": "^2.1.2",
     "history": "^4.6.3",
     "node-sass": "^4.5.3",
+    "raw-loader": "^0.5.1",
     "sass-loader": "^6.0.6",
-    "style-loader": "^0.18.2",
     "webpack": "^2.6.1"
   }
 }

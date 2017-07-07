@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TextField from './textfield';
-import { API, APICollection } from 'app/api';
 import Higher from './higher';
+import { APICollection } from 'app/api';
+import { Element } from './form';
 
 const propTypes = {
   headerComponent: PropTypes.func,
@@ -23,8 +23,8 @@ class SearchField extends React.Component {
     this.state = { search: "" };
   }
 
-  handleChange(tf) {
-    this.setState({search: tf.state.value});
+  handleChange(e) {
+    this.setState({search: e.target.value});
   }
 
   render() {
@@ -36,7 +36,14 @@ class SearchField extends React.Component {
     );
     return (
       <div className="searchfield">
-        <TextField label={"Search " + this.props.api.resource + "s"} onChange={this.handleChange} value={this.state.search} />
+        <Element
+          required text
+          name="search"
+          label={"Search " + this.props.api.resource + "s"}
+          wrapperClass="textfield"
+          onChange={this.handleChange}
+          value={this.state.search}
+        />
         {canSearch && <div className="searchfield-dropdown"><Coll /></div>}
       </div>
     );

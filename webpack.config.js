@@ -6,7 +6,10 @@ var pkg = require('./package.json');
 module.exports = {
   devtool: "cheap-module-source-map",
   entry: {
-    app: ['./frontend/js/index.js'],
+    app: [
+      './frontend/js/index.js',
+      './frontend/css/main.scss'
+    ],
     vendor: Object.keys(pkg.dependencies)
   },
   output: {
@@ -184,16 +187,16 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract({ fallback: "style-loader", use: ["css-loader", "sass-loader"] })
+        loader: ExtractTextPlugin.extract({ use: ["raw-loader", "sass-loader"] })
       },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract({ fallback: "style-loader", use: "css-loader" })
+        loader: ExtractTextPlugin.extract({ use: "raw-loader" })
       }
     ]
   },
   watchOptions: {
-    ignored: /node_modules/
+    ignored: /^((?!frontend).)*$/ // only watch code in ./frontend/
   },
   resolve: {
     alias: {
@@ -210,9 +213,6 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
       minChunks: Infinity
-    }),
-    new webpack.DefinePlugin({
-      ENV: '"development"'
-    }),
+    })
   ]
 };

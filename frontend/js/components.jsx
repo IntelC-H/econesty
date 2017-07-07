@@ -1,47 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Redirect, withRouter } from 'react-router';
 
 import SignatureField from './components/signaturefield';
-import TextField from './components/textfield';
+import SearchField from './components/searchfield';
 import Higher from './components/higher';
-import API from './components/api';
-import Decorators from './components/decorators';
+import Form from './components/form';
 
-function rewritePath(regex, v) {
-  var p = v instanceof Promise ? v : Promise.resolve(v);
-  return withRouter(Higher.withPromise(p, props => <Redirect
-                                                     push={false}
-                                                     from={props.location.pathname}
-                                                     to={props.location.pathname.replace(regex, props.object)}
-                                                   />));
+function _toCurrencySymbol(curr) {
+  if (curr === 'USD') return '$';
+  if (curr === 'EUR') return '€';
+  if (curr === 'JPY') return '¥';
+  if (curr === 'GBP') return '£';
+  // TODO: more
+  return null;
 }
 
-function money(value, currency) {
-  function toSymbol(curr) {
-    if (curr === 'USD') return '$';
-    if (curr === 'EUR') return '€';
-    if (curr === 'JPY') return '¥';
-    if (curr === 'GBP') return '£';
-    if (curr === 'CAD') return '$';
-    if (curr === 'AUD') return '$';
-    if (curr === 'HKD') return '$';
-    return null;
-  }
+const Money = props => <span>{_toCurrencySymbol(props.currency.toUpperCase()) || props.currency} {props.value}</span>;
 
-  return props => <span>{toSymbol(currency.toUpperCase()) || currency} {value}</span>;
+Money.propTypes = {
+  currency: PropTypes.string,
+  value: PropTypes.number
+};
+
+Money.defaultProps = {
+  currency: "USD",
+  value: 0.00
 }
 
-export { Higher, API, TextField, SignatureField, rewritePath, money }
+export { Higher, Decorators, Form, SignatureField, Money };
 
 export default {
   Higher: Higher, // Contains higher-level components
-  API: API, // Contains API-related higher-level components.
-  Decorators: Decorators, // Contains decorators
+  Form: Form, // Form creation
 
-  TextField: TextField,
   SignatureField: SignatureField,
-  
-  rewritePath: rewritePath,
-  money: money
+  SearchField: SearchField,
+  Money: Money
 };

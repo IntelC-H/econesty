@@ -1,7 +1,7 @@
 # Components
 
 Components is a soon-to-be library of React decorators for common things like 
-async REST API access, forms, input, and collection pagination.
+forms, layout, and async content.
 
 ## Modules
 
