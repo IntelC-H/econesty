@@ -74,7 +74,9 @@ class API {
     var ups = urlparams;
     ups.format = "json";
 
-    var url = window.location.protocol + "//" + window.location.host + "/api" + path + "/";
+    var url = window.location.protocol + "//" + window.location.host + "/api" + path;
+    if (!url.endsWith("/")) url = url + "/";
+
     url += "?" + Object.keys(ups)
                        .filter(k => ups[k])
                        .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(ups[k]))

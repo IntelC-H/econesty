@@ -1,20 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Higher from './higher';
+import { asyncCollection } from './higher';
 import { APICollection } from 'app/api';
 import { Element } from './form';
 
 const propTypes = {
   headerComponent: PropTypes.func,
-  component: PropTypes.func,
+  component: PropTypes.func.isRequired,
   api: PropTypes.instanceOf(APICollection).isRequired
-}
+};
 
 const defaultProps = {
-  label: "",
-  headerComponent: null,
-  component: null
-}
+  headerComponent: null
+};
 
 class SearchField extends React.Component {
   constructor(props) {
@@ -28,12 +26,12 @@ class SearchField extends React.Component {
   }
 
   render() {
-    const canSearch = (this.state.search || "").length > 0;
-    var Coll = Higher.asyncCollection(
+    const canSearch = this.state.search.length > 0;
+    const SearchFieldDropdownCollection = asyncCollection(
       this.props.headerComponent,
       this.props.component,
       page => this.props.api.list(page, this.state.search)
-    );
+    )
     return (
       <div className="searchfield">
         <Element
@@ -44,7 +42,9 @@ class SearchField extends React.Component {
           onChange={this.handleChange}
           value={this.state.search}
         />
-        {canSearch && <div className="searchfield-dropdown"><Coll /></div>}
+        {canSearch && <div className="searchfield-dropdown">
+          <SearchFieldDropdownCollection />
+        </div>}
       </div>
     );
   }

@@ -61,10 +61,11 @@ Element.defaultProps = {
 
 const Form = props => {
   var children = !props.children ? [] : props.children.length === 1 ? [props.children] : Array.from(props.children);
+  console.log("<Form />", children, props);
   if (props.onSubmit && !props.subForm) {
-    children.push(<button key={guid()} onClick={e => props.onSubmit(Form.reduceForms(e.target.parentElement))} />);
+    children.push(<button key={guid()} onClick={e => props.onSubmit(Form.reduceForms(e.target.parentElement))}>{props.submitText || "Submit"}</button>);
   }
-  return <div isForm name={props.name}>{children.map(Form.childSetValueWithObj(props.object))}</div>;
+  return Form.setObject(props.object, <div data-is-form data-is-subform={props.subForm} name={props.name}>{children}</div>);
 };
 
 Form.propTypes = {
@@ -81,24 +82,38 @@ Form.defaultProps = {
   subForm: false
 };
 
+// operates on DOM elements
 Form.reduceForms = function(el, acc = {}) {
   Array.from(el.children).forEach(child => {
-    if (child.isForm)           acc[child.name] = reduceForms(child);
+    if (child.data-is-form)     child.data-is-subform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
     if (child.type === "input") acc[child.name] = child.value;
     else                        Form.reduceForms(child, acc);
   });
   return acc;
 };
 
-Form.childSetValueWithObj = function(obj) {
+// operates on ReactDOM elements
+Form.setObject = function(obj, form) {
+  console.log("OBJECT", obj);
   if (obj) {
-    return e => {
-      var v = e.props.name.split(".").reduce((acc, k) => acc[k], obj)
-      return !v ? e : React.cloneElement(e, {value: v}, e.props.children);
-    };
+    return React.cloneElement(form, form.props, form.props.children.map(c => {
+      console.log(c);
+      if (c.props.dataIsForm && c.props.dataIsSubform) {
+        console.log("SubForm");
+        return Form.setObject(obj[c.props.name], c);
+      }
+  
+      console.log("BETWEEN");
+  
+      if (!c.props.dataIsForm && c.props.name) {
+        console.log("Element");
+        return React.cloneElement(c, {value: obj[c.props.name]}, c.props.children);
+      }
+      return c;
+    }));
   }
-  return e => e;
-};
+  return form;
+}
 
 export { Form, Element };
 export default {

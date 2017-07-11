@@ -80,8 +80,8 @@ export function withPromise(promise, Comp) {
 
 export function withPromiseFactory(pfact, Comp) {
   return props => {
-    const C = withPromise(pfact(props), Comp);
-    <C {...props} />;
+    const C = withPromise(pfact(props), withProps(props, Comp));
+    return <C />;
   };
 }
 
@@ -89,7 +89,7 @@ export function collection(header, body, setPage) {
   const Header = header || (() => null);
   const Body = body || (() => null);
 
-  return (props) => {
+  return props => {
     var obj = props.object;
     return (
       <div className="collection">
@@ -110,40 +110,62 @@ export function collection(header, body, setPage) {
 }
 
 export function asyncCollection(header, body, makePromise) {
-  return Higher.asyncWithProps(props => {
-    const Promised = Higher.withPromise(
+  return asyncWithProps(props => {
+    const Promised = withPromise(
       makePromise(props.page || 1),
-      Higher.collection(header, body, p => props.setAsync({page: p}))
+      collection(header, body, p => props.setAsync({page: p}))
     );
     return <Promised {...props} />;
   });
 }
 
-export function rewritePath(regex, v) {
-  var p = v instanceof Promise ? v : Promise.resolve(v);
-  return withRouter(withPromise(p, props => <Redirect
-                                              push={false}
-                                              from={props.location.pathname}
-                                              to={props.location.pathname.replace(regex, props.object)}
-                                            />));
+export function rewritePath(regex, v = null) {
+  return withRouter(props => <Redirect
+                               push={false}
+                               from={props.location.pathname}
+                               to={props.location.pathname.replace(regex, v || props.object)}
+                             />);
 }
 
-const Higher = {
+export function withProps(addlProps, Component) {
+  return props => <Component {...Object.assign({}, props, addlProps)} />;
+}
+
+export function withNoProps(Component) {
+  return () => <Component />
+}
+
+export function withObject(obj, comp) {
+  return withProps({object: obj}, comp);
+}
+
+export function withObjectFunc(f, component) {
+  return props => {
+    const P = withObject(f(props), component);
+    return <P {...props} />;
+  };
+}
+
+export function mapProps(f, Component) {
+  return props => <Component {...f(props)} />;
+}
+
+export function wrap(Wrapper, Comp) {
+  return props => <Wrapper {...props}><Comp {...props} /></Wrapper>;
+}
+
+export default {
   collection: collection,
   asyncCollection: asyncCollection,
-  withNoProps: (Component) => () => <Component />,
-  withProps: (addlProps, Component) => props => <Component {...Object.assign({}, props, addlProps)} />,
-  withObject: (obj, component) => Higher.withProps({object: obj}, component),
-  mapProps: (f, Component) => props => <Component {...f(props)} />,
-  withObjectFunc: (f, component) => props => {
-    const P = Higher.withObject(f(props), component);
-    return <P {...props} />;
-  },
+  withNoProps: withNoProps,
+  withProps: withProps,
+  withObject: withObject,
+  mapProps: mapProps,
+  withObjectFunc: withObjectFunc,
   asyncWithProps: asyncWithProps,
   asyncWithObject: asyncWithObject,
   withPromise: withPromise,
   withPromiseFactory: withPromiseFactory,
-  rewritePath: rewritePath
-}
-
-export default Higher;
+  rewritePath: rewritePath,
+  wrap: wrap
+};

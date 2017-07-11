@@ -27,7 +27,7 @@ Money.defaultProps = {
   value: 0.00
 }
 
-export { Higher, Decorators, Form, SignatureField, Money };
+export { Higher, Form, SearchField, SignatureField, Money };
 
 export default {
   Higher: Higher, // Contains higher-level components

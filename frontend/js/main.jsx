@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Route } from 'react-router';
+import { Router, Route, Switch, withRouter } from 'react-router';
 import createBrowserHistory from 'history/createBrowserHistory'
 
 import { API, APICollection, APIActionCollection } from 'app/api';
@@ -9,12 +9,14 @@ import Transaction from 'app/repr/transaction';
 import User from 'app/repr/user';
 
 // Components
-import Components, { Form } from 'app/components';
+import Components, { Form, SearchField } from 'app/components';
+import { withPromiseFactory, withPromise, asyncCollection, rewritePath, wrap } from 'app/components/higher';
 
 // Setup API
 API.user = new APICollection("user");
 API.user.me = () => API.user.classMethod("GET", "me");
 API.user.transactions = (userId, page = 1) => API.user.instanceMethod("GET", "transactions", userId, null, {page: page});
+API.user.payment = otherId => API.user.instanceMethod("GET", "payment", otherId)
 API.transaction = new APICollection("transaction");
 API.payment_data = new APICollection("paymentdata");
 API.countersignature = new APICollection("countersignature");
@@ -37,59 +39,6 @@ function joinPromises(psDict) {
   }
   return Promise.all(ps).then(xs => xs.reduce((acc, x) => Object.assign(acc, x), {}));
 }
-
-function saveFormTo(api, f = null) {
-  return obj => {
-    var p = oid ? api.update(oid, obj) : api.create(obj);
-    p.catch(e => {
-      throw e;
-    }).then(f || (() => undefined));
-  };
-}
-
-function upsertFormTo(api, oid, f = null) {
-  return obj => {
-    var p = oid ? api.update(oid, obj) : api.create(obj);
-    p.catch(e => {
-      throw e;
-    }).then(f || (() => undefined));
-  };
-}
-
-function withAPI(api, form) {
-  const flattenObject = obj => {
-    return obj;
-  };
-  return props => {
-    const WrappedForm = Component.Higher.withPromise(api.read(props.match.params.id).then(flattenObject), form);
-    return <WrappedForm {...props} />;
-  };
-}
-
-////////// APP JSX
-
-function profile(props) {
-  const userId = props.match.params.id;
-  const UserView = withAPI(API.user, User);
-  const TransactionCollection = Components.Higher.asyncCollection(
-    () => <span className="primary light">Transactions</span>,
-    Transaction,
-    page => API.paginate(API.user.transactions(userId, page), API.transaction)
-  );
-  return (
-    <div>
-      <UserView {...props} />
-      <button onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</button>
-      <button onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</button>
-      <TransactionCollection {...props} />
-    </div>
-  );
-}
-
-const home = props =>
-  <div>
-  </div>
-;
 
 ///// FORMS
 
@@ -116,43 +65,37 @@ const signupForm = props =>
 ;
 
 const countersignForm = props =>
-  <Form.Form onSubmit={saveFormTo(API.countersignature, cs => browserHistory.push("/transaction/" + cs.transaction.id))}>
+  <Form.Form object={props.object} onSubmit={saveFormTo(API.countersignature, cs => browserHistory.push("/transaction/" + cs.transaction.id))}>
     <Form.Element hidden name="user_id" />
     <Form.Element hidden name="transaction_id" />
-    <Components.SignatureField editable />
+    <Components.SignatureField editable name="signature" />
   </Form.Form>
 ;
 
-const countersignDefaults = props => {
-  var transid = parseInt(props.match.params.id);
-  return joinPromises({
-    me: API.user.me(),
-    transaction: API.transaction.read(transid)
-  }).then(res => ({
-    user_id: res.me.id,
-    transaction_id: res.transaction.id,
-    signature: ""
-  }));
-};
+const countersignDefaults = props => API.user.me().then(me => ({
+  user_id: me.id,
+  transaction_id: parseInt(props.match.params.id),
+  signature: ""
+}));
 
 // Create/update forms.
 
-const paymentDataForm = props =>
-  <Form.Form onSubmit={upsertFormTo(API.payment_data, props.match.params.id, pd => browserHistory.push("/payment/" + pd.id))}>
+const paymentDataForm = withRouter(props =>
+  <Form.Form object={props.object} onSubmit={upsertFormTo(API.payment_data, props.match.params.id, pd => browserHistory.push("/payment/" + pd.id))}>
     <Form.Element required text name="data" label="Data" wrapperClass="textfield" />
     <Form.Element checkbox name="encrypted" label="Encrypted" />
     <Form.Element hidden name="user_id" />
   </Form.Form>
-;
+);
 
-const paymentDataDefaults = API.user.me().then(user => ({
+const paymentDataDefaults = props => API.user.me().then(me => ({
   data: "",
   encrypted: false,
-  user_id: user.id
+  user_id: me.id
 }));
 
 const transactionForm = props =>
-  <Form.Form onSubmit={saveFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
+  <Form.Form object={props.object} onSubmit={saveFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
     <Form.Element required text name="offer" label="Offer" wrapperClass="textfield" />
     <Form.Element required text name="offer_currency" label="Currency" wrapperClass="textfield" />
     <Form.Element required text name="required_witnesses" label="Number of Witnesses" wrapperClass="textfield" />
@@ -174,65 +117,116 @@ const transactionDefaults = props => {
   }
 
   return joinPromises({
-    me: API.user.classMethod("GET", "me"),
-    payment: API.user.instanceMethod("GET", "payment", otherId)
+    me: API.user.me(),
+    payment: API.user.payment(otherId)
   }).then(res => ({
-     "offer": "0.00",
-     "offer_currency": "USD",
-     "required_witnesses": "0",
-     "buyer_id": isBuyer ? res.me.id : otherId,
-     "buyer_payment_data_id": isBuyer ? res.payment.me.id : res.payment.them.id,
-     "seller_id": isBuyer ? otherId : res.me.id,
-     "seller_payment_data_id": isBuyer ? res.payment.them.id : res.payment.me.id
+    offer: "0.00",
+    offer_currency: "USD",
+    required_witnesses: "0",
+    buyer_id: isBuyer ? res.me.id : otherId,
+    buyer_payment_data_id: isBuyer ? res.payment.me.id : res.payment.them.id,
+    seller_id: isBuyer ? otherId : res.me.id,
+    seller_payment_data_id: isBuyer ? res.payment.them.id : res.payment.me.id
   }));
 };
 
-const showCount = props => {
-  var obj = props.object;
-  return  <div className="secondary">Showing {obj.results.length} of {obj.count}</div>
-};
-
-const showUser = props => {
-  var obj = props.object;
-  return <div><a className="primary" href={"/user/" + obj.id.toString()}>{obj.username}</a></div>;
-};
-
-const App =
-  <Router history={browserHistory} >
+const Page = props => {
+  return (
     <div>
       <div className="header">
         <div className="header-item left">
           <a href="/" className="light">Econesty</a>
         </div>
         <div className="header-item right light">
-          <Components.SearchField api={API.user} headerComponent={showCount} component={showUser} />
+          <SearchField
+            api={API.user}
+            headerComponent={props => <div className="secondary">Showing {props.object.results.length} of {props.object.count}</div>}
+            component={props => <a className="primary" href={"/user/" + props.object.id.toString()}>{props.object.username}</a>}
+          />
         </div>
         <div className="header-item right">
           <a href="/user/me" className="light">Profile</a>
         </div>
       </div>
       <div className="content">
-        <Route exact path="/" component={home} />
-
-        <Route exact path="/login" component={loginForm} />
-        <Route exact path="/signup" component={signupForm} />
-
-        <Route exact path="/user/me" component={Components.Higher.rewritePath(
-            /.*/,
-            API.user.me().then(res => "/user/" + res.id.toString())
-          )} />
-
-        <Route exact path='/user/:id' component={profile} />
-        <Route exact path='/user/:id/transaction/:action' component={Components.Higher.withPromiseFactory(transactionDefaults, transactionForm)} />
-
-        <Route exact path='/transaction/:id' component={withAPI(API.transaction, Transaction)} />
-        <Route exact path='/transaction/:id/countersign' component={Components.Higher.withPromiseFactory(countersignDefaults, countersignForm)} />
-
-        <Route exact path='/payment/new' component={Components.Higher.withPromise(paymentDataDefaults, paymentDataForm)} />
-        <Route exact path='/payment/:id' component={withAPI(API.payment_data, paymentDataForm)} />
+        {props.children}
       </div>
     </div>
-  </Router>
+  );
+};
+
+function saveFormTo(api, f = null) {
+  return obj => {
+    var p = oid ? api.update(oid, obj) : api.create(obj);
+    p.catch(e => {
+      throw e;
+    }).then(f || (() => undefined));
+  };
+}
+
+function upsertFormTo(api, oid, f = null) {
+  return obj => {
+    var p = oid ? api.update(oid, obj) : api.create(obj);
+    p.catch(e => {
+      throw e;
+    }).then(f || (() => undefined));
+  };
+}
+
+function withAPI(api, form) {
+  return withRouter(props => {
+    const WrappedForm = withPromise(api.read(props.match.params.id), form);
+    return <WrappedForm {...props} />;
+  });
+}
+
+////////// APP JSX
+
+const Profile = props => {
+  const userId = props.match.params.id;
+  const UserView = withAPI(API.user, User);
+  const TransactionCollection = asyncCollection(
+    () => <span className="primary light">Transactions</span>,
+    Transaction,
+    page => API.paginate(API.user.transactions(userId, page), API.transaction)
+  );
+  return (
+    <div>
+      <UserView {...props} />
+      <button onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</button>
+      <button onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</button>
+      <TransactionCollection {...props} />
+    </div>
+  );
+}
+
+const Home = props =>
+  <div>
+  </div>
 ;
 
-export default App;
+export default () => {
+  return (
+    <Router history={browserHistory}>
+      <Switch>
+        <Route exact path="/" component={wrap(Page, Home)} />
+        <Route exact path="/login" component={wrap(Page, loginForm)} />
+        <Route exact path="/signup" component={wrap(Page, signupForm)} />
+
+        <Route exact path="/user/me" component={props => {
+          const C = withPromise(
+            API.user.me().then(res => "/user/" + res.id.toString()),
+            rewritePath(/.*/))
+          return <C {...props} />;
+        }} />
+      
+        <Route exact path='/user/:id' component={wrap(Page, Profile)} />
+        <Route exact path='/user/:id/transaction/:action' component={wrap(Page, withPromiseFactory(transactionDefaults, transactionForm))} />
+        <Route exact path='/payment/new' component={wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm))} />
+        <Route exact path='/payment/:id' component={wrap(Page, withAPI(API.payment_data, paymentDataForm))} />
+        <Route exact path='/transaction/:id' component={wrap(Page, withAPI(API.transaction, Transaction))} />
+        <Route exact path='/transaction/:id/countersign' component={wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))} />
+      </Switch>
+    </Router>
+  );
+}
