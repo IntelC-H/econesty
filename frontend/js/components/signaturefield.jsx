@@ -70,7 +70,7 @@ class SignatureField extends React.PureComponent {
 
   render() {
     const signatureCSV = sigToCSV(this.props.value || this.state.signature);
-    const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, ...props} = this.props;
+    const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, ...props} = this.props; // eslint-disable-line
     return (
       <div>
         <Element hidden name={this.props.name} value={signatureCSV} />

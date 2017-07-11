@@ -11,6 +11,7 @@ function guid() {
 /*
 <Form>
   <Element hidden name="value" value="999" />
+  <Element select={["USD", "EUR"]} name="currency" value="" />
   <Form name="user">
     <Element hidden name="id" value="2" />
   </Form>
@@ -20,8 +21,19 @@ function guid() {
 // Forms can take props.object as form value defaults.
 
 const Element = props => {
+  if (props.select) {
+    var defaultValue = guid();
+    return (
+      <div className={props.wrapperClass}>
+        <select name={props.name} defaultValue={props.value || defaultValue}>
+          {props.label !== null && <option disabled hidden value={defaultValue}>{props.label}</option>}
+          {props.select.map(s => <option key={guid()} value={s}>{s}</option>)}
+        </select>
+      </div>
+    )
+  }
   var typ = props.hidden ? "hidden" : props.text ? "text" : props.checkbox ? "checkbox" : props.password ? "password" : props.type;
-  let {hidden, text, checkbox, password, wrapperClass, label, type, email, url, ...filteredProps} = props;
+  let {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, ...filteredProps} = props; // eslint-disable-line
   return (
     <div className={props.wrapperClass}>
       <input type={typ} {...filteredProps} />
@@ -38,6 +50,7 @@ Element.propTypes = {
   password: PropTypes.bool,
   email: PropTypes.bool,
   url: PropTypes.bool,
+  select: PropTypes.arrayOf(PropTypes.any),
   type: PropTypes.oneOf(["hidden", "text", "checkbox", "password", "hidden"]),
   name: PropTypes.string.isRequired,
   value: PropTypes.any,
@@ -53,6 +66,7 @@ Element.defaultProps = {
   password: false,
   email: false,
   url: false,
+  select: null,
   type: "hidden",
   value: undefined,
   label: null,
@@ -84,9 +98,11 @@ Form.defaultProps = {
 // operates on DOM elements
 Form.reduceForms = function(el, acc = {}) {
   Array.from(el.children).forEach(child => {
-    if (child.dataIsForm)                        child.dataIsSubform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
-    if (child.tagName.toLowerCase() === "input") acc[child.name] = child.value;
-    else                                         Form.reduceForms(child, acc);
+    const tname = child.tagName.toLowerCase();
+    if (child.dataIsForm)   child.dataIsSubform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
+    if (tname === "input")  acc[child.name] = child.value;
+    if (tname === "select") acc[child.name] = child.children[child.selectedIndex].value;
+    else                    Form.reduceForms(child, acc);
   });
   return acc;
 };

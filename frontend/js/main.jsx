@@ -44,7 +44,7 @@ function joinPromises(psDict) {
 
 // Create-Only
 
-const loginForm = props =>
+const loginForm = () =>
   <Form.Form onSubmit={saveFormTo(API.token, obj => {
     API.setToken(obj.token);
     browserHistory.push("/user/me");
@@ -54,7 +54,7 @@ const loginForm = props =>
   </Form.Form>
 ;
 
-const signupForm = props =>
+const signupForm = () =>
   <Form.Form onSubmit={saveFormTo(API.user, user => browserHistory.push("/user/" + user.id))}>
     <Form.Element required text     name="first_name" label="First Name" wrapperClass="textfield" />
     <Form.Element required text     name="last_name"  label="Last Name" wrapperClass="textfield" />
@@ -88,7 +88,7 @@ const paymentDataForm = withRouter(props =>
   </Form.Form>
 );
 
-const paymentDataDefaults = props => API.user.me().then(me => ({
+const paymentDataDefaults = () => API.user.me().then(me => ({
   data: "",
   encrypted: false,
   user_id: me.id
@@ -199,8 +199,38 @@ const Profile = props => {
   );
 }
 
-const Home = props =>
+const Home = () =>
   <div>
+    <Form.Form onSubmit={console.log}>
+      <Form.Element hidden name="value" value="999" />
+      <Form.Element select={["USD", "EUR"]} name="currency" label="Currency" />
+      <Form.Form subForm name="user">
+        <Form.Element hidden name="id" value="2" />
+      </Form.Form>
+    </Form.Form>
+    <div className="color-box-highlight splash">
+      <h1>Econesty</h1>
+      <h2>Fairness in Negotiation</h2>
+    </div>
+    <div className="color-box">
+      <h3>Econesty allows users to recruit experts to verify the fairness of their transactions</h3>
+      <p>When making a transaction through Econesty, you can add terms and conditions that must be fulfilled in order for money to change hands. For example,
+         users can recuit other (an)other user(s) to sign off on the quality of a transaction.
+      </p>
+      <p>For example, if you're about to buy a used car, you might recruit your friend to quickly google a good price for it, and sign off that the seller is
+        asking a fair price for it.</p>
+    </div>
+    <div className="color-box-highlight">
+      <h3>Econesty finds the best payment method for each transaction.</h3>
+      <p>Users can store any number of payment methods through econesty. When they go to make a transaction, a common payment method is found, and the transaction
+         goes through. Users can also specify how secure the transaction should be, what kind of expense it is, amongst other things - These also affect payment method
+         choice.</p>
+    </div>
+    <div className="">
+      <h3>Econesty stores sensitive data securely</h3>
+      <p>Each piece of payment data is decrypted only when needed, and is encrypted using an easily memorable password. Econesty favors prompting the user for the password
+         over storing it for ease of use.</p>
+    </div>
   </div>
 ;
 

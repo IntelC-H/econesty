@@ -60,15 +60,12 @@ module.exports = {
                 "browser":true
               },
               "plugins":[
-                "react",
-                "async-await"
+                "react"
               ],
               "rules":{
                 "require-await": 1,
                 "react/jsx-uses-vars":2,
                 "react/jsx-uses-react":2,
-                "async-await/space-after-async": 2,
-                "async-await/space-after-await": 2,
                 "comma-dangle":2,
                 "no-cond-assign":2,
                 "no-console":1,

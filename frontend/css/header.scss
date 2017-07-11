@@ -1,7 +1,8 @@
 @import "palette";
-@import "constants";
-@import "fonts";
-@import "components";
+@import "elements";
+
+$header-font-size: 30px;
+$header-height: $header-font-size + 16;
 
 .header {
   box-shadow: 0px 2px $divider-color;
