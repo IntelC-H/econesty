@@ -157,8 +157,7 @@ const Page = props => {
 
 function saveFormTo(api, f = null) {
   return obj => {
-    var p = oid ? api.update(oid, obj) : api.create(obj);
-    p.catch(e => {
+    api.create(obj).catch(e => {
       throw e;
     }).then(f || (() => undefined));
   };
@@ -219,7 +218,7 @@ export default () => {
             rewritePath(/.*/))
           return <C {...props} />;
         }} />
-      
+
         <Route exact path='/user/:id' component={wrap(Page, Profile)} />
         <Route exact path='/user/:id/transaction/:action' component={wrap(Page, withPromiseFactory(transactionDefaults, transactionForm))} />
         <Route exact path='/payment/new' component={wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm))} />

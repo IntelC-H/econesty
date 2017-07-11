@@ -61,7 +61,6 @@ Element.defaultProps = {
 
 const Form = props => {
   var children = !props.children ? [] : props.children.length === 1 ? [props.children] : Array.from(props.children);
-  console.log("<Form />", children, props);
   if (props.onSubmit && !props.subForm) {
     children.push(<button key={guid()} onClick={e => props.onSubmit(Form.reduceForms(e.target.parentElement))}>{props.submitText || "Submit"}</button>);
   }
@@ -76,7 +75,7 @@ Form.propTypes = {
 };
 
 Form.defaultProps = {
-  onSubmit: null,
+  onSubmit: () => undefined,
   name: null,
   object: null,
   subForm: false
@@ -85,29 +84,23 @@ Form.defaultProps = {
 // operates on DOM elements
 Form.reduceForms = function(el, acc = {}) {
   Array.from(el.children).forEach(child => {
-    if (child.data-is-form)     child.data-is-subform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
-    if (child.type === "input") acc[child.name] = child.value;
-    else                        Form.reduceForms(child, acc);
+    if (child.dataIsForm)                        child.dataIsSubform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
+    if (child.tagName.toLowerCase() === "input") acc[child.name] = child.value;
+    else                                         Form.reduceForms(child, acc);
   });
   return acc;
 };
 
 // operates on ReactDOM elements
 Form.setObject = function(obj, form) {
-  console.log("OBJECT", obj);
   if (obj) {
     return React.cloneElement(form, form.props, form.props.children.map(c => {
-      console.log(c);
       if (c.props.dataIsForm && c.props.dataIsSubform) {
-        console.log("SubForm");
         return Form.setObject(obj[c.props.name], c);
       }
-  
-      console.log("BETWEEN");
-  
+
       if (!c.props.dataIsForm && c.props.name) {
-        console.log("Element");
-        return React.cloneElement(c, {value: obj[c.props.name]}, c.props.children);
+        return React.cloneElement(c, {defaultValue: obj[c.props.name], key: guid()}, c.props.children);
       }
       return c;
     }));

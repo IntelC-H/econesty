@@ -26,14 +26,15 @@ export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () =
 }
 
 export function asyncWithObject(Comp, onMount = () => undefined, onUnmount = () => undefined) {
+  const mkHandler = (f, g) => g({ setAsyncProps: f, setError: e => f({error: e}), setObject: o => f({object: o}) });
   return asyncWithProps(
     props => {
       if (props.object) return <Comp {...props} />;
       if (props.error) return <div className="error"><p>{props.error.message}</p></div>;
       return <div className="loading" />;
     },
-    setAsyncProps => onMount({ setAsyncProps: setAsyncProps, setError: e => setAsyncProps({error: e}), setObject: o => setAsyncProps({object: o}) }),
-    setAsyncProps => onUnmount({ setAsyncProps: setAsyncProps, setError: e => setAsyncProps({error: e}), setObject: o => setAsyncProps({object: o}) })
+    f => mkHandler(f, onMount),
+    f => mkHandler(f, onUnmount)
   );
 }
 
@@ -88,6 +89,7 @@ export function withPromiseFactory(pfact, Comp) {
 export function collection(header, body, setPage) {
   const Header = header || (() => null);
   const Body = body || (() => null);
+  const mkNavButton = (targetPage, text) => <button className="nav-button" onClick={() => setPage(targetPage)}>{text}</button>;
 
   return props => {
     var obj = props.object;
@@ -100,9 +102,9 @@ export function collection(header, body, setPage) {
           {obj.results.map((child, i) => <Body key={"object-" + i.toString()} object={child} />)}
         </div>
         <div className="collection-controls">
-          {obj.previous && setPage && <button className="nav-button" onClick={() => setPage(obj.previous)}>❮ Previous</button>}
+          {obj.previous && setPage && mkNavButton(obj.previous, "❮ Previous")}
           <span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span>
-          {obj.next && setPage && <button className="nav-button" onClick={() => setPage(obj.next)}>Next ❯</button>}
+          {obj.next && setPage && mkNavButton(obj.next, "Next ❯")}
         </div>
       </div>
     );
