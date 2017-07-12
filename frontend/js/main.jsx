@@ -6,12 +6,14 @@ import { API, APICollection, APIActionCollection } from 'app/api';
 
 // import { TopBar, TopBarLeft, TopBarRight } from 'react-foundation';
 
+import Pure, { Form, Element, Button, SubmitButton, MenuLink, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
+
 // Representations
 import Transaction from 'app/repr/transaction';
 import User from 'app/repr/user';
 
 // Components
-import Components, { Form, SearchField } from 'app/components';
+import Components, { SearchField } from 'app/components';
 import { withPromiseFactory, withPromise, asyncCollection, rewritePath, wrap } from 'app/components/higher';
 
 // Setup API
@@ -46,32 +48,41 @@ function joinPromises(psDict) {
 
 // Create-Only
 
-const loginForm = () =>
-  <Form.Form onSubmit={saveFormTo(API.token, obj => {
+const loginForm = props =>
+  <Form object={props.object}>
+    <Element required text name="username" label="Username" wrapperClass="textfield" />
+    <Element required password name="password" label="Password" wrapperClass="textfield" />
+    <SubmitButton onSubmit={saveFormTo(API.token, obj => {
     API.setToken(obj.token);
     browserHistory.push("/user/me");
   })}>
-    <Form.Element required text name="username" label="Username" wrapperClass="textfield" />
-    <Form.Element required password name="password" label="Password" wrapperClass="textfield" />
-  </Form.Form>
+      OK
+    </SubmitButton>
+  </Form>
 ;
 
-const signupForm = () =>
-  <Form.Form onSubmit={saveFormTo(API.user, user => browserHistory.push("/user/" + user.id))}>
-    <Form.Element required text     name="first_name" label="First Name" wrapperClass="textfield" />
-    <Form.Element required text     name="last_name"  label="Last Name" wrapperClass="textfield" />
-    <Form.Element required email    name="email"      label="Email" wrapperClass="textfield" />
-    <Form.Element required text     name="username"   label="New Username" wrapperClass="textfield" />
-    <Form.Element required password name="password"   label="New Password" wrapperClass="textfield" />
-  </Form.Form>
+const signupForm = props =>
+  <Form object={props.object}>
+    <Element required text     name="first_name" label="First Name" wrapperClass="textfield" />
+    <Element required text     name="last_name"  label="Last Name" wrapperClass="textfield" />
+    <Element required email    name="email"      label="Email" wrapperClass="textfield" />
+    <Element required text     name="username"   label="New Username" wrapperClass="textfield" />
+    <Element required password name="password"   label="New Password" wrapperClass="textfield" />
+    <SubmitButton onSubmit={saveFormTo(API.user, user => browserHistory.push("/user/" + user.id))}>
+      OK
+    </SubmitButton>
+  </Form>
 ;
 
 const countersignForm = props =>
-  <Form.Form object={props.object} onSubmit={saveFormTo(API.countersignature, cs => browserHistory.push("/transaction/" + cs.transaction.id))}>
-    <Form.Element hidden name="user_id" />
-    <Form.Element hidden name="transaction_id" />
+  <Form object={props.object}>
+    <Element hidden name="user_id" />
+    <Element hidden name="transaction_id" />
     <Components.SignatureField editable name="signature" />
-  </Form.Form>
+    <SubmitButton onSubmit={saveFormTo(API.countersignature, cs => browserHistory.push("/transaction/" + cs.transaction.id))}>
+      OK
+    </SubmitButton>
+  </Form>
 ;
 
 const countersignDefaults = props => API.user.me().then(me => ({
@@ -83,11 +94,14 @@ const countersignDefaults = props => API.user.me().then(me => ({
 // Create/update forms.
 
 const paymentDataForm = withRouter(props =>
-  <Form.Form object={props.object} onSubmit={upsertFormTo(API.payment_data, props.match.params.id, pd => browserHistory.push("/payment/" + pd.id))}>
-    <Form.Element required text name="data" label="Data" wrapperClass="textfield" />
-    <Form.Element checkbox name="encrypted" label="Encrypted" />
-    <Form.Element hidden name="user_id" />
-  </Form.Form>
+  <Form object={props.object}>
+    <Element required text name="data" label="Data" wrapperClass="textfield" />
+    <Element checkbox name="encrypted" label="Encrypted" />
+    <Element hidden name="user_id" />
+    <SubmitButton onSubmit={upsertFormTo(API.payment_data, props.match.params.id, pd => browserHistory.push("/payment/" + pd.id))}>
+      OK
+    </SubmitButton>
+  </Form>
 );
 
 const paymentDataDefaults = () => API.user.me().then(me => ({
@@ -97,15 +111,18 @@ const paymentDataDefaults = () => API.user.me().then(me => ({
 }));
 
 const transactionForm = props =>
-  <Form.Form object={props.object} onSubmit={saveFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
-    <Form.Element required text name="offer" label="Offer" wrapperClass="textfield" />
-    <Form.Element required text name="offer_currency" label="Currency" wrapperClass="textfield" />
-    <Form.Element required text name="required_witnesses" label="Number of Witnesses" wrapperClass="textfield" />
-    <Form.Element hidden name="buyer_id" />
-    <Form.Element hidden name="buyer_payment_data_id" />
-    <Form.Element hidden name="seller_id" />
-    <Form.Element hidden name="seller_payment_data_id" />
-  </Form.Form>
+  <Form object={props.object}>
+    <Element required text name="offer" label="Offer" wrapperClass="textfield" />
+    <Element required text name="offer_currency" label="Currency" wrapperClass="textfield" />
+    <Element required text name="required_witnesses" label="Number of Witnesses" wrapperClass="textfield" />
+    <Element hidden name="buyer_id" />
+    <Element hidden name="buyer_payment_data_id" />
+    <Element hidden name="seller_id" />
+    <Element hidden name="seller_payment_data_id" />
+    <SubmitButton onSubmit={saveFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
+      OK
+    </SubmitButton>
+  </Form>
 ;
 
 const transactionDefaults = props => {
@@ -133,39 +150,26 @@ const transactionDefaults = props => {
 };
 
 const Page = props => {
-/*        
-
-            <TopBar>
-        <TopBarLeft>
-          <a href="/" className="light">Econesty</a>
-        </TopBarLeft>
-        <TopBarRight>
-          <SearchField
-            api={API.user}
-            headerComponent={props => <div className="secondary">Showing {props.object.results.length} of {props.object.count}</div>}
-            component={props => <a className="primary" href={"/user/" + props.object.id.toString()}>{props.object.username}</a>}
-          />
-          <a href="/user/me" className="light">Profile</a>
-        </TopBarRight>
-      </TopBar>*/
   return (
     <div>
-      <div className="header">
-        <div className="header-item left">
-          <a href="/" className="light">Econesty</a>
-        </div>
-        <div className="header-item right light">
-          <SearchField
-            api={API.user}
-            headerComponent={props => <div className="secondary">Showing {props.object.results.length} of {props.object.count}</div>}
-            component={props => <a className="primary" href={"/user/" + props.object.id.toString()}>{props.object.username}</a>}
-          />
-        </div>
-        <div className="header-item right">
-          <a href="/user/me" className="light">Profile</a>
-        </div>
-      </div>
-
+      <Menu horizontal fixed className="header">
+        <Grid>
+          <GridUnit size="2-3">
+            <MenuHeading><a href="/" className="light">Econesty</a></MenuHeading>
+          </GridUnit>
+          <GridUnit size="1-3">
+            <MenuList>
+              <MenuItem>
+                <SearchField
+                  api={API.user}
+                  component={props => <tr><td><a href={"/user/" + props.object.id.toString()}>{props.object.username}</a></td></tr>}
+                />
+              </MenuItem>
+              <MenuItem><a href="/user/me" className="light">Profile</a></MenuItem>
+            </MenuList>
+          </GridUnit>
+        </Grid>
+      </Menu>
       <div className="content">
         {props.children}
       </div>
@@ -203,15 +207,20 @@ const Profile = props => {
   const userId = props.match.params.id;
   const UserView = withAPI(API.user, User);
   const TransactionCollection = asyncCollection(
-    () => <span className="primary light">Transactions</span>,
+    () => (
+      <tr>
+        <th>Offer</th><th>Buyer</th><th>Seller</th>
+      </tr>
+    ),
     Transaction,
     page => API.paginate(API.user.transactions(userId, page), API.transaction)
   );
   return (
     <div>
       <UserView {...props} />
-      <button onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</button>
-      <button onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</button>
+      <Button onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
+      <Button onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
+      <span className="primary light">Transactions</span>
       <TransactionCollection {...props} />
     </div>
   );
@@ -219,13 +228,6 @@ const Profile = props => {
 
 const Home = () =>
   <div>
-    <Form.Form onSubmit={console.log}>
-      <Form.Element hidden name="value" value="999" />
-      <Form.Element select={["USD", "EUR"]} name="currency" label="Currency" />
-      <Form.Form subForm name="user">
-        <Form.Element hidden name="id" value="2" />
-      </Form.Form>
-    </Form.Form>
     <div className="color-box-highlight splash">
       <h1>Econesty</h1>
       <h2>Fairness in Negotiation</h2>

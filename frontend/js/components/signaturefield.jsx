@@ -1,6 +1,6 @@
 import React from 'react';
 //import PropTypes from 'prop-types';
-import { Element } from './form';
+import { Element } from 'app/pure';
 
 // TODO: prop-types:
 // 1. signature: string or array?
@@ -70,7 +70,7 @@ class SignatureField extends React.PureComponent {
 
   render() {
     const signatureCSV = sigToCSV(this.props.value || this.state.signature);
-    const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, ...props} = this.props; // eslint-disable-line
+    const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, editable, ...props} = this.props; // eslint-disable-line
     return (
       <div>
         <Element hidden name={this.props.name} value={signatureCSV} />

@@ -1,24 +1,25 @@
 import React from 'react';
 import { Redirect, withRouter } from 'react-router';
+import { guid, Table, Grid, GridUnit, Button } from 'app/pure';
 
 // Comp: a component whose props should be loaded asynchronously.
 // func(setAsyncProps) => { ... code that uses setAsyncProps ... }: A function to async load props
 export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () => undefined) {
-  return class extends React.PureComponent {
+  return class Async extends React.PureComponent {
     constructor(props) {
       super(props);
       this.state = {};
       this.setState = this.setState.bind(this);
     }
-
+  
     componentDidMount() {
       onMount(this.setState);
     }
-
+  
     componentWillUnmount() {
       onUnmount(this.setState);
     }
-
+  
     render() {
       return <Comp {...Object.assign({}, {setAsync: this.setState}, this.props, this.state)} />;
     }
@@ -86,28 +87,31 @@ export function withPromiseFactory(pfact, Comp) {
   };
 }
 
-export function collection(header, body, setPage) {
+// TODO: use PureCSS here!
+export function collection(header, body, setPage = null) {
   const Header = header || (() => null);
   const Body = body || (() => null);
-  const mkNavButton = (targetPage, text) => <button className="nav-button" onClick={() => setPage(targetPage)}>{text}</button>;
+  const mkNavButton = (targetPage, text) => <Button key={guid()} onClick={() => setPage(targetPage)}>{text}</Button>;
 
   return props => {
     var obj = props.object;
     return (
-      <div className="collection">
-        <div className="collection-header">
-          <Header object={obj} />
-        </div>
-        <div className="collection-objects">
-          {obj.results.map((child, i) => <Body key={"object-" + i.toString()} object={child} />)}
-        </div>
-        <div className="collection-controls">
-          {obj.previous && setPage && mkNavButton(obj.previous, "❮ Previous")}
-          <span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span>
-          {obj.next && setPage && mkNavButton(obj.next, "Next ❯")}
-        </div>
+      <div>
+        <Table>
+          <thead>
+            <Header object={obj} />
+          </thead>
+          <tbody>
+            {obj.results.map((child, i) => <Body key={"object-" + i.toString()} object={child} />)}
+          </tbody>
+        </Table>
+        <Grid>
+          <GridUnit size="1-5">{obj.previous && setPage && mkNavButton(obj.previous, "❮ Previous")}</GridUnit>
+          <GridUnit size="3-5"><span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span></GridUnit>
+          <GridUnit size="1-5">{obj.next && setPage && mkNavButton(obj.next, "Next ❯")}</GridUnit>
+        </Grid>
       </div>
-    );
+    )
   };
 }
 

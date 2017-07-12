@@ -11,10 +11,16 @@ const propTypes = {
       PropTypes.number
     ]),
     buyer: PropTypes.shape({
-      id: PropTypes.number
+      id: PropTypes.number,
+      first_name: PropTypes.string,
+      last_name: PropTypes.string,
+      username: PropTypes.string
     }),
     seller: PropTypes.shape({
-      id: PropTypes.number
+      id: PropTypes.number,
+      first_name: PropTypes.string,
+      last_name: PropTypes.string,
+      username: PropTypes.string
     })
   })
 };
@@ -24,18 +30,11 @@ const defaultProps = {};
 const Transaction = props => {
   var obj = props.object;
   return (
-    <div className="transaction">
-      <div className="box">
-        <Components.Money currency={obj.offer_currency} value={parseFloat(obj.offer)} />
-      </div>
-      <div className="box">
-        <a href={"/user/" + obj.buyer.id}>View Buyer</a>
-        <a href={"/user/" + obj.seller.id}>View Seller</a>
-      </div>
-      <div className="box">
-        <a href={"/transaction/" + obj.id}>View</a>
-      </div>
-    </div>
+    <tr>
+      <td><Components.Money currency={obj.offer_currency} value={parseFloat(obj.offer)} /></td>
+      <td><a href={"/user/" + obj.buyer.id}>{obj.buyer.first_name} {obj.buyer.last_name} (@{obj.buyer.username})</a></td>
+      <td><a href={"/user/" + obj.seller.id}>{obj.seller.first_name} {obj.seller.last_name} (@{obj.seller.username})</a></td>
+    </tr>
   );
 };
 

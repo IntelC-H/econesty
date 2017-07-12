@@ -178,6 +178,7 @@ module.exports = {
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
     filename: "[name].js",
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -226,7 +227,8 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       title: "Econesty",
-      filename: path.resolve('./.econesty_webpack_build/index.html')
+      filename: path.resolve('./.econesty_webpack_build/index.html'),
+      xhtml: true
     })
   ]
 };

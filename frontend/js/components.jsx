@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import SignatureField from './components/signaturefield';
 import SearchField from './components/searchfield';
 import Higher from './components/higher';
-import Form from './components/form';
 
 function _toCurrencySymbol(curr) {
   if (curr === 'USD') return '$';
@@ -27,11 +26,10 @@ Money.defaultProps = {
   value: 0.00
 }
 
-export { Higher, Form, SearchField, SignatureField, Money };
+export { Higher, SearchField, SignatureField, Money };
 
 export default {
   Higher: Higher, // Contains higher-level components
-  Form: Form, // Form creation
 
   SignatureField: SignatureField,
   SearchField: SearchField,

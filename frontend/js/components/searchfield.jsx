@@ -1,54 +1,42 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { asyncCollection } from './higher';
+import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Element } from './form';
+import { Form, Element } from 'app/pure';
 
 const propTypes = {
-  headerComponent: PropTypes.func,
   component: PropTypes.func.isRequired,
-  api: PropTypes.instanceOf(APICollection).isRequired
+  api: PropTypes.instanceOf(APICollection).isRequired,
+  search: PropTypes.string
 };
 
 const defaultProps = {
-  headerComponent: null
+  search: ""
 };
 
-class SearchField extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.state = { search: "" };
-  }
-
-  handleChange(e) {
-    this.setState({search: e.target.value});
-  }
-
-  render() {
-    const canSearch = this.state.search.length > 0;
-    const SearchFieldDropdownCollection = asyncCollection(
-      this.props.headerComponent,
-      this.props.component,
-      page => this.props.api.list(page, this.state.search)
-    )
-    return (
-      <div className="searchfield">
-        <Element
-          required text
-          name="search"
-          label={"Search " + this.props.api.resource + "s"}
-          wrapperClass="textfield"
-          onChange={this.handleChange}
-          value={this.state.search}
-        />
-        {canSearch && <div className="searchfield-dropdown">
-          <SearchFieldDropdownCollection />
-        </div>}
-      </div>
-    );
-  }
-}
+const SearchField = asyncWithProps(props => {
+  const canSearch = props.search.length > 0;
+  const SearchFieldDropdownCollection = asyncCollection(
+    propsp => <tr><th>Showing {propsp.object.results.length} of {propsp.object.count}</th></tr>,
+    props.component,
+    page => props.api.list(page, props.search)
+  )
+  return (
+    <Form className="searchField">
+      <Element
+        text
+        name="search"
+        placeholder={"Search " + props.api.resource + "s"}
+        wrapperClass="textfield"
+        onChange={e => props.setAsync({search: e.target.value})}
+        value={props.search}
+      />
+      {canSearch && <div className="searchfield-dropdown">
+        <SearchFieldDropdownCollection />
+      </div>}
+    </Form>
+  );
+});
 
 SearchField.propTypes = propTypes;
 SearchField.defaultProps = defaultProps;
