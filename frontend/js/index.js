@@ -1,5 +1,4 @@
 import App from 'app/main'; // import our JavaScript & JSX
-
 import { render } from 'react-dom';
 
 var body = document.getElementsByTagName("body")[0];

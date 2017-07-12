@@ -1,4 +1,4 @@
-"""atelier URL Configuration
+"""econesty URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
@@ -14,11 +14,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import include, url
+from django.conf import settings
+
+from django.contrib.staticfiles.views import serve as serve_static
+from django.contrib.staticfiles.finders import find as find_static
 
 from . import api
-from . import web
+
+# serves either a matching staticfile or the index page.
+def serve_app(request, path):
+  if len(path) > 0 and find_static(path) is not None:
+    return serve_static(request, path)
+  else:
+    return serve_static(request, 'index.html')
 
 urlpatterns = [
   url(r'\Aapi/', include('econesty.api.urls')),
-  url(r'\A', include('econesty.web.urls')),
+  url(r'\A(?P<path>.*)\Z', serve_app)
 ]

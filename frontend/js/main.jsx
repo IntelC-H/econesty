@@ -4,6 +4,8 @@ import createBrowserHistory from 'history/createBrowserHistory'
 
 import { API, APICollection, APIActionCollection } from 'app/api';
 
+// import { TopBar, TopBarLeft, TopBarRight } from 'react-foundation';
+
 // Representations
 import Transaction from 'app/repr/transaction';
 import User from 'app/repr/user';
@@ -131,6 +133,21 @@ const transactionDefaults = props => {
 };
 
 const Page = props => {
+/*        
+
+            <TopBar>
+        <TopBarLeft>
+          <a href="/" className="light">Econesty</a>
+        </TopBarLeft>
+        <TopBarRight>
+          <SearchField
+            api={API.user}
+            headerComponent={props => <div className="secondary">Showing {props.object.results.length} of {props.object.count}</div>}
+            component={props => <a className="primary" href={"/user/" + props.object.id.toString()}>{props.object.username}</a>}
+          />
+          <a href="/user/me" className="light">Profile</a>
+        </TopBarRight>
+      </TopBar>*/
   return (
     <div>
       <div className="header">
@@ -148,6 +165,7 @@ const Page = props => {
           <a href="/user/me" className="light">Profile</a>
         </div>
       </div>
+
       <div className="content">
         {props.children}
       </div>
