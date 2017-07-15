@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// TODO: move Form over to here.
-
 function guid() {
   const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
   return s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
@@ -17,9 +15,10 @@ function inheritClass(comp, cname) {
 }
 
 function sizeProp(props, propName, componentName) {
-  if (!/\A\d(?:-\d)?\Z/.test(props[propName])) {
+  if (!props[propName]) return undefined;
+  if (!/^(\d+)(?:-(\d+))?$/.test(props[propName])) {
     return new Error(
-      'Invalid size prop `' + propName + '` supplied to' + ' `' + componentName + '`.'
+      'Invalid sizeProp `' + propName + '` supplied to' + ' `' + componentName + '`.'
     );
   }
   return undefined;
@@ -27,6 +26,10 @@ function sizeProp(props, propName, componentName) {
 
 const Image = inheritClass('img', "pure-image");
 const Grid = inheritClass('div', 'pure-g');
+const MenuHeading = inheritClass('span', 'pure-menu-heading');
+const MenuLink = inheritClass('a', 'pure-menu-link');
+const MenuList = inheritClass('ul', 'pure-menu-list');
+const ButtonGroup = inheritClass('div', 'pure-button-group');
 
 const GridUnit = props => {
   const sizes = ["sm", "md", "lg", "xl"];
@@ -38,7 +41,7 @@ const GridUnit = props => {
   return React.createElement(inheritClass('div', classNames.join(' ')), filteredProps, children);
 };
 
-GridUnit.PropTypes = {
+GridUnit.propTypes = {
   sm: sizeProp,
   md: sizeProp,
   lg: sizeProp,
@@ -51,10 +54,32 @@ GridUnit.defaultProps = {
 };
 
 const Button = props => {
-  let {primary, children, ...filteredProps} = props;
+  const {primary, active, children, ...filteredProps} = props;
   var className = 'pure-button';
   if (primary) className += " pure-button-primary";
+  if (active) className += " pure-button-active";
   return React.createElement(inheritClass(props.href ? 'a' : 'button', className), filteredProps, children);
+};
+
+Button.propTypes = {
+  primary: PropTypes.bool,
+  active: PropTypes.bool
+};
+
+Button.defaultProps = {
+  primary: false,
+  active: false
+};
+
+const Table = props => {
+  const {bordered, horizontal, striped, children, ...filteredProps} = props;
+
+  var classes = ['table-fill', 'pure-table'];
+  if (bordered) classes.push('pure-table-bordered');
+  if (horizontal) classes.push('pure-table-horizontal');
+  if (striped) classes.push('pure-table-striped');
+
+  return React.createElement(inheritClass('table', classes.join(' ')), filteredProps, striped ? applyStriping(children) : children);
 };
 
 function applyStriping(children) {
@@ -71,15 +96,16 @@ function applyStriping(children) {
   });
 }
 
-const Table = props => {
-  const {bordered, horizontal, striped, children, ...filteredProps} = props;
+Table.propTypes = {
+  bordered: PropTypes.bool,
+  horizontal: PropTypes.bool,
+  striped: PropTypes.bool
+};
 
-  var classes = ['pure-table'];
-  if (bordered) classes.push('pure-table-bordered');
-  if (horizontal) classes.push('pure-table-horizontal');
-  if (striped) classes.push('pure-table-striped');
-
-  return React.createElement(inheritClass('table', classes.join(' ')), filteredProps, striped ? applyStriping(children) : children);
+Table.defaultProps = {
+  bordered: false,
+  horizontal: false,
+  striped: false
 };
 
 const Menu = props => {
@@ -91,9 +117,17 @@ const Menu = props => {
   return React.createElement(inheritClass('div', className), filteredProps, children);
 };
 
-const MenuHeading = inheritClass('span', 'pure-menu-heading');
-const MenuLink = inheritClass('a', 'pure-menu-link');
-const MenuList = inheritClass('ul', 'pure-menu-list');
+Menu.propTypes = {
+  horizontal: PropTypes.bool,
+  scrollable: PropTypes.bool,
+  fixed: PropTypes.bool
+};
+
+Menu.defaultProps = {
+  horizontal: false,
+  scrollable: false,
+  fixed: false
+};
 
 const MenuItem = props => {
   var className = 'pure-menu-item';
@@ -102,9 +136,18 @@ const MenuItem = props => {
   return React.createElement(inheritClass('li', className), props, props.children);
 };
 
+MenuItem.propTypes = {
+  disabled: PropTypes.bool,
+  selected: PropTypes.bool
+};
+
+MenuItem.defaultProps = {
+  disabled: false,
+  selected: false
+}
+
 // Forms can take props.object as form value defaults.
 
-// TODO: GUID values appear if default is selected.
 const Element = props => {
   if (props.select) {
     var defaultValue = guid();
@@ -118,7 +161,7 @@ const Element = props => {
     )
   }
   var typ = props.hidden ? "hidden" : props.text ? "text" : props.checkbox ? "checkbox" : props.password ? "password" : props.type;
-  let {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, ...filteredProps} = props; // eslint-disable-line
+  const {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, ...filteredProps} = props; // eslint-disable-line
   return (
     <div className={props.wrapperClass}>
       <input type={typ} {...filteredProps} />
@@ -183,13 +226,15 @@ SubmitButton.defaultProps = {
 };
 
 const Form = props => {
+  const {aligned, stacked, className, subForm, object, children, ...filteredProps} = props;
   var cns = ["pure-form"];
-  if (props.aligned) cns.push("pure-form-aligned");
-  if (props.stacked) cns.push("pure-form-stacked");
-  return Form.setObject(props.object, (
-    <div data-is-form data-is-subform={props.subForm} name={props.name} className={cns.join(' ')}>
+  if (aligned) cns.push("pure-form-aligned");
+  if (stacked) cns.push("pure-form-stacked");
+  if (className) cns.push(className);
+  return Form.setObject(object, (
+    <div {...filteredProps} data-is-form data-is-subform={subForm} className={cns.join(' ')}>
       <fieldset>
-        {props.children}
+        {children}
       </fieldset>
     </div>
   ));
@@ -218,8 +263,10 @@ Form.reduceForms = function(el, acc = {}) {
     const tname = child.tagName.toLowerCase();
     if (child.dataIsForm)   child.dataIsSubform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
     if (tname === "input")  acc[child.name] = child.value;
-    if (tname === "select") acc[child.name] = child.children[child.selectedIndex].value;
-    else                    Form.reduceForms(child, acc);
+    if (tname === "select") {
+      var opt = child.children[child.selectedIndex];
+      if (!opt.hidden) acc[child.name] = opt.value;
+    } else                  Form.reduceForms(child, acc);
   });
   return acc;
 };
@@ -241,13 +288,14 @@ Form.setObject = function(obj, form) {
   return form;
 }
 
-export { guid, Image, Grid, GridUnit, Button, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Element, SubmitButton, Form };
+export { guid, Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Element, SubmitButton, Form };
 export default {
   guid: guid,
   Image: Image,
   Grid: Grid,
   GridUnit: GridUnit,
   Button: Button,
+  ButtonGroup: ButtonGroup,
   Table: Table,
   Menu: Menu,
   MenuHeading: MenuHeading,

@@ -91,13 +91,13 @@ export function withPromiseFactory(pfact, Comp) {
 export function collection(header, body, setPage = null) {
   const Header = header || (() => null);
   const Body = body || (() => null);
-  const mkNavButton = (targetPage, text) => <Button key={guid()} onClick={() => setPage(targetPage)}>{text}</Button>;
+  const mkNavButton = (targetPage, text) => <Button key={guid()} className="margined" onClick={() => setPage(targetPage)}>{text}</Button>;
 
   return props => {
     var obj = props.object;
     return (
-      <div>
-        <Table>
+      <div className="collection">
+        <Table striped horizontal className="fill-width">
           <thead>
             <Header object={obj} />
           </thead>
@@ -105,10 +105,10 @@ export function collection(header, body, setPage = null) {
             {obj.results.map((child, i) => <Body key={"object-" + i.toString()} object={child} />)}
           </tbody>
         </Table>
-        <Grid>
-          <GridUnit size="1-5">{obj.previous && setPage && mkNavButton(obj.previous, "❮ Previous")}</GridUnit>
-          <GridUnit size="3-5"><span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span></GridUnit>
-          <GridUnit size="1-5">{obj.next && setPage && mkNavButton(obj.next, "Next ❯")}</GridUnit>
+        <Grid className="collection-controls">
+          <GridUnit className="center collection-control" size="1-3"><div>{obj.previous && setPage && mkNavButton(obj.previous, "❮")}</div></GridUnit>
+          <GridUnit className="center collection-control" size="1-3"><div><span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span></div></GridUnit>
+          <GridUnit className="center collection-control" size="1-3"><div>{obj.next && setPage && mkNavButton(obj.next, "❯")}</div></GridUnit>
         </Grid>
       </div>
     )

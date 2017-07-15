@@ -153,22 +153,16 @@ const Page = props => {
   return (
     <div>
       <Menu horizontal fixed className="header">
-        <Grid>
-          <GridUnit size="2-3">
-            <MenuHeading><a href="/" className="light">Econesty</a></MenuHeading>
-          </GridUnit>
-          <GridUnit size="1-3">
-            <MenuList>
-              <MenuItem>
-                <SearchField
-                  api={API.user}
-                  component={props => <tr><td><a href={"/user/" + props.object.id.toString()}>{props.object.username}</a></td></tr>}
-                />
-              </MenuItem>
-              <MenuItem><a href="/user/me" className="light">Profile</a></MenuItem>
-            </MenuList>
-          </GridUnit>
-        </Grid>
+        <MenuHeading><a href="/" className="light-text">Econesty</a></MenuHeading>
+        <MenuList>
+          <MenuItem>
+            <SearchField
+              api={API.user}
+              component={props => <tr><td><a href={"/user/" + props.object.id.toString()}>{props.object.username}</a></td></tr>}
+            />
+          </MenuItem>
+          <MenuItem><a href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></a></MenuItem>
+        </MenuList>
       </Menu>
       <div className="content">
         {props.children}
@@ -216,13 +210,17 @@ const Profile = props => {
     page => API.paginate(API.user.transactions(userId, page), API.transaction)
   );
   return (
-    <div>
-      <UserView {...props} />
-      <Button onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
-      <Button onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
-      <span className="primary light">Transactions</span>
-      <TransactionCollection {...props} />
-    </div>
+    <Grid>
+      <GridUnit size="4-24">
+        <UserView {...props} />
+      </GridUnit>
+      <GridUnit size="16-24">
+        <Button className="margined" onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
+        <Button className="margined" onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
+        <TransactionCollection {...props} />
+      </GridUnit>
+      <GridUnit size="4-24"/>
+    </Grid>
   );
 }
 

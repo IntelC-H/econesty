@@ -7,6 +7,8 @@
     "build": "./node_modules/.bin/webpack --config webpack.config.js --progress --sortModulesBy size"
   },
   "dependencies": {
+    "blueimp-md5": "^2.7.0",
+    "font-awesome": "^4.7.0",
     "history": "^4.6.3",
     "prop-types": "^15.5.10",
     "purecss": "^1.0.0",
@@ -22,10 +24,12 @@
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "copy-webpack-plugin": "^4.0.1",
     "eslint": "^4.1.1",
     "eslint-loader": "^1.9.0",
     "eslint-plugin-react": "^7.1.0",
     "extract-text-webpack-plugin": "^2.1.2",
+    "file-loader": "^0.11.2",
     "html-webpack-plugin": "^2.29.0",
     "node-sass": "^4.5.3",
     "raw-loader": "^0.5.1",

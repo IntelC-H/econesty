@@ -1,0 +1,193 @@
+/*
+  base.scss
+
+  Base styles in Econesty.
+*/
+
+@import "keyframes"; // mixin for keyframes, since it's browser prefixed
+@import "placeholder"; // mixin for placeholder, since it's browser prefixed
+
+//
+// Fonts
+//
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
+//
+// Constants
+//
+
+$header-font-size: 18pt;
+$header-height: $header-font-size * 2;
+
+$padding: 10px;
+
+$pure-sm: 568px;
+$pure-md: 768px;
+$pure-lg: 1024px;
+$pure-xl: 1280px;
+
+//
+// Colors
+//
+
+/* materialpalette.com/light-green/pink */
+// $primary-color-dark:   #616161; // UI element background
+// $primary-color:        #9E9E9E; // UI element background
+// $primary-color-light:  #F5F5F5; // page background
+// $primary-color-text:   #212121; // Text/Icons: nav bar title
+// $accent-color:         #536DFE; // accents
+// $primary-text-color:   #212121; // h1 and friends
+// $secondary-text-color: #757575; // Secondary Text: p tags and detail text
+// $divider-color:        #BDBDBD; // hr's
+
+/* materialpalette.com/green/brown */
+$primary-color-dark:   #388E3C; // UI element background
+$primary-color:        #4CAF50; // UI element background
+$primary-color-light:  #C8E6C9; // page background
+$primary-color-text:   #FFFFFF; // Text/Icons: nav bar title
+$accent-color:         #795548; // accents
+$primary-text-color:   #212121; // h1 and friends
+$secondary-text-color: #757575; // Secondary Text: p tags and detail text
+$divider-color:        #BDBDBD; // hr's
+
+/*
+  Tags
+*/
+
+* {
+  font-family: FontAwesome, 'Open Sans', sans-serif;
+  border-color: #BDBDBD;
+}
+
+body {
+  background-color: $primary-color-light;
+}
+
+hr {
+  color: $divider-color;
+  height: 1px; // material design says that dividers should be thin.
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: $primary-text-color;
+}
+
+a {
+  display: inherit;
+  &:visited, &:link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  // When hovering over
+  &:hover {
+    text-decoration: underline;
+    color: $accent-color;
+  }
+
+  // When clicking down
+  &:active {
+    color: $accent-color;
+  }
+}
+
+/*
+  PureCSS Overrides
+*/
+
+.pure-button {
+  background-color: $primary-color;
+  color: white;
+}
+
+.pure-menu-heading {
+  padding: 0.25em;
+  font-size: $header-font-size;
+  color: white;
+}
+
+/*
+  Text Styling
+*/
+
+.primary, h1, h2, h3, h4, h5, h6 {
+ // font-size: 20px;
+  color: $primary-text-color;
+}
+
+.secondary, span, p {
+//  font-size: 14px;
+  color: $secondary-text-color;
+}
+
+.light-text {
+  color: $primary-color-text;
+}
+
+/*
+  Spacing
+*/
+
+.padded {
+  padding: $padding;
+}
+
+.margined {
+  margin: $padding;
+}
+
+/*
+  Alignment
+*/
+
+.center {
+  text-align: center;
+}
+
+/*
+  Sizing
+*/
+
+.fill-width {
+  width: 100%;
+}
+
+/*
+  Loading div from Components.Higher.asyncWithProps()
+*/
+
+.loading {
+  border: 8px solid mix(rgba(255, 255, 255, 0), $accent-color, 50%);
+  border-top: 8px solid $accent-color;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  animation: spin 2s linear infinite;
+  margin: auto;
+}
+
+@include keyframes(spin) {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/*
+  Collection styling from Components.Higher.collection()
+*/
+
+.collection {
+  .collection-control {
+    div {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      span {
+        position: absolute;
+        width: 100%;
+        top: 25%;
+        display:block;
+      }
+    }
+  }
+}

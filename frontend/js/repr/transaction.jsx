@@ -32,8 +32,8 @@ const Transaction = props => {
   return (
     <tr>
       <td><Components.Money currency={obj.offer_currency} value={parseFloat(obj.offer)} /></td>
-      <td><a href={"/user/" + obj.buyer.id}>{obj.buyer.first_name} {obj.buyer.last_name} (@{obj.buyer.username})</a></td>
-      <td><a href={"/user/" + obj.seller.id}>{obj.seller.first_name} {obj.seller.last_name} (@{obj.seller.username})</a></td>
+      <td><a className="secondary" href={"/user/" + obj.buyer.id}>{obj.buyer.first_name} {obj.buyer.last_name} (@{obj.buyer.username})</a></td>
+      <td><a className="secondary" href={"/user/" + obj.seller.id}>{obj.seller.first_name} {obj.seller.last_name} (@{obj.seller.username})</a></td>
     </tr>
   );
 };

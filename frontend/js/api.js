@@ -105,7 +105,7 @@ class API {
     var that = this;
     return promise.then(res => {
       if (res.next) res.next = parseInt(that.parseQuery(res.next).page);
-      if (res.previous) res.previous = parseInt(that.parseQuery(res.previous).page);
+      if (res.previous) res.previous = parseInt(that.parseQuery(res.previous).page || "1");
       res.page = res.next ? res.next - 1 : res.previous ? res.previous + 1 : 1;
       res.results = Array.from(res.results.map(collection.onInstance));
       return res;

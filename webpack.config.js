@@ -1,5 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var pkg = require('./package.json');
@@ -158,13 +159,13 @@ var eslintOptions = {
   }
 };
 
+var dependencies = Object.keys(pkg.dependencies).filter(name => name != 'font-awesome');
+dependencies.push('./node_modules/font-awesome/css/font-awesome.css');
+
 var extractStyle = new ExtractTextPlugin({
   filename: '[name].css',
   allChunks: true
 });
-
-// TODO:
-// 1. Setup autogeneration for spa_page.html. https://github.com/jantimon/html-webpack-plugin#configuration
 
 module.exports = {
   devtool: "cheap-module-source-map",
@@ -173,7 +174,7 @@ module.exports = {
       './frontend/js/index.js',
       './frontend/css/main.scss'
     ],
-    vendor: Object.keys(pkg.dependencies)
+    vendor: dependencies
   },
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
@@ -220,11 +221,14 @@ module.exports = {
     extensions: [".js", ".jsx", ".scss", ".css"]
   },
   plugins: [
-    extractStyle,
+    new CopyWebpackPlugin([
+      { from: 'node_modules/font-awesome/fonts/', to: 'fonts/' } // copy FontAwesome fonts.
+    ]),
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
       minChunks: Infinity
     }),
+    extractStyle,
     new HtmlWebpackPlugin({
       title: "Econesty",
       filename: path.resolve('./.econesty_webpack_build/index.html'),

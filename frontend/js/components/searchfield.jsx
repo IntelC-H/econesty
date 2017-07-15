@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Form, Element } from 'app/pure';
+import { Form, Element, Grid, GridUnit, SubmitButton } from 'app/pure';
 
 const propTypes = {
   component: PropTypes.func.isRequired,
@@ -22,19 +22,21 @@ const SearchField = asyncWithProps(props => {
     page => props.api.list(page, props.search)
   )
   return (
-    <Form className="searchField">
-      <Element
-        text
-        name="search"
-        placeholder={"Search " + props.api.resource + "s"}
-        wrapperClass="textfield"
-        onChange={e => props.setAsync({search: e.target.value})}
-        value={props.search}
-      />
+    <div className="searchfield">
+      <Form aligned>
+        <Element
+          text
+          name="search"
+          placeholder={"Search " + props.api.resource + "s"}
+          onChange={e => props.setAsync({search: e.target.value})}
+          value={props.search}
+        />
+        {!canSearch && <span className="fa fa-search search-icon"></span>}
+      </Form>
       {canSearch && <div className="searchfield-dropdown">
-        <SearchFieldDropdownCollection />
-      </div>}
-    </Form>
+          <SearchFieldDropdownCollection />
+        </div>}
+    </div>
   );
 });
 
