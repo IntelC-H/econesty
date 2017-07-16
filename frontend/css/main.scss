@@ -1,6 +1,8 @@
 @import "base";
 
-// User
+/*
+  Users
+*/
 
 .user {
   padding: $padding;
@@ -10,33 +12,38 @@
   }
 }
 
-// @media (max-width: $pure-sm) {
-//   .user {
-//     width: 44px;
-//   }
-// }
-
-// @media (max-width: $pure-md) {
-//   .user {
-//     width: 100px;
-//   }
-// }
-
-// @media (max-width: $pure-lg) {
-//   .user {
-//     width: 130px;
-//   }
-// }
-
-// @media (max-width: $pure-xl) {
-//   .user {
-//     width: 170px;
-//   }
-// }
-
-.content {
-  padding-top: $header-height;
+@media (max-width: $pure-sm) {
+  .user {
+    // TODO: small screens: move from side to top.
+  }
 }
+
+/*
+  Transactions
+*/
+
+.transaction {
+  margin-left: 5px;
+  margin-right: 5px;
+  height: 50px;
+  width: 100%;
+  vertical-align: middle;
+  display: inline-block;
+  .box {
+    height: 50px;
+    line-height: 50px;
+    margin-left: 1%;
+    margin-right: 1%;
+    width: 30%;
+    vertical-align: middle;
+    display: inline-block;
+    color: $primary-text-color;
+  }
+}
+
+/*
+  Header
+*/
 
 .header {
   text-align: left;
@@ -56,7 +63,25 @@
   }
 }
 
-$searchfield-width: 190px; //150px;
+/*
+  Content
+*/
+
+$content-y: $header-height;
+
+.content {
+  padding-top: $content-y;
+}
+
+/*
+  Search Fields
+  // TODO: separate generic attributes from
+  //       specific heights and locations.
+  // TODO: Move to base.scss
+*/
+
+$searchfield-width: 190px;
+$searchfield-height: 34px;
 
 .searchfield {
   color: $primary-text-color;
@@ -75,34 +100,15 @@ $searchfield-width: 190px; //150px;
   .search-icon {
     position: absolute;
     display: inline-block;
-    top: 11px;
-    right: 11px;
+    top: $padding;
+    right: $padding * 2;
     background-color: transparent;
-    width: 44px;
-    height: 44px;
+    width: $searchfield-height - $padding;
+    height: $searchfield-height - $padding;
     font-size: 1.35em;
     text-align: center;
     pointer-events: none;
     display: inline-block;
     border: none;
-  }
-}
-
-.transaction {
-  margin-left: 5px;
-  margin-right: 5px;
-  height: 50px;
-  width: 100%;
-  vertical-align: middle;
-  display: inline-block;
-  .box {
-    height: 50px;
-    line-height: 50px;
-    margin-left: 1%;
-    margin-right: 1%;
-    width: 30%;
-    vertical-align: middle;
-    display: inline-block;
-    color: $primary-text-color;
   }
 }

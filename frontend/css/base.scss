@@ -158,13 +158,13 @@ a {
 */
 
 .loading {
-  border: 8px solid mix(rgba(255, 255, 255, 0), $accent-color, 50%);
-  border-top: 8px solid $accent-color;
-  border-radius: 50%;
+  border: 8px solid mix(rgba(255, 255, 255, 0), $accent-color, 50%); // Pale background for whole circle
+  border-top: 8px solid $accent-color; // highlight a part of the circle in a bolder color.
+  border-radius: 50%; // make it a circle
   width: 44px;
   height: 44px;
-  animation: spin 2s linear infinite;
-  margin: auto;
+  animation: spin 2s linear infinite; // make it spin
+  margin: auto; // make it centered
 }
 
 @include keyframes(spin) {
