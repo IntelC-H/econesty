@@ -225,31 +225,29 @@ const Profile = props => {
 }
 
 const Home = () =>
-  <div>
-    <div className="color-box-highlight splash">
-      <h1>Econesty</h1>
-      <h2>Fairness in Negotiation</h2>
-    </div>
-    <div className="color-box">
-      <h3>Econesty allows users to recruit experts to verify the fairness of their transactions</h3>
-      <p>When making a transaction through Econesty, you can add terms and conditions that must be fulfilled in order for money to change hands. For example,
-         users can recuit other (an)other user(s) to sign off on the quality of a transaction.
-      </p>
-      <p>For example, if you're about to buy a used car, you might recruit your friend to quickly google a good price for it, and sign off that the seller is
-        asking a fair price for it.</p>
-    </div>
-    <div className="color-box-highlight">
-      <h3>Econesty finds the best payment method for each transaction.</h3>
-      <p>Users can store any number of payment methods through econesty. When they go to make a transaction, a common payment method is found, and the transaction
-         goes through. Users can also specify how secure the transaction should be, what kind of expense it is, amongst other things - These also affect payment method
-         choice.</p>
-    </div>
-    <div className="">
-      <h3>Econesty stores sensitive data securely</h3>
-      <p>Each piece of payment data is decrypted only when needed, and is encrypted using an easily memorable password. Econesty favors prompting the user for the password
-         over storing it for ease of use.</p>
-    </div>
-  </div>
+  <Grid>
+    <GridUnit size="4-24" />
+    <GridUnit size="16-24">
+      <div className="center">
+        <h1>Econesty</h1>
+        <h2>Fairness in Negotiation</h2>
+      </div>
+      <GridUnit size="1-3">
+        <h3>Recruit friends to secure your transactions.</h3>
+        <p>Econesty enables you to attach conditions to transactions. Your friends have to sign off that the transaction was fair & equitable.</p>
+        <p>For example, if you're buying a used car, you might recruit your car nerd friend to sign off that the deal is fair.</p>
+      </GridUnit>
+      <GridUnit size="1-3">
+        <h3>Use the best payment method every time.</h3>
+        <p>Add your debit card, bitcoin wallet, paypal account, and more to Econesty. When you make a transaction, Econesty determines the best payment method to use.</p>
+      </GridUnit>
+      <GridUnit size="1-3">
+        <h3>Secure as Hell.</h3>
+        <p>Sensitive data is encrypted with a security key that never leaves your head. Econesty favors security over convenience; so every time payment data is used, Econesty will prompt you for the password.</p>
+      </GridUnit>
+    </GridUnit>
+    <GridUnit size="4-24" />
+  </Grid>
 ;
 
 export default () => {
