@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Form, Element, Grid, GridUnit, SubmitButton } from 'app/pure';
+import { Form, Element } from 'app/pure';
 
 const propTypes = {
   component: PropTypes.func.isRequired,

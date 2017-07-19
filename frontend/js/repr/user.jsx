@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid, GridUnit, Image } from 'app/pure';
+import { Image } from 'app/pure';
 import md5 from 'blueimp-md5';
 
 const User = props => {
   var obj = props.object;
-  console.log("USER: ", obj);
   return (
     <div className="user">
       <Image src={"https://www.gravatar.com/avatar/" + md5(obj.email)} />

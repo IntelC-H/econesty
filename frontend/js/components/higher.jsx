@@ -11,15 +11,15 @@ export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () =
       this.state = {};
       this.setState = this.setState.bind(this);
     }
-  
+
     componentDidMount() {
       onMount(this.setState);
     }
-  
+
     componentWillUnmount() {
       onUnmount(this.setState);
     }
-  
+
     render() {
       return <Comp {...Object.assign({}, {setAsync: this.setState}, this.props, this.state)} />;
     }
@@ -27,7 +27,11 @@ export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () =
 }
 
 export function asyncWithObject(Comp, onMount = () => undefined, onUnmount = () => undefined) {
-  const mkHandler = (f, g) => g({ setAsyncProps: f, setError: e => f({error: e}), setObject: o => f({object: o}) });
+  const mkHandler = (f, g) => g({
+    setAsyncProps: f,
+    setError: e => f({ error: e }),
+    setObject: o => f({ object: o })
+  });
   return asyncWithProps(
     props => {
       if (props.object) return <Comp {...props} />;
@@ -106,9 +110,15 @@ export function collection(header, body, setPage = null) {
           </tbody>
         </Table>
         <Grid className="collection-controls">
-          <GridUnit className="center collection-control" size="1-3"><div>{obj.previous && setPage && mkNavButton(obj.previous, "❮")}</div></GridUnit>
-          <GridUnit className="center collection-control" size="1-3"><div><span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span></div></GridUnit>
-          <GridUnit className="center collection-control" size="1-3"><div>{obj.next && setPage && mkNavButton(obj.next, "❯")}</div></GridUnit>
+          <GridUnit className="center collection-control" size="1-3">
+            <div>{obj.previous && setPage && mkNavButton(obj.previous, "❮")}</div>
+          </GridUnit>
+          <GridUnit className="center collection-control" size="1-3">
+            <div><span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span></div>
+          </GridUnit>
+          <GridUnit className="center collection-control" size="1-3">
+            <div>{obj.next && setPage && mkNavButton(obj.next, "❯")}</div>
+          </GridUnit>
         </Grid>
       </div>
     )

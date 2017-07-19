@@ -6,10 +6,17 @@ function guid() {
   return s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
 }
 
+function makeClassName() {
+  var parts = [];
+  for (var i = 0; i < arguments.length; i++) {
+    parts = parts.concat((arguments[i] || '').split(' '));
+  }
+  return parts.filter(e => e.length > 0).join(' ');
+}
+
 function inheritClass(comp, cname) {
   return props => {
-    var className = props.className ? props.className + ' ' + cname : cname;
-    var propsp = Object.assign({}, props, { className: className });
+    var propsp = Object.assign({}, props, { className: makeClassName(props.className, cname) });
     return React.createElement(comp, propsp, props.children);
   }
 }
@@ -37,7 +44,7 @@ const GridUnit = props => {
     sizes.filter(k => k in props)
          .map(k => 'pure-u-' + k + '-' + props[k])
   );
-  const {sm, md, lg, xl, size, children, ...filteredProps} = props;
+  const {sm, md, lg, xl, size, children, ...filteredProps} = props; // eslint-disable-line
   return React.createElement(inheritClass('div', classNames.join(' ')), filteredProps, children);
 };
 
@@ -83,14 +90,14 @@ const Table = props => {
 };
 
 function applyStriping(children) {
-  var io = true;
+  var odd = true;
   return React.Children.map(children, function(child) {
     var {...newProps} = child.props;
     if (child.type === "tbody") {
       newProps.children = applyStriping(newProps.children);
     } else if (child.type === "tr") {
-      newProps.className = newProps.className ? (newProps.className + (io ? ' pure-table-odd' : '')) : (io ? 'pure-table-odd' : undefined);
-      io = !io;
+      if (odd) newProps.className = makeClassName(newProps.className, 'pure-table-odd');
+      odd = !odd;
     }
     return React.cloneElement(child, newProps, newProps.children);
   });
@@ -231,13 +238,13 @@ const Form = props => {
   if (aligned) cns.push("pure-form-aligned");
   if (stacked) cns.push("pure-form-stacked");
   if (className) cns.push(className);
-  return Form.setObject(object, (
+  return Form.setObject(object,
     <div {...filteredProps} data-is-form data-is-subform={subForm} className={cns.join(' ')}>
       <fieldset>
         {children}
       </fieldset>
     </div>
-  ));
+  );
 };
 
 Form.propTypes = {

@@ -4,9 +4,7 @@ import createBrowserHistory from 'history/createBrowserHistory'
 
 import { API, APICollection, APIActionCollection } from 'app/api';
 
-// import { TopBar, TopBarLeft, TopBarRight } from 'react-foundation';
-
-import Pure, { Form, Element, Button, SubmitButton, MenuLink, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
+import { Form, Element, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
 
 // Representations
 import Transaction from 'app/repr/transaction';
@@ -42,6 +40,30 @@ function joinPromises(psDict) {
     }
   }
   return Promise.all(ps).then(xs => xs.reduce((acc, x) => Object.assign(acc, x), {}));
+}
+
+function saveFormTo(api, f = null) {
+  return obj => {
+    api.create(obj).catch(e => {
+      throw e;
+    }).then(f || (() => undefined));
+  };
+}
+
+function upsertFormTo(api, oid, f = null) {
+  return obj => {
+    var p = oid ? api.update(oid, obj) : api.create(obj);
+    p.catch(e => {
+      throw e;
+    }).then(f || (() => undefined));
+  };
+}
+
+function withAPI(api, form) {
+  return withRouter(props => {
+    const WrappedForm = withPromise(api.read(props.match.params.id), form);
+    return <WrappedForm {...props} />;
+  });
 }
 
 ///// FORMS
@@ -171,41 +193,13 @@ const Page = props => {
   );
 };
 
-function saveFormTo(api, f = null) {
-  return obj => {
-    api.create(obj).catch(e => {
-      throw e;
-    }).then(f || (() => undefined));
-  };
-}
-
-function upsertFormTo(api, oid, f = null) {
-  return obj => {
-    var p = oid ? api.update(oid, obj) : api.create(obj);
-    p.catch(e => {
-      throw e;
-    }).then(f || (() => undefined));
-  };
-}
-
-function withAPI(api, form) {
-  return withRouter(props => {
-    const WrappedForm = withPromise(api.read(props.match.params.id), form);
-    return <WrappedForm {...props} />;
-  });
-}
-
 ////////// APP JSX
 
 const Profile = props => {
   const userId = props.match.params.id;
   const UserView = withAPI(API.user, User);
   const TransactionCollection = asyncCollection(
-    () => (
-      <tr>
-        <th>Offer</th><th>Buyer</th><th>Seller</th>
-      </tr>
-    ),
+    () => <tr><th>Offer</th><th>Buyer</th><th>Seller</th></tr>,
     Transaction,
     page => API.paginate(API.user.transactions(userId, page), API.transaction)
   );
@@ -223,6 +217,10 @@ const Profile = props => {
     </Grid>
   );
 }
+
+var d = {};
+d[SearchField] = "asdf";
+console.log(d);
 
 const Home = () =>
   <Grid>
