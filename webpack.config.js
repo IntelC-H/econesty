@@ -232,7 +232,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: "Econesty",
       filename: path.resolve('./.econesty_webpack_build/index.html'),
-    //  xhtml: true
+      xhtml: true
     })
   ]
 };
