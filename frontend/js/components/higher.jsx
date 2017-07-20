@@ -91,7 +91,6 @@ export function withPromiseFactory(pfact, Comp) {
   };
 }
 
-// TODO: use PureCSS here!
 export function collection(header, body, setPage = null) {
   const Header = header || (() => null);
   const Body = body || (() => null);
