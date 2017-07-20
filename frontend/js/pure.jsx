@@ -38,11 +38,11 @@ const MenuLink = inheritClass('a', 'pure-menu-link');
 const MenuList = inheritClass('ul', 'pure-menu-list');
 const ButtonGroup = inheritClass('div', 'pure-button-group');
 
+const _sizes = ["sm", "md", "lg", "xl"];
 const GridUnit = props => {
-  const sizes = ["sm", "md", "lg", "xl"];
   var classNames = ['pure-u-' + props.size].concat(
-    sizes.filter(k => k in props)
-         .map(k => 'pure-u-' + k + '-' + props[k])
+    _sizes.filter(k => k in props)
+          .map(k => 'pure-u-' + k + '-' + props[k])
   );
   const {sm, md, lg, xl, size, children, ...filteredProps} = props; // eslint-disable-line
   return React.createElement(inheritClass('div', classNames.join(' ')), filteredProps, children);
@@ -155,30 +155,28 @@ MenuItem.defaultProps = {
 
 // Forms can take props.object as form value defaults.
 
+// TODO: implement sizing via: .pure-input-*
+
 const Element = props => {
-  if (props.select) {
-    var defaultValue = guid();
-    return (
-      <div className={props.wrapperClass}>
-        <select name={props.name} defaultValue={props.value || defaultValue}>
-          {props.label !== null && <option disabled hidden value={defaultValue}>{props.label}</option>}
-          {props.select.map(s => <option key={guid()} value={s}>{s}</option>)}
-        </select>
-      </div>
-    )
-  }
-  var typ = props.hidden ? "hidden" : props.text ? "text" : props.checkbox ? "checkbox" : props.password ? "password" : props.type;
-  const {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, ...filteredProps} = props; // eslint-disable-line
+  const {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, message, ...filteredProps} = props;
   return (
-    <div className={props.wrapperClass}>
-      <input type={typ} {...filteredProps} />
-      {props.label !== null && <label>{props.label}</label>}
-      {props.message !== null && <span className="pure-form-message">{props.message}</span>}
+    <div className={makeClassName(wrapperClass, "pure-control-group")}>
+      {label !== null && <label>{label}</label>}
+      {select !== null && <select name={name}>{ /* use defaultValue, set it to the first option. */}
+        {select.map(s => <option key={guid()} value={s}>{s}</option>) /* use s instead of guid() for the key */}
+      }
+      </select>}
+      {checkbox && <label className="pure-checkbox" {...filteredProps}>
+        <input type="checkbox" value={null} /> {label}
+      </label>}
+      {!checkbox && !select && <input type={hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type} {...filteredProps} />}
+      {(message !== null || props.required) && <span className="pure-form-message-inline">{message || "This field is required."}</span>}
     </div>
   );
 };
 
 Element.propTypes = {
+  message: PropTypes.string,
   required: PropTypes.bool,
   hidden: PropTypes.bool,
   text: PropTypes.bool,
@@ -195,6 +193,7 @@ Element.propTypes = {
 };
 
 Element.defaultProps = {
+  message: null,
   required: false,
   hidden: false,
   text: false,
@@ -221,7 +220,22 @@ function findForm(btn) {
 }
 
 const SubmitButton = props => {
-  return <Button primary onClick={e => props.onSubmit(Form.reduceForms(findForm(e.target)))}>{props.children}</Button>;
+
+/*
+        <div class="pure-controls">
+            <label for="cb" class="pure-checkbox">
+                <input id="cb" type="checkbox"> I've read the terms and conditions
+            </label>
+
+            <button type="submit" class="pure-button pure-button-primary">Submit</button>
+        </div>
+*/
+  // TODO: caveat form?
+  return (
+    <div className="pure-controls">
+      <Button primary onClick={e => props.onSubmit(Form.reduceForms(findForm(e.target)))}>{props.children}</Button>
+    </div>
+  );
 };
 
 SubmitButton.propTypes = {
@@ -269,8 +283,14 @@ Form.reduceForms = function(el, acc = {}) {
   Array.from(el.children).forEach(child => {
     const tname = child.tagName.toLowerCase();
     if (child.dataIsForm)   child.dataIsSubform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
-    if (tname === "input")  acc[child.name] = child.value;
-    if (tname === "select") {
+    if (tname === "input")  {
+      if (child.type === "checkbox") {
+        if (!child.value) acc[child.name] = false;
+        else acc[child.name] = true;
+      } else {
+        acc[child.name] = child.value;
+      }
+    } else if (tname === "select") {
       var opt = child.children[child.selectedIndex];
       if (!opt.hidden) acc[child.name] = opt.value;
     } else                  Form.reduceForms(child, acc);

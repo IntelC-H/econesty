@@ -1,15 +1,15 @@
-/*
-  base.scss
-
-  Base styles in Econesty.
-*/
+//
+// base.scss
+//
+// Base styles in Econesty.
+//
 
 @import "keyframes"; // mixin for keyframes, since it's browser prefixed
 @import "placeholder"; // mixin for placeholder, since it's browser prefixed
 
-//
-// Fonts
-//
+/*
+ Fonts
+*/
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans');
 
@@ -22,26 +22,21 @@ $header-height: $header-font-size * 2;
 
 $padding: 10px;
 
+$shadow-dist: 2px;
+$shadow-blur: 5px;
+
 $pure-sm: 568px;
 $pure-md: 768px;
 $pure-lg: 1024px;
 $pure-xl: 1280px;
 
 //
-// Colors
+// Palette Colors
 //
 
-/* materialpalette.com/light-green/pink */
-// $primary-color-dark:   #616161; // UI element background
-// $primary-color:        #9E9E9E; // UI element background
-// $primary-color-light:  #F5F5F5; // page background
-// $primary-color-text:   #212121; // Text/Icons: nav bar title
-// $accent-color:         #536DFE; // accents
-// $primary-text-color:   #212121; // h1 and friends
-// $secondary-text-color: #757575; // Secondary Text: p tags and detail text
-// $divider-color:        #BDBDBD; // hr's
+// materialpalette.com/light-green/pink
 
-/* materialpalette.com/green/brown */
+// materialpalette.com/green/brown
 $primary-color-dark:   #388E3C; // UI element background
 $primary-color:        #4CAF50; // UI element background
 $primary-color-light:  #C8E6C9; // page background
@@ -50,6 +45,12 @@ $accent-color:         #795548; // accents
 $primary-text-color:   #212121; // h1 and friends
 $secondary-text-color: #757575; // Secondary Text: p tags and detail text
 $divider-color:        #BDBDBD; // hr's
+
+//
+// Non-Palette Colors
+//
+
+$shadow-color: #666666;
 
 /*
   Tags
@@ -62,6 +63,7 @@ $divider-color:        #BDBDBD; // hr's
 
 body {
   background-color: $primary-color-light;
+  min-width: 320px;
 }
 
 hr {
@@ -97,7 +99,7 @@ a {
 */
 
 .pure-button {
-  background-color: $primary-color;
+  background-color: $accent-color;
   color: white;
 }
 
@@ -107,17 +109,29 @@ a {
   color: white;
 }
 
+.pure-form {
+  fieldset {
+    padding-bottom: 0px;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: $accent-color;
+    &:invalid:focus {
+      border-color: $accent-color;
+    }
+  }
+}
+
 /*
   Text Styling
 */
 
 .primary, h1, h2, h3, h4, h5, h6 {
- // font-size: 20px;
+  font-size: 20px;
   color: $primary-text-color;
 }
 
 .secondary, span, p {
-//  font-size: 14px;
+  font-size: 14px;
   color: $secondary-text-color;
 }
 
@@ -151,6 +165,22 @@ a {
 
 .fill-width {
   width: 100%;
+}
+
+/*
+  Miscellaneous
+*/
+
+.raised {
+  box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
+}
+
+.raised-h {
+  box-shadow: 0px ($shadow-dist + 1) $shadow-blur $shadow-color;
+}
+
+.raised-v {
+  box-shadow: ($shadow-dist + 1) 0px $shadow-blur $shadow-color;
 }
 
 /*
@@ -189,5 +219,40 @@ a {
         display:block;
       }
     }
+  }
+}
+
+/*
+  Search Fields
+*/
+
+$searchfield-width: 190px;
+$searchfield-height: 34px;
+
+.searchfield {
+  color: $primary-text-color;
+  .searchfield-dropdown {
+    .pure-table {
+      border: none;
+      border-bottom: 1px solid $divider-color;
+    }
+    border: 1px solid $divider-color;
+    z-index: 100;
+    position: fixed;
+    background-color: $primary-color-light;
+    width: $searchfield-width;
+  }
+  .search-icon {
+    position: absolute;
+    display: inline-block;
+    top: $padding;
+    right: $padding * 2;
+    background-color: transparent;
+    width: $searchfield-height - $padding;
+    height: $searchfield-height - $padding;
+    font-size: 1.35em;
+    text-align: center;
+    display: inline-block;
+    border: none;
   }
 }

@@ -72,8 +72,8 @@ function withAPI(api, form) {
 
 const loginForm = props =>
   <Form object={props.object}>
-    <Element required text name="username" label="Username" wrapperClass="textfield" />
-    <Element required password name="password" label="Password" wrapperClass="textfield" />
+    <Element text name="username" label="Username" />
+    <Element password name="password" label="Password" />
     <SubmitButton onSubmit={saveFormTo(API.token, obj => {
     API.setToken(obj.token);
     browserHistory.push("/user/me");
@@ -85,11 +85,11 @@ const loginForm = props =>
 
 const signupForm = props =>
   <Form object={props.object}>
-    <Element required text     name="first_name" label="First Name" wrapperClass="textfield" />
-    <Element required text     name="last_name"  label="Last Name" wrapperClass="textfield" />
-    <Element required email    name="email"      label="Email" wrapperClass="textfield" />
-    <Element required text     name="username"   label="New Username" wrapperClass="textfield" />
-    <Element required password name="password"   label="New Password" wrapperClass="textfield" />
+    <Element text     name="first_name" label="First Name" />
+    <Element text     name="last_name"  label="Last Name" />
+    <Element email    name="email"      label="Email" />
+    <Element text     name="username"   label="New Username" />
+    <Element password name="password"   label="New Password" />
     <SubmitButton onSubmit={saveFormTo(API.user, user => browserHistory.push("/user/" + user.id))}>
       OK
     </SubmitButton>
@@ -116,10 +116,10 @@ const countersignDefaults = props => API.user.me().then(me => ({
 // Create/update forms.
 
 const paymentDataForm = withRouter(props =>
-  <Form object={props.object}>
-    <Element required text name="data" label="Data" wrapperClass="textfield" />
+  <Form object={props.object} aligned>
+    <Element text     name="data"      label="Data" />
     <Element checkbox name="encrypted" label="Encrypted" />
-    <Element hidden name="user_id" />
+    <Element hidden   name="user_id" />
     <SubmitButton onSubmit={upsertFormTo(API.payment_data, props.match.params.id, pd => browserHistory.push("/payment/" + pd.id))}>
       OK
     </SubmitButton>
@@ -133,10 +133,9 @@ const paymentDataDefaults = () => API.user.me().then(me => ({
 }));
 
 const transactionForm = props =>
-  <Form object={props.object}>
-    <Element required text name="offer" label="Offer" wrapperClass="textfield" />
-    <Element required text name="offer_currency" label="Currency" wrapperClass="textfield" />
-    <Element required text name="required_witnesses" label="Number of Witnesses" wrapperClass="textfield" />
+  <Form object={props.object} aligned>
+    <Element text name="offer" label="Offer" />
+    <Element      name="offer_currency" label="Currency" select={["USD", "EUR", "JPY", "GBP"]} />
     <Element hidden name="buyer_id" />
     <Element hidden name="buyer_payment_data_id" />
     <Element hidden name="seller_id" />
@@ -174,7 +173,7 @@ const transactionDefaults = props => {
 const Page = props => {
   return (
     <div>
-      <Menu horizontal fixed className="header">
+      <Menu horizontal fixed className="header raised-v">
         <MenuHeading><a href="/" className="light-text">Econesty</a></MenuHeading>
         <MenuList>
           <MenuItem>
@@ -205,22 +204,18 @@ const Profile = props => {
   );
   return (
     <Grid>
-      <GridUnit size="4-24">
+      <GridUnit sm="1" size="4-24">
         <UserView {...props} />
       </GridUnit>
-      <GridUnit size="16-24">
-        <Button className="margined" onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
-        <Button className="margined" onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
+      <GridUnit sm="1" size="16-24">
+        <Button className="margined raised" onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
+        <Button className="margined raised" onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
         <TransactionCollection {...props} />
       </GridUnit>
-      <GridUnit size="4-24"/>
+      <GridUnit sm="1" size="4-24"/>
     </Grid>
   );
 }
-
-var d = {};
-d[SearchField] = "asdf";
-console.log(d);
 
 const Home = () =>
   <Grid>

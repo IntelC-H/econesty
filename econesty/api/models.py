@@ -31,7 +31,6 @@ class Transaction(models.Model):
   buyer_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_buyer_pd")
   seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_seller")
   seller_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_pd")
-  required_witnesses = models.IntegerField(default=0)
   offer = models.DecimalField(max_digits=11, decimal_places=2)
   offer_currency = models.CharField(max_length=3, default="USD")
   created_at = models.DateTimeField(default=timezone.now)

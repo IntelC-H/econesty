@@ -3,14 +3,19 @@ import PropTypes from 'prop-types';
 import { Image } from 'app/pure';
 import md5 from 'blueimp-md5';
 
+const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+function formatDate(datestr) {
+  return new Date(datestr).toLocaleString(navigator.language, dateOptions);
+}
+
 const User = props => {
   var obj = props.object;
   return (
     <div className="user">
       <Image src={"https://www.gravatar.com/avatar/" + md5(obj.email)} />
-      <h2 className="primary">{obj.first_name || "First Name"} {obj.last_name || "Last Name"}</h2>
-      <h4>@{obj.username}</h4>
-      <p className="secondary">since {new Date(obj.date_joined).toLocaleString(navigator.language)}</p>
+      <div className="primary">{obj.first_name || "First Name"} {obj.last_name || "Last Name"}</div>
+      <div>@{obj.username}</div>
+      <div className="secondary">since {formatDate(obj.date_joined)}</div>
     </div>
   );
 };
