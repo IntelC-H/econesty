@@ -178,8 +178,8 @@ module.exports = {
   },
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
-    filename: "[name].js",
-    publicPath: '/'
+    filename: "code/[name].js",
+    publicPath: '/code/'
   },
   module: {
     rules: [
@@ -222,7 +222,10 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
-      { from: 'node_modules/font-awesome/fonts/', to: 'fonts/' } // copy FontAwesome fonts.
+      {
+        from: path.resolve('./node_modules/font-awesome/fonts/'),
+        to: path.resolve('./.econesty_webpack_build/fonts/')
+      } // copy FontAwesome fonts.
     ]),
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",

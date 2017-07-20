@@ -86,6 +86,9 @@ a {
   &:hover {
     text-decoration: underline;
     color: $accent-color;
+    span {
+      color: $accent-color;
+    }
   }
 
   // When clicking down
@@ -113,12 +116,21 @@ a {
   fieldset {
     padding-bottom: 0px;
   }
-  input:focus, select:focus, textarea:focus {
-    border-color: $accent-color;
-    &:invalid:focus {
-      border-color: $accent-color;
-    }
+  input {
+    outline-color: red;
   }
+  // input:focus, select:focus, textarea:focus {
+  //   border-color: $accent-color;
+  //   outline: none;
+  // // &:invalid:focus {
+  // //   border-color: $accent-color;
+  // // }
+  // }
+}
+
+.pure-table thead {
+  color: $primary-color-text;
+  background-color: $primary-color;
 }
 
 /*
@@ -208,7 +220,7 @@ a {
 
 .collection {
   .collection-control {
-    div {
+    .collection-page-indicator {
       position: relative;
       height: 100%;
       width: 100%;

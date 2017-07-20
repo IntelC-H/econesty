@@ -95,7 +95,7 @@ export function withPromiseFactory(pfact, Comp) {
 export function collection(header, body, setPage = null) {
   const Header = header || (() => null);
   const Body = body || (() => null);
-  const mkNavButton = (targetPage, text) => <Button key={guid()} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
+  const mkNavButton = (targetPage, text) => <Button key={guid()} disabled={!targetPage} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
 
   return props => {
     var obj = props.object;
@@ -111,13 +111,15 @@ export function collection(header, body, setPage = null) {
         </Table>
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">
-            <div>{obj.previous && setPage && mkNavButton(obj.previous, "❮")}</div>
+            {setPage && mkNavButton(obj.previous, "❮")}
           </GridUnit>
           <GridUnit className="center collection-control" size="1-3">
-            <div><span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span></div>
+            <div className="collection-page-indicator">
+              <span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span>
+            </div>
           </GridUnit>
           <GridUnit className="center collection-control" size="1-3">
-            <div>{obj.next && setPage && mkNavButton(obj.next, "❯")}</div>
+            {setPage && mkNavButton(obj.next, "❯")}
           </GridUnit>
         </Grid>
       </div>
