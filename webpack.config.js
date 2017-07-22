@@ -163,7 +163,7 @@ var dependencies = Object.keys(pkg.dependencies).filter(name => name != 'font-aw
 dependencies.push('./node_modules/font-awesome/css/font-awesome.css');
 
 var extractStyle = new ExtractTextPlugin({
-  filename: '[name].css',
+  filename: 'code/[name].css',
   allChunks: true
 });
 
@@ -179,7 +179,7 @@ module.exports = {
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
     filename: "code/[name].js",
-    publicPath: '/code/'
+    publicPath: '/static/'
   },
   module: {
     rules: [

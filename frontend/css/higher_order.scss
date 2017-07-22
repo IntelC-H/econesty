@@ -1,0 +1,37 @@
+// @mixin placeholder($selector) {
+//   @include prefixedPseudoElement($selector, "input-placeholder");
+//   @include prefixedPseudoElement($selector, "placeholder");
+//   @include prefixedPseudoClass($selector, "input-placeholder");
+//   @include prefixedPseudoClass($selector, "placeholder");
+// }
+
+@mixin prefixedPseudoElement($selector, $pseudoElement) {
+  ${$selector}::-ms-#{$pseudoElement} {
+    @content;
+  }
+  ${$selector}::-moz-#{$pseudoElement} {
+    @content;
+  }
+  ${$selector}::-webkit-#{$pseudoElement} {
+    @content;
+  }
+
+  ${$selector}::-o-#{$pseudoElement} {
+    @content;
+  }
+}
+
+@mixin prefixedPseudoClass($selector, $pseudoClass) {
+  ${$selector}:-ms-#{$pseudoElement} {
+    @content;
+  }
+  ${$selector}:-moz-#{$pseudoElement} {
+    @content;
+  }
+  ${$selector}:-webkit-#{$pseudoElement} {
+    @content;
+  }
+  ${$selector}:-o-#{$pseudoElement} {
+    @content;
+  }
+}

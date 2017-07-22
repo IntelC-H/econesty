@@ -5,7 +5,6 @@
 //
 
 @import "keyframes"; // mixin for keyframes, since it's browser prefixed
-@import "placeholder"; // mixin for placeholder, since it's browser prefixed
 
 /*
  Fonts
@@ -82,7 +81,6 @@ a {
     color: inherit;
   }
 
-  // When hovering over
   &:hover {
     text-decoration: underline;
     color: $accent-color;
@@ -91,7 +89,6 @@ a {
     }
   }
 
-  // When clicking down
   &:active {
     color: $accent-color;
   }
@@ -115,17 +112,19 @@ a {
 .pure-form {
   fieldset {
     padding-bottom: 0px;
+
+    input[type='text'],
+    input[type='password'],
+    input[type='email'],
+    input[type='url'],
+    input[type='checkbox'],
+    textarea,
+    select {
+      &:focus {
+        border-color: $accent-color;
+      }
+    }
   }
-  input {
-    outline-color: red;
-  }
-  // input:focus, select:focus, textarea:focus {
-  //   border-color: $accent-color;
-  //   outline: none;
-  // // &:invalid:focus {
-  // //   border-color: $accent-color;
-  // // }
-  // }
 }
 
 .pure-table thead {
