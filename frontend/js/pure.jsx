@@ -220,30 +220,36 @@ function findForm(btn) {
 }
 
 const SubmitButton = props => {
+  const clickHandler = e => {
+    const button = e.target;
 
-/*
-        <div class="pure-controls">
-            <label for="cb" class="pure-checkbox">
-                <input id="cb" type="checkbox"> I've read the terms and conditions
-            </label>
+    if (button && button.parentElement) {
+      if (props.caveat) {
+        const checkbox = button.parentElement.querySelector(".form-caveat");
+        if (!checkbox || !checkbox.checked) return;
+      }
+    }
+    props.onSubmit(Form.reduceForms(findForm(e.target)));
+  };
 
-            <button type="submit" class="pure-button pure-button-primary">Submit</button>
-        </div>
-*/
-  // TODO: caveat form?
   return (
     <div className="pure-controls">
-      <Button primary onClick={e => props.onSubmit(Form.reduceForms(findForm(e.target)))}>{props.children}</Button>
+      {props.caveat !== null && <label className="pure-checkbox">
+        <input type="checkbox" className="form-caveat" /> {props.caveat}
+      </label>}
+      <Button primary onClick={clickHandler}>{props.children}</Button>
     </div>
   );
 };
 
 SubmitButton.propTypes = {
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
+  caveat: PropTypes.string
 };
 
 SubmitButton.defaultProps = {
-  onSubmit: () => undefined
+  onSubmit: () => undefined,
+  caveat: null
 };
 
 const Form = props => {
@@ -284,16 +290,12 @@ Form.reduceForms = function(el, acc = {}) {
     const tname = child.tagName.toLowerCase();
     if (child.dataIsForm)   child.dataIsSubform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
     if (tname === "input")  {
-      if (child.type === "checkbox") {
-        if (!child.value) acc[child.name] = false;
-        else acc[child.name] = true;
-      } else {
-        acc[child.name] = child.value;
-      }
+      if (child.type === "checkbox") acc[child.name] = child.checked || false;
+      else acc[child.name] = child.value;
     } else if (tname === "select") {
-      var opt = child.children[child.selectedIndex];
+      const opt = child.children[child.selectedIndex];
       if (!opt.hidden) acc[child.name] = opt.value;
-    } else                  Form.reduceForms(child, acc);
+    } else             Form.reduceForms(child, acc);
   });
   return acc;
 };
