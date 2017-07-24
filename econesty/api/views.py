@@ -7,54 +7,103 @@ from django.shortcuts import redirect
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import filters
+from django.utils.decorators import classonlymethod
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
-class OwnedOrReadonly(permissions.BasePermission):
-  def has_object_permission(self, request, view, obj):
-    if request.method == "GET":
-      return True
-    if request.auth is None:
-      return False
-    u = request.auth.user
-    user_attr = getattr(obj, "user", None)
-    buyer_attr = getattr(obj, "buyer", None)
-    seller_attr = getattr(obj, "seller", None)
-    return (u == user_attr) | (u == buyer_attr) | (u == seller_attr)
+# Permissions
 
-class OwnedOrReadonlyOrCreating(OwnedOrReadonly):
+class Sensitive(permissions.BasePermission):
+  def has_permission(self, request, view):
+    return request.auth is not None;
+
   def has_object_permission(self, request, view, obj):
-    if request.method == "POST":
+    if obj is None:
+      return False
+
+    u = request.auth.user
+    if u == obj or getattr(obj, "user", getattr(obj, "buyer", getattr(obj, "seller", None))) == u: # does the authenticated user own the object?
       return True
-    else:
-      return super().has_object_permission(request, view, obj)
+    elif type(obj) is models.CounterSignature:
+      transaction = getattr(obj, "transaction", None)
+      if transaction is not None: # does the countersignature have a transaction associated with it?
+        return self.has_object_permission(request, view, transaction) # if so, test if the transaction is owned by the authenticated user.
+    elif type(obj) is models.PaymentData:
+      #
+      # TODO: test this
+      # 1. Authenticate with user id other than 2
+      # 2. create a payment data (let's call it pd)
+      # 3. create a transaction using the payment data with user 2
+      # 4. check if user id 2 can access pd
+      #
+
+      transactions = (
+        models.Transaction.objects.filter(buyer_payment_data__id=obj.id)
+        | models.Transaction.objects.filter(seller_payment_data__id=obj.id)
+      ).select_related("buyer", "seller")
+  
+      for t in transactions: # for each transaction associated with the PaymentData obj
+        if self.has_object_permission(request, view, t): # Determine if the authenticated user owns it
+          return True
+
+    return False
+
+class ReadableSensitive(Sensitive):
+  def has_object_permission(self, request, view, obj):
+    return request.method == "GET" or super().has_object_permission(request, view, obj)
+
+class ReadableCreatableSensitive(ReadableSensitive):
+  def has_object_permission(self, request, view, obj):
+    return request.method == "POST" or super().has_object_permission(request, view, obj)
+
+# Mixins
 
 # list_route without implicit added meaning.
 # THIS IS AN OVERSIGHT IN DRF
 collection_route = list_route
 
-class UserViewSet(viewsets.ModelViewSet):
-  permission_classes = (OwnedOrReadonlyOrCreating,)
+class PaginatedViewSetMixin(object):
+  def paginated_response(self, queryset, serializer, transform = None):
+    page = self.paginate_queryset(queryset)
+    ser = serializer((transform or (lambda x: x))(page or queryset), many=True)
+    if page is not None:
+      return self.get_paginated_response(ser.data)
+    else:
+      return Response(ser.data)
+
+class QuerySetGetterMixin(object):
+  @classonlymethod
+  def obtain_queryset(cls, request):
+    vs = cls()
+    vs.request = request
+    return vs.get_queryset()
+
+#
+# Actual API viewsets
+#
+
+class UserViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
+  permission_classes = (ReadableCreatableSensitive,)
   queryset = User.objects.all().order_by("-username")
   serializer_class = serializers.UserSerializer
   filter_backends = (filters.SearchFilter,)
   search_fields = ('username', 'email', 'first_name')
 
-  @collection_route(permission_classes=[permissions.IsAuthenticated])
+  @collection_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
   def me(self, request):
     ser = self.get_serializer(request.auth.user, many=False)
     return Response(ser.data)
 
-  @detail_route(permission_classes=[permissions.IsAuthenticated])
+  @detail_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
   def payment(self, request, pk = None):
-    pk = request.auth.user.id if pk == "me" else int(pk)
+    pk = int(request.auth.user.id if pk == "me" else pk)
     common = self.find_common_payment(request.auth.user.id, pk);
     if common is None:
       raise NotFound(detail="No common payment data.", code=404)
     return Response(common)
 
-  @detail_route(permission_classes=[permissions.IsAuthenticated])
+  @detail_route(methods=["GET"], permission_classes=[Sensitive])
   def transactions(self, request, pk = None):
     uid = request.auth.user.id
     pk = uid if pk == "me" else int(pk) # the primary key of the user to load transactions for
@@ -62,20 +111,7 @@ class UserViewSet(viewsets.ModelViewSet):
     qs = qs.filter(buyer__id=pk) | qs.filter(seller__id=pk) # Ensure only user #{pk}'s transactions are fetched
     qs = qs & (qs.filter(buyer__id=uid) | qs.filter(seller__id=uid)) # Ensure only transactions the authenticated user can see are fetched.
     qs = qs.order_by("-created_at") # Order newest to lodest
-    page = self.paginate_queryset(qs)
-    ser = serializers.TransactionSerializer(page or qs, many=True)
-    if page is not None:
-      return self.get_paginated_response(ser.data)
-    else:
-      return Response(ser.data)
-
-  # TODO: stats detail route
-  # @detail_route()
-  # def stats(self, request, pk = None):
-  #   qs = models.Transaction.objects.all().aggregate(Count('id'), Sum('offer'))
-  #   filter(buyer=pk).aggregate(aggregates.Count('id'))
-
-  #   qs = qs.filter(buyer=pk) || qs.filter(seller=pk)
+    return self.paginated_response(qs, serializers.TransactionSerializer)
 
   def find_common_payment(self, me_id, them_id):
     me = models.PaymentData.objects.filter(user__id=me_id).all()
@@ -100,53 +136,38 @@ class UserViewSet(viewsets.ModelViewSet):
 
     return None
 
-class PaymentDataViewSet(viewsets.ModelViewSet):
-  permission_classes = (permissions.IsAuthenticated, OwnedOrReadonly)
+class PaymentDataViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
+  permission_classes = (Sensitive,)
   serializer_class = serializers.PaymentDataSerializer
 
   def get_queryset(self):
-    qs = models.PaymentData.objects.all()
-    if self.request.auth.user is not None:
-      qs = qs.filter(user=self.request.auth.user)
-    return qs.order_by("-created_at")
+    return models.PaymentData.objects.all().filter(user=self.request.auth.user).order_by("-created_at").select_related("user")
 
-class CounterSignatureViewSet(viewsets.ModelViewSet):
-  permission_classes = (permissions.IsAuthenticated, OwnedOrReadonly)
+class CounterSignatureViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
+  permission_classes = (Sensitive,)
   serializer_class = serializers.CounterSignatureSerializer
 
   def get_queryset(self):
-    return models.CounterSignature.objects.filter(user__id=self.request.auth.user.id)
+    return models.CounterSignature.objects.filter(user__id=self.request.auth.user.id).select_related("transaction").select_related("user")
   
-class TransactionViewSet(viewsets.ModelViewSet):
-  permission_classes = (permissions.IsAuthenticated, OwnedOrReadonly)
+class TransactionViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
+  permission_classes = (Sensitive,)
   serializer_class = serializers.TransactionSerializer
 
   def get_queryset(self):
     u = self.request.auth.user
-    qs = models.Transaction.objects.all()
-    if u is not None:
-      qs = qs.filter(buyer__id=u.id) | qs.filter(seller__id=u.id)
-    return qs.order_by("-created_at")
+    buyer = models.Transaction.objects.all().filter(buyer__id=u.id)
+    seller = models.Transaction.objects.all().filter(seller__id=u.id)
+    return (buyer | seller).order_by("-created_at").select_related("buyer", "seller")
 
-  @detail_route()
+  @detail_route(methods=["GET"])
   def countersignatures(self, request, pk=None):
-    q = models.CounterSignatures.objects.filter(transaction=pk).order_by("-created_at")
-    page = self.paginate_queryset(q)
-    if page is not None:
-      ser = self.get_serializer(page, many=True)
-      return self.get_paginated_response(ser.data)
-    else:
-      ser = self.get_serializer(q, many=True)
-      return Response(ser.data)
+    q = models.CounterSignature.objects.filter(transaction__id=int(pk)).select_related("transaction").select_related("user")
+    # viewfn = CounterSignatureViewSet.as_view({'get': 'list'})
+    # return viewfn(request, *args, **kwargs)
+    return self.paginated_response(q, serializers.CounterSignatureSerializer)
 
-  # TODO: order these too
-  @list_route()
+  @list_route(methods=["GET"])
   def coutersigned(self, request):
     q = models.CounterSignature.objects.filter(user=request.auth.user).order_by("-created_at")
-    page = self.paginate_queryset(q)
-    if page is not None:
-      serializer = self.get_serializer([cs.transaction for cs in page], many=True)
-      return self.get_paginated_response(serializer.data)
-    else:
-      serializer = self.get_serializer([sig.transaction for sig in q], many=True)
-      return Response(serializer.data)
+    return self.paginated_response(q, serializers.TransactionSerializer, lambda cs: [c.transaction for c in cs])

@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+# TODO: TransactionCriterion or Criterion
+
 class PaymentData(models.Model):
   BITCOIN='btc'
   CASH='csh'
@@ -49,4 +51,3 @@ class CounterSignature(models.Model):
 
   def signature_list(self):
     return list(map(lambda x: list(map(int, x.split(','))), self.signature.split('|')))
-
