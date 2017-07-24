@@ -226,17 +226,23 @@ const Home = () =>
         <h2>Fairness in Negotiation</h2>
       </div>
       <GridUnit size="1-3">
-        <h3>Recruit friends to secure your transactions.</h3>
-        <p>Econesty enables you to attach conditions to transactions. Your friends have to sign off that the transaction was fair & equitable.</p>
-        <p>For example, if you're buying a used car, you might recruit your car nerd friend to sign off that the deal is fair.</p>
+        <div className="padded">
+          <h3>Recruit friends to secure your transactions.</h3>
+          <p>Econesty enables you to attach conditions to transactions. Your friends have to sign off that the transaction was fair & equitable.</p>
+          <p>For example, if you're buying a used car, you might recruit your car nerd friend to sign off that the deal is fair.</p>
+        </div>
       </GridUnit>
       <GridUnit size="1-3">
-        <h3>Use the best payment method every time.</h3>
-        <p>Add your debit card, bitcoin wallet, paypal account, and more to Econesty. When you make a transaction, Econesty determines the best payment method to use.</p>
+        <div className="padded">
+          <h3>Use the best payment method every time.</h3>
+          <p>Add your debit card, bitcoin wallet, paypal account, and more to Econesty. When you make a transaction, Econesty determines the best payment method to use.</p>
+        </div>
       </GridUnit>
       <GridUnit size="1-3">
-        <h3>Secure as Hell.</h3>
-        <p>Sensitive data is encrypted with a security key that never leaves your head. Econesty favors security over convenience; so every time payment data is used, Econesty will prompt you for the password.</p>
+        <div className="padded">
+          <h3>Secure as Hell.</h3>
+          <p>Sensitive data is encrypted with a security key that never leaves your head. Econesty favors security over convenience; so every time payment data is used, Econesty will prompt you for the password.</p>
+        </div>
       </GridUnit>
     </GridUnit>
     <GridUnit size="4-24" />
