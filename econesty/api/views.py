@@ -114,20 +114,17 @@ class UserViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
     return self.paginated_response(qs, serializers.TransactionSerializer)
 
   def find_common_payment(self, me_id, them_id):
-    me = models.PaymentData.objects.filter(user__id=me_id).all()
-    them = models.PaymentData.objects.filter(user__id=them_id).all()
-   
-    me_hsh = {}
-    for x in me:
-      me_hsh[x.kind] = x
+    def makeKindHash(acc, x):
+      hsh = acc or {}
+      hsh[x.kind] = x
+      return hsh
 
-    them_hsh = {}
-    for x in them:
-      them_hsh[x.kind] = x
+    me = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=me_id).all())
+    them = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=them_id).all())
 
     for k in models.PaymentData.KINDS:
-      m = me_hsh.get(k, None)
-      t = them_hsh.get(k, None)
+      m = me.get(k, None)
+      t = them.get(k, None)
       if m is not None and t is not None:
         return {
           'me': serializers.PaymentDataSerializer(m).data,
@@ -163,8 +160,6 @@ class TransactionViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
   @detail_route(methods=["GET"])
   def countersignatures(self, request, pk=None):
     q = models.CounterSignature.objects.filter(transaction__id=int(pk)).select_related("transaction").select_related("user")
-    # viewfn = CounterSignatureViewSet.as_view({'get': 'list'})
-    # return viewfn(request, *args, **kwargs)
     return self.paginated_response(q, serializers.CounterSignatureSerializer)
 
   @list_route(methods=["GET"])
