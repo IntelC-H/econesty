@@ -50,10 +50,16 @@ class Sensitive(permissions.BasePermission):
     return False
 
 class ReadableSensitive(Sensitive):
+  def has_permission(self, request, view):
+    return request.method == "GET" or super().has_permission(request, view)
+
   def has_object_permission(self, request, view, obj):
     return request.method == "GET" or super().has_object_permission(request, view, obj)
 
 class ReadableCreatableSensitive(ReadableSensitive):
+  def has_permission(self, request, view):
+    return request.method == "POST" or super().has_permission(request, view)
+
   def has_object_permission(self, request, view, obj):
     return request.method == "POST" or super().has_object_permission(request, view, obj)
 
@@ -107,7 +113,7 @@ class UserViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
   def transactions(self, request, pk = None):
     uid = request.auth.user.id
     pk = uid if pk == "me" else int(pk) # the primary key of the user to load transactions for
-    qs = models.Transaction.objects.all();
+    qs = models.Transaction.objects.all()
     qs = qs.filter(buyer__id=pk) | qs.filter(seller__id=pk) # Ensure only user #{pk}'s transactions are fetched
     qs = qs & (qs.filter(buyer__id=uid) | qs.filter(seller__id=uid)) # Ensure only transactions the authenticated user can see are fetched.
     qs = qs.order_by("-created_at") # Order newest to lodest
@@ -138,31 +144,35 @@ class PaymentDataViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
   serializer_class = serializers.PaymentDataSerializer
 
   def get_queryset(self):
-    return models.PaymentData.objects.all().filter(user=self.request.auth.user).order_by("-created_at").select_related("user")
+    return models.PaymentData.objects.filter(user=self.request.auth.user).order_by("-created_at").select_related("user")
 
-class CounterSignatureViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
+class SignatureViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
   permission_classes = (Sensitive,)
-  serializer_class = serializers.CounterSignatureSerializer
+  serializer_class = serializers.SignatureSerializer
 
   def get_queryset(self):
-    return models.CounterSignature.objects.filter(user__id=self.request.auth.user.id).select_related("transaction").select_related("user")
-  
+    return models.Signature.objects.filter(user__id=self.request.auth.user.id).select_related("transaction").select_related("user")
+
 class TransactionViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
   permission_classes = (Sensitive,)
   serializer_class = serializers.TransactionSerializer
 
   def get_queryset(self):
     u = self.request.auth.user
-    buyer = models.Transaction.objects.all().filter(buyer__id=u.id)
-    seller = models.Transaction.objects.all().filter(seller__id=u.id)
-    return (buyer | seller).order_by("-created_at").select_related("buyer", "seller")
+    buyer = models.Transaction.objects.filter(buyer__id=u.id)
+    seller = models.Transaction.objects.filter(seller__id=u.id)
+    required = models.Requirement.objects.filter(user__id=u.id).values_list("transaction", flat=True)
+    return (buyer | seller | required).order_by("-created_at").select_related("buyer", "seller")
 
-  @detail_route(methods=["GET"])
-  def countersignatures(self, request, pk=None):
-    q = models.CounterSignature.objects.filter(transaction__id=int(pk)).select_related("transaction").select_related("user")
-    return self.paginated_response(q, serializers.CounterSignatureSerializer)
+  @collection_route(methods=["GET"])
+  def active(self, request):
+    pass
 
-  @list_route(methods=["GET"])
-  def coutersigned(self, request):
-    q = models.CounterSignature.objects.filter(user=request.auth.user).order_by("-created_at")
-    return self.paginated_response(q, serializers.TransactionSerializer, lambda cs: [c.transaction for c in cs])
+# TODO: how do I want to expose this?
+class RequirementViewSet(viewsets.ModelViewSet):
+  permission_classes = (Sensitive,)
+  serializer_class = serializers.RequirementSerializer
+
+  def get_queryset(self):
+    u = self.request.auth.user
+    return models.Requirement.objects.filter(user__id=u.id)

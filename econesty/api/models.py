@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-
-# TODO: TransactionCriterion or Criterion
+from . import fields
 
 class PaymentData(models.Model):
   BITCOIN='btc'
@@ -23,10 +22,9 @@ class PaymentData(models.Model):
     default=GENERIC
   )
   data = models.TextField()
-  encrypted = models.BooleanField()
+  encrypted = models.BooleanField() # using a key stored exclusively in the user's mind
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   created_at = models.DateTimeField(default=timezone.now)
-  # data can be encrypted with a key that is stored exclusively in the user's mind.
 
 class Transaction(models.Model):
   buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_buyer")
@@ -36,18 +34,20 @@ class Transaction(models.Model):
   offer = models.DecimalField(max_digits=11, decimal_places=2)
   offer_currency = models.CharField(max_length=3, default="USD")
   created_at = models.DateTimeField(default=timezone.now)
-  finalized_at = models.DateTimeField(null=True)
 
-  # TODO: other information about what the transaction was for?
-
-  def is_finalized(self):
-    return self.date_finalized != None
-
-class CounterSignature(models.Model):
+class Signature(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
-  signature = models.TextField() # stored as x,y|x,y|x,y
+  points = fields.PointsField()
   created_at = models.DateTimeField(default=timezone.now)
 
   def signature_list(self):
     return list(map(lambda x: list(map(int, x.split(','))), self.signature.split('|')))
+
+class Requirement(models.Model):
+  user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
+  text = models.TextField(blank=True, null=True)
+  transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='api_req_transaction')
+  signature = models.ForeignKey(Signature, on_delete=models.SET_NULL, blank=True, null=True, related_name='api_req_sig')
+  signature_required = models.BooleanField(default=False)
+  acknowledged = models.BooleanField(default=False)
+  acknowledgment_required = models.BooleanField(default=False)

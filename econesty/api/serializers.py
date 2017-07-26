@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 def writing_field(model_clazz, source):
   """
-  Define a field for writing to a nested property
+  Define a field for assigning to a foreign key.
   """
   return serializers.PrimaryKeyRelatedField(queryset=model_clazz.objects.all(), source=source, write_only=True)
 
@@ -62,14 +62,27 @@ class TransactionSerializer(serializers.ModelSerializer):
       'id': {'read_only': True},
     }
 
-class CounterSignatureSerializer(serializers.ModelSerializer):
+class SignatureSerializer(serializers.ModelSerializer):
+  user = UserSerializer(many=False, read_only=True)
+  user_id = writing_field(amodels.User, "user")
+  class Meta:
+    model = models.Signature
+    fields = '__all__'
+    extra_kwargs = {
+      'id': {'read_only': True},
+    }
+
+class RequirementSerializer(serializers.ModelSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
   transaction_id = writing_field(models.Transaction, "transaction")
+  signature = SignatureSerializer(many=False, read_only=True)
+  signature_id = writing_field(models.Signature, "signature")
+  pass
   class Meta:
-    model = models.CounterSignature
+    model = models.Requirement
     fields = '__all__'
     extra_kwargs = {
-      'id': {'read_only': True},
+      'id': {'read_only': True}
     }
