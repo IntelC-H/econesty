@@ -40,14 +40,12 @@ class Signature(models.Model):
   points = fields.PointsField()
   created_at = models.DateTimeField(default=timezone.now)
 
-  def signature_list(self):
-    return list(map(lambda x: list(map(int, x.split(','))), self.signature.split('|')))
-
 class Requirement(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
   text = models.TextField(blank=True, null=True)
   transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='api_req_transaction')
-  signature = models.ForeignKey(Signature, on_delete=models.SET_NULL, blank=True, null=True, related_name='api_req_sig')
+  signature = models.ForeignKey(Signature, on_delete=models.SET_NULL, unique=True, blank=True, null=True, related_name='api_req_sig')
   signature_required = models.BooleanField(default=False)
   acknowledged = models.BooleanField(default=False)
   acknowledgment_required = models.BooleanField(default=False)
+  created_at = models.DateTimeField(default=timezone.now)

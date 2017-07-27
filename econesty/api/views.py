@@ -12,8 +12,11 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
+# TRANSACTIONS MAY EXPOSE PAYMENT DATA!!!!!!!!!!!!
+
 # Permissions
 
+# TODO: move to permissions.py
 class Sensitive(permissions.BasePermission):
   def has_permission(self, request, view):
     return request.auth is not None;
@@ -21,47 +24,52 @@ class Sensitive(permissions.BasePermission):
   def has_object_permission(self, request, view, obj):
     if obj is None:
       return False
-
-    u = request.auth.user
-    if u == obj or getattr(obj, "user", getattr(obj, "buyer", getattr(obj, "seller", None))) == u: # does the authenticated user own the object?
+    if type(obj) is User: # Users aren't sensitive.
       return True
-    elif type(obj) is models.CounterSignature:
-      transaction = getattr(obj, "transaction", None)
-      if transaction is not None: # does the countersignature have a transaction associated with it?
-        return self.has_object_permission(request, view, transaction) # if so, test if the transaction is owned by the authenticated user.
+
+    # does the authenticated user own the object?
+    if getattr(obj, "user", None) == request.auth.user:
+      return True
+    elif getattr(obj, "buyer", None) == request.auth.user | getattr(obj, "seller", None) == request.auth.user;
+      return True
+    
+    if type(obj) is models.Requirement:
+      qs = getattr(obj, "transaction", [])
+    elif type(obj) is models.Signature:
+      qs = models.Requirement.objects.filter(signature__id=obj.id).values_list("transaction", flat=True)
     elif type(obj) is models.PaymentData:
       #
       # TODO: test this
-      # 1. Authenticate with user id other than 2
-      # 2. create a payment data (let's call it pd)
-      # 3. create a transaction using the payment data with user 2
-      # 4. check if user id 2 can access pd
+      # 1. Authenticate with a user
+      # 2. Authenticate with a different user
+      # 3. create a payment data (let's call it pd) using the first user
+      # 4. create a payment data (let's call it pd') using the second user
+      # 5. create a transaction using the payment datas
+      # 6. check if the first user can access pd'
       #
-
-      transactions = (
-        models.Transaction.objects.filter(buyer_payment_data__id=obj.id)
-        | models.Transaction.objects.filter(seller_payment_data__id=obj.id)
-      ).select_related("buyer", "seller")
+      qs = models.Transaction.objects.all()
+      qs = qs.filter(buyer_payment_data__id=obj.id) | qs.filter(seller_payment_data__id=obj.id)
   
-      for t in transactions: # for each transaction associated with the PaymentData obj
-        if self.has_object_permission(request, view, t): # Determine if the authenticated user owns it
+    if qs is not None:
+      for v in qs: # for each model in the queryset
+        if self.has_object_permission(request, view, v): # determine if the authenticated user owns it
           return True
 
     return False
 
-class ReadableSensitive(Sensitive):
-  def has_permission(self, request, view):
-    return request.method == "GET" or super().has_permission(request, view)
+  @classonlymethod
+  def filtered_queryset(self, request, model_cls):
+    pass
 
-  def has_object_permission(self, request, view, obj):
-    return request.method == "GET" or super().has_object_permission(request, view, obj)
+def exempt_methods(perm_cls, methods):
+  class Wrapped(perm_cls):
+    def has_permission(self, request, view):
+      return request.method in methods or super().has_permission(request, view)
 
-class ReadableCreatableSensitive(ReadableSensitive):
-  def has_permission(self, request, view):
-    return request.method == "POST" or super().has_permission(request, view)
+    def has_object_permission(self, request, view, obj):
+      return request.method in methods or super().has_object_permission(request, view, obj)
 
-  def has_object_permission(self, request, view, obj):
-    return request.method == "POST" or super().has_object_permission(request, view, obj)
+  return Wrapped
 
 # Mixins
 
@@ -69,7 +77,7 @@ class ReadableCreatableSensitive(ReadableSensitive):
 # THIS IS AN OVERSIGHT IN DRF
 collection_route = list_route
 
-class PaginatedViewSetMixin(object):
+class PaginationHelperMixin(object):
   def paginated_response(self, queryset, serializer, transform = None):
     page = self.paginate_queryset(queryset)
     ser = serializer((transform or (lambda x: x))(page or queryset), many=True)
@@ -89,18 +97,20 @@ class QuerySetGetterMixin(object):
 # Actual API viewsets
 #
 
-class UserViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
-  permission_classes = (ReadableCreatableSensitive,)
-  queryset = User.objects.all().order_by("-username")
+class UserViewSet(viewsets.ModelViewSet, PaginationHelperMixin):
+  permission_classes = (exempt_methods(Sensitive, ["GET", "POST"]),)
+  queryset = User.objects.order_by("-username")
   serializer_class = serializers.UserSerializer
   filter_backends = (filters.SearchFilter,)
   search_fields = ('username', 'email', 'first_name')
 
+  # Returns the authenticated user.
+  # TODO: redirect to /user/<id>
   @collection_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
   def me(self, request):
-    ser = self.get_serializer(request.auth.user, many=False)
-    return Response(ser.data)
+    return Response(self.get_serializer(request.auth.user, many=False).data)
 
+  # Finds a common payment method to use for a transaction.
   @detail_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
   def payment(self, request, pk = None):
     pk = int(request.auth.user.id if pk == "me" else pk)
@@ -109,15 +119,15 @@ class UserViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
       raise NotFound(detail="No common payment data.", code=404)
     return Response(common)
 
+  # Returns the all transactions user id PK shares with the authed user.
   @detail_route(methods=["GET"], permission_classes=[Sensitive])
   def transactions(self, request, pk = None):
     uid = request.auth.user.id
     pk = uid if pk == "me" else int(pk) # the primary key of the user to load transactions for
     qs = models.Transaction.objects.all()
     qs = qs.filter(buyer__id=pk) | qs.filter(seller__id=pk) # Ensure only user #{pk}'s transactions are fetched
-    qs = qs & (qs.filter(buyer__id=uid) | qs.filter(seller__id=uid)) # Ensure only transactions the authenticated user can see are fetched.
-    qs = qs.order_by("-created_at") # Order newest to lodest
-    return self.paginated_response(qs, serializers.TransactionSerializer)
+    qs = qs & ((qs.filter(buyer__id=uid) | qs.filter(seller__id=uid))) # Ensure only transactions the authenticated user can see are fetched.
+    return self.paginated_response(qs.order_by("-created_at"), serializers.TransactionSerializer)
 
   def find_common_payment(self, me_id, them_id):
     def makeKindHash(acc, x):
@@ -139,6 +149,7 @@ class UserViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
 
     return None
 
+## TODO: ensure PaymentData read request.auth.user for user id.
 class PaymentDataViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
   permission_classes = (Sensitive,)
   serializer_class = serializers.PaymentDataSerializer
@@ -146,33 +157,44 @@ class PaymentDataViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
   def get_queryset(self):
     return models.PaymentData.objects.filter(user=self.request.auth.user).order_by("-created_at").select_related("user")
 
-class SignatureViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
-  permission_classes = (Sensitive,)
-  serializer_class = serializers.SignatureSerializer
-
-  def get_queryset(self):
-    return models.Signature.objects.filter(user__id=self.request.auth.user.id).select_related("transaction").select_related("user")
-
-class TransactionViewSet(viewsets.ModelViewSet, PaginatedViewSetMixin):
+class TransactionViewSet(viewsets.ModelViewSet):
   permission_classes = (Sensitive,)
   serializer_class = serializers.TransactionSerializer
 
+  # All transactions in which the auth'd user is buying, selling, or has been required in.
   def get_queryset(self):
     u = self.request.auth.user
     buyer = models.Transaction.objects.filter(buyer__id=u.id)
     seller = models.Transaction.objects.filter(seller__id=u.id)
-    required = models.Requirement.objects.filter(user__id=u.id).values_list("transaction", flat=True)
-    return (buyer | seller | required).order_by("-created_at").select_related("buyer", "seller")
+    required = models.Requirement.objects.filter(user__id=u.id).select_related("transaction").values_list("transaction", flat=True)
+    return (buyer | seller | required).order_by("-created_at").select_related("buyer", "seller", "buyer_payment_data", "seller_payment_data")
 
+  # Returns all transactions whose requirements haven't been fulfilled.
   @collection_route(methods=["GET"])
-  def active(self, request):
-    pass
+  def pending(self, request):
+    rqs = RequirementViewSet.obtain_queryset(self.request)
+    qs = rqs.filter(signature=None, signature_required=True) | rqs.filter(acknowledged=False, acknowledgment_required=True)
+    qs = qs.values_list("transaction", flat=True)
+    return self.paginated_response(qs, TransactionViewSet.serializer_class)
 
-# TODO: how do I want to expose this?
-class RequirementViewSet(viewsets.ModelViewSet):
+## TODO: ensure Signatures read request.auth.user for user id.
+class SignatureViewSet(viewsets.ModelViewSet):
   permission_classes = (Sensitive,)
-  serializer_class = serializers.RequirementSerializer
+  serializer_class = serializers.SignatureSerializer
 
   def get_queryset(self):
+    return models.Signature.objects.filter(user__id=self.request.auth.user.id).select_related("user")
+
+class RequirementViewSet(viewsets.ModelViewSet, QuerySetGetterMixin):
+  permission_classes = (Sensitive,)
+  serializer_class = serializers.RequirementSerializer
+  filter_backends = (filters.SearchFilter,)
+  search_fields = ('text')
+
+  # All requirements for transactions where the auth'd user is required, is buying, or is selling.
+  def get_queryset(self):
     u = self.request.auth.user
-    return models.Requirement.objects.filter(user__id=u.id)
+    by_user = models.Requirement.objects.filter(user__id=u.id)
+    related_buyer = models.Requirement.objects.filter(transaction__buyer__id=u.id)
+    related_seller = models.Requirement.objects.filter(transaction__seller__id=u.id)
+    return (by_user | related_buyer | related_seller).select_related("user", "transaction", "signature")
