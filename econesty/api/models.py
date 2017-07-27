@@ -3,7 +3,11 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from . import fields
 
-class PaymentData(models.Model):
+class BaseModel(models.Model):
+  created_at = models.DateTimeField(default=timezone.now)
+  is_deleted = models.BooleanField(default=False)
+
+class PaymentData(BaseModel):
   BITCOIN='btc'
   CASH='csh'
   CREDIT_CARD='cdt'
@@ -24,23 +28,20 @@ class PaymentData(models.Model):
   data = models.TextField()
   encrypted = models.BooleanField() # using a key stored exclusively in the user's mind
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  created_at = models.DateTimeField(default=timezone.now)
 
-class Transaction(models.Model):
+class Transaction(BaseModel):
   buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_buyer")
   buyer_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_buyer_pd")
   seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_seller")
   seller_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_pd")
   offer = models.DecimalField(max_digits=11, decimal_places=2)
   offer_currency = models.CharField(max_length=3, default="USD")
-  created_at = models.DateTimeField(default=timezone.now)
 
-class Signature(models.Model):
+class Signature(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   points = fields.PointsField()
-  created_at = models.DateTimeField(default=timezone.now)
 
-class Requirement(models.Model):
+class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
   text = models.TextField(blank=True, null=True)
   transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='api_req_transaction')
@@ -48,4 +49,3 @@ class Requirement(models.Model):
   signature_required = models.BooleanField(default=False)
   acknowledged = models.BooleanField(default=False)
   acknowledgment_required = models.BooleanField(default=False)
-  created_at = models.DateTimeField(default=timezone.now)
