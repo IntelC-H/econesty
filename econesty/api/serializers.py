@@ -1,6 +1,11 @@
 from . import models
 import django.contrib.auth.models as amodels
+from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
+from django.http import Http404
+from django.core.exceptions import PermissionDenied
+
+# TODO: all the user_fields from views.py have to be taken into account here.
 
 def writing_field(model_clazz, source):
   """
@@ -85,4 +90,36 @@ class RequirementSerializer(serializers.ModelSerializer):
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True}
+    }
+
+class TokenSerializer(serializers.ModelSerializer):
+  username = serializers.CharField(write_only=True)
+  password = serializers.CharField(write_only=True)
+  user = UserSerializer(many=False, read_only=True)
+  key = serializers.CharField(read_only=True)
+
+  def create(self, data):
+    username = data.pop("username", None)
+    password = data.pop("password", None)
+    try:
+      u = amodels.User.objects.get()
+    except amodels.User.DoesNotExist:
+      raise Http404('not found')
+
+    if not check_password(password, u.password):
+      raise PermissionDenied('invalid password')
+
+    try:
+      t = models.Token.objects.get(user__id=u.id)
+    except models.Token.DoesNotExist:
+      t = models.Token(user=u)
+      t.save()
+    return t
+
+  class Meta:
+    model = models.Token
+    fields = '__all__'
+    extra_kwargs = {
+      'id': {'read_only': True},
+      'created_at': {'read_only': True}
     }

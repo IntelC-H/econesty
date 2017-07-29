@@ -29,11 +29,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'PAGE_SIZE': 10
 }
@@ -41,7 +39,8 @@ REST_FRAMEWORK = {
 INSTALLED_APPS = [
     'econesty.api',
     'rest_framework',
-    'rest_framework.authtoken',
+    'safedelete',
+    'django_filters',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
@@ -52,6 +51,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'econesty.api.middleware.TokenAuth',
+    'econesty.api.middleware.RewriteMeToUserID',
 ]
 
 X_FRAME_OPTIONS = 'DENY'
@@ -95,6 +96,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
