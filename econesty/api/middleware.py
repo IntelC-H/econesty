@@ -20,12 +20,15 @@ def RewriteMeToUserID(get_response):
 def TokenAuth(get_response):
   def middleware(request):
     request.user = AnonymousUser()
+    request.auth = None
     if 'HTTP_AUTHORIZATION' in request.META:
       auth_header = request.META['HTTP_AUTHORIZATION']
       auth_method, token = re.split(re.compile(r'\s+', re.U), auth_header, 1)
       if auth_method == "Token":
         try:
-          request.user = models.Token.objects.get(key=token).user
+          t = models.Token.objects.get(key=token)
+          request.user = t.user
+          request.auth = t
         except models.Token.DoesNotExist:
           pass
     return get_response(request)

@@ -263,6 +263,6 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   ordering = "-created_at"
   user_fields = ('user','transaction__buyer','transaction__seller',)
 
-class TokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class TokenViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
   queryset = models.Token.objects.all()
   serializer_class = serializers.TokenSerializer
