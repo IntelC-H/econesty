@@ -10,7 +10,6 @@ def RewriteMeToUserID(get_response):
     user = getattr(request, "user", None)
     if re.search(REPLACE_ME_REGEX, request.path_info) is not None:
       if user.is_authenticated:
-        print(user)
         return HttpResponseRedirect(re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info))
       else:
         return JsonResponse({ "detail": "Authorization not provided." }, status=401)
