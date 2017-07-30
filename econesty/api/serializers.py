@@ -24,9 +24,8 @@ class UserSerializer(serializers.ModelSerializer):
     }
 
   def create(self, data):
-    passwd = data.pop("password", None)
     u = amodels.User(**data)
-    u.set_password(passwd)
+    u.set_password(data["password"])
     u.save()
     return u
 

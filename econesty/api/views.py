@@ -147,24 +147,15 @@ class UserViewSet(EconestyBaseViewset):
   ordering_fields = ('username', 'email', 'first_name', 'last_name')
   ordering = ('-username',)
 
-  # Returns the authenticated user.
-  @collection_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
-  def me(self, request):
-    return redirect_to("/user/" + str(request.user.id) + "/")
-
   # Finds a common payment method to use for a transaction.
   @detail_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
   def payment(self, request, pk = None):
-    if pk == "me":
-      return redirect_to("/user/" + str(request.user.id) + "/payment/")
     common = self.find_common_payment(request.user.id, pk);
     return common or NotFound(detail="No common payment data.", code=404)
 
   # Returns the all transactions user id PK shares with the authed user.
   @detail_route(methods=["GET"], permission_classes=[Sensitive])
   def transactions(self, request, pk = None):
-    if pk == "me":
-      return redirect_to("/user/" + str(request.user.id) + "/transactions/")
     uid = request.user.id
     qs = models.Transaction.objects.all()
     qs = qs.filter(buyer__id=pk) | qs.filter(seller__id=pk) # Ensure only user #{pk}'s transactions are fetched
@@ -262,6 +253,8 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   ordering_fields = ('created_at',)
   ordering = "-created_at"
   user_fields = ('user','transaction__buyer','transaction__seller',)
+
+from django.urls import reverse
 
 class TokenViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
   queryset = models.Token.objects.all()

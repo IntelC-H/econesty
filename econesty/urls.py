@@ -29,6 +29,6 @@ def serve_app(request, path):
     return serve_static(request, 'index.html')
 
 urlpatterns = [
-  url(r'\Aapi/', include('econesty.api.urls')),
-  url(r'\A(?P<path>.*)\Z', serve_app)
+  url(r'^api/', include('econesty.api.urls')),
+  url(r'^(?P<path>.*)\Z', serve_app, name="frontend")
 ]

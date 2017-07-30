@@ -16,7 +16,9 @@ router.register(r'token', views.TokenViewSet, base_name=r'token')
 def not_found(request):
   raise NotFound('not found')
 
+app_name = "api"
+
 urlpatterns = [
-  url(r'\A', include(router.urls)),
-  url(r'\A.*\Z', not_found, name=r'notfound') # stop URL matching because this is a modular app.
+  url(r'', include(router.urls)),
+  url(r'', not_found, name='notfound'), # stop URL matching because this is a modular app.
 ]

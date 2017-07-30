@@ -10,25 +10,27 @@ def RewriteMeToUserID(get_response):
     user = getattr(request, "user", None)
     if re.search(REPLACE_ME_REGEX, request.path_info) is not None:
       if user.is_authenticated:
-        return HttpResponseRedirect(re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info))
+        request.path_info = re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info)
+        #return HttpResponseRedirect(re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info))
       else:
         return JsonResponse({ "detail": "Authorization not provided." }, status=401)
     return get_response(request)
   return middleware
 
-def TokenAuth(get_response):
+# Resets auth state to reflect an unauthorized state.
+def ResetAuth(get_response):
   def middleware(request):
     request.user = AnonymousUser()
     request.auth = None
-    if 'HTTP_AUTHORIZATION' in request.META:
-      auth_header = request.META['HTTP_AUTHORIZATION']
-      auth_method, token = re.split(re.compile(r'\s+', re.U), auth_header, 1)
-      if auth_method == "Token":
-        try:
-          t = models.Token.objects.get(key=token)
-          request.user = t.user
-          request.auth = t
-        except models.Token.DoesNotExist:
-          pass
+    return get_response(request)
+  return middleware
+
+# Load authentication information for any "Authorization: Token *" headers.
+def TokenAuth(get_response):
+  def middleware(request):
+    tok = models.Token.read_token(request)
+    if tok is not None:
+      request.user = tok.user
+      request.auth = tok
     return get_response(request)
   return middleware

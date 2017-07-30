@@ -9,10 +9,7 @@ from . import fields
 import uuid
 from hashlib import sha1
 import hmac
-
-def make_key():
-  new_uuid = uuid.uuid4()
-  return hmac.new(new_uuid.bytes, digestmod=sha1).hexdigest()
+import re
 
 class BaseModel(SafeDeleteModel):
   created_at = models.DateTimeField(default=timezone.now)
@@ -21,8 +18,23 @@ class BaseModel(SafeDeleteModel):
     abstract = True
 
 class Token(BaseModel):
+  def make_key():
+    return hmac.new(uuid.uuid4().bytes, digestmod=sha1).hexdigest()
+
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   key = models.CharField(max_length=128, default=make_key, db_index=True)
+
+  @classmethod
+  def read_token(cls, request):
+    if 'HTTP_AUTHORIZATION' in request.META:
+      auth_header = request.META['HTTP_AUTHORIZATION']
+      auth_method, token = re.split(re.compile(r'\s+', re.U), auth_header, 1)
+      if auth_method == "Token": # ensure we're using token auth
+        try:
+          return cls.objects.get(key=token)
+        except cls.DoesNotExist:
+          pass
+    return None
 
 class PaymentData(BaseModel):
   BITCOIN='btc'

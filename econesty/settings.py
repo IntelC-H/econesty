@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'econesty.api.middleware.ResetAuth',
     'econesty.api.middleware.TokenAuth',
     'econesty.api.middleware.RewriteMeToUserID',
 ]
