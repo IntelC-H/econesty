@@ -11,14 +11,27 @@ from . import middleware
 from . import fields
 
 import json
+import uuid
 
 # Test middleware.py
 # Test fields.py
 # test views.py: permissions & mixins mostly.
 
-class BaseTestCase(TestCase):
+#
+# Abstract
+#
+
+class APITestCase(object):
   def setUp(self):
-    self.username = "username"
+    self.client = APIClient()
+
+class UserTestCase(APITestCase):
+  """
+  Runs each test with a new user object.
+  """
+  def setUp(self):
+    super().setUp()
+    self.username = str(uuid.uuid4())
     self.password = "password"
     u = User(
       username=self.username,
@@ -30,21 +43,39 @@ class BaseTestCase(TestCase):
     u.save()
     self.user = u
 
-  def get_token(self, client, username, password):
-    response = client.post(reverse("api:token-list"), { "username": username, "password": password }, format="json")
+  def get_token(self, client=None):
+    """
+    This returns an auth token (as in Authorization: Token <this>) for a given 
+    username & password combination.
+    If there's something wrong, this fails the test case it's running in.
+    """
+    post_body = {
+      "username": self.username,
+      "password": self.password
+    }
+
+    response = (client or self.client).post(reverse("api:token-list"), post_body, format="json")
     self.assertEqual(response.status_code, 201)
-  
+
     j = json.loads(str(response.rendered_content, encoding='utf8'))
-    self.assertEqual(j["user"]["username"], username)
+    self.assertEqual(j["user"]["username"], post_body["username"])
   
     return j["key"]
 
-class MiddlewareTestCase(BaseTestCase):
-  def test_me_redirection(self):
-    client = APIClient()
-    client.credentials(HTTP_AUTHORIZATION='Token ' + self.get_token(client, self.username, self.password))
+#
+# Concrete
+#
 
-    response = client.get(reverse("api:user-detail", args=["me"]), format="json")
+class MiddlewareTestCase(UserTestCase, TestCase):
+  def test_me_redirection(self):
+    # First, run the request without credentials. It should fail.
+    response = self.client.get(reverse("api:user-detail", args=["me"]), format="json")
+    self.assertEqual(response.status_code, 401) # FIXME: is this the correct status code???
+
+    # Now run the request with credentials.
+    self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.get_token())
+
+    response = self.client.get(reverse("api:user-detail", args=["me"]), format="json")
     self.assertEqual(response.status_code, 200)
 
     user_data = json.loads(str(response.rendered_content, encoding='utf8'))
@@ -52,19 +83,20 @@ class MiddlewareTestCase(BaseTestCase):
 
   def test_auth_reset(self):
     request = APIRequestFactory().get("/")
-    request.user = "asdfasdfasdf"
-    request.auth = "asdfasdf"
+    request.user = "initial_dummy_value"
+    request.auth = "initial_dummy_value"
 
+    # let's make a spoof middleware that returns the request!
     id_mw = middleware.ResetAuth(lambda x: x)
 
     request_p = id_mw(request)
     self.assertEqual(request_p.auth, None)
     self.assertEqual(type(request_p.user), AnonymousUser)
 
-class TokenTestCase(BaseTestCase):
+class TokenTestCase(UserTestCase, TestCase):
   def test_read_token(self):
     request = APIRequestFactory().get("/")
-    request.META["HTTP_AUTHORIZATION"] = "Token " + self.get_token(APIClient(), self.username, self.password)
+    request.META["HTTP_AUTHORIZATION"] = "Token " + self.get_token()
     tok = models.Token.read_token(request)
     self.assertEqual(self.user.id, tok.user.id)
 
