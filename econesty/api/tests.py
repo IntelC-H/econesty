@@ -13,7 +13,6 @@ from . import fields
 import json
 import uuid
 
-# Test middleware.py
 # Test fields.py
 # test views.py: permissions & mixins mostly.
 
