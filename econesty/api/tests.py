@@ -24,6 +24,11 @@ class APITestCase(object):
   def setUp(self):
     self.client = APIClient()
 
+  def dummy_request(self, auth_token = None):
+    r = APIRequestFactory().get("/")
+    r.META["HTTP_AUTHORIZATION"] = "Token " + auth_token
+    return r
+
 class UserTestCase(APITestCase):
   """
   Runs each test with a new user object.
@@ -66,6 +71,8 @@ class UserTestCase(APITestCase):
 #
 
 class MiddlewareTestCase(UserTestCase, TestCase):
+  # TODO: test TokenAuth middleware!
+
   def test_me_redirection(self):
     # First, run the request without credentials. It should fail.
     response = self.client.get(reverse("api:user-detail", args=["me"]), format="json")
@@ -81,21 +88,28 @@ class MiddlewareTestCase(UserTestCase, TestCase):
     self.assertEqual(int(user_data["id"]), self.user.id)
 
   def test_auth_reset(self):
-    request = APIRequestFactory().get("/")
-    request.user = "initial_dummy_value"
-    request.auth = "initial_dummy_value"
-
     # let's make a spoof middleware that returns the request!
     id_mw = middleware.ResetAuth(lambda x: x)
 
-    request_p = id_mw(request)
-    self.assertEqual(request_p.auth, None)
-    self.assertEqual(type(request_p.user), AnonymousUser)
+    request = id_mw(self.dummy_request(self.get_token()))
+    self.assertIsNone(getattr(request, "auth", ""))
+    self.assertIsInstance(getattr(request, "user", ""), AnonymousUser)
+
+  def test_auth_token(self):
+    # let's make a spoof middleware that returns the request!
+    id_mw = middleware.TokenAuth(lambda x: x)
+
+    request = id_mw(self.dummy_request(self.get_token()))
+
+    self.assertEqual(self.user, request.user)
+
+    auth = getattr(request, "auth", None)
+    self.assertIsNotNone(auth)
+    self.assertEqual(self.user, getattr(auth, "user", None))
 
 class TokenTestCase(UserTestCase, TestCase):
   def test_read_token(self):
-    request = APIRequestFactory().get("/")
-    request.META["HTTP_AUTHORIZATION"] = "Token " + self.get_token()
+    request = self.dummy_request(self.get_token())
     tok = models.Token.read_token(request)
     self.assertEqual(self.user.id, tok.user.id)
 
