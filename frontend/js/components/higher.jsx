@@ -94,7 +94,7 @@ export function withPromiseFactory(pfact, Comp) {
 export function collection(header, body, setPage = null) {
   const Header = header || (() => null);
   const Body = body || (() => null);
-  const mkNavButton = (targetPage, text) => <Button key={guid()} disabled={!targetPage} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
+  const mkNavButton = (targetPage, text) => <Button key={guid()} disabled={targetPage === null} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
 
   return props => {
     var obj = props.object;

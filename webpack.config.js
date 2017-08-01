@@ -216,7 +216,11 @@ module.exports = {
   resolve: {
     alias: {
       app: path.resolve('./frontend/js/'),
-      style: path.resolve('./frontend/css/')
+      style: path.resolve('./frontend/css/'),
+
+      // Preact-Compat
+      "react": "preact-compat",
+      "react-dom": "preact-compat"
     },
     extensions: [".js", ".jsx", ".scss", ".css"]
   },

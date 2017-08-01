@@ -34,7 +34,6 @@ class UserViewSet(EconestyBaseViewset):
   filter_fields = ('first_name', 'last_name')
   search_fields = ('username', 'email', 'first_name', 'last_name')
   ordering_fields = ('username', 'email', 'first_name', 'last_name')
-  ordering = ('-username',)
 
   # Finds a common payment method to use for a transaction.
   @detail_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])

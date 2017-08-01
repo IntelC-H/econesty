@@ -1,16 +1,22 @@
 from rest_framework import viewsets, mixins, pagination
+from rest_framework.response import Response
 from .permissions import Sensitive
 
 class EconestyPagination(pagination.PageNumberPagination):
-  def get_next_link(self):
-    if not self.page.has_next():
-      return None
-    return self.page.next_page_number()
-
-  def get_previous_link(self):
-    if not self.page.has_previous():
-      return None
-    return self.page.previous_page_number()
+  def get_paginated_response(self, data):
+    next_page = self.page.next_page_number() if self.page.has_next() else None
+    previous_page = self.page.previous_page_number() if self.page.has_previous() else None
+    if next_page is not None:
+      current_page = next_page - 1
+    elif previous_page is not None:
+      current_page = previous_page + 1
+    return Response({
+      'next': next_page,
+      'previous': previous_page,
+      'page': current_page or 1,
+      'count': self.page.paginator.count,
+      'results': data
+    })
 
 class PaginationHelperMixin(object):
   def paginated_response(self, queryset, serializer, transform = (lambda x: x)):
