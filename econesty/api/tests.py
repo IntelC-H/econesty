@@ -8,7 +8,6 @@ from . import models
 from . import views
 from . import serializers
 from . import middleware
-from . import fields
 
 import json
 import uuid
