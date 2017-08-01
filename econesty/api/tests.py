@@ -13,7 +13,6 @@ from . import fields
 import json
 import uuid
 
-# Test fields.py
 # Test permissions.py
 # Test mixins.py
 # Test filters.py

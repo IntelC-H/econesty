@@ -10,10 +10,12 @@ class EconestyPagination(pagination.PageNumberPagination):
       current_page = next_page - 1
     elif previous_page is not None:
       current_page = previous_page + 1
+    else:
+      current_page = 1
     return Response({
       'next': next_page,
       'previous': previous_page,
-      'page': current_page or 1,
+      'page': current_page,
       'count': self.page.paginator.count,
       'results': data
     })

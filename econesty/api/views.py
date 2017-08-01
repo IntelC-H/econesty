@@ -79,6 +79,30 @@ class TransactionViewSet(EconestyBaseViewset):
   filter_fields = ('offer','offer_currency',)
   user_fields = ('buyer','seller',)
 
+  @list_route(methods=["GET"])
+  def pending_action(self, request):
+    # `Transaction`s belonging to request.user where there are
+    # outstanding `Requirement`s.
+    pass
+
+  @list_route(methods=["GET"])
+  def pending_completion(self, request):
+    # `Transaction`s belonging to request.user that have
+    # no outstanding Requirement`s
+    pass
+
+  @list_route(methods=["GET"])
+  def completed(self, request):
+    # `Trasnaction`s that have been completed
+    pass
+
+  @detail_route(methods=["POST"])
+  def complete(self, request, pk):
+    # endpoint to complete a `Transaction`.
+    # first, it checks all the requirements, then
+    # it sets the `Transaction`'s `completed` attribute to `True`.
+    pass
+
   # TODO: auth'd user's transactions pending completion of requirements
   #       Do this through a queryset that filters based on calculated property
   # TODO: auth'd user's transactions that have been completed.

@@ -1,5 +1,6 @@
 # webpack build results
 .econesty_webpack_build/*
+.static/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -18,23 +18,31 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#tqu#1=+6)nyncev1$_i25*od)^^o!=bbfuav!@k2u7$#!1*+n'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+_DEBUG_SECRET_KEY = '#tqu#1=+6)nyncev1$_i25*od)^^o!=bbfuav!@k2u7$#!1*+n'
+SECRET_KEY = os.environ.get('SECRET_KEY', None) or _DEBUG_SECRET_KEY if not DEBUG else _DEBUG_SECRET_KEY
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] if not DEBUG else []
 
 # Application definition
 
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'PAGE_SIZE': 10
-}
+if DEBUG:
+    REST_FRAMEWORK = {
+        'DEFAULT_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer',
+            'rest_framework.renderers.BrowsableAPIRenderer'
+        ],
+        'PAGE_SIZE': 10
+    }
+else:
+    REST_FRAMEWORK = {
+        'DEFAULT_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer'
+        ],
+        'PAGE_SIZE': 10
+    }
 
 INSTALLED_APPS = [
     'econesty.api',
@@ -57,6 +65,9 @@ MIDDLEWARE = [
 ]
 
 X_FRAME_OPTIONS = 'DENY'
+CSRF_COOKIE_SECURE = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
 
 ROOT_URLCONF = 'econesty.urls'
 
@@ -78,7 +89,10 @@ DATABASES = {
     }
 }
 
-# TODO: bcrypt
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.BCryptPasswordHasher'
+]
+
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
@@ -88,6 +102,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        },
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -117,13 +134,9 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)

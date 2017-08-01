@@ -3,8 +3,9 @@ from . import views
 from rest_framework import routers
 from rest_framework.exceptions import NotFound
 from rest_framework.decorators import api_view
+from django.conf import settings
 
-router = routers.SimpleRouter(trailing_slash=True)
+router = routers.SimpleRouter(trailing_slash=getattr(settings, "APPEND_SLASH", False))
 router.register(r'user', views.UserViewSet, base_name=r'user')
 router.register(r'transaction', views.TransactionViewSet, base_name=r'transaction')
 router.register(r'requirement', views.RequirementViewSet, base_name=r'requirement')

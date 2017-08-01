@@ -1,10 +1,9 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 
 from safedelete.models import SafeDeleteModel
-
-from . import fields
 
 import uuid
 from hashlib import sha1
@@ -65,10 +64,11 @@ class Transaction(BaseModel):
   seller_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_pd")
   offer = models.DecimalField(max_digits=11, decimal_places=2)
   offer_currency = models.CharField(max_length=3, default="USD")
+  completed = models.BooleanField(default=False)
 
 class Signature(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  points = fields.PointsField()
+  data = JSONField() # stores a JSON structure describing a signature.
 
 class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
