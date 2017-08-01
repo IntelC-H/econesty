@@ -6,23 +6,13 @@ class PointsField(models.TextField):
   description = "A field to store a signature's points as a textual comma-separated list."
 
   def get_db_prep_value(self, value, *args, **kwargs):
-    if value is None:
-      return None
-    if isinstance(value, str):
-      self.to_python(value) # this will raise a ValidadationError if invalid.
+    if value is None or isinstance(value, str):
       return value
-
-    db_val = ""
     try:
-      for v in value:
-        if len(db_val) == 0:
-          db_val = v
-        else:
-          db_val += "," + str(v[0]) + "," + str(v[1])
+      flat_value = [str(item) for pair in value for item in pair]
+      return flat_value.join(",")
     except (TypeError, ValueError):
       raise ValidationError("This value must be a list of two-tuples.")
-    
-    return db_val
 
   def to_python(self, value):
     if value is None or isinstance(value, list):

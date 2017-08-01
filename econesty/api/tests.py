@@ -14,7 +14,10 @@ import json
 import uuid
 
 # Test fields.py
-# test views.py: permissions & mixins mostly.
+# Test permissions.py
+# Test mixins.py
+# Test filters.py
+# test views.py
 
 #
 # Abstract
