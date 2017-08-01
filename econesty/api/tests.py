@@ -3,25 +3,33 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIRequestFactory, APIClient
 from django.contrib.auth.hashers import check_password
 
+import json
+import uuid
+
 from django.contrib.auth.models import User, AnonymousUser
 from . import models
 from . import views
 from . import serializers
 from . import middleware
+from . import permissions
+from . import mixins
+from . import filters
 
-import json
-import uuid
 
+# TODO:
 # Test permissions.py
 # Test mixins.py
 # Test filters.py
-# test views.py
+# test views.py (custom routes)
 
 #
 # Abstract
 #
 
 class APITestCase(object):
+  """
+  Runs each test with an APIClient.
+  """
   def setUp(self):
     self.client = APIClient()
 
