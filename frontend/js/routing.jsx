@@ -6,6 +6,8 @@ import { h, Component, cloneElement } from 'preact';
   attribute: if it matches the current URL, it renders it.
 */
 
+// TODO: specific values for given wildcards.
+
 const subscribers = [];
 const updateSubscribers = url => subscribers.forEach(s => s(url))
 
@@ -44,6 +46,11 @@ class Router extends Component {
         }
       }
     }
+
+    if (this.props.notFound) {
+      return h(this.props.notFound, { url: this.state.url })
+    }
+
     return null;
   }
 

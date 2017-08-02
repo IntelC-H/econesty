@@ -260,5 +260,5 @@ export default props => {
 
   console.log(routes);
 
-  return <Router>{routes}</Router>;
+  return <Router notFound={NotFound}>{routes}</Router>;
 };
