@@ -80,36 +80,22 @@ class TransactionViewSet(EconestyBaseViewset):
   filter_fields = ('offer','offer_currency',)
   user_fields = ('buyer','seller',)
 
-  def get_pending_requirement_queryset(self):
-    all_reqs = models.Requirement.objects.all()
-    return all_reqs.filter(signature=None, signature_required=True) | all_reqs.filter(acknowledged=False, acknowledgment_required=True)
-
-  def get_pending_queryset(self):
-    pending = self.get_pending_requirement_queryset()
-    qs = models.Transaction.objects.filter(id__in=pending.values("transaction_id"))
-    return self.filter_queryset(qs)
-
-  def get_nonpending_queryset(self):
-    pending = self.get_pending_requirement_queryset()
-    qs = models.Transaction.objects.exclude(id__in=pending.values("transaction_id"))
-    return self.filter_queryset(qs)
-
   @list_route(methods=["GET"])
   def pending_action(self, request):
-    return self.paginated_response(self.get_pending_queryset())
+    return self.paginated_response(self.filter_queryset(models.Transaction.objects.pending()))
 
   @list_route(methods=["GET"])
   def pending_completion(self, request):
-    return self.paginated_response(self.get_nonpending_queryset().filter(completed = False))
+    return self.paginated_response(self.filter_queryset(models.Transaction.objects.nonpending()).filter(completed = False))
 
   @list_route(methods=["GET"])
   def completed(self, request):
-    return self.paginated_response(self.get_nonpending_queryset().filter(completed = True))
+    return self.paginated_response(self.filter_queryset(models.Transaction.objects.nonpending()).filter(completed = True))
 
   @detail_route(methods=["POST"])
   def complete(self, request, pk):
     try:
-      xaction = self.get_nonpending_queryset().get(id=int(pk))
+      xaction = self.filter_queryset(models.Transaction.objects.nonpending()).get(id=int(pk))
       xaction.completed = True
       xaction.save()
       return Response(serializers.TransactionSerializer(xaction).data)

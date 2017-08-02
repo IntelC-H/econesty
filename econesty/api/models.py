@@ -10,6 +10,17 @@ from hashlib import sha1
 import hmac
 import re
 
+class RequirementsManager(models.Manager):
+  def pending(self):
+    return self.all().filter(signature=None, signature_required=True) | self.all().filter(acknowledged=False, acknowledgment_required=True)
+
+class TransactionManager(models.Manager):
+  def pending(self):
+    return self.filter(id__in=Requirement.objects.pending().values("transaction_id"))
+
+  def nonpending(self):
+    return self.exclude(id__in=Requirement.objects.pending().values("transaction_id"))
+
 class BaseModel(SafeDeleteModel):
   created_at = models.DateTimeField(default=timezone.now)
 
@@ -66,6 +77,8 @@ class Transaction(BaseModel):
   offer_currency = models.CharField(max_length=3, default="USD")
   completed = models.BooleanField(default=False)
 
+  objects = TransactionManager()
+
 class Signature(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   data = JSONField() # stores a JSON structure describing a signature.
@@ -78,3 +91,5 @@ class Requirement(BaseModel):
   signature_required = models.BooleanField(default=False)
   acknowledged = models.BooleanField(default=False)
   acknowledgment_required = models.BooleanField(default=False)
+
+  objects = RequirementsManager()
