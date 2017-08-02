@@ -17,11 +17,12 @@ from . import filters
 
 
 # TODO:
-# Test serializers.py (user & token create() functions)
 # Test permissions.py
 # Test mixins.py
 # Test filters.py
 # test views.py (custom routes)
+
+# Test models.py -> Custom manager querysets
 
 #
 # Abstract
@@ -143,3 +144,15 @@ class UserSerializerTestCase(TestCase):
     u = s.update(u, { "password": new_passwd })
 
     self.assertEqual(check_password(new_passwd, u.password), True)
+
+class TokenSerializerTestCase(UserTestCase, TestCase):
+  def test_creation(self):
+    s = serializers.TokenSerializer(many=False)
+    t = s.create({
+      "username": self.username,
+      "password": self.password
+    })
+    self.assertIsNotNone(t)
+    self.assertIsNotNone(t.key)
+    self.assertIsNotNone(t.user)
+    self.assertEqual(t.user, self.user)

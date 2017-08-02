@@ -21,6 +21,12 @@ class TransactionManager(models.Manager):
   def nonpending(self):
     return self.exclude(id__in=Requirement.objects.pending().values("transaction_id"))
 
+  def owned_by(self, *args):
+    return reduce(
+      lambda acc, x: x if acc is None else acc & x,
+      [self.all().filter(buyer__id = id) | self.all().filter(seller__id = id) for id in args]
+    )
+
 class BaseModel(SafeDeleteModel):
   created_at = models.DateTimeField(default=timezone.now)
 

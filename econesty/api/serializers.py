@@ -110,8 +110,8 @@ class TokenSerializer(BaseSerializer):
   key = serializers.CharField(read_only=True)
 
   def create(self, data):
-    username = data.pop("username", None)
-    password = data.pop("password", None)
+    username = data.get("username", None)
+    password = data.get("password", None)
     try:
       u = amodels.User.objects.get(username=username)
     except amodels.User.DoesNotExist:

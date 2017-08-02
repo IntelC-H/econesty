@@ -18,10 +18,9 @@ from rest_framework import viewsets, permissions, filters, mixins, pagination
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, APIException
-from rest_framework.compat import is_authenticated
 
-# TRANSACTIONS MAY INADVERTENTLY EXPOSE PAYMENT DATA!!!!!!!!!!!!
-# NO SELF-TRANSACTIONS!
+# FIXME: TRANSACTIONS MAY INADVERTENTLY EXPOSE PAYMENT DATA!!!!!!!!!!!!
+# FIXME: NO SELF-TRANSACTIONS!
 
 class UserViewSet(EconestyBaseViewset):
   permission_classes = (exempt_methods(Sensitive, ["GET", "POST", "OPTIONS"]),) # Users cannot be updated/deleted without auth.
@@ -60,13 +59,13 @@ class UserViewSet(EconestyBaseViewset):
   # Returns the all transactions user id PK shares with the authed user.
   @detail_route(methods=["GET"], permission_classes=[Sensitive])
   def transactions(self, request, pk = None):
-    uid = request.user.id
-    qs = models.Transaction.objects.all()
-    qs = qs.filter(buyer__id=pk) | qs.filter(seller__id=pk) # Ensure only user #{pk}'s transactions are fetched
-    qs = qs & ((qs.filter(buyer__id=uid) | qs.filter(seller__id=uid))) # Ensure only transactions the authenticated user can see are fetched.
-    return self.paginated_response(qs.order_by("-created_at"), serializer = serializers.TransactionSerializer)
+    return self.paginated_response(
+      models.Transaction.objects.owned_by(request.user.id, int(pk)).order_by("-created_at"),
+      serializer = serializers.TransactionSerializer
+    )
 
-# TODO: creating a transaction takes:
+# PROPOSAL: no update
+# PROPOSAL: creating a transaction takes:
 # buyer_id, seller_id, offer, and currency. Payment data are negotiated behind the scenes.
 class TransactionViewSet(EconestyBaseViewset):
   serializer_class = serializers.TransactionSerializer
@@ -95,13 +94,12 @@ class TransactionViewSet(EconestyBaseViewset):
 
   @detail_route(methods=["POST"])
   def complete(self, request, pk):
-    try:
-      xaction = self.filter_queryset(models.Transaction.objects.nonpending()).get(id=int(pk))
-      xaction.completed = True
-      xaction.save()
-      return Response(serializers.TransactionSerializer(xaction).data)
-    except ObjectDoesNotExist:
-      raise APIException("the transaction has outstanding requirements")
+    xaction = self.get_object()
+    if xaction not in models.Transaction.objects.nonpending():
+      raise APIException("the transaction has outstanding requirements.")
+    xaction.completed = True
+    xaction.save()
+    return Response(serializers.TransactionSerializer(xaction).data)
 
 class PaymentDataViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   serializer_class = serializers.PaymentDataSerializer
