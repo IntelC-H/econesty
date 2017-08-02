@@ -24,6 +24,9 @@ class TransactionManager(models.Manager):
 class BaseModel(SafeDeleteModel):
   created_at = models.DateTimeField(default=timezone.now)
 
+  def __str__(self):
+    return "<" + type(self).__name__ + " id: " + str(self.id) + ", created_at: " + str(self.created_at) + ">"
+
   class Meta:
     abstract = True
 

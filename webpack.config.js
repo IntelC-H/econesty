@@ -179,7 +179,7 @@ module.exports = {
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
     filename: "code/[name].js",
-    publicPath: '/static/'
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -240,6 +240,10 @@ module.exports = {
       title: "Econesty",
       filename: path.resolve('./.econesty_webpack_build/index.html'),
       xhtml: true
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+     minimize: true,
+     compress: false
     })
   ]
 };

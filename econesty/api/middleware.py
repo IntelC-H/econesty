@@ -31,7 +31,6 @@ def ResetAuth(get_response):
 def TokenAuth(get_response):
   def middleware(request):
     tok = models.Token.read_token(request)
-    print(tok.key + " asdfasdf " + tok.user.username)
     if tok is not None:
       request.user = tok.user
       request.auth = tok

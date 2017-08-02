@@ -15,20 +15,39 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.conf import settings
-
-from django.contrib.staticfiles.views import serve as serve_static
-from django.contrib.staticfiles.finders import find as find_static
+from django.http import StreamingHttpResponse
 
 from . import api
 
-# serves either a matching staticfile or the index page.
-def serve_app(request, path):
-  if len(path) > 0 and find_static(path) is not None:
-    return serve_static(request, path)
-  else:
-    return serve_static(request, 'index.html')
+import os
+import mimetypes
+
+def file_exists(path):
+  try:
+    if os.path.isdir(path):
+      return False
+    os.stat(path)
+    return True
+  except os.error:
+    return False
+
+def frontend(request, path):
+  full_path = os.path.join(settings.FRONTEND_PATH, path)
+
+  if not file_exists(full_path):
+    full_path = os.path.join(settings.FRONTEND_PATH, 'index.html')
+
+  mimetype, enctype = mimetypes.guess_type(full_path)
+
+  response = StreamingHttpResponse((line for line in open(full_path,'rb')))
+  response['Content-Length'] = os.path.getsize(full_path)
+  if mimetype is not None:
+    response['Content-Type'] = mimetype
+  if enctype is not None:
+    response['Content-Encoding'] = enctype
+  return response
 
 urlpatterns = [
   url(r'^api/', include('econesty.api.urls')),
-  url(r'^(?P<path>.*)\Z', serve_app, name="frontend")
+  url(r'^(?P<path>.*)\Z', frontend, name="frontend")
 ]

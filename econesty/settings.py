@@ -53,10 +53,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'safedelete',
     'corsheaders',
+    'django.contrib.staticfiles',
     'django_filters',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.staticfiles',
+    'django.contrib.contenttypes'
 ]
 
 MIDDLEWARE = [
@@ -158,11 +158,7 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
+# Frontend config
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-  os.path.join(BASE_DIR, ".econesty_webpack_build")
-]
-STATIC_ROOT = os.path.join(BASE_DIR, ".static")
+FRONTEND_PATH = os.path.join(BASE_DIR, ".econesty_webpack_build")
+STATIC_URL = "/static/"
