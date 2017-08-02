@@ -56,6 +56,7 @@ class UserViewSet(EconestyBaseViewset):
 
     return NotFound(detail="No common payment data.", code=404)
 
+  # TODO: if pk == request.user.id, proxy through to TransactionViewSet
   # Returns the all transactions user id PK shares with the authed user.
   @detail_route(methods=["GET"], permission_classes=[Sensitive])
   def transactions(self, request, pk = None):
@@ -76,7 +77,7 @@ class TransactionViewSet(EconestyBaseViewset):
     AuthOwnershipFilter,
   )
   ordering_fields = ('created_at',)
-  ordering = "-created_at"
+  ordering = "created_at"
   filter_fields = ('offer','offer_currency',)
   user_fields = ('buyer','seller',)
 

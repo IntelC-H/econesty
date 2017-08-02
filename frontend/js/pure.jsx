@@ -217,7 +217,6 @@ function findForm(btn) {
     }
     btnp = btnp.parentElement;
   }
-  console.log("FORM: ", btnp);
   return btnp;
 }
 

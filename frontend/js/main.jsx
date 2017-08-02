@@ -140,7 +140,7 @@ const transactionForm = props =>
     <Element hidden name="buyer_payment_data_id" />
     <Element hidden name="seller_id" />
     <Element hidden name="seller_payment_data_id" />
-    <SubmitButton onSubmit={upsertFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
+    <SubmitButton onSubmit={saveFormTo(API.transaction, t => browserHistory.push("/transaction/" + t.id))}>
       OK
     </SubmitButton>
   </Form>

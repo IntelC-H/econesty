@@ -9,6 +9,7 @@ import uuid
 from hashlib import sha1
 import hmac
 import re
+from functools import reduce
 
 class RequirementsManager(models.Manager):
   def pending(self):
