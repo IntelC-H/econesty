@@ -310,12 +310,13 @@ Form.reduceForms = function(el, acc = {}) {
 Form.setObject = function(form_object, form) {
   function f(c, obj) {
     if (obj) {
-      const isForm = (c.attributes || {})["data-is-form"];
-      const isSubform = (c.attributes || {})["data-is-subform"];
+      const isForm = (c.attributes || {})["data-is-form"] || false;
+      const isSubform = (c.attributes || {})["data-is-subform"] || false;
       const name = (c.attributes || {}).name;
 
       if (!isForm && !isSubform && name) {
         c.attributes.defaultValue = obj[name];
+        c.attributes.value = obj[name];
       } else if (isForm && isSubform && name) {
         c = f(c, obj[name]);
       } else if (c.children) {
