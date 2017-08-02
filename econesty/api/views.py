@@ -66,6 +66,8 @@ class UserViewSet(EconestyBaseViewset):
     qs = qs & ((qs.filter(buyer__id=uid) | qs.filter(seller__id=uid))) # Ensure only transactions the authenticated user can see are fetched.
     return self.paginated_response(qs.order_by("-created_at"), serializer = serializers.TransactionSerializer)
 
+# TODO: creating a transaction takes:
+# buyer_id, seller_id, offer, and currency. Payment data are negotiated behind the scenes.
 class TransactionViewSet(EconestyBaseViewset):
   serializer_class = serializers.TransactionSerializer
   queryset = models.Transaction.objects.all()

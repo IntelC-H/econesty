@@ -6,7 +6,13 @@ from django.http import Http404
 from django.core.exceptions import PermissionDenied
 
 # TODO: all the user_fields from views.py have to be taken into account here.
-# TODO: cannot show the deleted field.
+
+class BaseSerializer(serializers.ModelSerializer):
+  def to_representation(self, obj):
+    ret = super().to_representation(obj)
+    if "deleted" in ret:
+      del ret["deleted"]
+    return ret 
 
 def writing_field(model_clazz, source, **kwargs):
   """
@@ -17,7 +23,7 @@ def writing_field(model_clazz, source, **kwargs):
   kwargs['queryset'] = model_clazz.objects.all()
   return serializers.PrimaryKeyRelatedField(**kwargs)
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(BaseSerializer):
   class Meta:
     model = amodels.User
     fields = ("id", "username", "first_name", "last_name", "email", "password", "date_joined")
@@ -44,7 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
     instance.save()
     return instance
 
-class PaymentDataSerializer(serializers.ModelSerializer):
+class PaymentDataSerializer(BaseSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
   class Meta:
@@ -54,7 +60,7 @@ class PaymentDataSerializer(serializers.ModelSerializer):
       'id': {'read_only': True},
     }
 
-class TransactionSerializer(serializers.ModelSerializer):
+class TransactionSerializer(BaseSerializer):
   buyer = UserSerializer(read_only=True)
   buyer_id = writing_field(amodels.User, "buyer")
   buyer_payment_data = PaymentDataSerializer(read_only=True)
@@ -72,7 +78,7 @@ class TransactionSerializer(serializers.ModelSerializer):
       'id': {'read_only': True},
     }
 
-class SignatureSerializer(serializers.ModelSerializer):
+class SignatureSerializer(BaseSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
   class Meta:
@@ -82,7 +88,7 @@ class SignatureSerializer(serializers.ModelSerializer):
       'id': {'read_only': True},
     }
 
-class RequirementSerializer(serializers.ModelSerializer):
+class RequirementSerializer(BaseSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
@@ -97,7 +103,7 @@ class RequirementSerializer(serializers.ModelSerializer):
       'id': {'read_only': True}
     }
 
-class TokenSerializer(serializers.ModelSerializer):
+class TokenSerializer(BaseSerializer):
   username = serializers.CharField(write_only=True)
   password = serializers.CharField(write_only=True)
   user = UserSerializer(many=False, read_only=True)
