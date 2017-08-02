@@ -17,6 +17,7 @@ from . import filters
 
 
 # TODO:
+# Test serializers.py (user & token create() functions)
 # Test permissions.py
 # Test mixins.py
 # Test filters.py

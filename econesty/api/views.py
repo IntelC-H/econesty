@@ -10,13 +10,14 @@ from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.db.models.aggregates import Count
 from django.utils.decorators import classonlymethod
+from django.core.exceptions import ObjectDoesNotExist
 
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, permissions, filters, mixins, pagination
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, APIException
 from rest_framework.compat import is_authenticated
 
 # TRANSACTIONS MAY INADVERTENTLY EXPOSE PAYMENT DATA!!!!!!!!!!!!
@@ -64,67 +65,64 @@ class UserViewSet(EconestyBaseViewset):
     qs = models.Transaction.objects.all()
     qs = qs.filter(buyer__id=pk) | qs.filter(seller__id=pk) # Ensure only user #{pk}'s transactions are fetched
     qs = qs & ((qs.filter(buyer__id=uid) | qs.filter(seller__id=uid))) # Ensure only transactions the authenticated user can see are fetched.
-    return self.paginated_response(qs.order_by("-created_at"), serializers.TransactionSerializer)
+    return self.paginated_response(qs.order_by("-created_at"), serializer = serializers.TransactionSerializer)
 
 class TransactionViewSet(EconestyBaseViewset):
   serializer_class = serializers.TransactionSerializer
   queryset = models.Transaction.objects.all()
   filter_backends = (
-    AuthOwnershipFilter,
     filters.OrderingFilter,
     DjangoFilterBackend,
+    AuthOwnershipFilter,
   )
   ordering_fields = ('created_at',)
   ordering = "-created_at"
   filter_fields = ('offer','offer_currency',)
   user_fields = ('buyer','seller',)
 
+  def get_pending_requirement_queryset(self):
+    all_reqs = models.Requirement.objects.all()
+    return all_reqs.filter(signature=None, signature_required=True) | all_reqs.filter(acknowledged=False, acknowledgment_required=True)
+
+  def get_pending_queryset(self):
+    pending = self.get_pending_requirement_queryset()
+    qs = models.Transaction.objects.filter(id__in=pending.values("transaction_id"))
+    return self.filter_queryset(qs)
+
+  def get_nonpending_queryset(self):
+    pending = self.get_pending_requirement_queryset()
+    qs = models.Transaction.objects.exclude(id__in=pending.values("transaction_id"))
+    return self.filter_queryset(qs)
+
   @list_route(methods=["GET"])
   def pending_action(self, request):
-    # `Transaction`s belonging to request.user where there are
-    # outstanding `Requirement`s.
-    pass
+    return self.paginated_response(self.get_pending_queryset())
 
   @list_route(methods=["GET"])
   def pending_completion(self, request):
-    # `Transaction`s belonging to request.user that have
-    # no outstanding Requirement`s
-    pass
+    return self.paginated_response(self.get_nonpending_queryset().filter(completed = False))
 
   @list_route(methods=["GET"])
   def completed(self, request):
-    # `Trasnaction`s that have been completed
-    pass
+    return self.paginated_response(self.get_nonpending_queryset().filter(completed = True))
 
   @detail_route(methods=["POST"])
   def complete(self, request, pk):
-    # endpoint to complete a `Transaction`.
-    # first, it checks all the requirements, then
-    # it sets the `Transaction`'s `completed` attribute to `True`.
-    pass
-
-  # TODO: auth'd user's transactions pending completion of requirements
-  #       Do this through a queryset that filters based on calculated property
-  # TODO: auth'd user's transactions that have been completed.
-  #       See above
-  # TODO: auth'd user's transactions that have had their requirements completed, but have not been finalized yet.
-  
-  # IMPORTANT: this is a starting point for the first two.
-  # # Returns all transactions whose requirements haven't been fulfilled.
-  # @list_route(methods=["GET"])
-  # def pending(self, request):
-  #   rqs = models.Requirement.objects.all()
-  #   qs = rqs.filter(signature=None, signature_required=True) | rqs.filter(acknowledged=False, acknowledgment_required=True)
-  #   qs = qs.select_related("transaction").values_list("transaction", flat=True)
-  #   return self.paginated_response(qs, TransactionViewSet.serializer_class)
+    try:
+      xaction = self.get_nonpending_queryset().get(id=int(pk))
+      xaction.completed = True
+      xaction.save()
+      return Response(serializers.TransactionSerializer(xaction).data)
+    except ObjectDoesNotExist:
+      raise APIException("the transaction has outstanding requirements")
 
 class PaymentDataViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   serializer_class = serializers.PaymentDataSerializer
   queryset = models.PaymentData.objects.select_related("user")
   filter_backends = (
     filters.OrderingFilter,
-    AuthOwnershipFilter,
     DjangoFilterBackend,
+    AuthOwnershipFilter,
   )
   filter_fields = ('kind','encrypted',)
   ordering_fields = ('created_at','kind','encrypted',)
@@ -148,8 +146,8 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   filter_backends = (
     filters.SearchFilter,
     filters.OrderingFilter,
-    AuthOwnershipFilter,
     DjangoFilterBackend,
+    AuthOwnershipFilter,
   )
   filter_fields = ('text','signature_required','acknowledged','acknowledgment_required',)
   search_fields = ('text',)

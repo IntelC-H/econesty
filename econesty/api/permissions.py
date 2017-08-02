@@ -6,6 +6,8 @@ from functools import reduce
 
 class Sensitive(permissions.BasePermission):
   def has_permission(self, request, view):
+    print(request.__dict__)
+    #print(getattr(request, "user", AnonymousUser()))
     u = getattr(request, "user", AnonymousUser())
     return u.is_authenticated
 
@@ -16,14 +18,17 @@ class Sensitive(permissions.BasePermission):
       return True
     return False
 
-    def check_permission(self, authuser, obj, user_fields = []):
-      if obj is None:
-        return False
+  def check_permission(self, authuser, obj, user_fields = []):
+    if obj is None:
+      return False
 
-      if obj.id == authuser.id:
-        return True
+    if obj.id == authuser.id:
+      return True
 
-      return reduce(lambda acc, x: acc or self.check_permission(authuser, reduce(getattr, x.split('__'), obj)), user_fields, False)
+    def f(acc, x):
+      return acc or self.check_permission(authuser, reduce(getattr, x.split('__'), obj))
+
+    return reduce(f, user_fields, False)
 
 def exempt_methods(perm_cls, methods):
   class Wrapped(perm_cls):

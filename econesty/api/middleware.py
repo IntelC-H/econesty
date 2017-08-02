@@ -20,6 +20,10 @@ def ResetAuth(get_response):
   def middleware(request):
     request.user = AnonymousUser()
     request.auth = None
+
+    # DRF appeasement
+    request._user = AnonymousUser()
+    request._auth = None
     return get_response(request)
   return middleware
 
@@ -27,9 +31,12 @@ def ResetAuth(get_response):
 def TokenAuth(get_response):
   def middleware(request):
     tok = models.Token.read_token(request)
+    print(tok.key + " asdfasdf " + tok.user.username)
     if tok is not None:
       request.user = tok.user
       request.auth = tok
+      # DRF appeasement
+      request._user = tok.user
+      request._auth = tok
     return get_response(request)
   return middleware
-  

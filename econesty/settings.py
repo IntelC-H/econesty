@@ -30,6 +30,8 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] if not DEBUG else []
 
 if DEBUG:
     REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': [],
+        'DEFAULT_PERMISSION_CLASSES': [],
         'DEFAULT_RENDERER_CLASSES': [
             'rest_framework.renderers.JSONRenderer',
             'rest_framework.renderers.BrowsableAPIRenderer'
@@ -38,6 +40,8 @@ if DEBUG:
     }
 else:
     REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': [],
+        'DEFAULT_PERMISSION_CLASSES': [],
         'DEFAULT_RENDERER_CLASSES': [
             'rest_framework.renderers.JSONRenderer'
         ],
@@ -48,6 +52,7 @@ INSTALLED_APPS = [
     'econesty.api',
     'rest_framework',
     'safedelete',
+    'corsheaders',
     'django_filters',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +61,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -63,6 +69,17 @@ MIDDLEWARE = [
     'econesty.api.middleware.TokenAuth',
     'econesty.api.middleware.RewriteMeToUserID',
 ]
+
+CORS_URLS_REGEX = r'^/api/.*$'
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8000',
+    '127.0.0.1:9000'
+)
+
+# CORS_ORIGIN_WHITELIST = []
+# CORS_ORIGIN_REGEX_WHITELIST = (r'^(https?://)?(\w+\.)?google\.com$', )
 
 X_FRAME_OPTIONS = 'DENY'
 CSRF_COOKIE_SECURE = True

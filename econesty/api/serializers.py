@@ -7,11 +7,14 @@ from django.core.exceptions import PermissionDenied
 
 # TODO: all the user_fields from views.py have to be taken into account here.
 
-def writing_field(model_clazz, source):
+def writing_field(model_clazz, source, **kwargs):
   """
   Define a field for assigning to a foreign key.
   """
-  return serializers.PrimaryKeyRelatedField(queryset=model_clazz.objects.all(), source=source, write_only=True)
+  kwargs['write_only'] = True
+  kwargs['source'] = source
+  kwargs['queryset'] = model_clazz.objects.all()
+  return serializers.PrimaryKeyRelatedField(**kwargs)
 
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
@@ -59,6 +62,8 @@ class TransactionSerializer(serializers.ModelSerializer):
   seller_id = writing_field(amodels.User, "seller")
   seller_payment_data = PaymentDataSerializer(read_only=True)
   seller_payment_data_id = writing_field(models.PaymentData, "seller_payment_data")
+  completed = serializers.BooleanField(read_only=True)
+
   class Meta:
     model = models.Transaction
     fields = '__all__'
@@ -82,8 +87,8 @@ class RequirementSerializer(serializers.ModelSerializer):
   transaction = TransactionSerializer(many=False, read_only=True)
   transaction_id = writing_field(models.Transaction, "transaction")
   signature = SignatureSerializer(many=False, read_only=True)
-  signature_id = writing_field(models.Signature, "signature")
-  pass
+  signature_id = writing_field(models.Signature, "signature", required = False, default = None)
+
   class Meta:
     model = models.Requirement
     fields = '__all__'
@@ -101,7 +106,7 @@ class TokenSerializer(serializers.ModelSerializer):
     username = data.pop("username", None)
     password = data.pop("password", None)
     try:
-      u = amodels.User.objects.get()
+      u = amodels.User.objects.get(username=username)
     except amodels.User.DoesNotExist:
       raise Http404('not found')
 

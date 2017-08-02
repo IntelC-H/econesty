@@ -21,22 +21,42 @@ class EconestyPagination(pagination.PageNumberPagination):
     })
 
 class PaginationHelperMixin(object):
-  def paginated_response(self, queryset, serializer, transform = (lambda x: x)):
+  def paginated_response(self, queryset, serializer = None, transform = (lambda x: x)):
+    serializer_p = serializer or getattr(type(self), "serializer_class")
     return self.get_paginated_response(
-      serializer(
+      serializer_p(
         transform(self.paginate_queryset(queryset) or queryset),
         many=True
       ).data
     )
 
+def set_keypath(kpath, value, aDict, separator = '.'):
+  splt = kpath.split(separator)
+  d = aDict
+  for k in splt[:-1]:
+    if hasattr(d, "__getitem__"):
+      d = d[k]
+    else:
+      d = getattr(d, k)
+
+  if hasattr(d, "__setitem__"):
+    d[splt[-1]] = value
+  else:
+    setattr(d, splt[-1], value)
+
 class AuthOwnershipMixin(object):
   def perform_create(self, serializer):
-    user_fields = getattr(typeof(self), 'user_fields', None)
+    user_fields = getattr(type(self), 'user_fields', None)
     u = self.request.user
     if not u.is_authenticated or user_fields is None:
       serializer.save()
     else:
-      serializer.save(**dict(map(lambda x:(x + "__id", u.id), user_fields)))
+      save_dict = serializer.validated_data
+      for x in user_fields:
+        if not '__' in x:
+          save_dict[x] = u
+
+      serializer.save(**save_dict)
 
 class WriteOnlyViewset(mixins.CreateModelMixin,
                        mixins.DestroyModelMixin,
