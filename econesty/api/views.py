@@ -40,12 +40,11 @@ class UserViewSet(EconestyBaseViewset):
   @detail_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
   def payment(self, request, pk = None):
     def makeKindHash(acc, x):
-      hsh = acc or {}
-      hsh[x.kind] = x
-      return hsh
+      acc[x.kind] = x
+      return acc
 
-    me = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=request.user.id))
-    them = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=pk))
+    me = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=request.user.id), {})
+    them = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=str(pk)), {})
 
     for k in models.PaymentData.KINDS:
       m = me.get(k, None)

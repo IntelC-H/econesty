@@ -140,7 +140,7 @@ const transactionForm = props =>
     <Element hidden name="buyer_payment_data_id" />
     <Element hidden name="seller_id" />
     <Element hidden name="seller_payment_data_id" />
-    <SubmitButton onSubmit={saveFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
+    <SubmitButton onSubmit={upsertFormTo(API.transaction, props.match.params.id, t => browserHistory.push("/transaction/" + t.id))}>
       OK
     </SubmitButton>
   </Form>
@@ -156,18 +156,20 @@ const transactionDefaults = props => {
     otherId = otherId === "me" ? undefined : parseInt(otherId);
   }
 
-  return joinPromises({
-    me: API.user.me(),
-    payment: API.user.payment(otherId)
-  }).then(res => ({
-    offer: "0.00",
-    offer_currency: "USD",
-    required_witnesses: "0",
-    buyer_id: isBuyer ? res.me.id : otherId,
-    buyer_payment_data_id: isBuyer ? res.payment.me.id : res.payment.them.id,
-    seller_id: isBuyer ? otherId : res.me.id,
-    seller_payment_data_id: isBuyer ? res.payment.them.id : res.payment.me.id
-  }));
+  return API.user.payment(otherId).then(res => {
+    var me = res.me.user;
+    var them = res.them.user;
+    var payment = res;
+    return {
+      offer: "0.00",
+      offer_currency: "USD",
+      required_witnesses: "0",
+      buyer_id: isBuyer ? me.id : them.id,
+      buyer_payment_data_id: isBuyer ? payment.me.id : payment.them.id,
+      seller_id: isBuyer ? them.id : me.id,
+      seller_payment_data_id: isBuyer ? payment.them.id : payment.me.id
+    };
+  });
 };
 
 const Page = props => {

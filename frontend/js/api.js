@@ -82,6 +82,7 @@ class API {
                        .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(ups[k]))
                        .join("&");
 
+    console.log("FETCH()", url, opts);
     return fetch(url, opts).then(res => res.json()
                                            .then(j => ({ object: j, res: res })))
                            .then(({object, res}) => {
@@ -91,7 +92,6 @@ class API {
   }
 
   static paginate(promise, collection) {
-    var that = this;
     return promise.then(res => {
       res.results = Array.from(res.results.map(collection.onInstance));
       return res;

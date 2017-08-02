@@ -37,7 +37,10 @@ def frontend(request, path):
   if not file_exists(full_path):
     full_path = os.path.join(settings.FRONTEND_PATH, 'index.html')
 
-  mimetype, enctype = mimetypes.guess_type(full_path)
+  if full_path.endswith(".map"):
+    mimetype, enctype = mimetypes.guess_type(os.path.splitext(full_path)[0])
+  else:
+    mimetype, enctype = mimetypes.guess_type(full_path)
 
   response = StreamingHttpResponse((line for line in open(full_path,'rb')))
   response['Content-Length'] = os.path.getsize(full_path)

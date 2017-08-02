@@ -162,7 +162,7 @@ const Element = props => {
   return (
     <div className={makeClassName(wrapperClass, "pure-control-group")}>
       {label !== null && <label>{label}</label>}
-      {select !== null && <select name={name}>{ /* use defaultValue, set it to the first option. */}
+      {select !== null && <select name={props.name}>{ /* use defaultValue, set it to the first option. */}
         {select.map(s => <option key={guid()} value={s}>{s}</option>) /* use s instead of guid() for the key */}
       }
       </select>}
@@ -188,6 +188,7 @@ Element.propTypes = {
   type: PropTypes.oneOf(["hidden", "text", "checkbox", "password", "hidden"]),
   name: PropTypes.string.isRequired,
   value: PropTypes.any,
+  defaultValue: PropTypes.any,
   label: PropTypes.string,
   wrapperClass: PropTypes.string
 };
@@ -216,11 +217,13 @@ function findForm(btn) {
     }
     btnp = btnp.parentElement;
   }
+  console.log("FORM: ", btnp);
   return btnp;
 }
 
 const SubmitButton = props => {
   const clickHandler = e => {
+    e.preventDefault()
     const button = e.target;
 
     if (button && button.parentElement) {
@@ -283,6 +286,7 @@ Form.defaultProps = {
   stacked: false
 };
 
+// This is broken with Preact.
 // operates on DOM elements
 Form.reduceForms = function(el, acc = {}) {
   if (!el) return acc;
@@ -300,10 +304,15 @@ Form.reduceForms = function(el, acc = {}) {
   return acc;
 };
 
+// TODO: this is broken with Preact.
 // operates on ReactDOM elements
 Form.setObject = function(obj, form) {
   if (obj) {
     return React.cloneElement(form, form.props, React.Children.map(form.props.children, c => {
+      if (c.type === "fieldset") {
+        return Form.setObject(obj, c)
+      }
+
       if (c.props.dataIsForm && c.props.dataIsSubform) {
         return Form.setObject(obj[c.props.name], c);
       }

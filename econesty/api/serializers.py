@@ -6,6 +6,7 @@ from django.http import Http404
 from django.core.exceptions import PermissionDenied
 
 # TODO: all the user_fields from views.py have to be taken into account here.
+# TODO: cannot show the deleted field.
 
 def writing_field(model_clazz, source, **kwargs):
   """

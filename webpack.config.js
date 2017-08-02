@@ -168,7 +168,7 @@ var extractStyle = new ExtractTextPlugin({
 });
 
 module.exports = {
-  devtool: "cheap-module-source-map",
+  devtool: "source-map",
   entry: {
     app: [
       './frontend/js/index.js',
@@ -243,7 +243,8 @@ module.exports = {
     }),
     new webpack.optimize.UglifyJsPlugin({
      minimize: true,
-     compress: false
+     compress: false,
+     sourceMap: true
     })
   ]
 };

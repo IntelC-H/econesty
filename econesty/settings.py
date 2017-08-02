@@ -12,13 +12,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 _DEBUG_SECRET_KEY = '#tqu#1=+6)nyncev1$_i25*od)^^o!=bbfuav!@k2u7$#!1*+n'
@@ -71,15 +66,11 @@ MIDDLEWARE = [
 ]
 
 CORS_URLS_REGEX = r'^/api/.*$'
-
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
     '127.0.0.1:9000'
 )
-
-# CORS_ORIGIN_WHITELIST = []
-# CORS_ORIGIN_REGEX_WHITELIST = (r'^(https?://)?(\w+\.)?google\.com$', )
 
 X_FRAME_OPTIONS = 'DENY'
 CSRF_COOKIE_SECURE = True
