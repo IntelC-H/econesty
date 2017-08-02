@@ -9,12 +9,9 @@
   "dependencies": {
     "blueimp-md5": "^2.7.0",
     "font-awesome": "^4.7.0",
-    "history": "^4.6.3",
     "preact": "^8.2.1",
-    "preact-compat": "^3.16.0",
     "prop-types": "^15.5.10",
-    "purecss": "^1.0.0",
-    "react-router": "^4.1.1"
+    "purecss": "^1.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",

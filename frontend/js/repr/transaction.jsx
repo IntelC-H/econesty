@@ -1,4 +1,4 @@
-import React from 'react';
+import { h } from 'preact';
 import PropTypes from 'prop-types';
 import Components from 'app/components';
 

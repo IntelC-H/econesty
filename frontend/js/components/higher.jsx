@@ -1,11 +1,11 @@
-import React from 'react';
-import { Redirect, withRouter } from 'react-router';
+import { h, Component } from 'preact';
 import { guid, Table, Grid, GridUnit, Button } from 'app/pure';
+import Router from 'app/routing';
 
 // Comp: a component whose props should be loaded asynchronously.
 // func(setAsyncProps) => { ... code that uses setAsyncProps ... }: A function to async load props
 export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () => undefined) {
-  return class Async extends React.PureComponent {
+  return class Async extends Component {
     constructor(props) {
       super(props);
       this.state = {};
@@ -137,11 +137,10 @@ export function asyncCollection(header, body, makePromise) {
 }
 
 export function rewritePath(regex, v = null) {
-  return withRouter(props => <Redirect
-                               push={false}
-                               from={props.location.pathname}
-                               to={props.location.pathname.replace(regex, v || props.object)}
-                             />);
+  return props => {
+    Router.replace(document.location.pathname.replace(regex, v || props.object));
+    return null;
+  };
 }
 
 export function withProps(addlProps, Component) {
@@ -168,7 +167,7 @@ export function mapProps(f, Component) {
 }
 
 export function wrap(Wrapper, Comp) {
-  return props => <Wrapper {...props}><Comp {...props} /></Wrapper>;
+  return props => <Wrapper><Comp {...props} /></Wrapper>;
 }
 
 export default {

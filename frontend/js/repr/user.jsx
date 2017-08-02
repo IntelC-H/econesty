@@ -1,4 +1,4 @@
-import React from 'react';
+import { h } from 'preact';
 import PropTypes from 'prop-types';
 import { Image } from 'app/pure';
 import md5 from 'blueimp-md5';

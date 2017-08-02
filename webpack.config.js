@@ -191,7 +191,7 @@ module.exports = {
             loader: "babel-loader",
             options: {
               presets: ["latest", "react"],
-              plugins: ["transform-object-rest-spread", "syntax-decorators"]
+              plugins: ["transform-object-rest-spread", "syntax-decorators", ["transform-react-jsx", { "pragma": "h" }]]
             }
           },
           {
@@ -217,10 +217,6 @@ module.exports = {
     alias: {
       app: path.resolve('./frontend/js/'),
       style: path.resolve('./frontend/css/'),
-
-      // Preact-Compat
-      "react": "preact-compat",
-      "react-dom": "preact-compat"
     },
     extensions: [".js", ".jsx", ".scss", ".css"]
   },

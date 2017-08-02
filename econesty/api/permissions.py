@@ -6,8 +6,6 @@ from functools import reduce
 
 class Sensitive(permissions.BasePermission):
   def has_permission(self, request, view):
-    print(request.__dict__)
-    #print(getattr(request, "user", AnonymousUser()))
     u = getattr(request, "user", AnonymousUser())
     return u.is_authenticated
 

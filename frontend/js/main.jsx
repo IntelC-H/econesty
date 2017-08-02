@@ -1,7 +1,5 @@
-import React from 'react';
-import { Router, Route, Switch, withRouter } from 'react-router';
-import createBrowserHistory from 'history/createBrowserHistory'
-
+import { h, Component, cloneElement } from 'preact';
+import Router from 'app/routing';
 import { API, APICollection, APIActionCollection } from 'app/api';
 
 import { Form, Element, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
@@ -24,24 +22,6 @@ API.payment_data = new APICollection("paymentdata");
 API.countersignature = new APICollection("countersignature");
 API.token =  new APIActionCollection("token", res => API.setToken(res.token));
 
-// setup browser history
-const browserHistory = createBrowserHistory({forceRefresh: true});
-
-function joinPromises(psDict) {
-  var ps = [];
-  for (var key in psDict) {
-    if (psDict.hasOwnProperty(key)) {
-      var value = psDict[key];
-      ps.push(Promise.all([value, Promise.resolve(key)]).then(([res, k]) => {
-        var ret = {};
-        ret[k] = res;
-        return ret;
-      }));
-    }
-  }
-  return Promise.all(ps).then(xs => xs.reduce((acc, x) => Object.assign(acc, x), {}));
-}
-
 function saveFormTo(api, f = null) {
   return obj => {
     api.create(obj).catch(e => {
@@ -60,10 +40,10 @@ function upsertFormTo(api, oid, f = null) {
 }
 
 function withAPI(api, form) {
-  return withRouter(props => {
-    const WrappedForm = withPromise(api.read(props.match.params.id), form);
+  return props => {
+    const WrappedForm = withPromise(api.read(props.matches.id), form);
     return <WrappedForm {...props} />;
-  });
+  };
 }
 
 ///// FORMS
@@ -76,7 +56,7 @@ const loginForm = props =>
     <Element password name="password" label="Password" />
     <SubmitButton onSubmit={saveFormTo(API.token, obj => {
     API.setToken(obj.token);
-    browserHistory.push("/user/me");
+    Router.push("/user/me");
   })}>
       OK
     </SubmitButton>
@@ -90,7 +70,7 @@ const signupForm = props =>
     <Element email    name="email"      label="Email" />
     <Element text     name="username"   label="New Username" />
     <Element password name="password"   label="New Password" />
-    <SubmitButton onSubmit={saveFormTo(API.user, user => browserHistory.push("/user/" + user.id))}>
+    <SubmitButton onSubmit={saveFormTo(API.user, user => Router.push("/user/" + user.id))}>
       OK
     </SubmitButton>
   </Form>
@@ -101,7 +81,7 @@ const countersignForm = props =>
     <Element hidden name="user_id" />
     <Element hidden name="transaction_id" />
     <Components.SignatureField editable name="signature" />
-    <SubmitButton onSubmit={saveFormTo(API.countersignature, cs => browserHistory.push("/transaction/" + cs.transaction.id))}>
+    <SubmitButton onSubmit={saveFormTo(API.countersignature, cs => Router.push("/transaction/" + cs.transaction.id))}>
       OK
     </SubmitButton>
   </Form>
@@ -109,22 +89,22 @@ const countersignForm = props =>
 
 const countersignDefaults = props => API.user.me().then(me => ({
   user_id: me.id,
-  transaction_id: parseInt(props.match.params.id),
+  transaction_id: parseInt(props.matches.id),
   signature: ""
 }));
 
 // Create/update forms.
 
-const paymentDataForm = withRouter(props =>
+const paymentDataForm = props =>
   <Form object={props.object} aligned>
     <Element text     name="data"      label="Data" />
     <Element checkbox name="encrypted" label="Encrypted" />
     <Element hidden   name="user_id" />
-    <SubmitButton onSubmit={upsertFormTo(API.payment_data, props.match.params.id, pd => browserHistory.push("/payment/" + pd.id))}>
+    <SubmitButton onSubmit={upsertFormTo(API.payment_data, props.matches.id, pd => Router.push("/payment/" + pd.id))}>
       OK
     </SubmitButton>
   </Form>
-);
+;
 
 const paymentDataDefaults = () => API.user.me().then(me => ({
   data: "",
@@ -140,7 +120,7 @@ const transactionForm = props =>
     <Element hidden name="buyer_payment_data_id" />
     <Element hidden name="seller_id" />
     <Element hidden name="seller_payment_data_id" />
-    <SubmitButton onSubmit={saveFormTo(API.transaction, t => browserHistory.push("/transaction/" + t.id))}>
+    <SubmitButton onSubmit={saveFormTo(API.transaction, t => Router.push("/transaction/" + t.id))}>
       OK
     </SubmitButton>
   </Form>
@@ -150,11 +130,13 @@ const transactionDefaults = props => {
   var isBuyer = undefined;
   var otherId = undefined;
 
-  if (props.match) {
-    isBuyer = props.match.params.action === "buy";
-    otherId = props.match.params.id;
+  if (props.matches) {
+    isBuyer = props.matches.action === "buy";
+    otherId = props.matches.id;
     otherId = otherId === "me" ? undefined : parseInt(otherId);
   }
+
+  console.log("TRANSACTION DEFAULTS", props);
 
   return API.user.payment(otherId).then(res => {
     var me = res.me.user;
@@ -197,7 +179,8 @@ const Page = props => {
 ////////// APP JSX
 
 const Profile = props => {
-  const userId = props.match.params.id;
+  console.log(props);
+  const userId = props.matches.id;
   const UserView = withAPI(API.user, User);
   const TransactionCollection = asyncCollection(
     () => <tr><th>Offer</th><th>Buyer</th><th>Seller</th></tr>,
@@ -210,8 +193,8 @@ const Profile = props => {
         <UserView {...props} />
       </GridUnit>
       <GridUnit sm="1" size="16-24">
-        <Button className="margined raised" onClick={() => props.history.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
-        <Button className="margined raised" onClick={() => props.history.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
+        <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
+        <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
         <TransactionCollection {...props} />
       </GridUnit>
       <GridUnit sm="1" size="4-24"/>
@@ -242,7 +225,7 @@ const Home = () =>
       </GridUnit>
       <GridUnit size="1-3">
         <div className="padded">
-          <h3>Secure as Hell.</h3>
+          <h3>Highly Secure</h3>
           <p>Sensitive data is encrypted with a security key that never leaves your head. Econesty favors security over convenience; so every time payment data is used, Econesty will prompt you for the password.</p>
         </div>
       </GridUnit>
@@ -251,28 +234,31 @@ const Home = () =>
   </Grid>
 ;
 
-export default () => {
-  return (
-    <Router history={browserHistory}>
-      <Switch>
-        <Route exact path="/" component={wrap(Page, Home)} />
-        <Route exact path="/login" component={wrap(Page, loginForm)} />
-        <Route exact path="/signup" component={wrap(Page, signupForm)} />
+const NotFound = () => <span>Not Found.</span>;
 
-        <Route exact path="/user/me" component={props => {
-          const C = withPromise(
-            API.user.me().then(res => "/user/" + res.id.toString()),
-            rewritePath(/.*/))
-          return <C {...props} />;
-        }} />
+export default props => {
+  const makeRoute = (path, Comp) => <Comp path={path} />;
 
-        <Route exact path='/user/:id' component={wrap(Page, Profile)} />
-        <Route exact path='/user/:id/transaction/:action' component={wrap(Page, withPromiseFactory(transactionDefaults, transactionForm))} />
-        <Route exact path='/payment/new' component={wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm))} />
-        <Route exact path='/payment/:id' component={wrap(Page, withAPI(API.payment_data, paymentDataForm))} />
-        <Route exact path='/transaction/:id' component={wrap(Page, withAPI(API.transaction, Transaction))} />
-        <Route exact path='/transaction/:id/countersign' component={wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))} />
-      </Switch>
-    </Router>
-  );
-}
+  const routes = [
+    makeRoute("/", wrap(Page, Home)),
+    makeRoute("/login", wrap(Page, loginForm)),
+    makeRoute("/signup", wrap(Page, signupForm)),
+    makeRoute("/user/me", props => {
+      const C = withPromise(
+        API.user.me().then(res => "/user/" + res.id.toString()),
+        rewritePath(/.*/)
+      )
+      return <C {...props} />;
+    }),
+    makeRoute("/user/:id", wrap(Page, Profile)),
+    makeRoute("/user/:id/transaction/:action", wrap(Page, withPromiseFactory(transactionDefaults, transactionForm))),
+    makeRoute("/payment/new", wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm))),
+    makeRoute("/payment/:id", wrap(Page, withAPI(API.payment_data, paymentDataForm))),
+    makeRoute("/transaction/:id", wrap(Page, withAPI(API.transaction, Transaction))),
+    makeRoute("/transaction/:id/countersign", wrap(Page, withPromiseFactory(countersignDefaults, countersignForm)))
+  ];
+
+  console.log(routes);
+
+  return <Router>{routes}</Router>;
+};

@@ -1,5 +1,6 @@
-import React from 'react';
+import { h } from 'preact';
 import PropTypes from 'prop-types';
+import 'preact';
 
 function guid() {
   const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -17,7 +18,7 @@ function makeClassName() {
 function inheritClass(comp, cname) {
   return props => {
     var propsp = Object.assign({}, props, { className: makeClassName(props.className, cname) });
-    return React.createElement(comp, propsp, props.children);
+    return h(comp, propsp, props.children);
   }
 }
 
@@ -45,7 +46,7 @@ const GridUnit = props => {
           .map(k => 'pure-u-' + k + '-' + props[k])
   );
   const {sm, md, lg, xl, size, children, ...filteredProps} = props; // eslint-disable-line
-  return React.createElement(inheritClass('div', classNames.join(' ')), filteredProps, children);
+  return h(inheritClass('div', classNames.join(' ')), filteredProps, children);
 };
 
 GridUnit.propTypes = {
@@ -65,7 +66,7 @@ const Button = props => {
   var className = 'pure-button';
   if (primary) className += " pure-button-primary";
   if (active) className += " pure-button-active";
-  return React.createElement(inheritClass(props.href ? 'a' : 'button', className), filteredProps, children);
+  return h(inheritClass(props.href ? 'a' : 'button', className), filteredProps, children);
 };
 
 Button.propTypes = {
@@ -86,12 +87,12 @@ const Table = props => {
   if (horizontal) classes.push('pure-table-horizontal');
   if (striped) classes.push('pure-table-striped');
 
-  return React.createElement(inheritClass('table', classes.join(' ')), filteredProps, striped ? applyStriping(children) : children);
+  return h(inheritClass('table', classes.join(' ')), filteredProps, striped ? applyStriping(children) : children);
 };
 
 function applyStriping(children) {
   var odd = true;
-  return React.Children.map(children, function(child) {
+  return children.map(function(child) {
     var {...newProps} = child.props;
     if (child.type === "tbody") {
       newProps.children = applyStriping(newProps.children);
@@ -99,7 +100,9 @@ function applyStriping(children) {
       if (odd) newProps.className = makeClassName(newProps.className, 'pure-table-odd');
       odd = !odd;
     }
-    return React.cloneElement(child, newProps, newProps.children);
+    child.props = newProps;
+    return child;
+    //return React.cloneElement(child, newProps, newProps.children);
   });
 }
 
@@ -121,7 +124,7 @@ const Menu = props => {
   if (horizontal) className += ' pure-menu-horizontal';
   if (scrollable) className += ' pure-menu-scrollable';
   if (fixed)      className += ' pure-menu-fixed';
-  return React.createElement(inheritClass('div', className), filteredProps, children);
+  return h(inheritClass('div', className), filteredProps, children);
 };
 
 Menu.propTypes = {
@@ -140,7 +143,7 @@ const MenuItem = props => {
   var className = 'pure-menu-item';
   if (props.disabled) className += ' pure-menu-disabled';
   if (props.selected) className += ' pure-menu-selected';
-  return React.createElement(inheritClass('li', className), props, props.children);
+  return h(inheritClass('li', className), props, props.children);
 };
 
 MenuItem.propTypes = {
@@ -303,25 +306,27 @@ Form.reduceForms = function(el, acc = {}) {
   return acc;
 };
 
-// TODO: this is broken with Preact.
-// operates on ReactDOM elements
-Form.setObject = function(obj, form) {
-  if (obj) {
-    return React.cloneElement(form, form.props, React.Children.map(form.props.children, c => {
-      if (c.type === "fieldset") {
-        return Form.setObject(obj, c)
-      }
+// operates on Preact DOM elements
+Form.setObject = function(form_object, form) {
+  function f(c, obj) {
+    if (obj) {
+      const isForm = (c.attributes || {})["data-is-form"];
+      const isSubform = (c.attributes || {})["data-is-subform"];
+      const name = (c.attributes || {}).name;
 
-      if (c.props.dataIsForm && c.props.dataIsSubform) {
-        return Form.setObject(obj[c.props.name], c);
+      if (!isForm && !isSubform && name) {
+        c.attributes.defaultValue = obj[name];
+      } else if (isForm && isSubform && name) {
+        c = f(c, obj[name]);
+      } else if (c.children) {
+        c.children = c.children.map(x => f(x, obj));
       }
+    }
 
-      if (!c.props.dataIsForm && c.props.name) {
-        return React.cloneElement(c, {defaultValue: obj[c.props.name], key: guid()}, c.props.children);
-      }
-      return c;
-    }));
+    return c;
   }
+
+  f(form, form_object);
   return form;
 }
 

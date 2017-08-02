@@ -1,4 +1,4 @@
-import React from 'react';
+import { h, Component } from 'preact';
 //import PropTypes from 'prop-types';
 import { Element } from 'app/pure';
 
@@ -39,7 +39,7 @@ function sigFromCSV(csv) {
   return sig;
 }
 
-class SignatureField extends React.PureComponent {
+class SignatureField extends Component {
   constructor(props) {
     super(props);
     this.state = {
