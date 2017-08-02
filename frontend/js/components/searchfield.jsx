@@ -28,7 +28,7 @@ const SearchField = asyncWithProps(props => {
           text
           name="search"
           placeholder={"Search " + props.api.resource + "s"}
-          onChange={e => props.setAsync({search: e.target.value})}
+          onInput={e => props.setAsync({search: e.target.value})}
           value={props.search}
         />
         {!canSearch && <span className="fa fa-search search-icon"></span>}
