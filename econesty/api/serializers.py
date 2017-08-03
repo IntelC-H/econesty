@@ -12,7 +12,7 @@ class BaseSerializer(serializers.ModelSerializer):
     ret = super().to_representation(obj)
     if "deleted" in ret:
       del ret["deleted"]
-    return ret 
+    return ret
 
 def writing_field(model_clazz, source, **kwargs):
   """

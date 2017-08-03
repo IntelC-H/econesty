@@ -16,6 +16,7 @@ class Router extends Component {
     super(props);
     this.state = { url: document.location.pathname };
     this.update = this.update.bind(this);
+    this.setState = this.setState.bind(this);
   }
 
   update(url) {
@@ -23,6 +24,7 @@ class Router extends Component {
   }
 
   componentDidMount() {
+    window.onpopstate = () => updateSubscribers(document.location.pathname);
     subscribers.push(this.update);
   }
 
@@ -62,7 +64,8 @@ class Router extends Component {
 
     var matches = {};
 
-    for (var i = 0; i < Math.max(urlpath_comps.length, path_comps.length); i++) {
+    const iterlen = path_comps.length; // path_comps.length should === urlpath_comps.length
+    for (var i = 0; i < iterlen; i++) {
       var upc = urlpath_comps[i];
       var pc = path_comps[i];
 
@@ -84,8 +87,17 @@ Router.replace = url => {
   updateSubscribers(url);
 }
 
-window.onpopstate = function(event) {
-  updateSubscribers(document.location.pathname);
+const Link = props => {
+  const { href, onClick, ...filteredProps} = props;
+  
+  const myOnClick = e => {
+    Router.push(href);
+  };
+  return <a onClick={myOnClick} {...filteredProps}/>;
 }
 
-export default Router;
+export { Router, Link };
+export default {
+  Router: Router,
+  Link: Link
+}

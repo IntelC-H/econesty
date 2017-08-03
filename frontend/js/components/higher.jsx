@@ -1,9 +1,9 @@
-import { h, Component } from 'preact';
+import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { guid, Table, Grid, GridUnit, Button } from 'app/pure';
-import Router from 'app/routing';
 
 // Comp: a component whose props should be loaded asynchronously.
-// func(setAsyncProps) => { ... code that uses setAsyncProps ... }: A function to async load props
+// func(setAsync) => { ... code that uses setAsync ... }: A function to async load props
+// onMount and onUnmount are two such functions.
 export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () => undefined) {
   return class Async extends Component {
     constructor(props) {
@@ -21,72 +21,37 @@ export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () =
     }
 
     render() {
-      return <Comp {...Object.assign({}, {setAsync: this.setState}, this.props, this.state)} />;
+      return <Comp setAsync={this.setState}
+                   setState={this.setState} // for linkedstate compatibility.
+                   {...this.props}
+                   {...this.state}
+             />;
     }
   };
 }
 
-export function asyncWithObject(Comp, onMount = () => undefined, onUnmount = () => undefined) {
-  const mkHandler = (f, g) => g({
-    setAsyncProps: f,
-    setError: e => f({ error: e }),
-    setObject: o => f({ object: o })
-  });
-  return asyncWithProps(
-    props => {
-      if (props.object) return <Comp {...props} />;
-      if (props.error) return <div className="error"><p>{props.error.message}</p></div>;
-      return <div className="loading" />;
-    },
-    f => mkHandler(f, onMount),
-    f => mkHandler(f, onUnmount)
-  );
+export function asyncWithObject(Comp, onMount = () => undefined, onUnmount = () => undefined, showsLoading = true) {
+  const loadingComponent = props => {
+    if (props.object) return <Comp {...props} />;
+    if (props.error) return <div className="error"><p>{props.error.message}</p></div>;
+    if (showsLoading) return <div className="loading" />;
+    return null
+  }
+  return asyncWithProps(loadingComponent, onMount, onUnmount);
 }
 
-export function withWebSocket(url, component, protocols=[]) {
+export function withPromise(promise, Comp, showsLoading = true) {
   return asyncWithObject(
-    component,
-    funcs => {
-      function makeWebSocket() {
-        var ws = new WebSocket(url, protocols);
-        ws.onopen = () => funcs.setAsyncProps({ws: ws});
-        ws.onmessage = e => funcs.setAsyncProps({ws: ws, object: JSON.parse(e.data) });
-        ws.onclose = e => {
-          // See http://tools.ietf.org/html/rfc6455#section-7.4.1
-          funcs.setAsyncProps({error: new Error(function() {
-            switch(e.code) {
-              case 1001: return "An endpoint is \"going away\", such as a server going down or a browser having navigated away from a page.";
-              case 1002: return "An endpoint is terminating the connection due to a protocol error";
-              case 1003: return "An endpoint is terminating the connection because it has received a type of data it cannot accept.";
-              case 1004: return "Reserved. The specific meaning might be defined in the future.";
-              case 1005: return "No status code present.";
-              case 1006: return "The connection was closed abnormally.";
-              case 1007: return "An endpoint is terminating the connection because it has received data that was inconsistent with the type of the message.";
-              case 1008: return "An endpoint is terminating the connection because it has received a message that \"violates its policy\".";
-              case 1009: return "An endpoint is terminating the connection because it has received a message that is too big for it to process.";
-              case 1010: return "An endpoint is terminating the connection because it has expected the server to negotiate one or more extension, but the server didn't return them in the response message of the WebSocket handshake.\n\n Specifically, the extensions that are needed are: " + e.reason;
-              case 1011: return "A server is terminating the connection because it encountered an unexpected condition that prevented it from fulfilling the request.";
-              case 1015: return "The connection was closed due to a failure to perform a TLS handshake.";
-              default:   return "Unknown websocket failure.";
-            }
-          }())});
-          makeWebSocket();
-        };
-      }
-
-      makeWebSocket();
-    },
-    () => ws.close()
+    Comp,
+    setAsync => promise.catch(e => setAsync({error: e})).then(o => setAsync({object: o})),
+    () => undefined,
+    showsLoading
   );
 }
 
-export function withPromise(promise, Comp) {
-  return asyncWithObject(Comp, ({setError, setObject}) => promise.catch(setError).then(setObject));
-}
-
-export function withPromiseFactory(pfact, Comp) {
+export function withPromiseFactory(pfact, Comp, showsLoading = true) {
   return props => {
-    const C = withPromise(pfact(props), withProps(props, Comp));
+    const C = withPromise(pfact(props), withProps(props, Comp), showsLoading);
     return <C />;
   };
 }
@@ -97,28 +62,28 @@ export function collection(header, body, setPage = null) {
   const mkNavButton = (targetPage, text) => <Button key={guid()} disabled={targetPage === null} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
 
   return props => {
-    var obj = props.object;
+    const { object, className, ...filteredProps } = props;
     return (
-      <div className="collection">
+      <div className={className || "" + " collection"} {...filteredProps}>
         <Table striped horizontal className="fill-width">
           <thead>
-            <Header object={obj} />
+            <Header object={object} />
           </thead>
           <tbody>
-            {obj.results.map((child, i) => <Body key={"object-" + i.toString()} object={child} />)}
+            {object.results.map((child, i) => <Body key={"object-" + i.toString()} object={child} />)}
           </tbody>
         </Table>
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">
-            {setPage && mkNavButton(obj.previous, "❮")}
+            {setPage && mkNavButton(object.previous, "❮")}
           </GridUnit>
           <GridUnit className="center collection-control" size="1-3">
             <div className="collection-page-indicator">
-              <span>{obj.page} of {Math.ceil(obj.count/10) || 1}</span>
+              <span>{object.page} of {Math.ceil(object.count/10) || 1}</span>
             </div>
           </GridUnit>
           <GridUnit className="center collection-control" size="1-3">
-            {setPage && mkNavButton(obj.next, "❯")}
+            {setPage && mkNavButton(object.next, "❯")}
           </GridUnit>
         </Grid>
       </div>
@@ -126,40 +91,23 @@ export function collection(header, body, setPage = null) {
   };
 }
 
-export function asyncCollection(header, body, makePromise) {
+export function asyncCollection(header, body, makePromise, showsLoading = true) {
   return asyncWithProps(props => {
     const Promised = withPromise(
       makePromise(props.page || 1),
-      collection(header, body, p => props.setAsync({page: p}))
+      collection(header, body, p => props.setAsync({page: p})),
+      showsLoading
     );
     return <Promised {...props} />;
   });
 }
 
-export function rewritePath(regex, v = null) {
-  return props => {
-    Router.replace(document.location.pathname.replace(regex, v || props.object));
-    return null;
-  };
-}
-
 export function withProps(addlProps, Component) {
-  return props => <Component {...Object.assign({}, props, addlProps)} />;
-}
-
-export function withNoProps(Component) {
-  return () => <Component />
+  return mapProps(props => Object.assign({}, props, addlProps), Component);
 }
 
 export function withObject(obj, comp) {
   return withProps({object: obj}, comp);
-}
-
-export function withObjectFunc(f, component) {
-  return props => {
-    const P = withObject(f(props), component);
-    return <P {...props} />;
-  };
 }
 
 export function mapProps(f, Component) {
@@ -173,15 +121,12 @@ export function wrap(Wrapper, Comp) {
 export default {
   collection: collection,
   asyncCollection: asyncCollection,
-  withNoProps: withNoProps,
   withProps: withProps,
   withObject: withObject,
   mapProps: mapProps,
-  withObjectFunc: withObjectFunc,
   asyncWithProps: asyncWithProps,
   asyncWithObject: asyncWithObject,
   withPromise: withPromise,
   withPromiseFactory: withPromiseFactory,
-  rewritePath: rewritePath,
   wrap: wrap
 };

@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 //import PropTypes from 'prop-types';
 import { Element } from 'app/pure';
 
@@ -129,30 +129,31 @@ class SignatureField extends Component {
     if (this.props.editable) {
       e.preventDefault();
       const rect = this.canvas.getBoundingClientRect();
-      f({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      f(e.clientX - rect.left, e.clientY - rect.top);
     }
   }
 
-  // SyntheticEvent handlers
+  // Event handlers
 
   onMouseOut(e) {
-    e.preventDefault();
-    if (this.props.editable && this.state.isMouseDown) this.finishStroke();
+    this.editSignature(() => {
+      if (this.state.isMouseDown) this.finishStroke();
+    });
     if (this.props.onMouseOut) this.props.onMouseOut(e);
   }
 
   onMouseDown(e) {
-    this.editSignature(e, ({x, y}) => this.mapCurrentStroke(() => [[x, y]]));
+    this.editSignature(e, (x, y) => this.mapCurrentStroke(() => [[x, y]]));
     if (this.props.onMouseDown) this.props.onMouseDown(e);
   }
 
   onMouseUp(e) {
-    this.editSignature(e, ({x, y}) => this.finishStroke(x, y));
+    this.editSignature(e, (x, y) => this.finishStroke(x, y));
     if (this.props.onMouseUp) this.props.onMouseUp(e);
   }
 
   onMouseMove(e) {
-    this.editSignature(e, ({x, y}) => this.state.isMouseDown ? this.mapCurrentStroke(cs => cs.concat([[x, y]])) : undefined);
+    this.editSignature(e, (x, y) => this.state.isMouseDown ? this.mapCurrentStroke(cs => cs.concat([[x, y]])) : undefined);
     if (this.props.onMouseMove) this.props.onMouseMove(e);
   }
 }

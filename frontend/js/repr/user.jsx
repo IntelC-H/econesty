@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Image } from 'app/pure';
 import md5 from 'blueimp-md5';

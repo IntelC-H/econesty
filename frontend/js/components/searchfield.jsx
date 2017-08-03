@@ -1,6 +1,7 @@
 import { h } from 'preact';
+import linkState from 'linkstate';
 import PropTypes from 'prop-types';
-import { asyncCollection, asyncWithProps } from './higher';
+import { asyncCollection, asyncWithProps, wrap } from './higher';
 import { APICollection } from 'app/api';
 import { Form, Element } from 'app/pure';
 
@@ -19,7 +20,8 @@ const SearchField = asyncWithProps(props => {
   const SearchFieldDropdownCollection = asyncCollection(
     propsp => <tr><th>Showing {propsp.object.results.length} of {propsp.object.count}</th></tr>,
     props.component,
-    page => props.api.list(page, props.search)
+    page => props.api.list(page, props.search),
+    false
   )
   return (
     <div className="searchfield">
@@ -28,14 +30,12 @@ const SearchField = asyncWithProps(props => {
           text
           name="search"
           placeholder={"Search " + props.api.resource + "s"}
-          onInput={e => props.setAsync({search: e.target.value})}
+          onInput={linkState(props, 'search', 'target.value')}
           value={props.search}
         />
         {!canSearch && <span className="fa fa-search search-icon"></span>}
       </Form>
-      {canSearch && <div className="searchfield-dropdown">
-          <SearchFieldDropdownCollection />
-        </div>}
+      {canSearch && <SearchFieldDropdownCollection className="searchfield-dropdown" />}
     </div>
   );
 });

@@ -1,5 +1,5 @@
-import { h, Component, cloneElement } from 'preact';
-import Router from 'app/routing';
+import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
+import { Router, Link } from 'app/routing';
 import { API, APICollection, APIActionCollection } from 'app/api';
 
 import { Form, Element, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
@@ -10,7 +10,7 @@ import User from 'app/repr/user';
 
 // Components
 import Components, { SearchField } from 'app/components';
-import { withPromiseFactory, withPromise, asyncCollection, rewritePath, wrap } from 'app/components/higher';
+import { withPromiseFactory, withPromise, asyncCollection, /*rewritePath,*/ wrap } from 'app/components/higher';
 
 // Setup API
 API.user = new APICollection("user");
@@ -136,8 +136,6 @@ const transactionDefaults = props => {
     otherId = otherId === "me" ? undefined : parseInt(otherId);
   }
 
-  console.log("TRANSACTION DEFAULTS", props);
-
   return API.user.payment(otherId).then(res => {
     var me = res.me.user;
     var them = res.them.user;
@@ -158,15 +156,15 @@ const Page = props => {
   return (
     <div>
       <Menu horizontal fixed className="header raised-v">
-        <MenuHeading><a href="/" className="light-text">Econesty</a></MenuHeading>
+        <MenuHeading><Link href="/" className="light-text">Econesty</Link></MenuHeading>
         <MenuList>
           <MenuItem>
             <SearchField
               api={API.user}
-              component={props => <tr><td><a href={"/user/" + props.object.id.toString()}>{props.object.username}</a></td></tr>}
+              component={props => <tr><td><Link href={"/user/" + props.object.id.toString()}>{props.object.username}</Link></td></tr>}
             />
           </MenuItem>
-          <MenuItem><a href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></a></MenuItem>
+          <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
         </MenuList>
       </Menu>
       <div className="content">
@@ -234,9 +232,9 @@ const Home = () =>
   </Grid>
 ;
 
-const NotFound = () => <span>Not Found.</span>;
+const NotFound = wrap(Page, () => <span>Not Found.</span>);
 
-export default props => {
+export default () => {
   const makeRoute = (path, Comp) => <Comp path={path} />;
 
   const routes = [
@@ -246,7 +244,10 @@ export default props => {
     makeRoute("/user/me", props => {
       const C = withPromise(
         API.user.me().then(res => "/user/" + res.id.toString()),
-        rewritePath(/.*/)
+        props => {
+          Router.replace(document.location.pathname.replace(/.*/, props.object));
+          return null;
+        }
       )
       return <C {...props} />;
     }),
@@ -257,8 +258,6 @@ export default props => {
     makeRoute("/transaction/:id", wrap(Page, withAPI(API.transaction, Transaction))),
     makeRoute("/transaction/:id/countersign", wrap(Page, withPromiseFactory(countersignDefaults, countersignForm)))
   ];
-
-  console.log(routes);
 
   return <Router notFound={NotFound}>{routes}</Router>;
 };
