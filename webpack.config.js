@@ -3,6 +3,8 @@ var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+var AppCachePlugin = require('appcache-webpack-plugin');
+var CompressionPlugin = require('compression-webpack-plugin');
 var pkg = require('./package.json');
 
 var eslintOptions = {
@@ -39,7 +41,6 @@ var eslintOptions = {
   "rules":{
     "require-await": 1,
     "react/jsx-uses-vars":2,
-    "react/jsx-uses-react":2,
     "comma-dangle":2,
     "no-cond-assign":2,
     "no-console":1,
@@ -159,22 +160,25 @@ var eslintOptions = {
   }
 };
 
-var dependencies = Object.keys(pkg.dependencies).filter(name => name != 'font-awesome');
-dependencies.push('./node_modules/font-awesome/css/font-awesome.css');
-
 var extractStyle = new ExtractTextPlugin({
   filename: 'code/[name].css',
   allChunks: true
 });
 
 module.exports = {
+  stats: {
+    children: false,
+    modulesSort: "size",
+    assetsSort: "-ext",
+    usedExports: true
+  },
   devtool: "source-map",
   entry: {
     app: [
       './frontend/js/index.js',
       './frontend/css/main.scss'
     ],
-    vendor: dependencies
+    vendor: Object.keys(pkg.dependencies)
   },
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
@@ -202,11 +206,18 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loader: extractStyle.extract({ use: ["raw-loader", "sass-loader"] }),
+        loader: extractStyle.extract({ use: ["css-loader", "sass-loader"] }),
       },
       {
         test: /\.css$/,
-        loader: extractStyle.extract({ use: "raw-loader" }),
+        loader: extractStyle.extract({ use: ["css-loader"]})
+      },
+      {
+        test: /\.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+        loader: 'file-loader',
+        options: {
+          name: "fonts/[name].[ext]"
+        }
       }
     ]
   },
@@ -215,32 +226,48 @@ module.exports = {
   },
   resolve: {
     alias: {
-      app: path.resolve('./frontend/js/'),
-      style: path.resolve('./frontend/css/'),
+      app: path.resolve('./frontend/js/')
     },
-    extensions: [".js", ".jsx", ".scss", ".css"]
+    extensions: [".js", ".jsx", ".scss", ".css"],
+    mainFields: ["browser", "module", "main", "style"]
   },
   plugins: [
-    new CopyWebpackPlugin([
-      {
-        from: path.resolve('./node_modules/font-awesome/fonts/'),
-        to: path.resolve('./.econesty_webpack_build/fonts/')
-      } // copy FontAwesome fonts.
-    ]),
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
       minChunks: Infinity
     }),
     extractStyle,
+    new webpack.optimize.UglifyJsPlugin({
+      minimize: true,
+      compress: false,
+      sourceMap: true
+    }),
+    new CompressionPlugin({
+      asset: "[path].gz[query]",
+      algorithm: "gzip",
+      test: /.*/,
+      threshold: 10240,
+      minRatio: 0.8
+    }),
+    new AppCachePlugin({
+      // TODO: fill out cache: [], and fallback: []
+      settings: ['prefer-online'],
+      output: 'econesty.appcache'
+    }),
     new HtmlWebpackPlugin({
       title: "Econesty",
-      filename: path.resolve('./.econesty_webpack_build/index.html'),
-      xhtml: true
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-     minimize: true,
-     compress: false,
-     sourceMap: true
+      filename: "index.html",
+      xhtml: true,
+      inject: false,
+      template: require('html-webpack-template'),
+      mobile: true,
+      meta: {
+        // TODO: fill me out!
+      },
+      minify: {
+        caseSensitive: true,
+        collapseWhitespace: true
+      }
     })
   ]
 };

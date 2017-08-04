@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Link } from 'app/routing';
 import Components from 'app/components';

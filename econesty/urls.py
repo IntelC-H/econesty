@@ -37,12 +37,19 @@ def frontend(request, path):
   if not file_exists(full_path):
     full_path = os.path.join(settings.FRONTEND_PATH, 'index.html')
 
+  if file_exists(full_path + ".gz"):
+    full_path += ".gz";
+
+  response = StreamingHttpResponse((line for line in open(full_path, 'rb')))
+
   if full_path.endswith(".map"):
     mimetype, enctype = mimetypes.guess_type(os.path.splitext(full_path)[0])
   else:
     mimetype, enctype = mimetypes.guess_type(full_path)
 
-  response = StreamingHttpResponse((line for line in open(full_path,'rb')))
+  if full_path.endswith(".gz"):
+    enctype = enctype or "gzip"
+
   response['Content-Length'] = os.path.getsize(full_path)
   if mimetype is not None:
     response['Content-Type'] = mimetype

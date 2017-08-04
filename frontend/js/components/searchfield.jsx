@@ -1,7 +1,7 @@
-import { h } from 'preact';
+import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import linkState from 'linkstate';
 import PropTypes from 'prop-types';
-import { asyncCollection, asyncWithProps, wrap } from './higher';
+import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
 import { Form, Element } from 'app/pure';
 

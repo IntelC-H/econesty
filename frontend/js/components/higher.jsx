@@ -50,10 +50,7 @@ export function withPromise(promise, Comp, showsLoading = true) {
 }
 
 export function withPromiseFactory(pfact, Comp, showsLoading = true) {
-  return props => {
-    const C = withPromise(pfact(props), withProps(props, Comp), showsLoading);
-    return <C />;
-  };
+  return props => h(withPromise(pfact(props), withProps(props, Comp), showsLoading), {});
 }
 
 export function collection(header, body, setPage = null) {
@@ -92,14 +89,14 @@ export function collection(header, body, setPage = null) {
 }
 
 export function asyncCollection(header, body, makePromise, showsLoading = true) {
-  return asyncWithProps(props => {
-    const Promised = withPromise(
+  return asyncWithProps(props => h(
+    withPromise(
       makePromise(props.page || 1),
       collection(header, body, p => props.setAsync({page: p})),
       showsLoading
-    );
-    return <Promised {...props} />;
-  });
+    ),
+    props
+  ));
 }
 
 export function withProps(addlProps, Component) {
@@ -111,7 +108,7 @@ export function withObject(obj, comp) {
 }
 
 export function mapProps(f, Component) {
-  return props => <Component {...f(props)} />;
+  return props => h(Component, f(props));
 }
 
 export function wrap(Wrapper, Comp) {

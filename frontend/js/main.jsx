@@ -177,7 +177,6 @@ const Page = props => {
 ////////// APP JSX
 
 const Profile = props => {
-  console.log(props);
   const userId = props.matches.id;
   const UserView = withAPI(API.user, User);
   const TransactionCollection = asyncCollection(

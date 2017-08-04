@@ -1,6 +1,5 @@
 import { h } from 'preact';
 import PropTypes from 'prop-types';
-import 'preact';
 
 function guid() {
   const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -16,18 +15,13 @@ function makeClassName() {
 }
 
 function inheritClass(comp, cname) {
-  return props => {
-    var propsp = Object.assign({}, props, { className: makeClassName(props.className, cname) });
-    return h(comp, propsp, props.children);
-  }
+  return props => h(comp, Object.assign({}, props, { className: makeClassName(props.className, cname) }));
 }
 
 function sizeProp(props, propName, componentName) {
   if (!props[propName]) return undefined;
   if (!/^(\d+)(?:-(\d+))?$/.test(props[propName])) {
-    return new Error(
-      'Invalid sizeProp `' + propName + '` supplied to' + ' `' + componentName + '`.'
-    );
+    return new Error('Invalid sizeProp `' + propName + '` supplied to' + ' `' + componentName + '`.');
   }
   return undefined;
 }
@@ -45,8 +39,8 @@ const GridUnit = props => {
     _sizes.filter(k => k in props)
           .map(k => 'pure-u-' + k + '-' + props[k])
   );
-  const {sm, md, lg, xl, size, children, ...filteredProps} = props; // eslint-disable-line
-  return h(inheritClass('div', classNames.join(' ')), filteredProps, children);
+  const {sm, md, lg, xl, size, ...filteredProps} = props; // eslint-disable-line
+  return h(inheritClass('div', classNames.join(' ')), filteredProps);
 };
 
 GridUnit.propTypes = {
@@ -62,11 +56,11 @@ GridUnit.defaultProps = {
 };
 
 const Button = props => {
-  const {primary, active, children, ...filteredProps} = props;
+  const {primary, active, ...filteredProps} = props;
   var className = 'pure-button';
   if (primary) className += " pure-button-primary";
   if (active) className += " pure-button-active";
-  return h(inheritClass(props.href ? 'a' : 'button', className), filteredProps, children);
+  return h(inheritClass(props.href ? 'a' : 'button', className), filteredProps);
 };
 
 Button.propTypes = {
@@ -80,31 +74,15 @@ Button.defaultProps = {
 };
 
 const Table = props => {
-  const {bordered, horizontal, striped, children, ...filteredProps} = props;
+  const {bordered, horizontal, striped, ...filteredProps} = props;
 
   var classes = ['table-fill', 'pure-table'];
   if (bordered) classes.push('pure-table-bordered');
   if (horizontal) classes.push('pure-table-horizontal');
   if (striped) classes.push('pure-table-striped');
 
-  return h(inheritClass('table', classes.join(' ')), filteredProps, striped ? applyStriping(children) : children);
+  return h(inheritClass('table', classes.join(' ')), filteredProps);
 };
-
-function applyStriping(children) {
-  var odd = true;
-  return children.map(function(child) {
-    var {...newProps} = child.props;
-    if (child.type === "tbody") {
-      newProps.children = applyStriping(newProps.children);
-    } else if (child.type === "tr") {
-      if (odd) newProps.className = makeClassName(newProps.className, 'pure-table-odd');
-      odd = !odd;
-    }
-    child.props = newProps;
-    return child;
-    //return React.cloneElement(child, newProps, newProps.children);
-  });
-}
 
 Table.propTypes = {
   bordered: PropTypes.bool,
@@ -119,12 +97,12 @@ Table.defaultProps = {
 };
 
 const Menu = props => {
-  const {horizontal, scrollable, fixed, children, ...filteredProps} = props;
+  const {horizontal, scrollable, fixed, ...filteredProps} = props;
   var className = 'pure-menu';
   if (horizontal) className += ' pure-menu-horizontal';
   if (scrollable) className += ' pure-menu-scrollable';
   if (fixed)      className += ' pure-menu-fixed';
-  return h(inheritClass('div', className), filteredProps, children);
+  return h(inheritClass('div', className), filteredProps);
 };
 
 Menu.propTypes = {
@@ -143,7 +121,7 @@ const MenuItem = props => {
   var className = 'pure-menu-item';
   if (props.disabled) className += ' pure-menu-disabled';
   if (props.selected) className += ' pure-menu-selected';
-  return h(inheritClass('li', className), props, props.children);
+  return h(inheritClass('li', className), props);
 };
 
 MenuItem.propTypes = {
@@ -156,8 +134,6 @@ MenuItem.defaultProps = {
   selected: false
 }
 
-// Forms can take props.object as form value defaults.
-
 // TODO: implement sizing via: .pure-input-*
 
 const Element = props => {
@@ -165,8 +141,8 @@ const Element = props => {
   return (
     <div className={makeClassName(wrapperClass, "pure-control-group")}>
       {label !== null && <label>{label}</label>}
-      {select !== null && <select name={props.name}>{ /* use defaultValue, set it to the first option. */}
-        {select.map(s => <option key={guid()} value={s}>{s}</option>) /* use s instead of guid() for the key */}
+      {select !== null && <select name={props.name}>
+        {select.map(s => <option key={props.name + '-' + s} value={s}>{s}</option>)}
       }
       </select>}
       {checkbox && <label className="pure-checkbox" {...filteredProps}>
@@ -215,26 +191,25 @@ Element.defaultProps = {
 function findForm(btn) {
   var btnp = btn;
   while (btnp) {
-    if (btnp.dataset.isForm) {
-      break;
-    }
+    if (btnp.dataset.isForm) break;
     btnp = btnp.parentElement;
   }
   return btnp;
 }
 
+function isCaveatChecked(btn) {
+  if (btn && btn.parentElement) {
+    const checkbox = btn.parentElement.querySelector('input[type="checkbox"].form-caveat');
+    if (checkbox && checkbox.checked) return true;
+  }
+  return false
+}
+
 const SubmitButton = props => {
   const clickHandler = e => {
     e.preventDefault()
-    const button = e.target;
-
-    if (button && button.parentElement) {
-      if (props.caveat) {
-        const checkbox = button.parentElement.querySelector(".form-caveat");
-        if (!checkbox || !checkbox.checked) return;
-      }
-    }
-    props.onSubmit(Form.reduceForms(findForm(e.target)));
+    if (props.caveat && !isCaveatChecked(e.target)) return;
+    props.onSubmit(Form.toObject(findForm(e.target)));
   };
 
   return (
@@ -264,7 +239,12 @@ const Form = props => {
   if (stacked) cns.push("pure-form-stacked");
   if (className) cns.push(className);
   return Form.setObject(object,
-    <div {...filteredProps} data-is-form data-is-subform={subForm} className={cns.join(' ')}>
+    <div
+      {...filteredProps}
+      data-is-form
+      data-is-subform={subForm}
+      className={cns.join(' ')}
+    >
       <fieldset>
         {children}
       </fieldset>
@@ -288,25 +268,20 @@ Form.defaultProps = {
   stacked: false
 };
 
-// This is broken with Preact.
 // operates on DOM elements
-Form.reduceForms = function(el, acc = {}) {
+Form.toObject = function(el, acc = {}) {
   if (!el) return acc;
   Array.from(el.children).forEach(child => {
     const tname = child.tagName.toLowerCase();
-    if (child.dataIsForm)   child.dataIsSubform ? acc[child.name] = Form.reduceForms(child) : Form.reduceForms(child, acc);
-    if (tname === "input")  {
-      if (child.type === "checkbox") acc[child.name] = child.checked || false;
-      else acc[child.name] = child.value;
-    } else if (tname === "select") {
-      const opt = child.children[child.selectedIndex];
-      if (!opt.hidden) acc[child.name] = opt.value;
-    } else             Form.reduceForms(child, acc);
+    if (child.dataset.isSubform) acc[child.name] = Form.toObject(child);
+    else if (tname === "input")  acc[child.name] = child.type === "checkbox" ? child.checked || false : child.value;
+    else if (tname === "select") acc[child.name] = child.children[child.selectedIndex].value;
+    else                         acc             = Form.toObject(child, acc);
   });
   return acc;
 };
 
-// operates on Preact DOM elements
+// operates on Preact VDOM elements
 Form.setObject = function(form_object, form) {
   function f(c, obj) {
     if (obj) {
@@ -314,17 +289,11 @@ Form.setObject = function(form_object, form) {
       const isSubform = (c.attributes || {})["data-is-subform"] || false;
       const name = (c.attributes || {}).name;
 
-      if (!isForm && !isSubform && name) {
-        c.attributes.defaultValue = obj[name];
-        c.attributes.value = obj[name];
-      } else if (isForm && isSubform && name) {
-        c = f(c, obj[name]);
-      } else if (c.children) {
-        c.children = c.children.map(x => f(x, obj));
-      }
+      // FIXME: this can't set select objects
+      if (!isForm && !isSubform && name)    c.attributes.value = obj[name];
+      else if (isForm && isSubform && name) f(c, obj[name]);
+      else if (c.children)                  c.children.map(x => f(x, obj));
     }
-
-    return c;
   }
 
   f(form, form_object);

@@ -88,9 +88,9 @@ Router.replace = url => {
 }
 
 const Link = props => {
-  const { href, onClick, ...filteredProps} = props;
-  
-  const myOnClick = e => {
+  const { href, onClick, ...filteredProps} = props; // eslint-disable-line no-unused-vars
+
+  const myOnClick = () => {
     Router.push(href);
   };
   return <a onClick={myOnClick} {...filteredProps}/>;
