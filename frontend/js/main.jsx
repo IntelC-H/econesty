@@ -176,9 +176,9 @@ const Page = props =>
 
 const makePage = (content, lgutter = null, rgutter = null) =>
   <Grid>
-    <GridUnit size="4-24">{lgutter}</GridUnit>
-    <GridUnit size="16-24">{content}</GridUnit>
-    <GridUnit size="4-24">{rgutter}</GridUnit>
+    <GridUnit size="1-24"  sm="4-24">{lgutter}</GridUnit>
+    <GridUnit size="22-24" sm="16-24">{content}</GridUnit>
+    <GridUnit size="1-24"  sm="4-24">{rgutter}</GridUnit>
   </Grid>
 ;
 
