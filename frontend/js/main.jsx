@@ -176,9 +176,9 @@ const Page = props =>
 
 const makePage = (content, lgutter = null, rgutter = null) =>
   <Grid>
-    <GridUnit size="1-24"  sm="4-24">{lgutter}</GridUnit>
-    <GridUnit size="22-24" sm="16-24">{content}</GridUnit>
-    <GridUnit size="1-24"  sm="4-24">{rgutter}</GridUnit>
+    <GridUnit size="1" sm="4-24">{lgutter}</GridUnit>
+    <GridUnit size="1" sm="16-24">{content}</GridUnit>
+    <GridUnit size="1" sm="4-24">{rgutter}</GridUnit>
   </Grid>
 ;
 
@@ -200,7 +200,7 @@ const Profile = props => {
 }
 
 const makeColumn = (header, bodies) =>
-  <GridUnit size="1-3">
+  <GridUnit size="1" sm="1-3">
     <div className="padded">
       <h3>{header}</h3>
       {bodies.map(txt => <p>{txt}</p>)}
