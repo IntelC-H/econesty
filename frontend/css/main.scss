@@ -30,6 +30,7 @@
 }
 
 .content {
+  min-width: 320px;
   padding-top: $header-height;
   @media (max-width: 400px) {
     padding-top: $header-height + 45;

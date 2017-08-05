@@ -152,84 +152,78 @@ const transactionDefaults = props => {
   });
 };
 
-const Page = props => {
-  return (
-    <div>
-      <Menu horizontal fixed className="header raised-v">
-        <MenuHeading><Link href="/" className="light-text">Econesty</Link></MenuHeading>
-        <MenuList>
-          <MenuItem>
-            <SearchField
-              api={API.user}
-              component={props => <tr><td><Link href={"/user/" + props.object.id.toString()}>{props.object.username}</Link></td></tr>}
-            />
-          </MenuItem>
-          <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
-        </MenuList>
-      </Menu>
-      <div className="content">
-        {props.children}
-      </div>
+const Page = props =>
+  <div>
+    <Menu horizontal fixed className="header raised-v">
+      <MenuHeading>
+        <Link href="/" className="light-text">Econesty</Link>
+      </MenuHeading>
+      <MenuList>
+        <MenuItem>
+          <SearchField
+            api={API.user}
+            component={props => <tr><td><Link href={"/user/" + props.object.id.toString()}>{props.object.username}</Link></td></tr>}
+          />
+        </MenuItem>
+        <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
+      </MenuList>
+    </Menu>
+    <div className="content">
+      {props.children}
     </div>
-  );
-};
+  </div>
+;
+
+const makePage = (content, lgutter = null, rgutter = null) =>
+  <Grid>
+    <GridUnit size="4-24">{lgutter}</GridUnit>
+    <GridUnit size="16-24">{content}</GridUnit>
+    <GridUnit size="4-24">{rgutter}</GridUnit>
+  </Grid>
+;
 
 ////////// APP JSX
 
 const Profile = props => {
   const userId = props.matches.id;
-  const UserView = withAPI(API.user, User);
   const TransactionCollection = asyncCollection(
     () => <tr><th>Offer</th><th>Buyer</th><th>Seller</th></tr>,
     Transaction,
     page => API.paginate(API.user.transactions(userId, page), API.transaction)
   );
-  return (
-    <Grid>
-      <GridUnit sm="1" size="4-24">
-        <UserView {...props} />
-      </GridUnit>
-      <GridUnit sm="1" size="16-24">
-        <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
-        <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
-        <TransactionCollection {...props} />
-      </GridUnit>
-      <GridUnit sm="1" size="4-24"/>
-    </Grid>
-  );
+
+  return makePage([
+    <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>,
+    <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>,
+    h(TransactionCollection, props)
+  ], h(withAPI(API.user, User), props));
 }
 
-const Home = () =>
-  <Grid>
-    <GridUnit size="4-24" />
-    <GridUnit size="16-24">
-      <div className="center">
-        <h1>Econesty</h1>
-        <h2>Fairness in Negotiation</h2>
-      </div>
-      <GridUnit size="1-3">
-        <div className="padded">
-          <h3>Recruit friends to secure your transactions.</h3>
-          <p>Econesty enables you to attach conditions to transactions. Your friends have to sign off that the transaction was fair & equitable.</p>
-          <p>For example, if you're buying a used car, you might recruit your car nerd friend to sign off that the deal is fair.</p>
-        </div>
-      </GridUnit>
-      <GridUnit size="1-3">
-        <div className="padded">
-          <h3>Use the best payment method every time.</h3>
-          <p>Add your debit card, bitcoin wallet, paypal account, and more to Econesty. When you make a transaction, Econesty determines the best payment method to use.</p>
-        </div>
-      </GridUnit>
-      <GridUnit size="1-3">
-        <div className="padded">
-          <h3>Highly Secure</h3>
-          <p>Sensitive data is encrypted with a security key that never leaves your head. Econesty favors security over convenience; so every time payment data is used, Econesty will prompt you for the password.</p>
-        </div>
-      </GridUnit>
-    </GridUnit>
-    <GridUnit size="4-24" />
-  </Grid>
+const makeColumn = (header, bodies) =>
+  <GridUnit size="1-3">
+    <div className="padded">
+      <h3>{header}</h3>
+      {bodies.map(txt => <p>{txt}</p>)}
+    </div>
+  </GridUnit>
 ;
+
+const Home = () => makePage([
+  <div className="center">
+    <h1>Econesty</h1>
+    <h2>Fairness in Negotiation</h2>
+  </div>,
+  makeColumn("Recruit friends to secure your transactions.", [
+    "Econesty enables you to attach conditions to transactions. Your friends have to sign off that the transaction was fair & equitable.",
+    "For example, if you're buying a used car, you might recruit your car nerd friend to sign off that the deal is fair."
+  ]),
+  makeColumn("Use the best payment method every time.", [
+    "Add your debit card, bitcoin wallet, paypal account, and more to Econesty. When you make a transaction, Econesty determines the best payment method to use."
+  ]),
+  makeColumn("Highly Secure.", [
+    "Sensitive data is encrypted with a security key that never leaves your head. Econesty favors security over convenience; so every time payment data is used, Econesty will prompt you for the password."
+  ])
+]);
 
 const NotFound = wrap(Page, () => <span>Not Found.</span>);
 
@@ -240,16 +234,13 @@ export default () => {
     makeRoute("/", wrap(Page, Home)),
     makeRoute("/login", wrap(Page, loginForm)),
     makeRoute("/signup", wrap(Page, signupForm)),
-    makeRoute("/user/me", props => {
-      const C = withPromise(
+    makeRoute("/user/me", props => h(
+      withPromise(
         API.user.me().then(res => "/user/" + res.id.toString()),
-        props => {
-          Router.replace(document.location.pathname.replace(/.*/, props.object));
-          return null;
-        }
-      )
-      return <C {...props} />;
-    }),
+        props => Router.replace(document.location.pathname.replace(/.*/, props.object))
+      ),
+      props
+    )),
     makeRoute("/user/:id", wrap(Page, Profile)),
     makeRoute("/user/:id/transaction/:action", wrap(Page, withPromiseFactory(transactionDefaults, transactionForm))),
     makeRoute("/payment/new", wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm))),

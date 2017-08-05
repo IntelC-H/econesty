@@ -249,21 +249,24 @@ module.exports = {
       threshold: 10240,
       minRatio: 0.8
     }),
-    new AppCachePlugin({
-      // TODO: fill out cache: [], and fallback: []
-      settings: ['prefer-online'],
-      output: 'econesty.appcache'
-    }),
+    // new AppCachePlugin({
+    //   // TODO: fill out cache: [], and fallback: []
+    //   settings: ['prefer-online'],
+    //   output: 'econesty.appcache'
+    // }),
     new HtmlWebpackPlugin({
+      cache: true,
       title: "Econesty",
       filename: "index.html",
       xhtml: true,
       inject: false,
       template: require('html-webpack-template'),
-      mobile: true,
-      meta: {
-        // TODO: fill me out!
-      },
+      meta: [
+        {
+          name: "viewport",
+          content: "width=320, initial-scale=1.0, maximum-scale=1.0"
+        }
+      ],
       minify: {
         caseSensitive: true,
         collapseWhitespace: true

@@ -63,6 +63,7 @@ $shadow-color: #666666;
 body {
   background-color: $primary-color-light;
   min-width: 320px;
+  position: relative;
 }
 
 hr {
@@ -82,6 +83,7 @@ a {
   }
 
   &:hover {
+    cursor: hand;
     text-decoration: underline;
     color: $accent-color;
     span {

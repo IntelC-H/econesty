@@ -6,8 +6,10 @@ import { h, Component, cloneElement } from 'preact';
   attribute: if it matches the current URL, it renders it.
 */
 
-// TODO: specific values for given wildcards.
+// TODO: specific values for given wildcards. EG: /user/:id/transaction/:action,
+// :action should only be "buy" or "sell"
 
+// TODO: move these out of the global namespace. It's a code smell.
 const subscribers = [];
 const updateSubscribers = url => subscribers.forEach(s => s(url))
 
@@ -80,11 +82,13 @@ class Router extends Component {
 Router.push = url => {
   history.pushState(null, null, url);
   updateSubscribers(url);
+  return null;
 }
 
 Router.replace = url => {
   history.replaceState(null, null, url);
   updateSubscribers(url);
+  return null;
 }
 
 const Link = props => {
