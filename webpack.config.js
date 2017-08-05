@@ -165,9 +165,6 @@ var extractStyle = new ExtractTextPlugin({
   allChunks: true
 });
 
-var deps = Object.keys(pkg.dependencies);
-//deps.push(path.resolve('./node_modules/purecss/build/grids-responsive-min.css'))
-
 module.exports = {
   stats: {
     children: false,
@@ -181,7 +178,7 @@ module.exports = {
       './frontend/js/index.js',
       './frontend/css/main.scss'
     ],
-    vendor: deps
+    vendor: Object.keys(pkg.dependencies)
   },
   output: {
     path: path.resolve('./.econesty_webpack_build/'),
