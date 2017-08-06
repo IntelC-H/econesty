@@ -106,7 +106,7 @@ a {
 }
 
 .pure-menu-heading {
-  padding: 0.25em;
+  padding: ($padding/2) + 3.5px;
   font-size: $header-font-size;
   color: white;
 }
@@ -262,9 +262,22 @@ $searchicon-size: 24px;
     background-color: $primary-color-light;
     width: $searchfield-width + $padding * 1.5;
   }
+  .searchfield-dropdown-clickshield {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 99;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+  }
   .search-icon {
+    padding: 0px;
+    margin: 0px;
     position: absolute;
-    top: (($searchfield-height - $searchicon-size + $padding)/2);
+    top: (($searchfield-height - $searchicon-size + $padding)/2) + 2px;
     left: $searchfield-width - ($padding/2);
     width: $searchicon-size;
     height: $searchicon-size;
