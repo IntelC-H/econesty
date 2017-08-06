@@ -6,12 +6,10 @@ from functools import reduce
 
 class Sensitive(permissions.BasePermission):
   def has_permission(self, request, view):
-    print("SENSITIVE PERM")
     u = getattr(request, "user", AnonymousUser())
     return u.is_authenticated
 
   def has_object_permission(self, request, view, obj):
-    print("SENSITIVE OBJ PERM")
     if type(obj) is User:
       return True
     if self.check_permission(request.user, obj, getattr(view, "user_fields", [])):
