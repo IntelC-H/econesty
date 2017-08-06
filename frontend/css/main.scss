@@ -4,6 +4,8 @@
   Page layout
 */
 
+$searchfield-dropdown-offset: 1.5px;//1.5px;//10px;
+
 .user {
   padding: $padding;
   text-align: center;
@@ -12,20 +14,24 @@
   }
 }
 
-.header {
-  background: $primary-color-dark;
-}
-
 .header-icon {
   color: $primary-color-text;
   font-size: 2em;
 }
 
-.header ul.pure-menu-list {
-  float: right;
-  li {
-    padding-right: 0.5em;
-    padding-left: 0.5em;
+.header {
+  background: $primary-color-dark;
+  input[type=text] {
+    margin-bottom: 0px;
+  }
+  ul.pure-menu-list {
+    float: right;
+    li {
+      padding: 0.5em;
+    }
+  }
+  .pure-table thead {
+    background-color: $primary-color-dark;
   }
 }
 
@@ -37,8 +43,21 @@
   }
 }
 
+.profile-button-group {
+  @media (max-width: 35.5em) {
+    text-align: center;
+  }
+}
+
 .searchfield {
   .searchfield-dropdown {
-    top: $header-height + 10px;
+    thead {
+      display: none;
+    }
+    border: none;
+    top: $header-height + $searchfield-dropdown-offset;
+    @media (max-width: 400px) {
+      top: $header-height + $searchfield-dropdown-offset + 45px;
+    }
   }
 }

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -19,7 +20,7 @@ DEBUG = True
 _DEBUG_SECRET_KEY = '#tqu#1=+6)nyncev1$_i25*od)^^o!=bbfuav!@k2u7$#!1*+n'
 SECRET_KEY = os.environ.get('SECRET_KEY', None) or _DEBUG_SECRET_KEY if not DEBUG else _DEBUG_SECRET_KEY
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] if not DEBUG else []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] if not DEBUG else ["*"]
 
 # Application definition
 
@@ -151,5 +152,8 @@ USE_TZ = True
 
 # Frontend config
 
-FRONTEND_PATH = os.path.join(BASE_DIR, ".econesty_webpack_build")
+with open(os.path.join(BASE_DIR, 'package.json')) as file:
+    pkg = json.load(file)
+
+FRONTEND_PATH = os.path.join(BASE_DIR, pkg["files"])
 STATIC_URL = "/static/"

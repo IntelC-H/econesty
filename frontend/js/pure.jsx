@@ -1,17 +1,13 @@
 import { h } from 'preact';
 import PropTypes from 'prop-types';
 
-function guid() {
-  const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-  return s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
-}
+const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+const guid = () => s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
 
 function makeClassName() {
-  var parts = [];
-  for (var i = 0; i < arguments.length; i++) {
-    parts = parts.concat((arguments[i] || '').split(' '));
-  }
-  return parts.filter(e => e.length > 0).join(' ');
+  console.log(arguments)
+  return [].concat.apply([], Array.from(arguments).filter(a => !!a)
+                                                  .map(a => a.split(' '))).filter(e => e.length > 0).join(' ');
 }
 
 function inheritClass(comp, cname) {

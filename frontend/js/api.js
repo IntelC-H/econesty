@@ -44,12 +44,17 @@
 
 
 class API {
+  static get isAuthenticated() {
+    console.log("IS isAuthenticated", API.getToken() !== null)
+    return API.getToken() !== null;
+  }
+
   static getToken() {
     return localStorage.getItem("token");
   }
 
   static setToken(token) {
-    localStorage.setItem("token", token);
+    localStorage.setItem("token", token || null);
   }
 
   static networking(method, path, urlparams, body) {

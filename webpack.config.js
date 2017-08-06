@@ -1,13 +1,12 @@
-var path = require('path');
-var webpack = require('webpack');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var AppCachePlugin = require('appcache-webpack-plugin');
-var CompressionPlugin = require('compression-webpack-plugin');
-var pkg = require('./package.json');
+const path = require('path');
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const AppCachePlugin = require('appcache-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+const pkg = require('./package.json');
 
-var eslintOptions = {
+const eslintOptions = {
   "parser": "babel-eslint",
   "parserOptions":{
     "sourceType":"module",
@@ -160,7 +159,7 @@ var eslintOptions = {
   }
 };
 
-var extractStyle = new ExtractTextPlugin({
+const extractStyle = new ExtractTextPlugin({
   filename: 'code/[name].css',
   allChunks: true
 });
@@ -169,19 +168,19 @@ module.exports = {
   stats: {
     children: false,
     modulesSort: "size",
-    assetsSort: "-ext",
+    assetsSort: "ext",
     usedExports: true
   },
   devtool: "source-map",
   entry: {
     app: [
-      './frontend/js/index.js',
-      './frontend/css/main.scss'
+      path.resolve(pkg.browser),
+      path.resolve(pkg.style)
     ],
-    vendor: Object.keys(pkg.dependencies)
+    vendor: Object.keys(pkg.dependencies).concat(pkg.additionalFiles)
   },
   output: {
-    path: path.resolve('./.econesty_webpack_build/'),
+    path: path.resolve(pkg.files),
     filename: "code/[name].js",
     publicPath: '/'
   },
@@ -228,13 +227,18 @@ module.exports = {
     alias: {
       app: path.resolve('./frontend/js/')
     },
-    extensions: [".js", ".jsx", ".scss", ".css"],
+    extensions: [".js", ".jsx", ".json", ".scss", ".css", ".ttf", ".otf", ".eot", ".svg", ".woff", ".woff2"],
     mainFields: ["browser", "module", "main", "style"]
   },
   plugins: [
+    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
       minChunks: Infinity
+      // minChunks(module, count) {
+      //   var context = module.context;
+      //   return context && context.indexOf('node_modules') >= 0;
+      // },
     }),
     extractStyle,
     new webpack.optimize.UglifyJsPlugin({

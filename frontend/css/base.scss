@@ -5,7 +5,6 @@
 //
 
 @import "keyframes"; // mixin for keyframes, since it's browser prefixed
-@import "~purecss/build/grids-responsive.css"; // include responsive grid from purecss
 
 /*
  Fonts
@@ -50,7 +49,7 @@ $divider-color:        #BDBDBD; // hr's
 // Non-Palette Colors
 //
 
-$shadow-color: #666666;
+$shadow-color: #999;
 
 /*
   Tags
@@ -189,11 +188,11 @@ a {
   box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
 }
 
-.raised-h {
+.raised-v {
   box-shadow: 0px ($shadow-dist + 1) $shadow-blur $shadow-color;
 }
 
-.raised-v {
+.raised-h {
   box-shadow: ($shadow-dist + 1) 0px $shadow-blur $shadow-color;
 }
 
@@ -242,8 +241,15 @@ a {
 
 $searchfield-width: 190px;
 $searchfield-height: 34px;
+$searchicon-size: 24px;
 
 .searchfield {
+  .pure-control-group {
+    margin-bottom: 0;
+  }
+  fieldset {
+    padding: 0px;
+  }
   color: $primary-text-color;
   .searchfield-dropdown {
     .pure-table {
@@ -254,19 +260,14 @@ $searchfield-height: 34px;
     z-index: 100;
     position: fixed;
     background-color: $primary-color-light;
-    width: $searchfield-width;
+    width: $searchfield-width + $padding * 1.5;
   }
   .search-icon {
     position: absolute;
-    display: inline-block;
-    top: $padding;
-    right: $padding * 2;
-    background-color: transparent;
-    width: $searchfield-height - $padding;
-    height: $searchfield-height - $padding;
-    font-size: 1.35em;
-    text-align: center;
-    display: inline-block;
-    border: none;
+    top: (($searchfield-height - $searchicon-size + $padding)/2);
+    left: $searchfield-width - ($padding/2);
+    width: $searchicon-size;
+    height: $searchicon-size;
+    font-size: $searchicon-size;
   }
 }

@@ -33,9 +33,9 @@ const SearchField = asyncWithProps(props => {
           onInput={linkState(props, 'search', 'target.value')}
           value={props.search}
         />
-        {!canSearch && <span className="fa fa-search search-icon"></span>}
       </Form>
-      {canSearch && <SearchFieldDropdownCollection className="searchfield-dropdown" />}
+      {!canSearch && <span className="fa fa-search search-icon"></span>}
+      {canSearch && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v" />}
     </div>
   );
 });

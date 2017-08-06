@@ -1,11 +1,17 @@
 {
   "name": "econesty",
   "version": "1.0.0",
-  "main": "./frontend/js/index.js",
+  "browser": "frontend/js/index.js",
+  "style": "frontend/css/main.scss",
+  "main": "frontend/js/main.jsx",
+  "files": "dist/",
   "scripts": {
-    "watch": "npm run build -- --watch",
-    "build": "./node_modules/.bin/webpack --config webpack.config.js --progress"
+    "build": "./node_modules/.bin/webpack"
   },
+  "private": true,
+  "additionalFiles": [
+    "./node_modules/purecss/build/grids-responsive.css"
+  ],
   "dependencies": {
     "blueimp-md5": "^2.8.0",
     "font-awesome": "^4.7.0",
@@ -24,8 +30,8 @@
     "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "compression-webpack-plugin": "^1.0.0",
-    "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.28.4",
+    "directory-named-webpack-plugin": "^2.2.3",
     "eslint": "^4.3.0",
     "eslint-loader": "^1.9.0",
     "eslint-plugin-react": "^7.1.0",
@@ -34,7 +40,6 @@
     "html-webpack-plugin": "^2.30.1",
     "html-webpack-template": "^5.6.0",
     "ignore-loader": "^0.1.2",
-    "link-media-html-webpack-plugin": "^1.0.1",
     "node-sass": "^4.5.3",
     "sass-loader": "^6.0.6",
     "webpack": "^3.4.1"

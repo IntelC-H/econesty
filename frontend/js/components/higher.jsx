@@ -61,7 +61,7 @@ export function collection(header, body, setPage = null) {
   return props => {
     const { object, className, ...filteredProps } = props;
     return (
-      <div className={className || "" + " collection"} {...filteredProps}>
+      <div className={(className || "") + " collection"} {...filteredProps}>
         <Table striped horizontal className="fill-width">
           <thead>
             <Header object={object} />

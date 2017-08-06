@@ -55,9 +55,10 @@ const loginForm = props =>
     <Element text name="username" label="Username" />
     <Element password name="password" label="Password" />
     <SubmitButton onSubmit={saveFormTo(API.token, obj => {
-    API.setToken(obj.token);
-    Router.push("/user/me");
-  })}>
+      console.log(obj);
+      API.setToken(obj.key);
+      Router.push("/user/me");
+    })}>
       OK
     </SubmitButton>
   </Form>
@@ -186,15 +187,17 @@ const makePage = (content, lgutter = null, rgutter = null) =>
 
 const Profile = props => {
   const userId = props.matches.id;
-  const TransactionCollection = asyncCollection(
+  const TransactionCollection = API.isAuthenticated ? asyncCollection(
     () => <tr><th>Offer</th><th>Buyer</th><th>Seller</th></tr>,
     Transaction,
     page => API.paginate(API.user.transactions(userId, page), API.transaction)
-  );
+  ) : AuthRequired;
 
   return makePage([
-    <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>,
-    <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>,
+    <div className="profile-button-group">
+      <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/buy")}>Buy From</Button>
+      <Button className="margined raised" onClick={() => Router.push("/user/" + userId + "/transaction/sell")}>Sell To</Button>
+    </div>,
     h(TransactionCollection, props)
   ], h(withAPI(API.user, User), props));
 }
@@ -226,23 +229,23 @@ const Home = () => makePage([
 ]);
 
 const NotFound = wrap(Page, () => <span>Not Found.</span>);
+const AuthRequired = props => <span>Authentication Required.</span>;
+const LoginRedirect = props => Router.push("/login")
 
 export default () => {
-  const makeRoute = (path, Comp) => <Comp path={path} />;
-
+  const makeRoute = (path, Comp, wcs = {}) => <Comp path={path} wildcards={wcs} />;
   const routes = [
     makeRoute("/", wrap(Page, Home)),
     makeRoute("/login", wrap(Page, loginForm)),
     makeRoute("/signup", wrap(Page, signupForm)),
-    makeRoute("/user/me", props => h(
-      withPromise(
+    makeRoute("/user/me", props => h(API.isAuthenticated ? withPromise(
         API.user.me().then(res => "/user/" + res.id.toString()),
         props => Router.replace(document.location.pathname.replace(/.*/, props.object))
-      ),
-      props
-    )),
+      ) : LoginRedirect, props)),
     makeRoute("/user/:id", wrap(Page, Profile)),
-    makeRoute("/user/:id/transaction/:action", wrap(Page, withPromiseFactory(transactionDefaults, transactionForm))),
+    makeRoute("/user/:id/transaction/:action",
+              wrap(Page, withPromiseFactory(transactionDefaults, transactionForm)),
+              {action: ["buy", "sell"]}),
     makeRoute("/payment/new", wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm))),
     makeRoute("/payment/:id", wrap(Page, withAPI(API.payment_data, paymentDataForm))),
     makeRoute("/transaction/:id", wrap(Page, withAPI(API.transaction, Transaction))),
