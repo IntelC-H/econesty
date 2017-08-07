@@ -8,8 +8,11 @@ import { Form, Element, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuI
 import Transaction from 'app/repr/transaction';
 import User from 'app/repr/user';
 
+// Pages
+import EditTransaction from 'app/edittransaction';
+
 // Components
-import Components, { SearchField } from 'app/components';
+import Components, { SearchField, Resource } from 'app/components';
 import { withPromiseFactory, withPromise, asyncCollection, /*rewritePath,*/ wrap } from 'app/components/higher';
 
 // Setup API
@@ -46,44 +49,51 @@ function withAPI(api, form) {
   };
 }
 
+function secure(comp) {
+  return props => {
+    if (API.isAuthenticated) return h(comp, props);
+    Router.replace("/login");
+    return null;
+  };
+}
+
 ///// FORMS
 
 // Create-Only
 
 const loginForm = props =>
-  <Form object={props.object}>
+  <Form object={props.object} aligned>
     <Element text name="username" label="Username" />
     <Element password name="password" label="Password" />
     <SubmitButton onSubmit={saveFormTo(API.token, obj => {
-      console.log(obj);
       API.setToken(obj.key);
       Router.push("/user/me");
     })}>
-      OK
+      LOGIN
     </SubmitButton>
   </Form>
 ;
 
 const signupForm = props =>
-  <Form object={props.object}>
+  <Form object={props.object} aligned>
     <Element text     name="first_name" label="First Name" />
     <Element text     name="last_name"  label="Last Name" />
     <Element email    name="email"      label="Email" />
     <Element text     name="username"   label="New Username" />
     <Element password name="password"   label="New Password" />
     <SubmitButton onSubmit={saveFormTo(API.user, user => Router.push("/user/" + user.id))}>
-      OK
+      SIGN UP
     </SubmitButton>
   </Form>
 ;
 
 const countersignForm = props =>
-  <Form object={props.object}>
+  <Form object={props.object} aligned>
     <Element hidden name="user_id" />
     <Element hidden name="transaction_id" />
     <Components.SignatureField editable name="signature" />
     <SubmitButton onSubmit={saveFormTo(API.countersignature, cs => Router.push("/transaction/" + cs.transaction.id))}>
-      OK
+      SIGN
     </SubmitButton>
   </Form>
 ;
@@ -102,7 +112,7 @@ const paymentDataForm = props =>
     <Element checkbox name="encrypted" label="Encrypted" />
     <Element hidden   name="user_id" />
     <SubmitButton onSubmit={upsertFormTo(API.payment_data, props.matches.id, pd => Router.push("/payment/" + pd.id))}>
-      OK
+      SAVE
     </SubmitButton>
   </Form>
 ;
@@ -122,7 +132,7 @@ const transactionForm = props =>
     <Element hidden name="seller_id" />
     <Element hidden name="seller_payment_data_id" />
     <SubmitButton onSubmit={saveFormTo(API.transaction, t => Router.push("/transaction/" + t.id))}>
-      OK
+      {props.matches.action === "buy" ? "BUY" : "SELL"}
     </SubmitButton>
   </Form>
 ;
@@ -169,7 +179,7 @@ const Page = props =>
         <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
       </MenuList>
     </Menu>
-    <div className="content">
+    <div className="content margined">
       {props.children}
     </div>
   </div>
@@ -230,26 +240,32 @@ const Home = () => makePage([
 
 const NotFound = wrap(Page, () => <span>Not Found.</span>);
 const AuthRequired = props => <span>Authentication Required.</span>;
-const LoginRedirect = props => Router.push("/login")
+const MeRedirect = secure(props => {
+  // This function exists because JS's regex implementation doesn't support bidirectional lookaround.
+  const urlComps = document.location.pathname.split("/").filter(x => x.length > 0);
+  var idx = urlComps.indexOf("me");
+  API.user.me().then(res => {
+    urlComps[idx] = res.id.toString();
+    Router.replace("/" + urlComps.join("/"));
+  });
+  
+  return <Resource />; // show loading
+})
+const isMeURL = url => url.split("/").indexOf("me") !== -1 ? {} : false;
 
 export default () => {
   const makeRoute = (path, Comp, wcs = {}) => <Comp path={path} wildcards={wcs} />;
   const routes = [
+    makeRoute(isMeURL, MeRedirect), // support me alias for user ids.
     makeRoute("/", wrap(Page, Home)),
     makeRoute("/login", wrap(Page, loginForm)),
     makeRoute("/signup", wrap(Page, signupForm)),
-    makeRoute("/user/me", props => h(API.isAuthenticated ? withPromise(
-        API.user.me().then(res => "/user/" + res.id.toString()),
-        props => Router.replace(document.location.pathname.replace(/.*/, props.object))
-      ) : LoginRedirect, props)),
     makeRoute("/user/:id", wrap(Page, Profile)),
-    makeRoute("/user/:id/transaction/:action",
-              wrap(Page, withPromiseFactory(transactionDefaults, transactionForm)),
-              {action: ["buy", "sell"]}),
-    makeRoute("/payment/new", wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm))),
-    makeRoute("/payment/:id", wrap(Page, withAPI(API.payment_data, paymentDataForm))),
-    makeRoute("/transaction/:id", wrap(Page, withAPI(API.transaction, Transaction))),
-    makeRoute("/transaction/:id/countersign", wrap(Page, withPromiseFactory(countersignDefaults, countersignForm)))
+    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction), { action: ["buy", "sell"] })),
+    makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
+    makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
+    makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction)))),
+    makeRoute("/transaction/:id/countersign", secure(wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))))
   ];
 
   return <Router notFound={NotFound}>{routes}</Router>;

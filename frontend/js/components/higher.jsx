@@ -1,5 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { guid, Table, Grid, GridUnit, Button } from 'app/pure';
+import Resource from 'app/components/resource';
 
 // Comp: a component whose props should be loaded asynchronously.
 // func(setAsync) => { ... code that uses setAsync ... }: A function to async load props
@@ -31,14 +32,8 @@ export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () =
 }
 
 export function asyncWithObject(Comp, onMount = () => undefined, onUnmount = () => undefined, showsLoading = true) {
-  const loadingComponent = props => {
-    if (props.object) return <Comp {...props} />;
-    if (props.error) return <div className="error"><p>{props.error.message}</p></div>;
-    if (showsLoading) return <div className="loading" />;
-    return null
-  }
-  return asyncWithProps(loadingComponent, onMount, onUnmount);
-}
+  return asyncWithProps(withProps({showsLoading: showsLoading, component: Comp}, Resource), onMount, onUnmount);
+} 
 
 export function withPromise(promise, Comp, showsLoading = true) {
   return asyncWithObject(

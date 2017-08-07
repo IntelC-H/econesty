@@ -241,11 +241,11 @@ module.exports = {
       // },
     }),
     extractStyle,
-    new webpack.optimize.UglifyJsPlugin({
-      minimize: true,
-      compress: false,
-      sourceMap: true
-    }),
+    // new webpack.optimize.UglifyJsPlugin({
+    //   minimize: true,
+    //   compress: false,
+    //   sourceMap: true
+    // }),
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",

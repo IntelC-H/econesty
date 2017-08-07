@@ -57,7 +57,9 @@ def frontend(request, path):
     response['Content-Encoding'] = enctype
   return response
 
+settings.API_ROOT or r'.*'
+
 urlpatterns = [
-  url(r'^api/', include('econesty.api.urls')),
+  url(settings.API_ROOT, include('econesty.api.urls')),
   url(r'^(?P<path>.*)\Z', frontend, name="frontend")
 ]

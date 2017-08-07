@@ -59,7 +59,21 @@ class Router extends Component {
   }
 
   test(path, url, wildcards = {}) {
-    var urlpath_comps = url.replace(/\?.+$/, '').split('/').filter(e => e.length > 0);
+    url = url.replace(/\?.+$/, '');
+    
+    if (path instanceof RegExp) {
+      let res = path.exec(url);
+      if (!res) return false;
+      return res.groups;
+    }
+
+    if (path instanceof Function) {
+      let res = path(url);
+      if (!(res instanceof Object)) return false;
+      return res;
+    }
+
+    var urlpath_comps = url.split('/').filter(e => e.length > 0);
     var path_comps = path.split('/').filter(e => e.length > 0);
 
     if (path_comps.length !== urlpath_comps.length) return false;

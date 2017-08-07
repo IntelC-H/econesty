@@ -5,7 +5,6 @@ const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substrin
 const guid = () => s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
 
 function makeClassName() {
-  console.log(arguments)
   return [].concat.apply([], Array.from(arguments).filter(a => !!a)
                                                   .map(a => a.split(' '))).filter(e => e.length > 0).join(' ');
 }

@@ -45,7 +45,6 @@
 
 class API {
   static get isAuthenticated() {
-    console.log("IS isAuthenticated", API.getToken() !== null)
     return API.getToken() !== null;
   }
 

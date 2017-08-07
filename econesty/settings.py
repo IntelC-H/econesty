@@ -61,6 +61,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'econesty.api.middleware.ResetAuth',
     'econesty.api.middleware.TokenAuth',
     'econesty.api.middleware.RewriteMeToUserID',
@@ -149,6 +151,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+# REST API Config
+
+API_ROOT = r'^api/'
 
 # Frontend config
 
