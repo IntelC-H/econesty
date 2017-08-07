@@ -261,7 +261,7 @@ export default () => {
     makeRoute("/login", wrap(Page, loginForm)),
     makeRoute("/signup", wrap(Page, signupForm)),
     makeRoute("/user/:id", wrap(Page, Profile)),
-    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction), { action: ["buy", "sell"] })),
+    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] }),
     makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
     makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
     makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction)))),

@@ -58,7 +58,7 @@ class Router extends Component {
     return null;
   }
 
-  test(path, url, wildcards = {}) {
+  test(path, url, wildcards = null) {
     url = url.replace(/\?.+$/, '');
     
     if (path instanceof RegExp) {
@@ -84,11 +84,12 @@ class Router extends Component {
     for (var i = 0; i < iterlen; i++) {
       var upc = urlpath_comps[i];
       var pc = path_comps[i];
-      var wildcard = pc.slice(1);
-      var isValidWildcard = (wildcard in wildcards && wildcards[wildcard].includes(upc)) || true;
-
-      if (pc.startsWith(':') && isValidWildcard) matches[wildcard] = upc;
-      else if (pc !== upc)                       return false;
+      
+      if (pc.startsWith(':')) {
+        var wildcard = pc.slice(1);
+        if (wildcards && wildcard in wildcards && !wildcards[wildcard].includes(upc)) return false;
+        matches[wildcard] = upc;
+      } else if (pc !== upc) return false;
     }
 
     return matches;
