@@ -15,28 +15,39 @@ const defaultProps = {
   search: ""
 };
 
+const SearchIcon = <span className="fa fa-search search-icon"/>;
+
 const SearchField = asyncWithProps(props => {
-  const canSearch = props.search.length > 0;
-  const SearchFieldDropdownCollection = asyncCollection(
-    propsp => <tr><th>Showing {propsp.object.results.length} of {propsp.object.count}</th></tr>,
-    props.component,
-    page => props.api.list(page, props.search),
-    false
-  )
+  const { search, api, setState, component } = props;
+
+  let jsx = null;
+  if (search.length === 0) {
+    jsx = SearchIcon;
+  } else {
+    const SearchFieldDropdownCollection = asyncCollection(
+      ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
+      component,
+      page => api.list(page, search),
+      false
+    )
+    jsx = <div>
+      <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: ""})}/>
+      <SearchFieldDropdownCollection className="searchfield-dropdown raised-v" />
+    </div>;
+  }
+
   return (
     <div className="searchfield">
       <Form aligned>
         <Element
           text
           name="search"
-          placeholder={"Search " + props.api.resource + "s"}
+          placeholder={"Search " + api.resource + "s"}
           onInput={linkState(props, 'search', 'target.value')}
-          value={props.search}
+          value={search}
         />
       </Form>
-      {!canSearch && <span className="fa fa-search search-icon"></span>}
-      {canSearch && <div className="searchfield-dropdown-clickshield" onClick={e => props.setState({search: ""})}/>}
-      {canSearch && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v" />}
+      {jsx}
     </div>
   );
 });
