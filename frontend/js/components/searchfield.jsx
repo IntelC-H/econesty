@@ -20,10 +20,9 @@ const SearchIcon = <span className="fa fa-search search-icon"/>;
 // TODO: compatibility with Form.
 // 1. Ignore field wrapper prop on Form
 // 2. Setting value to object with hidden field
-//   a. Ignore prop on Element.
 //   b. Object-based value on input tags - JSON?
 const SearchField = asyncWithProps(props => {
-  const { search, api, setState, component, ...filteredProps } = props;
+  const { search, api, setState, component, name, ...filteredProps } = props;
 
   let jsx = null;
   if (search.length === 0) {
@@ -44,11 +43,11 @@ const SearchField = asyncWithProps(props => {
   return (
     <div className="searchfield">
       <Form aligned>
+        <Element hidden name={name} value={search} />
         <Element
           text
           placeholder={"Search " + api.resource + "s"}
           onInput={linkState(props, 'search', 'target.value')}
-          value={search}
           {...filteredProps}
         />
       </Form>

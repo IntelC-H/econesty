@@ -2,15 +2,22 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table, Grid, GridUnit, Button } from 'app/pure';
 import Resource from 'app/components/resource';
 
-// Comp: a component whose props should be loaded asynchronously.
-// func(setAsync) => { ... code that uses setAsync ... }: A function to async load props
-// onMount and onUnmount are two such functions.
+// Comp: a component whose props should be loaded asynchronously. 
+// onMount: when the component is mounted, called with a single argument: setState (see below).
+// onUnmount: see onMount, except it's called when the component is unmounted.
+//
+// Additional Props
+// setState: set the state of the underlying class-Component. The value is assumed
+//           to be an Object. Async.props and Async.state are combined and fed as
+//           props to Comp.
+// forceUpdate: forces the component to update.
 export function asyncWithProps(Comp, onMount = null, onUnmount = null) {
   return class Async extends Component {
     constructor(props) {
       super(props);
       this.state = {};
       this.setState = this.setState.bind(this);
+      this.forceUpdate = this.forceUpdate.bind(this);
     }
 
     componentDidMount() {
@@ -26,7 +33,12 @@ export function asyncWithProps(Comp, onMount = null, onUnmount = null) {
     }
 
     render() {
-      return <Comp setState={this.setState} {...this.props} {...this.state} />;
+      return <Comp
+              setState={this.setState}
+              forceUpdate={this.forceUpdate}
+              {...this.props}
+              {...this.state}
+             />;
     }
   };
 }

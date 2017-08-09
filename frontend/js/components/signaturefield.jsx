@@ -1,43 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-//import PropTypes from 'prop-types';
+//import PropTypes from 'prop-types'; // TODO: prop-types
 import { Element } from 'app/pure';
 
-// TODO: prop-types:
-// 1. signature: string or array?
-// 2. editable: bool
-// All other props are passed onto the canvas
-// except name and value, which are passed onto the hidden input.
-
-function sigToCSV(sig) {
-  if (!sig) return "x,y\n";
-  if (sig instanceof String) return sig;
-  var lines = ["x,y"];
-  sig.forEach(s => {
-    s.forEach(pt => lines.push(pt.join(",")));
-    lines.push("null,null");
-  });
-  return lines.join("\n");
-}
-
-function sigFromCSV(csv) {
-  if (!csv) return [];
-  if (csv instanceof Array) return csv;
-  var lines = csv.split("\n");
-  if (lines.length === 0) return null;
-  if (lines.shift() !== "x,y") return null;
-  if (lines.length === 0) return [];
-  var sig = [];
-  var currentStroke = [];
-  lines.forEach(l => {
-    if (l === "null,null") {
-      sig.push(currentStroke);
-      currentStroke = [];
-    } else {
-      currentStroke.push(l.split(',').map(parseInt));
-    }
-  });
-  return sig;
-}
+// TODO: use asyncWithProps
 
 class SignatureField extends Component {
   constructor(props) {
@@ -60,6 +25,12 @@ class SignatureField extends Component {
 
   // ReactJS overrides
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.value !== this.props.value) {
+      this.setState(st => ({ ...st, signature: JSON.parse(nextProps.value || "[]") }));
+    }
+  }
+
   componentDidMount() {
     this.drawCanvas();
   }
@@ -69,11 +40,10 @@ class SignatureField extends Component {
   }
 
   render() {
-    const signatureCSV = sigToCSV(this.props.value || this.state.signature);
     const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, editable, ...props} = this.props; // eslint-disable-line
     return (
       <div>
-        <Element hidden name={this.props.name} value={signatureCSV} />
+        <Element hidden name={this.props.name} value={JSON.stringify(this.state.signature)} />
         <canvas
             ref={e => (this.canvas = e) && undefined }
             className={"signaturefield " + className}
@@ -94,7 +64,7 @@ class SignatureField extends Component {
     ctx.lineWidth = this.props.lineWidth || "2"
     ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
     ctx.beginPath();
-    var sig = sigFromCSV(this.props.value || this.state.signature);
+    var sig = this.state.signature;
     sig.concat([this.state.currentStroke])
        .filter(s => s.length > 0)
        .forEach(s => {
