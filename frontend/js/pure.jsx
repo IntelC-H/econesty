@@ -133,17 +133,23 @@ MenuItem.defaultProps = {
 
 const Element = props => {
   const {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, message, ...filteredProps} = props;
+  const typeString = checkbox ? "checkbox" : hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type;
+
+  let control = null;
+  if (!select) {
+    control = <input value={null} type={typeString} {...filteredProps} />;
+  } else {
+    control = (
+      <select name={props.name}>
+        {select.map(s => <option key={props.name + '-' + s} value={s}>{s}</option>)}
+      </select>
+    );
+  }
+
   return (
     <div key={guid()} className={makeClassName(wrapperClass, "pure-control-group")}>
-      {label !== null && <label>{label}</label>}
-      {select !== null && <select name={props.name}>
-        {select.map(s => <option key={props.name + '-' + s} value={s}>{s}</option>)}
-      }
-      </select>}
-      {checkbox && <label className="pure-checkbox" {...filteredProps}>
-        <input type="checkbox" value={null} /> {label}
-      </label>}
-      {!checkbox && !select && <input type={hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type} {...filteredProps} />}
+      {label !== null && <label className={checkbox ? "pure-checkbox" : ""}>{label}</label>}
+      {control}
       {(message !== null || props.required) && <span className="pure-form-message-inline">{message || "This field is required."}</span>}
     </div>
   );
@@ -238,13 +244,9 @@ const Form = props => {
   return (
     <div
       ref={e => {
-        //console.log("ELELEMTN", e);
         if (e) {
-            if (group) {
-            e.attributes.childrenTemplate = [render(h('fieldset', props, children))];
-            console.log("CHILREN TEMPLATE", e.attributes.childrenTemplate);
-          }
-          if (!subForm) Form.setObject(object, e);
+          if (group) e.attributes.childrenTemplate = [render(h('fieldset', props, children))];
+          Form.setObject(object, e);
         }
       }}
       key={guid()}
@@ -308,13 +310,10 @@ Form.setObject = (obj, c) => {
     const name = (c.attributes.name || {}).value;
 
     if (!isForm && !isSubform && !isGroup && name) {
-      // TODO: select
-      // TODO: checkbox
       if (tname === "input") {
         if (c.type === "checkbox") c.checked = obj[name] === true;
-        else c.value = obj[name];
+        else if (obj[name])        c.value = obj[name];
       }
-      else if (tname === "select") {} // TODO: implement me!
     } else if (isForm && isGroup) {
       let childrenTemplate = (c.attributes.childrenTemplate || []);
       console.log("Children Template - setObject: ", childrenTemplate);

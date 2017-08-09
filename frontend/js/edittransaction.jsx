@@ -41,7 +41,6 @@ class EditTransactionPage extends Component {
   
         this.setState(st => Object.assign({}, st, {
           object: {
-            offer: "0.00",
             offer_currency: "USD",
             buyer_id: isBuyer ? me.id : them.id,
             buyer_payment_data_id: isBuyer ? payment.me.id : payment.them.id,
@@ -75,20 +74,22 @@ class EditTransactionPage extends Component {
   }
 
   renderForm({ object }) {
+    // TODO: capture user for requirements.
     let o = object || {};
     o.requirements = o.requirements || [];
+    const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (
       <Form object={o} aligned>
-        <Element text   name="offer" label="Offer" />
-        <Element        name="offer_currency" label="Currency" select={["USD", "EUR", "JPY", "GBP"]} />
-        <Element hidden name="buyer_id" />
-        <Element hidden name="buyer_payment_data_id" />
-        <Element hidden name="seller_id" />
-        <Element hidden name="seller_payment_data_id" />
+        <Element text required       name="offer" label="Offer" />
+        <Element select={currencies} name="offer_currency" label="Currency"  />
+        <Element hidden              name="buyer_id" />
+        <Element hidden              name="buyer_payment_data_id" />
+        <Element hidden              name="seller_id" />
+        <Element hidden              name="seller_payment_data_id" />
         <Form group name="requirements">
-          <Element text name="text" label="Text" />
-          <Element checkbox name="signature_required" label="Signature Required" />
-          <Element checkbox name="acknowledgment_required" label="Acknowledgment Required" />
+          <Element required text     name="text" label="Text" />
+          <Element required checkbox name="signature_required" label="Require Signature" message="The user will be required to provide a signature." />
+          <Element required checkbox name="acknowledgment_required" label="Require Acknowledgment" message="The user has to acknowledge this transaction." />
         </Form>
         <SubmitButton onSubmit={this.save}>
           {this.isBuyer ? "BUY" : "SELL"}
@@ -111,27 +112,7 @@ class EditTransactionPage extends Component {
     });
   }
 
-  render(props, { object, error, creatingRequirement }) {
-    // return <Form aligned object={ { offer: "$0", array: [
-    //   {
-    //     foo: "FOO",
-    //     bar: "BAR"
-    //   },
-    //   {
-    //     foo: "suck",
-    //     bar: "it"
-    //   }
-    // ]} }>
-    //   <Element text   name="offer" label="Offer" />
-    //   <Form aligned group name="array">
-    //     <Element text name="foo" label="Foo" />
-    //     <Element text name="bar" label="Bar" />
-    //   </Form>
-    //   <SubmitButton onSubmit={console.log}>SUBMIT</SubmitButton>
-    // </Form>;
-
-    console.log(object);
-
+  render(props, { object, error }) {
     return (
       <div className="edit-transaction">
         <Resource
