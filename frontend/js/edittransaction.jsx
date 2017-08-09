@@ -100,6 +100,7 @@ class EditTransactionPage extends Component {
 
   addRequirement() {
     let r = {
+      user: null,
       text: "",
       signature_required: false,
       acknowledgment_required: false

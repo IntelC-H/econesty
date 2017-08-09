@@ -1,4 +1,4 @@
-import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
+import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
 const propTypes = {
@@ -17,7 +17,7 @@ const defaultProps = {
 const Resource = props => {
   const { showsLoading, error, component, ...filteredProps } = props;
   if (error) return <div className="error"><p>{error.message}</p></div>;
-  if (props.object) return h(component, filteredProps);
+  if (props.object) return h(component, filteredProps); // keep object in props
   if (showsLoading) return <div className="loading" />;
   return null
 };

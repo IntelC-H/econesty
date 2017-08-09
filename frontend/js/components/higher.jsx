@@ -1,11 +1,11 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { guid, Table, Grid, GridUnit, Button } from 'app/pure';
+import { Table, Grid, GridUnit, Button } from 'app/pure';
 import Resource from 'app/components/resource';
 
 // Comp: a component whose props should be loaded asynchronously.
 // func(setAsync) => { ... code that uses setAsync ... }: A function to async load props
 // onMount and onUnmount are two such functions.
-export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () => undefined) {
+export function asyncWithProps(Comp, onMount = null, onUnmount = null) {
   return class Async extends Component {
     constructor(props) {
       super(props);
@@ -14,32 +14,32 @@ export function asyncWithProps(Comp, onMount = () => undefined, onUnmount = () =
     }
 
     componentDidMount() {
-      onMount(this.setState);
+      if (onMount) {
+        onMount(this.setState);
+      }
     }
 
     componentWillUnmount() {
-      onUnmount(this.setState);
+      if (onUnmount) {
+        onUnmount(this.setState);
+      }
     }
 
     render() {
-      return <Comp setAsync={this.setState}
-                   setState={this.setState} // for linkedstate compatibility.
-                   {...this.props}
-                   {...this.state}
-             />;
+      return <Comp setState={this.setState} {...this.props} {...this.state} />;
     }
   };
 }
 
-export function asyncWithObject(Comp, onMount = () => undefined, onUnmount = () => undefined, showsLoading = true) {
+export function asyncWithObject(Comp, onMount = null, onUnmount = null, showsLoading = true) {
   return asyncWithProps(withProps({showsLoading: showsLoading, component: Comp}, Resource), onMount, onUnmount);
-} 
+}
 
 export function withPromise(promise, Comp, showsLoading = true) {
   return asyncWithObject(
     Comp,
-    setAsync => promise.catch(e => setAsync({error: e})).then(o => setAsync({object: o})),
-    () => undefined,
+    setState => promise.catch(e => setState({error: e})).then(o => setState({object: o})),
+    null,
     showsLoading
   );
 }
@@ -51,7 +51,7 @@ export function withPromiseFactory(pfact, Comp, showsLoading = true) {
 export function collection(header, body, setPage = null) {
   const Header = header || (() => null);
   const Body = body || (() => null);
-  const mkNavButton = (targetPage, text) => <Button key={guid()} disabled={targetPage === null} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
+  const mkNavButton = (targetPage, text) => <Button key={targetPage} disabled={targetPage === null} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
 
   return props => {
     const { object, className, ...filteredProps } = props;
@@ -62,7 +62,7 @@ export function collection(header, body, setPage = null) {
             <Header object={object} />
           </thead>
           <tbody>
-            {object.results.map((child, i) => <Body key={"object-" + i.toString()} object={child} />)}
+            {object.results.map((child, i) => <Body key={i} object={child} />)}
           </tbody>
         </Table>
         <Grid className="collection-controls">

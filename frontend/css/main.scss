@@ -49,15 +49,17 @@ $searchfield-dropdown-offset: 1.5px;//1.5px;//10px;
   }
 }
 
-.searchfield {
-  .searchfield-dropdown {
-    thead {
-      display: none;
-    }
-    border: none;
-    top: $header-height + $searchfield-dropdown-offset;
-    @media (max-width: 405px) {
-      top: $header-height + $searchfield-dropdown-offset + 45px;
+.header {
+  .searchfield {
+    .searchfield-dropdown {
+      thead {
+        display: none;
+      }
+      border: none;
+      top: $header-height + $searchfield-dropdown-offset;
+      @media (max-width: 405px) {
+        top: $header-height + $searchfield-dropdown-offset + 45px;
+      }
     }
   }
 }

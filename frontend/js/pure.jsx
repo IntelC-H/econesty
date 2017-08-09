@@ -1,8 +1,5 @@
-import { h, cloneElement, render } from 'preact';
+import { h, render } from 'preact';
 import PropTypes from 'prop-types';
-
-const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-const guid = () => s4() + [s4(), s4(), s4(), s4(), s4()].join('-') + s4() + s4();
 
 function makeClassName() {
   return [].concat.apply([], Array.from(arguments).filter(a => !!a)
@@ -50,6 +47,7 @@ GridUnit.defaultProps = {
   size: '1'
 };
 
+
 const Button = props => {
   const {primary, active, ...filteredProps} = props;
   var className = 'pure-button';
@@ -67,6 +65,7 @@ Button.defaultProps = {
   primary: false,
   active: false
 };
+
 
 const Table = props => {
   const {bordered, horizontal, striped, ...filteredProps} = props;
@@ -91,6 +90,7 @@ Table.defaultProps = {
   striped: false
 };
 
+
 const Menu = props => {
   const {horizontal, scrollable, fixed, ...filteredProps} = props;
   var className = 'pure-menu';
@@ -112,6 +112,7 @@ Menu.defaultProps = {
   fixed: false
 };
 
+
 const MenuItem = props => {
   var className = 'pure-menu-item';
   if (props.disabled) className += ' pure-menu-disabled';
@@ -129,15 +130,26 @@ MenuItem.defaultProps = {
   selected: false
 }
 
-// TODO: implement sizing via: .pure-input-*
 
 const Element = props => {
-  const {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, message, ...filteredProps} = props;
+  const {hidden, text, checkbox, password,
+         wrapperClass, label, type, email,
+         url, select, message, className,
+         size, sm, md, lg, xl, ...filteredProps} = props; // eslint-disable-line
   const typeString = checkbox ? "checkbox" : hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type;
 
   let control = null;
   if (!select) {
-    control = <input value={null} type={typeString} {...filteredProps} />;
+    let classes = [];
+    if (size) classes.push("pure-input-" + size)
+    classes.concat(_sizes.filter(k => k in props)
+                         .map(k => 'pure-input-' + k + '-' + props[k]));
+    control = <input
+                value={null}
+                type={typeString}
+                className={classes.join(' ')}
+                {...filteredProps}
+              />;
   } else {
     control = (
       <select name={props.name}>
@@ -147,7 +159,7 @@ const Element = props => {
   }
 
   return (
-    <div key={guid()} className={makeClassName(wrapperClass, "pure-control-group")}>
+    <div className={makeClassName(wrapperClass, "pure-control-group")}>
       {label !== null && <label className={checkbox ? "pure-checkbox" : ""}>{label}</label>}
       {control}
       {(message !== null || props.required) && <span className="pure-form-message-inline">{message || "This field is required."}</span>}
@@ -170,7 +182,12 @@ Element.propTypes = {
   value: PropTypes.any,
   defaultValue: PropTypes.any,
   label: PropTypes.string,
-  wrapperClass: PropTypes.string
+  wrapperClass: PropTypes.string,
+  size: sizeProp,
+  sm: sizeProp,
+  md: sizeProp,
+  lg: sizeProp,
+  xl: sizeProp
 };
 
 Element.defaultProps = {
@@ -186,31 +203,16 @@ Element.defaultProps = {
   type: "hidden",
   value: undefined,
   label: null,
-  wrapperClass: ""
+  wrapperClass: "",
+  size: null
 };
 
-function findForm(btn) {
-  var btnp = btn;
-  while (btnp) {
-    if (btnp.attributes.form && !btnp.attributes.subform) break;
-    btnp = btnp.parentElement;
-  }
-  return btnp;
-}
-
-function isCaveatChecked(btn) {
-  if (btn && btn.parentElement) {
-    const checkbox = btn.parentElement.querySelector('input[type="checkbox"].form-caveat');
-    if (checkbox && checkbox.checked) return true;
-  }
-  return false;
-}
 
 const SubmitButton = props => {
   const clickHandler = e => {
     e.preventDefault();
-    if (props.caveat && !isCaveatChecked(e.target)) return;
-    props.onSubmit(Form.toObject(findForm(e.target)));
+    if (props.caveat && !SubmitButton.isCaveatChecked(e.target)) return;
+    props.onSubmit(Form.toObject(SubmitButton.findForm(e.target)));
   };
 
   return (
@@ -223,6 +225,23 @@ const SubmitButton = props => {
   );
 };
 
+SubmitButton.findForm = btn => {
+  var btnp = btn;
+  while (btnp) {
+    if (btnp.attributes.form && !btnp.attributes.subform) break;
+    btnp = btnp.parentElement;
+  }
+  return btnp;
+}
+
+SubmitButton.isCaveatChecked = btn => {
+  if (btn && btn.parentElement) {
+    const checkbox = btn.parentElement.querySelector('input[type="checkbox"].form-caveat');
+    if (checkbox && checkbox.checked) return true;
+  }
+  return false;
+}
+
 SubmitButton.propTypes = {
   onSubmit: PropTypes.func,
   caveat: PropTypes.string
@@ -232,6 +251,7 @@ SubmitButton.defaultProps = {
   onSubmit: () => undefined,
   caveat: null
 };
+
 
 const Form = props => {
   const { aligned, stacked, className, subForm, group, object, children, ...filteredProps } = props;
@@ -249,7 +269,6 @@ const Form = props => {
           Form.setObject(object, e);
         }
       }}
-      key={guid()}
       form={true}
       subform={subForm}
       group={group}
@@ -316,13 +335,11 @@ Form.setObject = (obj, c) => {
       }
     } else if (isForm && isGroup) {
       let childrenTemplate = (c.attributes.childrenTemplate || []);
-      console.log("Children Template - setObject: ", childrenTemplate);
       let ary = obj[name];
       // TODO: set objects on existing children
       //       rather than re-creating the DOM again.
       while (c.firstChild) c.removeChild(c.firstChild);
       ary.forEach(elem => {
-        console.log(elem);
         childrenTemplate.forEach(cp => {
           let n = cp.cloneNode(true);
           let div = document.createElement('div');
@@ -337,9 +354,8 @@ Form.setObject = (obj, c) => {
   }
 };
 
-export { guid, Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Element, SubmitButton, Form };
+export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Element, SubmitButton, Form };
 export default {
-  guid: guid,
   Image: Image,
   Grid: Grid,
   GridUnit: GridUnit,
