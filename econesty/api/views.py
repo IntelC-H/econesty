@@ -54,7 +54,7 @@ class UserViewSet(EconestyBaseViewset):
           'them': serializers.PaymentDataSerializer(t).data
         })
 
-    return NotFound(detail="No common payment data.", code=404)
+    raise NotFound(detail="No common payment data.", code=404)
 
   # TODO: if pk == request.user.id, proxy through to TransactionViewSet
   # Returns the all transactions user id PK shares with the authed user.

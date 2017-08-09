@@ -112,6 +112,11 @@ Router.replace = url => {
   return null;
 }
 
+Router.setURL = url => {
+  history.replaceState(null, null, url);
+  return null;
+}
+
 window.onpopstate = () => updateSubscribers(document.location.pathname);
 
 const Link = props => {

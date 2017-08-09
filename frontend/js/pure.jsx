@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, cloneElement, render } from 'preact';
 import PropTypes from 'prop-types';
 
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -134,7 +134,7 @@ MenuItem.defaultProps = {
 const Element = props => {
   const {hidden, text, checkbox, password, wrapperClass, label, type, email, url, select, message, ...filteredProps} = props;
   return (
-    <div className={makeClassName(wrapperClass, "pure-control-group")}>
+    <div key={guid()} className={makeClassName(wrapperClass, "pure-control-group")}>
       {label !== null && <label>{label}</label>}
       {select !== null && <select name={props.name}>
         {select.map(s => <option key={props.name + '-' + s} value={s}>{s}</option>)}
@@ -186,7 +186,7 @@ Element.defaultProps = {
 function findForm(btn) {
   var btnp = btn;
   while (btnp) {
-    if (btnp.dataset.isForm) break;
+    if (btnp.attributes.form && !btnp.attributes.subform) break;
     btnp = btnp.parentElement;
   }
   return btnp;
@@ -197,12 +197,12 @@ function isCaveatChecked(btn) {
     const checkbox = btn.parentElement.querySelector('input[type="checkbox"].form-caveat');
     if (checkbox && checkbox.checked) return true;
   }
-  return false
+  return false;
 }
 
 const SubmitButton = props => {
   const clickHandler = e => {
-    e.preventDefault()
+    e.preventDefault();
     if (props.caveat && !isCaveatChecked(e.target)) return;
     props.onSubmit(Form.toObject(findForm(e.target)));
   };
@@ -228,21 +228,33 @@ SubmitButton.defaultProps = {
 };
 
 const Form = props => {
-  const {aligned, stacked, className, subForm, object, children, ...filteredProps} = props;
+  const { aligned, stacked, className, subForm, group, object, children, ...filteredProps } = props;
   var cns = ["pure-form"];
   if (aligned) cns.push("pure-form-aligned");
   if (stacked) cns.push("pure-form-stacked");
+  if (subForm) cns.push("subform");
+  if (group) cns.push("groupform");
   if (className) cns.push(className);
-  return Form.setObject(object,
+  return (
     <div
-      {...filteredProps}
-      data-is-form
-      data-is-subform={subForm}
+      ref={e => {
+        //console.log("ELELEMTN", e);
+        if (e) {
+            if (group) {
+            e.attributes.childrenTemplate = [render(h('fieldset', props, children))];
+            console.log("CHILREN TEMPLATE", e.attributes.childrenTemplate);
+          }
+          if (!subForm) Form.setObject(object, e);
+        }
+      }}
+      key={guid()}
+      form={true}
+      subform={subForm}
+      group={group}
       className={cns.join(' ')}
+      {...filteredProps}
     >
-      <fieldset>
-        {children}
-      </fieldset>
+      {!group && <fieldset>{children}</fieldset>}
     </div>
   );
 };
@@ -251,6 +263,7 @@ Form.propTypes = {
   name: PropTypes.string,
   object: PropTypes.object,
   subForm: PropTypes.bool,
+  group: PropTypes.bool,
   aligned: PropTypes.bool,
   stacked: PropTypes.bool
 };
@@ -259,6 +272,7 @@ Form.defaultProps = {
   name: null,
   object: null,
   subForm: false,
+  group: false,
   aligned: false,
   stacked: false
 };
@@ -267,33 +281,62 @@ Form.defaultProps = {
 Form.toObject = function(el, acc = {}) {
   if (!el) return acc;
   Array.from(el.children).forEach(child => {
+    const isForm = (child.attributes.form || {}).value;
+    const isGroup = (child.attributes.group || {}).value;
+    const isSubform = (child.attributes.subform || {}).value;
     const tname = child.tagName.toLowerCase();
-    if (child.dataset.isSubform) acc[child.name] = Form.toObject(child);
-    else if (tname === "input")  acc[child.name] = child.type === "checkbox" ? child.checked || false : child.value;
-    else if (tname === "select") acc[child.name] = child.children[child.selectedIndex].value;
-    else                         acc             = Form.toObject(child, acc);
+    const name = (child.attributes.name || {}).value;
+
+    if (isForm) {
+      if (isGroup)        acc[name] = Array.from(child.children).filter(e => e.tagName.toLowerCase() === "fieldset").map(e => Form.toObject(e));
+      else if (isSubform) acc[name] = Form.toObject(child);
+    }
+    else if (tname === "input")  acc[name] = child.type === "checkbox" ? child.checked || false : child.value;
+    else if (tname === "select") acc[name] = child.children[child.selectedIndex].value;
+    else                         acc       = Form.toObject(child, acc);
   });
   return acc;
 };
 
-// operates on Preact VDOM elements
-Form.setObject = function(form_object, form) {
-  function f(c, obj) {
-    if (obj) {
-      const isForm = (c.attributes || {})["data-is-form"] || false;
-      const isSubform = (c.attributes || {})["data-is-subform"] || false;
-      const name = (c.attributes || {}).name;
+// operates on DOM elements
+Form.setObject = (obj, c) => {
+  if (obj && c) {
+    const isForm = (c.attributes.form || {}).value;
+    const isGroup = (c.attributes.group || {}).value;
+    const isSubform = (c.attributes.subform || {}).value;
+    const tname = c.tagName.toLowerCase();
+    const name = (c.attributes.name || {}).value;
 
-      // FIXME: this can't set select objects
-      if (!isForm && !isSubform && name)    c.attributes.value = obj[name];
-      else if (isForm && isSubform && name) f(c, obj[name]);
-      else if (c.children)                  c.children.map(x => f(x, obj));
-    }
+    if (!isForm && !isSubform && !isGroup && name) {
+      // TODO: select
+      // TODO: checkbox
+      if (tname === "input") {
+        if (c.type === "checkbox") c.checked = obj[name] === true;
+        else c.value = obj[name];
+      }
+      else if (tname === "select") {} // TODO: implement me!
+    } else if (isForm && isGroup) {
+      let childrenTemplate = (c.attributes.childrenTemplate || []);
+      console.log("Children Template - setObject: ", childrenTemplate);
+      let ary = obj[name];
+      // TODO: set objects on existing children
+      //       rather than re-creating the DOM again.
+      while (c.firstChild) c.removeChild(c.firstChild);
+      ary.forEach(elem => {
+        console.log(elem);
+        childrenTemplate.forEach(cp => {
+          let n = cp.cloneNode(true);
+          let div = document.createElement('div');
+          div.className = "form-group";
+          div.appendChild(n);
+          c.appendChild(div);
+          Form.setObject(elem, n);
+        });
+      });
+    } else if (isForm && isSubform && !isGroup && name) Form.setObject(c, obj[name]);
+    else if (c.children) Array.from(c.children).forEach(x => Form.setObject(obj, x));
   }
-
-  f(form, form_object);
-  return form;
-}
+};
 
 export { guid, Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Element, SubmitButton, Form };
 export default {
