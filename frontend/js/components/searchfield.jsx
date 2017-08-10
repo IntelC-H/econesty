@@ -3,55 +3,64 @@ import linkState from 'linkstate';
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Form, Element } from 'app/pure';
+import { Form, Element, FakeElement, Button } from 'app/pure';
+import { Link } from 'app/routing';
 
 const propTypes = {
   component: PropTypes.func.isRequired,
   api: PropTypes.instanceOf(APICollection).isRequired,
-  search: PropTypes.string
+  search: PropTypes.string,
+  isFormElement: PropTypes.bool,
+  object: PropTypes.object
 };
 
 const defaultProps = {
-  search: ""
+  search: "",
+  isFormElement: false,
+  object: null
 };
 
-const SearchIcon = <span className="fa fa-search search-icon"/>;
-
-// TODO: compatibility with Form.
-// 1. Ignore field wrapper prop on Form
-// 2. Setting value to object with hidden field
-//   b. Object-based value on input tags - JSON?
 const SearchField = asyncWithProps(props => {
-  const { search, api, setState, component, name, ...filteredProps } = props;
+  const { search, api, setState, component, name, isFormElement, object, ...filteredProps } = props;
 
-  let jsx = null;
-  if (search.length === 0) {
-    jsx = SearchIcon;
-  } else {
-    const SearchFieldDropdownCollection = asyncCollection(
-      ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
-      component,
-      page => api.list(page, search),
-      false
-    )
-    jsx = <div>
-      <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: ""})}/>
-      <SearchFieldDropdownCollection className="searchfield-dropdown raised-v" />
-    </div>;
-  }
+  const FormLink = ps => <a onClick={e => setState(st => ({...st, object: ps.object}))}>{h(component, ps)}</a>;
+  const NonFormLink = ps => <Link href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
+  const SearchFieldDropdownCollection = asyncCollection(
+    ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
+    ps => <tr><td>{h(isFormElement ? FormLink : NonFormLink, ps)}</td></tr>,
+    page => api.list(page, search),
+    false
+  );
+
+  const dropdownClass = isFormElement ? "searchfield-dropdown" : "searchfield-dropdown raised-v fixed";
 
   return (
     <div className="searchfield">
       <Form aligned>
-        <Element hidden name={name} value={search} />
-        <Element
+        {isFormElement && object !== null &&
+            <Element hidden name={name} value={object.id} label="User">
+              <Button
+                onClick={e => setState(st => ({...st, object: null}))}
+                className="fa fa-ban searchfield-cancel-button inline"
+              >
+              </Button>
+              <Link className="inline" href={"/user/" + object.id} target="_blank">{h(component, { object: object })}</Link>
+            </Element>
+        }
+        {(!isFormElement || object === null) && <Element
+          ignore
           text
-          placeholder={"Search " + api.resource + "s"}
-          onInput={linkState(props, 'search', 'target.value')}
+          placeholder="search..."
+          onInput={e => setState(st => ({ ...st, search: e.target.value }))}
+          value={search}
           {...filteredProps}
-        />
+        >
+          {(search.length === 0) && <span className="fa fa-search search-icon"/>}
+          {search.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: ""})}/>}
+          {search.length > 0 && object === null && isFormElement && <FakeElement className="fixed" label=""><SearchFieldDropdownCollection className={dropdownClass} /></FakeElement>}
+          {search.length > 0 && object === null && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
+        </Element>}
       </Form>
-      {jsx}
     </div>
   );
 });

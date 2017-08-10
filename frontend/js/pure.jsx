@@ -1,4 +1,4 @@
-import { h, render } from 'preact';
+import { h, render, cloneElement } from 'preact';
 import PropTypes from 'prop-types';
 
 function makeClassName() {
@@ -130,12 +130,20 @@ MenuItem.defaultProps = {
   selected: false
 }
 
+const FakeElement = props => {
+  return <div className={makeClassName(props.className, "pure-control-group")}>
+    <label>{props.label}</label>
+    {props.children.map(c => cloneElement(c, { className: makeClassName(c.className, "inline-block")}))}
+  </div>
+}
 
 const Element = props => {
   const {hidden, text, checkbox, password,
          wrapperClass, label, type, email,
          url, select, message, className,
-         size, sm, md, lg, xl, ...filteredProps} = props; // eslint-disable-line
+         children, size,
+         sm, md, lg, xl, // eslint-disable-line no-unused-vars
+         ...filteredProps} = props;
   const typeString = checkbox ? "checkbox" : hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type;
 
   let control = null;
@@ -163,6 +171,7 @@ const Element = props => {
       {label !== null && <label className={checkbox ? "pure-checkbox" : ""}>{label}</label>}
       {control}
       {(message !== null || props.required) && <span className="pure-form-message-inline">{message || "This field is required."}</span>}
+      {children}
     </div>
   );
 };
@@ -263,11 +272,12 @@ const Form = props => {
   if (subForm) cns.push("subform");
   if (group) cns.push("groupform");
   if (className) cns.push(className);
+
   return (
     <div
       ref={e => {
         if (e) {
-          if (group) e._templateFieldset = render(h('fieldset', props, children));
+          if (group) e._groupTemplate = children;
           Form.setObject(object, e);
         }
       }}
@@ -305,12 +315,10 @@ Form.toObject = (el, acc = {}) => {
   if (!el) return acc;
   Array.from(el.children).forEach(child => {
     const ignore = child.getAttribute("ignore") || false;
-    const name = child.getAttribute("name") || false;//  (child.attributes.name || {}).value;
-    const isForm = child.getAttribute("form") || false; // (child.attributes.form || {}).value || false;
+    const name = child.getAttribute("name") || false;
+    const isForm = child.getAttribute("form") || false;
 
-    if (ignore) {
-      acc = Form.toObject(child, acc);
-    } else if (name) {
+    if (name && !ignore) {
       const isGroup = child.getAttribute("group") || false;
       const isSubform = child.getAttribute("subform") || false;
       const tname = child.tagName.toLowerCase();
@@ -329,7 +337,12 @@ Form.toObject = (el, acc = {}) => {
   return acc;
 };
 
+Form.setObjectPreact = (obj, c) => {
+  console.log("setObjectPreact", c);
+};
+
 // operates on DOM elements
+// (mostly... see Form(). PLEASE DON'T CALL THIS IN YOUR CODE)
 Form.setObject = (obj, c) => {
   if (obj && c) {
     const isForm = (c.attributes.form || {}).value;
@@ -355,14 +368,16 @@ Form.setObject = (obj, c) => {
             Form.setObject(ary.shift(), c.firstChild);
           } else c.removeChild(c.firstChild);
         }
-  
+
         ary.forEach(elem => {
-          let n = c._templateFieldset.cloneNode(true);
+          let template = c._groupTemplate.map(cld => cloneElement(cld));
+          let fieldset = render(h('fieldset', {}, template));
+
           let div = document.createElement('div');
           div.className = "form-group";
-          div.appendChild(n);
+          div.appendChild(fieldset);
           c.appendChild(div);
-          Form.setObject(elem, n);
+          Form.setObject(elem, fieldset);
         });
       }
     } else if (isForm && isSubform && !isGroup) Form.setObject(c, (!name) ? obj : val);
@@ -370,7 +385,7 @@ Form.setObject = (obj, c) => {
   }
 };
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Element, SubmitButton, Form };
+export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, FakeElement, Element, SubmitButton, Form };
 export default {
   Image: Image,
   Grid: Grid,
@@ -383,6 +398,7 @@ export default {
   MenuLink: MenuLink,
   MenuList: MenuList,
   MenuItem: MenuItem,
+  FakeElement: FakeElement,
   Element: Element,
   SubmitButton: SubmitButton,
   Form: Form

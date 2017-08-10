@@ -166,6 +166,14 @@ a {
   color: $primary-color-text;
 }
 
+.inline {
+  display: inline;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
 /*
   Spacing
 */
@@ -197,6 +205,11 @@ a {
 /*
   Miscellaneous
 */
+
+.fixed {
+  z-index: 100;
+  position: fixed;
+}
 
 .raised {
   box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
@@ -266,13 +279,13 @@ $searchicon-size: 24px;
   }
   color: $primary-text-color;
   .searchfield-dropdown {
+    min-width: 190px;
+    display: block;
     .pure-table {
       border: none;
       border-bottom: 1px solid $divider-color;
     }
     border: 1px solid $divider-color;
-    z-index: 100;
-    position: fixed;
     background-color: $primary-color-light;
     width: $searchfield-width + $padding * 1.5;
   }
@@ -291,10 +304,17 @@ $searchicon-size: 24px;
     padding: 0px;
     margin: 0px;
     position: absolute;
+    cursor: pointer;
     top: (($searchfield-height - $searchicon-size + $padding)/2) + 2px;
     left: $searchfield-width - ($padding/2);
     width: $searchicon-size;
     height: $searchicon-size;
     font-size: $searchicon-size;
   }
+}
+
+.searchfield-cancel-button {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
 }

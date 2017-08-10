@@ -99,7 +99,7 @@ export function asyncCollection(header, body, makePromise, showsLoading = true) 
   return asyncWithProps(props => h(
     withPromise(
       makePromise(props.page || 1),
-      collection(header, body, p => props.setAsync({page: p})),
+      collection(header, body, p => props.setState({page: p})),
       showsLoading
     ),
     props

@@ -163,6 +163,8 @@ const transactionDefaults = props => {
   });
 };
 
+const HeaderSearchBarRow = props => props.object.username;
+
 const Page = props =>
   <div>
     <Menu horizontal fixed className="header raised-v">
@@ -171,10 +173,7 @@ const Page = props =>
       </MenuHeading>
       <MenuList>
         <MenuItem>
-          <SearchField
-            api={API.user}
-            component={props => <tr><td><Link href={"/user/" + props.object.id.toString()}>{props.object.username}</Link></td></tr>}
-          />
+          <SearchField api={API.user} component={HeaderSearchBarRow} />
         </MenuItem>
         <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
       </MenuList>

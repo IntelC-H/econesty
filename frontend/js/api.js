@@ -42,7 +42,6 @@
   
 */
 
-
 class API {
   static get isAuthenticated() {
     return API.getToken() !== null;
@@ -109,33 +108,37 @@ class APICollection {
     this.onInstance = this.onInstance.bind(this);
   }
 
+  get baseURL() {
+    return '/' + this.resource + '/';
+  }
+
   create(body) {
-    return API.networking("POST", "/" + this.resource, {}, body).then(this.onInstance);
+    return API.networking("POST", this.baseURL, {}, body).then(this.onInstance);
   }
 
   read(id) {
-    return API.networking("GET", "/" + this.resource + "/" + id, {}, null).then(this.onInstance);
+    return API.networking("GET", this.baseURL + id, {}, null).then(this.onInstance);
   }
 
   list(page, q = null) {
     var ps = q ? {page: page, search: q} : {page: page};
-    return API.paginate(API.networking("GET", "/" + this.resource, ps, null), this);
+    return API.paginate(API.networking("GET", this.baseURL, ps, null), this);
   }
 
   update(id, body = null) {
-    return API.networking("PATCH", "/" + this.resource + "/" + id, {}, body).then(this.onInstance);
+    return API.networking("PATCH", this.baseURL + id, {}, body).then(this.onInstance);
   }
 
   delete(id, soft = false) {
-    return API.networking(soft ? "PATCH" : "DELETE", "/" + this.resource + "/" + id, {}, soft ? {deleted: true} : null).then(() => null);
+    return API.networking(soft ? "PATCH" : "DELETE", this.baseURL + id, {}, soft ? {deleted: true} : null).then(() => null);
   }
 
   classMethod(httpmeth, method, body = null, urlparams = {}) {
-    return API.networking(httpmeth, "/" + this.resource + "/" + method, urlparams, body);
+    return API.networking(httpmeth, this.baseURL + method, urlparams, body);
   }
 
   instanceMethod(httpmeth, method, id, body = null, urlparams = {}) {
-    return API.networking(httpmeth, "/" + this.resource + "/" + id.toString() + "/" + method, urlparams, body);
+    return API.networking(httpmeth, this.baseURL + id + '/' + method, urlparams, body);
   }
 
   // called on every instance that 

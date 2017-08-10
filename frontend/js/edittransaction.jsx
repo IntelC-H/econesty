@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Form, Element, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
 import { API } from 'app/api';
-import { Resource, Money } from 'app/components';
+import { Resource, Money, SearchField } from 'app/components';
 import { Router, Link } from 'app/routing';
 
 class EditTransactionPage extends Component {
@@ -97,6 +97,7 @@ class EditTransactionPage extends Component {
         <Element hidden              name="seller_payment_data_id" />
         <Form group name="requirements">
           <Element required text     name="text" label="Text" />
+          <SearchField label="User" name="user_id" isFormElement api={API.user} component={props => props.object.username} />
           <Element required checkbox name="signature_required" label="Require Signature" message="The user will be required to provide a signature." />
           <Element required checkbox name="acknowledgment_required" label="Require Acknowledgment" message="The user has to acknowledge this transaction." />
         </Form>
