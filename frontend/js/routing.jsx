@@ -96,6 +96,8 @@ class Router extends Component {
   }
 }
 
+window.addEventListener("popstate", () => updateSubscribers(document.location.pathname));
+
 Router.refresh = url => {
 
 }
@@ -116,8 +118,6 @@ Router.setURL = url => {
   history.replaceState(null, null, url);
   return null;
 }
-
-window.onpopstate = () => updateSubscribers(document.location.pathname);
 
 const Link = props => {
   const { href, onClick, ...filteredProps} = props; // eslint-disable-line no-unused-vars

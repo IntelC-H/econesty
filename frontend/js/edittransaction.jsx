@@ -8,10 +8,12 @@ import { Router, Link } from 'app/routing';
 class EditTransactionPage extends Component {
   constructor(props) {
     super(props);
-    this.save = this.save.bind(this);
-    this.state = { object: null, error: null, requirements: [] };
+    this.formEl = null;
+    this.onSubmit = this.onSubmit.bind(this);
+    this.state = { object: props.object || null, error: this.props.error || null };
     this.setState = this.setState.bind(this);
     this.renderForm = this.renderForm.bind(this);
+    this.addRequirement = this.addRequirement.bind(this);
   }
 
   get isBuyer() {
@@ -32,9 +34,7 @@ class EditTransactionPage extends Component {
         return Object.assign({}, st, { error: e });
       })).then(res => {
         const isBuyer = this.isBuyer;
-  
-        console.log(res);
-  
+
         var me = res.me.user;
         var them = res.them.user;
         var payment = res;
@@ -52,8 +52,16 @@ class EditTransactionPage extends Component {
     }
   }
 
-  save(obj) {
-    console.log("saving ", obj);
+  setState(state, callback) {
+    if (this.formEl) {
+      const obj = Form.toObject(this.formEl);
+      super.setState(st => ({ ...st, object: obj }));
+    }
+    return super.setState(state, callback);
+  }
+
+  onSubmit(obj) {
+    console.log("submitted ", obj);
     // const requirements = obj.requirements;
     // obj.requirements = undefined;
 
@@ -75,11 +83,12 @@ class EditTransactionPage extends Component {
 
   renderForm({ object }) {
     // TODO: capture user for requirements.
-    let o = object || {};
-    o.requirements = o.requirements || [];
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (
-      <Form object={o} aligned>
+      <Form object={object} aligned ref={ el => {
+        this.formEl = el.base;
+        return;
+      } }>
         <Element text required       name="offer" label="Offer" />
         <Element select={currencies} name="offer_currency" label="Currency"  />
         <Element hidden              name="buyer_id" />
@@ -91,7 +100,7 @@ class EditTransactionPage extends Component {
           <Element required checkbox name="signature_required" label="Require Signature" message="The user will be required to provide a signature." />
           <Element required checkbox name="acknowledgment_required" label="Require Acknowledgment" message="The user has to acknowledge this transaction." />
         </Form>
-        <SubmitButton onSubmit={this.save}>
+        <SubmitButton onSubmit={this.onSubmit}>
           {this.isBuyer ? "BUY" : "SELL"}
         </SubmitButton>
       </Form>
@@ -107,7 +116,8 @@ class EditTransactionPage extends Component {
     };
     this.setState(st => {
       var cpy = Object.assign({}, st);
-      cpy.object = cpy.object || {requirements: []};
+      cpy.object = cpy.object || {};
+      cpy.object.requirements = cpy.object.requirements || [];
       cpy.object.requirements.push(r);
       return cpy;
     });
@@ -121,7 +131,7 @@ class EditTransactionPage extends Component {
           object={object}
           error={this.otherId ? error : new Error("invalid user id")}
           {...props} />
-        <Button onClick={() => this.addRequirement() }>+ Requirement</Button>
+        <Button onClick={this.addRequirement}>+ Requirement</Button>
       </div>
     );
   }

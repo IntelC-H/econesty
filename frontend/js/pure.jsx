@@ -140,7 +140,7 @@ const Element = props => {
 
   let control = null;
   if (!select) {
-    let classes = [];
+    let classes = [className];
     if (size) classes.push("pure-input-" + size)
     classes.concat(_sizes.filter(k => k in props)
                          .map(k => 'pure-input-' + k + '-' + props[k]));
@@ -304,25 +304,27 @@ Form.defaultProps = {
 Form.toObject = (el, acc = {}) => {
   if (!el) return acc;
   Array.from(el.children).forEach(child => {
-    const ignore = (child.attributes.ignore || {}).value || false;
+    const ignore = child.getAttribute("ignore") || false;
+    const name = child.getAttribute("name") || false;//  (child.attributes.name || {}).value;
+    const isForm = child.getAttribute("form") || false; // (child.attributes.form || {}).value || false;
 
     if (ignore) {
       acc = Form.toObject(child, acc);
     } else if (name) {
-      const isForm = (child.attributes.form || {}).value || false;
-      const isGroup = (child.attributes.group || {}).value || false;
-      const isSubform = (child.attributes.subform || {}).value || false;
+      const isGroup = child.getAttribute("group") || false;
+      const isSubform = child.getAttribute("subform") || false;
       const tname = child.tagName.toLowerCase();
-      const name = (child.attributes.name || {}).value;
-
+      
       if (isForm) {
-        if (isGroup)        acc[name] = Array.from(child.children).filter(e => e.tagName.toLowerCase() === "fieldset").map(e => Form.toObject(e));
+        if (isGroup) acc[name] = Array.from(child.children)
+                                      .filter(e => e.className.toLowerCase() === "form-group")
+                                      .map(e => Form.toObject(e));
         else if (isSubform) acc[name] = Form.toObject(child);
       }
       else if (tname === "input")  acc[name] = child.type === "checkbox" ? child.checked || false : child.value;
       else if (tname === "select") acc[name] = child.children[child.selectedIndex].value;
       else                         acc       = Form.toObject(child, acc);
-    }
+    } else acc = Form.toObject(child, acc);
   });
   return acc;
 };
@@ -336,30 +338,34 @@ Form.setObject = (obj, c) => {
     const tname = c.tagName.toLowerCase();
     const name = (c.attributes.name || {}).value;
 
+    const val = obj[name] || undefined;
+
     // FIXME: set value only if not set for text fields!
     if (!isForm && !isSubform && !isGroup && name) {
       if (tname === "input") {
-        if (c.type === "checkbox") c.checked = obj[name] === true;
-        else if (obj[name])        c.value = obj[name];
+        if (c.type === "checkbox")                          c.checked = val === true;
+        else if (val && (!c.value || c.value.length === 0)) c.value = val;
       }
     } else if (isForm && isGroup) {
-      let ary = obj[name].slice();
-
-      while (c.firstChild) {
-        if (c.firstChild instanceof HTMLElement && c.firstChild.tagName.toLowerCase() === "fieldset") {
-          Form.setObject(ary.shift(), c.firstChild);
-        } else c.removeChild(c.firstChild);
+      if (val && val.length > 0) {
+        let ary = val.slice();
+  
+        while (c.firstChild) {
+          if (c.firstChild instanceof HTMLElement && c.firstChild.tagName.toLowerCase() === "fieldset") {
+            Form.setObject(ary.shift(), c.firstChild);
+          } else c.removeChild(c.firstChild);
+        }
+  
+        ary.forEach(elem => {
+          let n = c._templateFieldset.cloneNode(true);
+          let div = document.createElement('div');
+          div.className = "form-group";
+          div.appendChild(n);
+          c.appendChild(div);
+          Form.setObject(elem, n);
+        });
       }
-
-      ary.forEach(elem => {
-        let n = c._templateFieldset.cloneNode(true);
-        let div = document.createElement('div');
-        div.className = "form-group";
-        div.appendChild(n);
-        c.appendChild(div);
-        Form.setObject(elem, n);
-      });
-    } else if (isForm && isSubform && !isGroup) Form.setObject(c, (!name) ? obj : obj[name]);
+    } else if (isForm && isSubform && !isGroup) Form.setObject(c, (!name) ? obj : val);
     else if (c.children) Array.from(c.children).forEach(x => Form.setObject(obj, x));
   }
 };
