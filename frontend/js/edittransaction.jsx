@@ -82,7 +82,6 @@ class EditTransactionPage extends Component {
     // ).catch(errorLogic).then(logic);
   }
 
-  // FIXME: This form cannot restore users on changes to the form itself.
   renderForm({ object }) {
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (

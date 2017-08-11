@@ -182,6 +182,10 @@ a {
   display: inline-block;
 }
 
+.relative {
+  position: relative;
+}
+
 /*
   Spacing
 */
@@ -288,7 +292,6 @@ $searchicon-size: 24px;
   color: $primary-text-color;
   .searchfield-dropdown {
     min-width: 190px;
-    display: block;
     .pure-table {
       border: none;
       border-bottom: 1px solid $divider-color;
@@ -309,15 +312,17 @@ $searchicon-size: 24px;
     height: 100%;
   }
   .search-icon {
-    padding: 0px;
-    margin: 0px;
-    position: absolute;
     cursor: pointer;
-    top: (($searchfield-height - $searchicon-size + $padding)/2) + 2px;
-    left: $searchfield-width - ($padding/2);
     width: $searchicon-size;
     height: $searchicon-size;
     font-size: $searchicon-size;
+    padding: 0px;
+    margin: 0px;
+    z-index: 1;
+
+    position: absolute;
+    right: $padding/2;
+    bottom: 2px + $padding/2;
   }
 }
 
