@@ -52,9 +52,11 @@ class EditTransactionPage extends Component {
     }
   }
 
+  // FIXME: adding the first requirement wipes the form.
   setState(state, callback) {
     if (this.formEl) {
       const obj = Form.toObject(this.formEl);
+      console.log("TO EL", obj);
       super.setState(st => ({ ...st, object: obj }));
     }
     return super.setState(state, callback);
@@ -81,12 +83,13 @@ class EditTransactionPage extends Component {
     // ).catch(errorLogic).then(logic);
   }
 
+  // FIXME: This form cannot restore users on changes to the form itself.
   renderForm({ object }) {
-    // TODO: capture user for requirements.
+    console.log("RENDER FORM", object);
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (
       <Form object={object} aligned ref={ el => {
-        this.formEl = el.base;
+        if (el) this.formEl = el.base;
         return;
       } }>
         <Element text required       name="offer" label="Offer" />
@@ -97,7 +100,7 @@ class EditTransactionPage extends Component {
         <Element hidden              name="seller_payment_data_id" />
         <Form group name="requirements">
           <Element required text     name="text" label="Text" />
-          <SearchField label="User" name="user_id" isFormElement api={API.user} component={props => props.object.username} />
+          <SearchField label="User"  name="user" isFormElement api={API.user} component={props => props.object.username} />
           <Element required checkbox name="signature_required" label="Require Signature" message="The user will be required to provide a signature." />
           <Element required checkbox name="acknowledgment_required" label="Require Acknowledgment" message="The user has to acknowledge this transaction." />
         </Form>

@@ -1,5 +1,6 @@
 import { h, render, cloneElement } from 'preact';
 import PropTypes from 'prop-types';
+import { asyncWithProps } from 'app/components/higher';
 
 function makeClassName() {
   return [].concat.apply([], Array.from(arguments).filter(a => !!a)
@@ -137,11 +138,12 @@ const FakeElement = props => {
   </div>
 }
 
-const Element = props => {
+const Element = asyncWithProps(props => {
   const {hidden, text, checkbox, password,
          wrapperClass, label, type, email,
          url, select, message, className,
-         children, size,
+         children, size, value, proxy, setState,
+         onSet,
          sm, md, lg, xl, // eslint-disable-line no-unused-vars
          ...filteredProps} = props;
   const typeString = checkbox ? "checkbox" : hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type;
@@ -153,9 +155,17 @@ const Element = props => {
     classes.concat(_sizes.filter(k => k in props)
                          .map(k => 'pure-input-' + k + '-' + props[k]));
     control = <input
-                value={null}
+                value={value ? (hidden ? JSON.stringify(value) : value) : null}
                 type={typeString}
                 className={classes.join(' ')}
+                onInput={e => {
+                  let val = e.target.value;
+                  val = val ? (hidden ? JSON.parse(val) : val) : null;
+                  console.log("RAW VALUE CHANGED", val, e.target);
+                  console.log("fuck a duck", onSet);
+                  onSet(val);
+                  setState(st => ({ ...st, value: val }));
+                }}
                 {...filteredProps}
               />;
   } else {
@@ -166,15 +176,16 @@ const Element = props => {
     );
   }
 
+  console.log("RENDERING ELEMENT:", name, value);
   return (
-    <div className={makeClassName(wrapperClass, "pure-control-group")}>
+    <div className="pure-control-group">
       {label !== null && <label className={checkbox ? "pure-checkbox" : ""}>{label}</label>}
       {control}
       {(message !== null || props.required) && <span className="pure-form-message-inline">{message || "This field is required."}</span>}
       {children}
     </div>
   );
-};
+});
 
 Element.propTypes = {
   message: PropTypes.string,
@@ -191,13 +202,14 @@ Element.propTypes = {
   value: PropTypes.any,
   defaultValue: PropTypes.any,
   label: PropTypes.string,
-  wrapperClass: PropTypes.string,
   size: sizeProp,
   sm: sizeProp,
   md: sizeProp,
   lg: sizeProp,
   xl: sizeProp,
-  ignore: PropTypes.bool
+  ignore: PropTypes.bool,
+  proxy: PropTypes.func,
+  onSet: PropTypes.func
 };
 
 Element.defaultProps = {
@@ -213,9 +225,10 @@ Element.defaultProps = {
   type: "hidden",
   value: undefined,
   label: null,
-  wrapperClass: "",
   size: null,
-  ignore: false
+  ignore: false,
+  proxy: null,
+  onSet: () => undefined
 };
 
 
@@ -317,6 +330,8 @@ Form.toObject = (el, acc = {}) => {
     const ignore = child.getAttribute("ignore") || false;
     const name = child.getAttribute("name") || false;
     const isForm = child.getAttribute("form") || false;
+    const isHidden = child.type === "hidden";
+    const isCheckbox = child.type === "checkbox";
 
     if (name && !ignore) {
       const isGroup = child.getAttribute("group") || false;
@@ -329,16 +344,12 @@ Form.toObject = (el, acc = {}) => {
                                       .map(e => Form.toObject(e));
         else if (isSubform) acc[name] = Form.toObject(child);
       }
-      else if (tname === "input")  acc[name] = child.type === "checkbox" ? child.checked || false : child.value;
+      else if (tname === "input")  acc[name] = isCheckbox ? child.checked || false : (isHidden ? (child.value && child.value.length > 0 ? JSON.parse(child.value) : child.value) : child.value);
       else if (tname === "select") acc[name] = child.children[child.selectedIndex].value;
       else                         acc       = Form.toObject(child, acc);
     } else acc = Form.toObject(child, acc);
   });
   return acc;
-};
-
-Form.setObjectPreact = (obj, c) => {
-  console.log("setObjectPreact", c);
 };
 
 // operates on DOM elements
@@ -347,46 +358,57 @@ Form.setObject = (obj, c) => {
   if (obj && c) {
     const isForm = (c.attributes.form || {}).value;
     const isGroup = (c.attributes.group || {}).value;
-    const isSubform = (c.attributes.subform || {}).value;
     const tname = c.tagName.toLowerCase();
     const name = (c.attributes.name || {}).value;
 
     const val = obj[name] || undefined;
 
-    // FIXME: set value only if not set for text fields!
-    if (!isForm && !isSubform && !isGroup && name) {
-      if (tname === "input") {
-        if (c.type === "checkbox")                          c.checked = val === true;
-        else if (val && (!c.value || c.value.length === 0)) c.value = val;
-      }
-    } else if (isForm && isGroup) {
-      if (val && val.length > 0) {
-        let ary = val.slice();
+    if (isForm) {
+      if (isGroup) {
+        if (val && val.length > 0) {
+          let ary = val.slice();
+    
+          while (c.firstChild) {
+            if (c.firstChild instanceof HTMLElement && c.firstChild.tagName.toLowerCase() === "fieldset") {
+              Form.setObject(ary.shift(), c.firstChild);
+            } else c.removeChild(c.firstChild);
+          }
   
-        while (c.firstChild) {
-          if (c.firstChild instanceof HTMLElement && c.firstChild.tagName.toLowerCase() === "fieldset") {
-            Form.setObject(ary.shift(), c.firstChild);
-          } else c.removeChild(c.firstChild);
+          ary.forEach(elem => {
+            let template = c._groupTemplate.map(cld => cloneElement(cld));
+            let fieldset = render(h('fieldset', {}, template));
+  
+            let div = document.createElement('div');
+            div.className = "form-group";
+            div.appendChild(fieldset);
+            c.appendChild(div);
+            Form.setObject(elem, fieldset);
+          });
         }
-
-        ary.forEach(elem => {
-          let template = c._groupTemplate.map(cld => cloneElement(cld));
-          let fieldset = render(h('fieldset', {}, template));
-
-          let div = document.createElement('div');
-          div.className = "form-group";
-          div.appendChild(fieldset);
-          c.appendChild(div);
-          Form.setObject(elem, fieldset);
-        });
+      } else if (name) Form.setObject(val, c);
+    } else if (tname === "input") {
+      const ignore = c.getAttribute("ignore") || false;
+      if (!ignore) {
+        const isHidden = c.type === "hidden";
+        if (c.type === "checkbox") {
+          c.checked = val === true;
+          c.dispatchEvent(new InputEvent("input", { target: c }));
+          c.dispatchEvent(new InputEvent("set", { target: c }));
+        } else if (!!val && (!c.value || c.value.length === 0 || isHidden)) {
+          c.value = isHidden ? JSON.stringify(val) : val;
+          c.dispatchEvent(new InputEvent("input", { target: c }));
+          c.dispatchEvent(new InputEvent("set", { target: c }));
+        }
       }
-    } else if (isForm && isSubform && !isGroup) Form.setObject(c, (!name) ? obj : val);
-    else if (c.children) Array.from(c.children).forEach(x => Form.setObject(obj, x));
+    } else if (tname === "select") c.value = val;
+
+    if (c.children) Array.from(c.children).forEach(x => Form.setObject(obj, x));
   }
 };
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, FakeElement, Element, SubmitButton, Form };
+export { makeClassName, Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, FakeElement, Element, SubmitButton, Form };
 export default {
+  makeClassName: makeClassName,
   Image: Image,
   Grid: Grid,
   GridUnit: GridUnit,

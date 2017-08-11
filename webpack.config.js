@@ -50,7 +50,7 @@ const eslintOptions = {
     "no-empty":1,
     "no-empty-character-class":2,
     "no-ex-assign":0,
-    "no-extra-boolean-cast":2,
+    "no-extra-boolean-cast":0,
     "no-extra-parens":1,
     "no-extra-semi":1,
     "no-func-assign":2,

@@ -3,7 +3,7 @@ import linkState from 'linkstate';
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Form, Element, FakeElement, Button } from 'app/pure';
+import { Form, Element, FakeElement, Button, makeClassName } from 'app/pure';
 import { Link } from 'app/routing';
 
 const propTypes = {
@@ -20,10 +20,11 @@ const defaultProps = {
   object: null
 };
 
+// TODO: fix everything being shifted to the left in form mode, and BG everywhere (it's transparent)
 const SearchField = asyncWithProps(props => {
-  const { search, api, setState, component, name, isFormElement, object, ...filteredProps } = props;
+  const { search, api, setState, component, name, isFormElement, object, className, ...filteredProps } = props;
 
-  const FormLink = ps => <a onClick={e => setState(st => ({...st, object: ps.object}))}>{h(component, ps)}</a>;
+  const FormLink = ps => <a onClick={e => setState(st => ({...st, object: ps.object, search: null}))}>{h(component, ps)}</a>;
   const NonFormLink = ps => <Link href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
   const SearchFieldDropdownCollection = asyncCollection(
     ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
@@ -34,32 +35,77 @@ const SearchField = asyncWithProps(props => {
 
   const dropdownClass = isFormElement ? "searchfield-dropdown" : "searchfield-dropdown raised-v fixed";
 
-  return (
-    <div className="searchfield">
-      <Form aligned>
-        {isFormElement && object !== null &&
-            <Element hidden name={name} value={object.id} label="User">
-              <Button
+  console.log("SEARCH", search);
+
+  const searchInputField = obj => {
+    // console.log("OBJ === OBJECT", object === obj, object, obj);
+    // let searchQ = search || "";
+
+    // if (!!obj && searchQ.length === 0) {
+    //   console.log("rendering searchInputField VALUE", obj);
+    //   return <div>
+    //     <a
+    //       onClick={e => setState(st => ({...st, object: null}))}
+    //       className="searchfield-cancel-button inline fa fa-ban"
+    //     >
+    //     </a>
+    //     <span> <Link className="inline" href={"/user/" + obj.id} target="_blank">{h(component, { object: obj })}</Link></span>
+    //   </div>;
+    // }
+
+    return <Element
+      ignore
+      text
+      placeholder="search..."
+      onInput={e => setState(st => ({ ...st, search: e.target.value }))}
+      value={search}
+      {...filteredProps}
+    >
+      {(searchQ.length === 0) && <span className="fa fa-search search-icon"/>}
+      {searchQ.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: null})}/>}
+      {searchQ.length > 0 && isFormElement && <FakeElement className="fixed" label=""><SearchFieldDropdownCollection className={dropdownClass} /></FakeElement>}
+      {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
+    </Element>;
+  };
+
+  let searchQ = search || "";
+  if (isFormElement) {
+    return (
+      <div className={makeClassName("searchfield", "pure-control-group", className)}>
+        <Element hidden name={name} value={object} label="User" onSet={v => setState(st => ({...st, object: v})) }>
+          { !!object &&
+            <div>
+              <a
                 onClick={e => setState(st => ({...st, object: null}))}
-                className="fa fa-ban searchfield-cancel-button inline"
-              >
-              </Button>
-              <Link className="inline" href={"/user/" + object.id} target="_blank">{h(component, { object: object })}</Link>
+                className="searchfield-cancel-button inline fa fa-ban"
+              />
+              <span> <Link className="inline" href={"/user/" + object.id} target="_blank">{h(component, { object: object })}</Link></span>
+            </div>
+          }
+  
+          { !object && 
+            <Element
+              ignore
+              text
+              placeholder="search..."
+              onInput={e => setState(st => ({ ...st, search: e.target.value }))}
+              value={search}
+              {...filteredProps}
+            >
+              {(searchQ.length === 0) && <span className="fa fa-search search-icon"/>}
+              {searchQ.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: null})}/>}
+              {searchQ.length > 0 && isFormElement && <FakeElement className="fixed" label=""><SearchFieldDropdownCollection className={dropdownClass} /></FakeElement>}
+              {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
             </Element>
-        }
-        {(!isFormElement || object === null) && <Element
-          ignore
-          text
-          placeholder="search..."
-          onInput={e => setState(st => ({ ...st, search: e.target.value }))}
-          value={search}
-          {...filteredProps}
-        >
-          {(search.length === 0) && <span className="fa fa-search search-icon"/>}
-          {search.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: ""})}/>}
-          {search.length > 0 && object === null && isFormElement && <FakeElement className="fixed" label=""><SearchFieldDropdownCollection className={dropdownClass} /></FakeElement>}
-          {search.length > 0 && object === null && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
-        </Element>}
+          }
+        </Element>
+      </div>
+    );
+  }
+  return (
+    <div className={makeClassName("searchfield", className)}>
+      <Form aligned>
+        {searchInputField()}
       </Form>
     </div>
   );
