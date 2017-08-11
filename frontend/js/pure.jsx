@@ -161,8 +161,6 @@ const Element = asyncWithProps(props => {
                 onInput={e => {
                   let val = e.target.value;
                   val = val ? (hidden ? JSON.parse(val) : val) : null;
-                  console.log("RAW VALUE CHANGED", val, e.target);
-                  console.log("fuck a duck", onSet);
                   onSet(val);
                   setState(st => ({ ...st, value: val }));
                 }}
@@ -176,7 +174,6 @@ const Element = asyncWithProps(props => {
     );
   }
 
-  console.log("RENDERING ELEMENT:", name, value);
   return (
     <div className="pure-control-group">
       {label !== null && <label className={checkbox ? "pure-checkbox" : ""}>{label}</label>}

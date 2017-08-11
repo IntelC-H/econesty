@@ -35,25 +35,9 @@ const SearchField = asyncWithProps(props => {
 
   const dropdownClass = isFormElement ? "searchfield-dropdown" : "searchfield-dropdown raised-v fixed";
 
-  console.log("SEARCH", search);
-
-  const searchInputField = obj => {
-    // console.log("OBJ === OBJECT", object === obj, object, obj);
-    // let searchQ = search || "";
-
-    // if (!!obj && searchQ.length === 0) {
-    //   console.log("rendering searchInputField VALUE", obj);
-    //   return <div>
-    //     <a
-    //       onClick={e => setState(st => ({...st, object: null}))}
-    //       className="searchfield-cancel-button inline fa fa-ban"
-    //     >
-    //     </a>
-    //     <span> <Link className="inline" href={"/user/" + obj.id} target="_blank">{h(component, { object: obj })}</Link></span>
-    //   </div>;
-    // }
-
-    return <Element
+  const searchQ = search || "";
+  const searchInputField =
+    <Element
       ignore
       text
       placeholder="search..."
@@ -66,31 +50,14 @@ const SearchField = asyncWithProps(props => {
       {searchQ.length > 0 && isFormElement && <FakeElement className="fixed" label=""><SearchFieldDropdownCollection className={dropdownClass} /></FakeElement>}
       {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
     </Element>;
-  };
-
-  let searchQ = search || "";
+  
   if (isFormElement) {
     return (
       <div className={makeClassName("searchfield", "pure-control-group", className)}>
-        <Element hidden name={name} value={object} label="User" onSet={v => setState(st => ({...st, object: v})) }>
+        <Element hidden name={name} value={object} label={ object ? "User" : ""} onSet={v => setState(st => ({...st, object: v})) }>
           { !!object && <a onClick={e => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-ban"/>}
           { !!object && <span> <Link className="inline" href={"/user/" + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
-  
-          { !object && 
-            <Element
-              ignore
-              text
-              placeholder="search..."
-              onInput={e => setState(st => ({ ...st, search: e.target.value }))}
-              value={search}
-              {...filteredProps}
-            >
-              {(searchQ.length === 0) && <span className="fa fa-search search-icon"/>}
-              {searchQ.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: null})}/>}
-              {searchQ.length > 0 && isFormElement && <FakeElement className="fixed" label=""><SearchFieldDropdownCollection className={dropdownClass} /></FakeElement>}
-              {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
-            </Element>
-          }
+          { !object && searchInputField }
         </Element>
       </div>
     );
@@ -98,7 +65,7 @@ const SearchField = asyncWithProps(props => {
   return (
     <div className={makeClassName("searchfield", className)}>
       <Form aligned>
-        {searchInputField()}
+        {searchInputField}
       </Form>
     </div>
   );

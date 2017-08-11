@@ -56,7 +56,6 @@ class EditTransactionPage extends Component {
   setState(state, callback) {
     if (this.formEl) {
       const obj = Form.toObject(this.formEl);
-      console.log("TO EL", obj);
       super.setState(st => ({ ...st, object: obj }));
     }
     return super.setState(state, callback);
@@ -85,7 +84,6 @@ class EditTransactionPage extends Component {
 
   // FIXME: This form cannot restore users on changes to the form itself.
   renderForm({ object }) {
-    console.log("RENDER FORM", object);
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (
       <Form object={object} aligned ref={ el => {
