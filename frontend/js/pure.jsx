@@ -296,6 +296,7 @@ SubmitButton.defaultProps = {
 };
 
 
+// TODO: delete elements of array
 const Form = props => {
   const { aligned, stacked, className, subForm, group, object, children, ...filteredProps } = props;
   var cns = ["pure-form"];

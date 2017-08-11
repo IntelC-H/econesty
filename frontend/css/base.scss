@@ -135,7 +135,8 @@ a {
 
 .pure-form {
   fieldset {
-    padding: 10px;
+    padding-top: $padding;
+    padding-bottom: $padding;
 
     input[type='text'],
     input[type='password'],

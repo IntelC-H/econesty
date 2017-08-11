@@ -4,7 +4,8 @@
   Page layout
 */
 
-$searchfield-dropdown-offset: 1.5px;//1.5px;//10px;
+$searchfield-dropdown-offset: ($shadow-blur - $shadow-dist) / 2;
+$double-wide-statusbar-screen-w: 421px;
 
 .user {
   padding: $padding;
@@ -41,13 +42,13 @@ $searchfield-dropdown-offset: 1.5px;//1.5px;//10px;
 .content {
   min-width: 320px;
   padding-top: $header-height;
-  @media (max-width: 405px) {
+  @media (max-width: $double-wide-statusbar-screen-w) {
     padding-top: $header-height + 45;
   }
 }
 
 .profile-button-group {
-  @media (max-width: 35.5em) {
+  @media (max-width: $double-wide-statusbar-screen-w) {
     text-align: center;
   }
 }
@@ -60,7 +61,7 @@ $searchfield-dropdown-offset: 1.5px;//1.5px;//10px;
       }
       border: none;
       top: $header-height + $searchfield-dropdown-offset;
-      @media (max-width: 405px) {
+      @media (max-width: $double-wide-statusbar-screen-w) {
         top: $header-height + $searchfield-dropdown-offset + 45px;
       }
     }

@@ -85,38 +85,45 @@ class EditTransactionPage extends Component {
   renderForm({ object }) {
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (
-      <Form object={object} aligned ref={ el => {
-        if (el) this.formEl = el.base;
-        return;
-      } }>
-        <ControlGroup label="Offer">
-          <Input text required name="offer" />
-        </ControlGroup>
-        <ControlGroup label="Currency">
-          <Select options={currencies} name="offer_currency" />
-        </ControlGroup>
-        <Input hidden name="buyer_id"/>
-        <Input hidden name="buyer_payment_data_id" />
-        <Input hidden name="seller_id" />
-        <Input hidden name="seller_payment_data_id" />
-        <Form group name="requirements">
-          <ControlGroup label="Terms">
-            <Input text required name="text" />
-          </ControlGroup>
-          <ControlGroup label="User">
-            <SearchField name="user" api={API.user} component={props => props.object.username} />
-          </ControlGroup>
-          <ControlGroup label="Require Signature" message="The user will be required to provide a signature.">
-            <Input checkbox required name="signature_required" />
-          </ControlGroup>
-          <ControlGroup label="Require Acknowledgment" message="The user has to acknowledge this transaction.">
-            <Input checkbox required name="acknowledgment_required" />
-          </ControlGroup>
-        </Form>
-        <SubmitButton onSubmit={this.onSubmit}>
-          {this.isBuyer ? "BUY" : "SELL"}
-        </SubmitButton>
-      </Form>
+      <Grid>
+        <GridUnit size="1" sm="4-24"/>
+        <GridUnit size="1" sm="16-24">
+          <Form object={object} aligned ref={ el => {
+            if (el) this.formEl = el.base;
+            return;
+          } }>
+            <ControlGroup label="Offer">
+              <Input text required name="offer" />
+            </ControlGroup>
+            <ControlGroup label="Currency">
+              <Select options={currencies} name="offer_currency" />
+            </ControlGroup>
+            <Input hidden name="buyer_id"/>
+            <Input hidden name="buyer_payment_data_id" />
+            <Input hidden name="seller_id" />
+            <Input hidden name="seller_payment_data_id" />
+            <Form group name="requirements">
+              <ControlGroup label="Terms">
+                <Input text required name="text" />
+              </ControlGroup>
+              <ControlGroup label="User">
+                <SearchField name="user" api={API.user} component={props => props.object.username} />
+              </ControlGroup>
+              <ControlGroup label="Require Signature" message="The user will be required to provide a signature.">
+                <Input checkbox required name="signature_required" />
+              </ControlGroup>
+              <ControlGroup label="Require Acknowledgment" message="The user has to acknowledge this transaction.">
+                <Input checkbox required name="acknowledgment_required" />
+              </ControlGroup>
+            </Form>
+            <Button onClick={this.addRequirement}>+ Requirement</Button>
+            <SubmitButton onSubmit={this.onSubmit}>
+              {this.isBuyer ? "BUY" : "SELL"}
+            </SubmitButton>
+          </Form>
+          <GridUnit size="1" sm="4-24"/>
+        </GridUnit>
+      </Grid>
     );
   }
 
@@ -144,7 +151,6 @@ class EditTransactionPage extends Component {
           object={object}
           error={this.otherId ? error : new Error("invalid user id")}
           {...props} />
-        <Button onClick={this.addRequirement}>+ Requirement</Button>
       </div>
     );
   }
