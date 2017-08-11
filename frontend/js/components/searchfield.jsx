@@ -9,40 +9,40 @@ const propTypes = {
   component: PropTypes.func.isRequired,
   api: PropTypes.instanceOf(APICollection).isRequired,
   search: PropTypes.string,
-  isFormElement: PropTypes.bool,
+  standalone: PropTypes.bool,
   object: PropTypes.object
 };
 
 const defaultProps = {
   search: "",
-  isFormElement: false,
+  standalone: true,
   object: null
 };
 
 // TODO: fix everything being shifted to the left in form mode, and BG everywhere (it's transparent)
 const SearchField = asyncWithProps(props => {
-  const { search, api, setState, component, name, isFormElement, object, className, ...filteredProps } = props;
+  const { search, api, setState, component, name, standalone, object, className, ...filteredProps } = props;
 
   const FormLink = ps => <a onClick={() => setState(st => ({...st, object: ps.object, search: null}))}>{h(component, ps)}</a>;
   const NonFormLink = ps => <Link href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
   const SearchFieldDropdownCollection = asyncCollection(
     ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
-    ps => <tr><td>{h(isFormElement ? FormLink : NonFormLink, ps)}</td></tr>,
+    ps => <tr><td>{h(standalone ? NonFormLink : FormLink, ps)}</td></tr>,
     page => api.list(page, search),
     false
   );
 
-  const searchQ = search || "";
+  const hasSearch = search && search.length > 0;
 
   return (
     <div className={makeClassName("searchfield", "inline", className)}>
-      <Input hidden name={name} value={object} onSet={v => {
+      { !standalone && <Input hidden name={name} value={object} onSet={v => {
         console.log("onSet hidden", name, v);
         setState(st => ({...st, object: v}));
-      }} />
-      { !!object && isFormElement && <a onClick={() => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-ban"/>}
-      { !!object && isFormElement && <span> <Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
-      { (!object || !isFormElement) &&
+      }} />}
+      { !!object && !standalone && <a onClick={() => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-ban"/>}
+      { !!object && !standalone && <span> <Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
+      { (!object || standalone) &&
         <div className="inline">
           <Input
             ignore
@@ -55,10 +55,10 @@ const SearchField = asyncWithProps(props => {
             value={search}
             {...filteredProps}
           />
-          {searchQ.length === 0 && <span className="fa fa-search search-icon"/>}
-          {searchQ.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
-          {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" />}
-          {searchQ.length > 0 && isFormElement && <ControlGroup><SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" /></ControlGroup>}
+          {!hasSearch && <span className="fa fa-search search-icon"/>}
+          {hasSearch && standalone && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
+          {hasSearch && standalone && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" />}
+          {hasSearch && !standalone && <ControlGroup><SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" /></ControlGroup>}
         </div>
       }
     </div>

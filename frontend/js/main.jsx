@@ -148,7 +148,7 @@ const Page = props =>
       <MenuList>
         <MenuItem>
           <Form aligned>
-            <SearchField api={API.user} component={HeaderSearchBarRow} />
+            <SearchField standalone api={API.user} component={HeaderSearchBarRow} />
           </Form>
         </MenuItem>
         <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>

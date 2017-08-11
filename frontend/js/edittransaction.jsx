@@ -105,7 +105,7 @@ class EditTransactionPage extends Component {
             <Input text required name="text" />
           </ControlGroup>
           <ControlGroup label="User">
-            <SearchField name="user" isFormElement api={API.user} component={props => props.object.username} />
+            <SearchField name="user" api={API.user} component={props => props.object.username} />
           </ControlGroup>
           <ControlGroup label="Require Signature" message="The user will be required to provide a signature.">
             <Input checkbox required name="signature_required" />
