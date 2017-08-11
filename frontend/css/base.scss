@@ -4,7 +4,7 @@
 // Base styles in Econesty.
 //
 
-@import "keyframes"; // mixin for keyframes, since it's browser prefixed
+@import "helpers";
 
 /*
  Fonts
@@ -16,8 +16,8 @@
 // Constants
 //
 
-$header-font-size: 18pt;
-$header-height: $header-font-size * 2;
+$header-height: 50px;
+$header-font-size: 1.25em;
 
 $padding: 10px;
 
@@ -90,15 +90,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
+  text-decoration: none;
+  cursor: pointer;
+  label {
+    cursor: pointer;
+  }
   display: inherit;
   &:visited, &:link {
-    text-decoration: none;
     color: inherit;
   }
 
   &:hover {
-    cursor: hand;
-    text-decoration: underline;
     color: $accent-color;
     span {
       color: $accent-color;
@@ -120,9 +122,15 @@ a {
 }
 
 .pure-menu-heading {
-  padding: ($padding/2) + 3.5px;
-  font-size: $header-font-size;
-  color: white;
+  height: $header-height - $padding * 2;
+  padding: $padding;
+  display: inline-block;
+  vertical-align: middle;
+  * {
+    padding-top: 1.5px;
+    font-size: 20pt;
+    line-height: 100%;
+  }
 }
 
 .pure-form {

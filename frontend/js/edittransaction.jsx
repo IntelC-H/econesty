@@ -1,8 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import PropTypes from 'prop-types';
-import { Form, Element, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
+//import PropTypes from 'prop-types';
+import { Form, ControlGroup, Input, Select, Button, SubmitButton, Grid, GridUnit } from 'app/pure';
 import { API } from 'app/api';
-import { Resource, Money, SearchField } from 'app/components';
+import { Resource, SearchField } from 'app/components';
 import { Router, Link } from 'app/routing';
 
 class EditTransactionPage extends Component {
@@ -90,17 +90,29 @@ class EditTransactionPage extends Component {
         if (el) this.formEl = el.base;
         return;
       } }>
-        <Element text required       name="offer" label="Offer" />
-        <Element select={currencies} name="offer_currency" label="Currency"  />
-        <Element hidden              name="buyer_id" />
-        <Element hidden              name="buyer_payment_data_id" />
-        <Element hidden              name="seller_id" />
-        <Element hidden              name="seller_payment_data_id" />
+        <ControlGroup label="Offer">
+          <Input text required name="offer" />
+        </ControlGroup>
+        <ControlGroup label="Currency">
+          <Select options={currencies} name="offer_currency" />
+        </ControlGroup>
+        <Input hidden name="buyer_id"/>
+        <Input hidden name="buyer_payment_data_id" />
+        <Input hidden name="seller_id" />
+        <Input hidden name="seller_payment_data_id" />
         <Form group name="requirements">
-          <Element required text     name="text" label="Text" />
-          <SearchField label="User"  name="user" isFormElement api={API.user} component={props => props.object.username} />
-          <Element required checkbox name="signature_required" label="Require Signature" message="The user will be required to provide a signature." />
-          <Element required checkbox name="acknowledgment_required" label="Require Acknowledgment" message="The user has to acknowledge this transaction." />
+          <ControlGroup label="Terms">
+            <Input text required name="text" />
+          </ControlGroup>
+          <ControlGroup label="User">
+            <SearchField name="user" isFormElement api={API.user} component={props => props.object.username} />
+          </ControlGroup>
+          <ControlGroup label="Require Signature" message="The user will be required to provide a signature.">
+            <Input checkbox required name="signature_required" />
+          </ControlGroup>
+          <ControlGroup label="Require Acknowledgment" message="The user has to acknowledge this transaction.">
+            <Input checkbox required name="acknowledgment_required" />
+          </ControlGroup>
         </Form>
         <SubmitButton onSubmit={this.onSubmit}>
           {this.isBuyer ? "BUY" : "SELL"}

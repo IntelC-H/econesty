@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 //import PropTypes from 'prop-types'; // TODO: prop-types
-import { Element } from 'app/pure';
+import { Input } from 'app/pure';
 
 // TODO: use asyncWithProps
 
@@ -43,7 +43,7 @@ class SignatureField extends Component {
     const {className, onMouseDown, onMouseUp, onMouseMove, onMouseOut, value, name, editable, ...props} = this.props; // eslint-disable-line
     return (
       <div>
-        <Element hidden name={this.props.name} value={JSON.stringify(this.state.signature)} />
+        <Input hidden name={this.props.name} value={JSON.stringify(this.state.signature)} />
         <canvas
             ref={e => (this.canvas = e) && undefined }
             className={"signaturefield " + className}

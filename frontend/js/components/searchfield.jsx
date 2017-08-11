@@ -1,9 +1,8 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
-import linkState from 'linkstate';
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Form, Element, FakeElement, Button, makeClassName } from 'app/pure';
+import { Input, ControlGroup, makeClassName } from 'app/pure';
 import { Link } from 'app/routing';
 
 const propTypes = {
@@ -24,7 +23,7 @@ const defaultProps = {
 const SearchField = asyncWithProps(props => {
   const { search, api, setState, component, name, isFormElement, object, className, ...filteredProps } = props;
 
-  const FormLink = ps => <a onClick={e => setState(st => ({...st, object: ps.object, search: null}))}>{h(component, ps)}</a>;
+  const FormLink = ps => <a onClick={() => setState(st => ({...st, object: ps.object, search: null}))}>{h(component, ps)}</a>;
   const NonFormLink = ps => <Link href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
   const SearchFieldDropdownCollection = asyncCollection(
     ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
@@ -36,37 +35,36 @@ const SearchField = asyncWithProps(props => {
   const dropdownClass = isFormElement ? "searchfield-dropdown" : "searchfield-dropdown raised-v fixed";
 
   const searchQ = search || "";
-  const searchInputField =
-    <Element
-      ignore
-      text
-      placeholder="search..."
-      onInput={e => setState(st => ({ ...st, search: e.target.value }))}
-      value={search}
-      {...filteredProps}
-    >
-      {(searchQ.length === 0) && <span className="fa fa-search search-icon"/>}
-      {searchQ.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={e => setState({search: null})}/>}
-      {searchQ.length > 0 && isFormElement && <FakeElement className="fixed" label=""><SearchFieldDropdownCollection className={dropdownClass} /></FakeElement>}
-      {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
-    </Element>;
-  
-  if (isFormElement) {
-    return (
-      <div className={makeClassName("searchfield", "pure-control-group", className)}>
-        <Element hidden name={name} value={object} label={ object ? "User" : ""} onSet={v => setState(st => ({...st, object: v})) }>
-          { !!object && <a onClick={e => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-ban"/>}
-          { !!object && <span> <Link className="inline" href={"/user/" + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
-          { !object && searchInputField }
-        </Element>
-      </div>
-    );
-  }
+  console.log("SEARCH", search, object);
+
+  // TODO: form doesn't restore SearchField value.
   return (
-    <div className={makeClassName("searchfield", className)}>
-      <Form aligned>
-        {searchInputField}
-      </Form>
+    <div className={makeClassName("searchfield", "inline", className)}>
+      <Input hidden name={name} value={object} onSet={v => {
+        console.log("onSet hidden", name, v);
+        setState(st => ({...st, object: v}));
+      }} />
+      { !!object && isFormElement && <a onClick={() => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-ban"/>}
+      { !!object && isFormElement && <span> <Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
+      { (!object || !isFormElement) &&
+        <div className="inline">
+          <Input
+            ignore
+            text
+            placeholder="search..."
+            onSet={v => {
+              console.log("onSet", name, v);
+              setState(st => ({ ...st, search: v }));
+            }}
+            value={search}
+            {...filteredProps}
+          />
+          {searchQ.length === 0 && <span className="fa fa-search search-icon"/>}
+          {searchQ.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
+          {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
+          {searchQ.length > 0 && isFormElement && <ControlGroup><SearchFieldDropdownCollection className={dropdownClass} /></ControlGroup>}
+        </div>
+      }
     </div>
   );
 });

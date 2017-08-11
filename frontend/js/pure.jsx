@@ -1,6 +1,5 @@
 import { h, render, cloneElement } from 'preact';
 import PropTypes from 'prop-types';
-import { asyncWithProps } from 'app/components/higher';
 
 function makeClassName() {
   return [].concat.apply([], Array.from(arguments).filter(a => !!a)
@@ -131,61 +130,52 @@ MenuItem.defaultProps = {
   selected: false
 }
 
-const FakeElement = props => {
-  return <div className={makeClassName(props.className, "pure-control-group")}>
-    <label>{props.label}</label>
-    {props.children.map(c => cloneElement(c, { className: makeClassName(c.className, "inline-block")}))}
-  </div>
-}
 
-const Element = asyncWithProps(props => {
+const Input = props => {
   const {hidden, text, checkbox, password,
-         wrapperClass, label, type, email,
-         url, select, message, className,
-         children, size, value, proxy, setState,
-         onSet,
+         className, type, email, url,
+         size, value, onSet,
          sm, md, lg, xl, // eslint-disable-line no-unused-vars
+         children, onInput, // eslint-disable-line no-unused-vars
          ...filteredProps} = props;
+
   const typeString = checkbox ? "checkbox" : hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type;
 
-  let control = null;
-  if (!select) {
-    let classes = [className];
-    if (size) classes.push("pure-input-" + size)
-    classes.concat(_sizes.filter(k => k in props)
-                         .map(k => 'pure-input-' + k + '-' + props[k]));
-    control = <input
-                value={value ? (hidden ? JSON.stringify(value) : value) : null}
-                type={typeString}
-                className={classes.join(' ')}
-                onInput={e => {
-                  let val = e.target.value;
-                  val = val ? (hidden ? JSON.parse(val) : val) : null;
-                  onSet(val);
-                  setState(st => ({ ...st, value: val }));
-                }}
-                {...filteredProps}
-              />;
-  } else {
-    control = (
-      <select name={props.name}>
-        {select.map(s => <option key={props.name + '-' + s} value={s}>{s}</option>)}
-      </select>
-    );
+  let classes = [];
+  if (className) classes.push(className);
+  if (size) classes.push("pure-input-" + size)
+  _sizes.forEach(sz => {
+    if (sz in props) {
+      classes.push('pure-input-' + sz + '-' + props[sz])
+    }
+  });
+
+  let addlProps = {
+    type: typeString
+  };
+
+  if (classes.length > 0) {
+    addlProps.className = makeClassName.apply(classes);
   }
 
-  return (
-    <div className="pure-control-group">
-      {label !== null && <label className={checkbox ? "pure-checkbox" : ""}>{label}</label>}
-      {control}
-      {(message !== null || props.required) && <span className="pure-form-message-inline">{message || "This field is required."}</span>}
-      {children}
-    </div>
-  );
-});
+  if (value) {
+    const isHidden = typeString === "hidden";
+    addlProps.value = isHidden ? JSON.stringify(value) : value;
+  }
 
-Element.propTypes = {
-  message: PropTypes.string,
+  if (onSet) {
+    addlProps.onInput = e => {
+      console.log("Input -> onInput", e);
+      let val = e.target.value;
+      const isHidden = e.target.type === "hidden";
+      onSet(val ? (isHidden ? JSON.parse(val) : val) : null);
+    }
+  }
+
+  return h('input', Object.assign({}, filteredProps, addlProps));
+};
+
+Input.propTypes = {
   required: PropTypes.bool,
   hidden: PropTypes.bool,
   text: PropTypes.bool,
@@ -193,24 +183,19 @@ Element.propTypes = {
   password: PropTypes.bool,
   email: PropTypes.bool,
   url: PropTypes.bool,
-  select: PropTypes.arrayOf(PropTypes.any),
   type: PropTypes.oneOf(["hidden", "text", "checkbox", "password", "hidden"]),
   name: PropTypes.string.isRequired,
   value: PropTypes.any,
-  defaultValue: PropTypes.any,
-  label: PropTypes.string,
   size: sizeProp,
   sm: sizeProp,
   md: sizeProp,
   lg: sizeProp,
   xl: sizeProp,
   ignore: PropTypes.bool,
-  proxy: PropTypes.func,
   onSet: PropTypes.func
 };
 
-Element.defaultProps = {
-  message: null,
+Input.defaultProps = {
   required: false,
   hidden: false,
   text: false,
@@ -218,16 +203,53 @@ Element.defaultProps = {
   password: false,
   email: false,
   url: false,
-  select: null,
-  type: "hidden",
+  type: undefined,
   value: undefined,
-  label: null,
   size: null,
   ignore: false,
-  proxy: null,
-  onSet: () => undefined
+  onSet: null
 };
 
+const Select = props => {
+  const { name, options, value } = props;
+  return (
+    <select name={name}>
+      {options.map(s => <option selected={s === value} key={name + '-' + s} value={s}>{s}</option>)}
+    </select>
+  );
+}
+
+Select.propTypes = {
+  name: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(PropTypes.any),
+  value: PropTypes.any
+};
+
+Select.defaultProps = {
+  options: []
+};
+
+const ControlGroup = props => {
+  const { message, label, className, children } = props;
+
+  return (
+    <div className={makeClassName(className, "pure-control-group")}>
+      <label>{label || " "}</label>
+      {children}
+      {message !== null && <span className="pure-form-message-inline">{message}</span>}
+    </div>
+  );
+}
+
+ControlGroup.propTypes = {
+  message: PropTypes.string,
+  label: PropTypes.string
+};
+
+ControlGroup.defaultProps = {
+  message: null,
+  label: null
+};
 
 const SubmitButton = props => {
   const clickHandler = e => {
@@ -334,7 +356,7 @@ Form.toObject = (el, acc = {}) => {
       const isGroup = child.getAttribute("group") || false;
       const isSubform = child.getAttribute("subform") || false;
       const tname = child.tagName.toLowerCase();
-      
+
       if (isForm) {
         if (isGroup) acc[name] = Array.from(child.children)
                                       .filter(e => e.className.toLowerCase() === "form-group")
@@ -364,17 +386,17 @@ Form.setObject = (obj, c) => {
       if (isGroup) {
         if (val && val.length > 0) {
           let ary = val.slice();
-    
+
           while (c.firstChild) {
             if (c.firstChild instanceof HTMLElement && c.firstChild.tagName.toLowerCase() === "fieldset") {
               Form.setObject(ary.shift(), c.firstChild);
             } else c.removeChild(c.firstChild);
           }
-  
+
           ary.forEach(elem => {
             let template = c._groupTemplate.map(cld => cloneElement(cld));
             let fieldset = render(h('fieldset', {}, template));
-  
+
             let div = document.createElement('div');
             div.className = "form-group";
             div.appendChild(fieldset);
@@ -390,11 +412,9 @@ Form.setObject = (obj, c) => {
         if (c.type === "checkbox") {
           c.checked = val === true;
           c.dispatchEvent(new InputEvent("input", { target: c }));
-          c.dispatchEvent(new InputEvent("set", { target: c }));
         } else if (!!val && (!c.value || c.value.length === 0 || isHidden)) {
           c.value = isHidden ? JSON.stringify(val) : val;
           c.dispatchEvent(new InputEvent("input", { target: c }));
-          c.dispatchEvent(new InputEvent("set", { target: c }));
         }
       }
     } else if (tname === "select") c.value = val;
@@ -403,7 +423,7 @@ Form.setObject = (obj, c) => {
   }
 };
 
-export { makeClassName, Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, FakeElement, Element, SubmitButton, Form };
+export { makeClassName, Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Select, Input, ControlGroup, SubmitButton, Form };
 export default {
   makeClassName: makeClassName,
   Image: Image,
@@ -417,8 +437,9 @@ export default {
   MenuLink: MenuLink,
   MenuList: MenuList,
   MenuItem: MenuItem,
-  FakeElement: FakeElement,
-  Element: Element,
+  Select: Select,
+  Input: Input,
+  ControlGroup: ControlGroup,
   SubmitButton: SubmitButton,
   Form: Form
 };

@@ -21,6 +21,9 @@ $searchfield-dropdown-offset: 1.5px;//1.5px;//10px;
 
 .header {
   background: $primary-color-dark;
+  fieldset {
+    padding: 0px;
+  }
   input[type=text] {
     margin-bottom: 0px;
   }

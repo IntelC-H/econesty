@@ -60,7 +60,7 @@ class Router extends Component {
 
   test(path, url, wildcards = null) {
     url = url.replace(/\?.+$/, '');
-    
+
     if (path instanceof RegExp) {
       let res = path.exec(url);
       if (!res) return false;
@@ -84,7 +84,7 @@ class Router extends Component {
     for (var i = 0; i < iterlen; i++) {
       var upc = urlpath_comps[i];
       var pc = path_comps[i];
-      
+
       if (pc.startsWith(':')) {
         var wildcard = pc.slice(1);
         if (wildcards && wildcard in wildcards && !wildcards[wildcard].includes(upc)) return false;
@@ -97,10 +97,6 @@ class Router extends Component {
 }
 
 window.addEventListener("popstate", () => updateSubscribers(document.location.pathname));
-
-Router.refresh = url => {
-
-}
 
 Router.push = url => {
   history.pushState(null, null, url);

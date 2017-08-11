@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Router, Link } from 'app/routing';
 import { API, APICollection, APIActionCollection } from 'app/api';
 
-import { Form, Element, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
+import { Form, Input, Select, ControlGroup, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
 
 // Representations
 import Transaction from 'app/repr/transaction';
@@ -63,8 +63,12 @@ function secure(comp) {
 
 const loginForm = props =>
   <Form object={props.object} aligned>
-    <Element text name="username" label="Username" />
-    <Element password name="password" label="Password" />
+    <ControlGroup label="Username">
+      <Input text required name="username" />
+    </ControlGroup>
+    <ControlGroup label="Password">
+      <Input password required name="password" />
+    </ControlGroup>
     <SubmitButton onSubmit={saveFormTo(API.token, obj => {
       API.setToken(obj.key);
       Router.push("/user/me");
@@ -76,92 +80,62 @@ const loginForm = props =>
 
 const signupForm = props =>
   <Form object={props.object} aligned>
-    <Element text     name="first_name" label="First Name" />
-    <Element text     name="last_name"  label="Last Name" />
-    <Element email    name="email"      label="Email" />
-    <Element text     name="username"   label="New Username" />
-    <Element password name="password"   label="New Password" />
+    <ControlGroup label="First Name">
+      <Input text required name="first_name" />
+    </ControlGroup>
+    <ControlGroup label="Last Name">
+      <Input text required name="last_name" />
+    </ControlGroup>
+    <ControlGroup label="Email">
+      <Input email required name="email" />
+    </ControlGroup>
+    <ControlGroup label="Username">
+      <Input text required name="username" />
+    </ControlGroup>
+    <ControlGroup label="Password">
+      <Input password required name="password" />
+    </ControlGroup>
     <SubmitButton onSubmit={saveFormTo(API.user, user => Router.push("/user/" + user.id))}>
       SIGN UP
     </SubmitButton>
   </Form>
 ;
 
-const countersignForm = props =>
-  <Form object={props.object} aligned>
-    <Element hidden name="user_id" />
-    <Element hidden name="transaction_id" />
-    <Components.SignatureField editable name="signature" />
-    <SubmitButton onSubmit={saveFormTo(API.countersignature, cs => Router.push("/transaction/" + cs.transaction.id))}>
-      SIGN
-    </SubmitButton>
-  </Form>
-;
+// const countersignForm = props =>
+//   <Form object={props.object} aligned>
+//     <Element hidden name="user_id" />
+//     <Element hidden name="transaction_id" />
+//     <Components.SignatureField editable name="signature" />
+//     <SubmitButton onSubmit={saveFormTo(API.countersignature, cs => Router.push("/transaction/" + cs.transaction.id))}>
+//       SIGN
+//     </SubmitButton>
+//   </Form>
+// ;
 
-const countersignDefaults = props => API.user.me().then(me => ({
-  user_id: me.id,
-  transaction_id: parseInt(props.matches.id),
-  signature: ""
-}));
+// const countersignDefaults = props => API.user.me().then(me => ({
+//   user_id: me.id,
+//   transaction_id: parseInt(props.matches.id),
+//   signature: ""
+// }));
 
 // Create/update forms.
 
-const paymentDataForm = props =>
-  <Form object={props.object} aligned>
-    <Element text     name="data"      label="Data" />
-    <Element checkbox name="encrypted" label="Encrypted" />
-    <Element hidden   name="user_id" />
-    <SubmitButton onSubmit={upsertFormTo(API.payment_data, props.matches.id, pd => Router.push("/payment/" + pd.id))}>
-      SAVE
-    </SubmitButton>
-  </Form>
-;
+// const paymentDataForm = props =>
+//   <Form object={props.object} aligned>
+//     <Element text     name="data"      label="Data" />
+//     <Element checkbox name="encrypted" label="Encrypted" />
+//     <Element hidden   name="user_id" />
+//     <SubmitButton onSubmit={upsertFormTo(API.payment_data, props.matches.id, pd => Router.push("/payment/" + pd.id))}>
+//       SAVE
+//     </SubmitButton>
+//   </Form>
+// ;
 
-const paymentDataDefaults = () => API.user.me().then(me => ({
-  data: "",
-  encrypted: false,
-  user_id: me.id
-}));
-
-const transactionForm = props =>
-  <Form object={props.object} aligned>
-    <Element text name="offer" label="Offer" />
-    <Element      name="offer_currency" label="Currency" select={["USD", "EUR", "JPY", "GBP"]} />
-    <Element hidden name="buyer_id" />
-    <Element hidden name="buyer_payment_data_id" />
-    <Element hidden name="seller_id" />
-    <Element hidden name="seller_payment_data_id" />
-    <SubmitButton onSubmit={saveFormTo(API.transaction, t => Router.push("/transaction/" + t.id))}>
-      {props.matches.action === "buy" ? "BUY" : "SELL"}
-    </SubmitButton>
-  </Form>
-;
-
-const transactionDefaults = props => {
-  var isBuyer = undefined;
-  var otherId = undefined;
-
-  if (props.matches) {
-    isBuyer = props.matches.action === "buy";
-    otherId = props.matches.id;
-    otherId = otherId === "me" ? undefined : parseInt(otherId);
-  }
-
-  return API.user.payment(otherId).then(res => {
-    var me = res.me.user;
-    var them = res.them.user;
-    var payment = res;
-    return {
-      offer: "0.00",
-      offer_currency: "USD",
-      required_witnesses: "0",
-      buyer_id: isBuyer ? me.id : them.id,
-      buyer_payment_data_id: isBuyer ? payment.me.id : payment.them.id,
-      seller_id: isBuyer ? them.id : me.id,
-      seller_payment_data_id: isBuyer ? payment.them.id : payment.me.id
-    };
-  });
-};
+// const paymentDataDefaults = () => API.user.me().then(me => ({
+//   data: "",
+//   encrypted: false,
+//   user_id: me.id
+// }));
 
 const HeaderSearchBarRow = props => props.object.username;
 
@@ -173,7 +147,9 @@ const Page = props =>
       </MenuHeading>
       <MenuList>
         <MenuItem>
-          <SearchField api={API.user} component={HeaderSearchBarRow} />
+          <Form aligned>
+            <SearchField api={API.user} component={HeaderSearchBarRow} />
+          </Form>
         </MenuItem>
         <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
       </MenuList>
@@ -260,11 +236,11 @@ export default () => {
     makeRoute("/login", wrap(Page, loginForm)),
     makeRoute("/signup", wrap(Page, signupForm)),
     makeRoute("/user/:id", wrap(Page, Profile)),
-    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] }),
-    makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
-    makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
-    makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction)))),
-    makeRoute("/transaction/:id/countersign", secure(wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))))
+    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] })//,
+   // makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
+   // makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
+   // makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction)))),
+   // makeRoute("/transaction/:id/countersign", secure(wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))))
   ];
 
   return <Router notFound={NotFound}>{routes}</Router>;
