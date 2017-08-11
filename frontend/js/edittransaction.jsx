@@ -82,6 +82,9 @@ class EditTransactionPage extends Component {
     // ).catch(errorLogic).then(logic);
   }
 
+  // FIXME: sets Terms to "4", then "1" when adding a new requirement.
+  // FIXME: searchfield dropdowns are broken for last requirement and
+  //        other requirements have valid users.
   renderForm({ object }) {
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (

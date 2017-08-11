@@ -239,7 +239,7 @@ export default () => {
     makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] })//,
    // makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
    // makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
-   // makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction)))),
+    makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction)))),
    // makeRoute("/transaction/:id/countersign", secure(wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))))
   ];
 
