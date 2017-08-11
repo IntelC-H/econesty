@@ -32,12 +32,8 @@ const SearchField = asyncWithProps(props => {
     false
   );
 
-  const dropdownClass = isFormElement ? "searchfield-dropdown" : "searchfield-dropdown raised-v fixed";
-
   const searchQ = search || "";
-  console.log("SEARCH", search, object);
 
-  // TODO: form doesn't restore SearchField value.
   return (
     <div className={makeClassName("searchfield", "inline", className)}>
       <Input hidden name={name} value={object} onSet={v => {
@@ -61,8 +57,8 @@ const SearchField = asyncWithProps(props => {
           />
           {searchQ.length === 0 && <span className="fa fa-search search-icon"/>}
           {searchQ.length > 0 && !isFormElement && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
-          {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className={dropdownClass} />}
-          {searchQ.length > 0 && isFormElement && <ControlGroup><SearchFieldDropdownCollection className={dropdownClass} /></ControlGroup>}
+          {searchQ.length > 0 && !isFormElement && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" />}
+          {searchQ.length > 0 && isFormElement && <ControlGroup><SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" /></ControlGroup>}
         </div>
       }
     </div>
