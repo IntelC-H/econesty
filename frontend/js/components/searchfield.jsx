@@ -73,15 +73,8 @@ const SearchField = asyncWithProps(props => {
     return (
       <div className={makeClassName("searchfield", "pure-control-group", className)}>
         <Element hidden name={name} value={object} label="User" onSet={v => setState(st => ({...st, object: v})) }>
-          { !!object &&
-            <div>
-              <a
-                onClick={e => setState(st => ({...st, object: null}))}
-                className="searchfield-cancel-button inline fa fa-ban"
-              />
-              <span> <Link className="inline" href={"/user/" + object.id} target="_blank">{h(component, { object: object })}</Link></span>
-            </div>
-          }
+          { !!object && <a onClick={e => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-ban"/>}
+          { !!object && <span> <Link className="inline" href={"/user/" + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
   
           { !object && 
             <Element
