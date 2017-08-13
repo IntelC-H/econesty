@@ -98,6 +98,8 @@ class Router extends Component {
 
 window.addEventListener("popstate", () => updateSubscribers(document.location.pathname));
 
+// TODO: page state
+
 Router.push = url => {
   history.pushState(null, null, url);
   updateSubscribers(url);

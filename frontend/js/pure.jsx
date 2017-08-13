@@ -397,6 +397,8 @@ Form.setObject = (obj, c) => {
         } else c.removeChild(c.firstChild);
       }
 
+      // TODO: install delete button in upper RH corner.
+
       ary.forEach(elem => {
         let template = c._groupTemplate.map(cld => cloneElement(cld));
         let fieldset = render(h('fieldset', {}, template));
