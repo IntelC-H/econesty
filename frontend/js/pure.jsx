@@ -134,7 +134,7 @@ MenuItem.defaultProps = {
 const Input = props => {
   const {hidden, text, checkbox, password,
          className, type, email, url,
-         size, value, onSet,
+         size, value, onSet, ignore,
          sm, md, lg, xl, // eslint-disable-line no-unused-vars
          children, onInput, // eslint-disable-line no-unused-vars
          ...filteredProps} = props;
@@ -154,6 +154,10 @@ const Input = props => {
     type: typeString
   };
 
+  if (ignore) {
+    addlProps["data-ignore"] = ignore;
+  }
+
   if (classes.length > 0) {
     addlProps.className = makeClassName.apply(classes);
   }
@@ -165,7 +169,6 @@ const Input = props => {
 
   if (onSet) {
     addlProps.onInput = e => {
-      console.log("Input -> onInput", e);
       let val = e.target.value;
       const isHidden = e.target.type === "hidden";
       onSet(val ? (isHidden ? JSON.parse(val) : val) : null);
@@ -268,13 +271,14 @@ const SubmitButton = props => {
   );
 };
 
+const testEl = el => el.dataset.form === "true" && el.dataset.group !== "true" && !el.hasAttribute("name");
 SubmitButton.findForm = btn => {
   var btnp = btn;
   while (btnp) {
-    if (btnp.attributes.form && !btnp.attributes.subform) break;
+    if (testEl(btnp)) return btnp;
     btnp = btnp.parentElement;
   }
-  return btnp;
+  return null;
 }
 
 SubmitButton.isCaveatChecked = btn => {
@@ -311,12 +315,14 @@ const Form = props => {
       ref={e => {
         if (e) {
           if (group) e._groupTemplate = children;
-          Form.setObject(object, e);
+          else {//if (!SubmitButton.findForm(e)) { // no parent forms
+            Form.setObject(object, e);
+          }
         }
       }}
-      form={true}
-      subform={subForm}
-      group={group}
+      data-form
+      data-subform={subForm}
+      data-group={group}
       className={cns.join(' ')}
       {...filteredProps}
     >
@@ -347,25 +353,24 @@ Form.defaultProps = {
 Form.toObject = (el, acc = {}) => {
   if (!el) return acc;
   Array.from(el.children).forEach(child => {
-    const ignore = child.getAttribute("ignore") || false;
+    const ignore = child.dataset.ignore === "true";
     const name = child.getAttribute("name") || false;
-    const isForm = child.getAttribute("form") || false;
+    const isForm = child.dataset.form === "true";
     const isHidden = child.type === "hidden";
     const isCheckbox = child.type === "checkbox";
 
     if (name && !ignore) {
-      const isGroup = child.getAttribute("group") || false;
-      const isSubform = child.getAttribute("subform") || false;
+      const isGroup = child.dataset.group === "true";
       const tname = child.tagName.toLowerCase();
 
-      if (isForm) {
+      if (isForm && name) {
         if (isGroup) acc[name] = Array.from(child.children)
                                       .filter(e => e.className.toLowerCase() === "form-group")
                                       .map(e => Form.toObject(e));
-        else if (isSubform) acc[name] = Form.toObject(child);
+        else acc[name] = Form.toObject(child);
       }
       else if (tname === "input")  acc[name] = isCheckbox ? child.checked || false : (isHidden ? (child.value && child.value.length > 0 ? JSON.parse(child.value) : child.value) : child.value);
-      else if (tname === "select") acc[name] = child.children[child.selectedIndex].value;
+      else if (tname === "select") acc[name] = (child.children[child.selectedIndex] || {}).value;
       else                         acc       = Form.toObject(child, acc);
     } else acc = Form.toObject(child, acc);
   });
@@ -376,52 +381,56 @@ Form.toObject = (el, acc = {}) => {
 // (mostly... see Form(). PLEASE DON'T CALL THIS IN YOUR CODE)
 Form.setObject = (obj, c) => {
   if (obj && c) {
-    const isForm = (c.attributes.form || {}).value;
-    const isGroup = (c.attributes.group || {}).value;
+    const isForm = c.dataset.form === "true";
+    const isGroup = c.dataset.group === "true";
     const tname = c.tagName.toLowerCase();
-    const name = (c.attributes.name || {}).value;
+    const name = c.getAttribute("name");
 
     const val = obj[name] || undefined;
 
-    if (isForm) {
-      if (isGroup) {
-        if (val && val.length > 0) {
-          let ary = val.slice();
+    if (isForm && isGroup && val && val.length > 0) {
+      let ary = val.slice();
 
-          while (c.firstChild) {
-            if (c.firstChild instanceof HTMLElement && c.firstChild.tagName.toLowerCase() === "fieldset") {
-              Form.setObject(ary.shift(), c.firstChild);
-            } else c.removeChild(c.firstChild);
-          }
-
-          ary.forEach(elem => {
-            let template = c._groupTemplate.map(cld => cloneElement(cld));
-            let fieldset = render(h('fieldset', {}, template));
-
-            let div = document.createElement('div');
-            div.className = "form-group";
-            div.appendChild(fieldset);
-            c.appendChild(div);
-            Form.setObject(elem, fieldset);
-          });
-        }
-      } else if (name) Form.setObject(val, c);
-    } else if (tname === "input") {
-      const ignore = c.getAttribute("ignore") || false;
-      if (!ignore) {
-        const isHidden = c.type === "hidden";
-        if (c.type === "checkbox") {
-          c.checked = val === true;
-          c.dispatchEvent(new InputEvent("input", { target: c }));
-        } else if (!!val && (!c.value || c.value.length === 0 || isHidden)) {
-          c.value = isHidden ? JSON.stringify(val) : val;
-          c.dispatchEvent(new InputEvent("input", { target: c }));
-        }
+      while (c.firstChild && ary.length > 0) {
+        if (c.firstChild instanceof HTMLElement && c.firstChild.className === "form-group") {
+          Form.setObject(ary.shift(), c.firstChild);
+        } else c.removeChild(c.firstChild);
       }
-    } else if (tname === "select") c.value = val;
 
-    if (c.children) Array.from(c.children).forEach(x => Form.setObject(obj, x));
+      ary.forEach(elem => {
+        let template = c._groupTemplate.map(cld => cloneElement(cld));
+        let fieldset = render(h('fieldset', {}, template));
+
+        let div = document.createElement('div');
+        div.className = "form-group";
+        div.appendChild(fieldset);
+        c.appendChild(div);
+        Form.setObject(elem, fieldset);
+      });
+    } else if (tname === "input") Input.setValue(c, val, obj);
+    else if (tname === "select") Select.setValue(c, val);
+    else if (c.children && c.children.length > 0) {
+      Array.from(c.children).forEach(x => Form.setObject(name ? val : obj, x));
+    }
   }
+};
+
+Input.setValue = (c, val, obj) => {
+  if (!(c.dataset.ignore === "true")) {
+    const isHidden = c.type === "hidden";
+    if (c.type === "checkbox") {
+      c.checked = val === true;
+      c.dispatchEvent(new InputEvent("input", { target: c }));
+    } else {
+      if (val) c.value = isHidden ? JSON.stringify(val) : val;
+      else c.value = null;
+      c.dispatchEvent(new InputEvent("input", { target: c }));
+    }
+  }
+};
+
+Select.setValue = (c, val) => {
+  c.value = val;
 };
 
 export { makeClassName, Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Select, Input, ControlGroup, SubmitButton, Form };

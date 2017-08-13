@@ -37,10 +37,7 @@ const SearchField = asyncWithProps(props => {
 
   return (
     <div className={makeClassName("searchfield", "inline-block", "relative", className)}>
-      { !standalone && <Input hidden name={name} value={object} onSet={v => {
-        console.log("onSet hidden", name, v);
-        setState(st => ({...st, object: v}));
-      }} /> }
+      { !standalone && <Input hidden name={name} value={object} onSet={v => setState(st => ({...st, object: v}))} /> }
       { showsObject && <a onClick={() => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-ban"/>}
       { showsObject && <span> <Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
       { !showsObject && !hasSearch && <span className="fa fa-search search-icon"/>}

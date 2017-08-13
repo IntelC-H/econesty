@@ -139,6 +139,14 @@ const signupForm = props =>
 
 const HeaderSearchBarRow = props => props.object.username;
 
+/*
+        <MenuItem>
+          <Form aligned>
+            <SearchField standalone api={API.user} component={HeaderSearchBarRow} />
+          </Form>
+        </MenuItem>
+*/
+
 const Page = props =>
   <div>
     <Menu horizontal fixed className="header raised-v">
@@ -146,11 +154,7 @@ const Page = props =>
         <Link href="/" className="light-text">Econesty</Link>
       </MenuHeading>
       <MenuList>
-        <MenuItem>
-          <Form aligned>
-            <SearchField standalone api={API.user} component={HeaderSearchBarRow} />
-          </Form>
-        </MenuItem>
+
         <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
       </MenuList>
     </Menu>
@@ -236,10 +240,10 @@ export default () => {
     makeRoute("/login", wrap(Page, loginForm)),
     makeRoute("/signup", wrap(Page, signupForm)),
     makeRoute("/user/:id", wrap(Page, Profile)),
-    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] })//,
+    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] }),
    // makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
    // makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
-    makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction)))),
+    makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction))))//,
    // makeRoute("/transaction/:id/countersign", secure(wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))))
   ];
 

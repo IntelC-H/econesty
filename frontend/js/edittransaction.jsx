@@ -10,7 +10,7 @@ class EditTransactionPage extends Component {
     super(props);
     this.formEl = null;
     this.onSubmit = this.onSubmit.bind(this);
-    this.state = { object: props.object || null, error: this.props.error || null };
+    this.state = { object: null, error: null };
     this.setState = this.setState.bind(this);
     this.renderForm = this.renderForm.bind(this);
     this.addRequirement = this.addRequirement.bind(this);
@@ -41,7 +41,6 @@ class EditTransactionPage extends Component {
   
         this.setState(st => Object.assign({}, st, {
           object: {
-            offer_currency: "USD",
             buyer_id: isBuyer ? me.id : them.id,
             buyer_payment_data_id: isBuyer ? payment.me.id : payment.them.id,
             seller_id: isBuyer ? them.id : me.id,
@@ -50,15 +49,6 @@ class EditTransactionPage extends Component {
         }));
       });
     }
-  }
-
-  // FIXME: adding the first requirement wipes the form.
-  setState(state, callback) {
-    if (this.formEl) {
-      const obj = Form.toObject(this.formEl);
-      super.setState(st => ({ ...st, object: obj }));
-    }
-    return super.setState(state, callback);
   }
 
   onSubmit(obj) {
@@ -82,9 +72,13 @@ class EditTransactionPage extends Component {
     // ).catch(errorLogic).then(logic);
   }
 
-  // FIXME: sets Terms to "4", then "1" when adding a new requirement.
-  // FIXME: searchfield dropdowns are broken for last requirement and
-  //        other requirements have valid users.
+  addRequirement() {
+    let obj = this.formEl ? Form.toObject(this.formEl) : this.state.object;
+    obj.requirements = obj.requirements || [];
+    obj.requirements.push({});
+    this.setState(st => ({...st, object: obj}));
+  }
+
   renderForm({ object }) {
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (
@@ -130,32 +124,13 @@ class EditTransactionPage extends Component {
     );
   }
 
-  addRequirement() {
-    let r = {
-      user: null,
-      text: "",
-      signature_required: false,
-      acknowledgment_required: false
-    };
-    this.setState(st => {
-      var cpy = Object.assign({}, st);
-      cpy.object = cpy.object || {};
-      cpy.object.requirements = cpy.object.requirements || [];
-      cpy.object.requirements.push(r);
-      return cpy;
-    });
-  }
-
   render(props, { object, error }) {
-    return (
-      <div className="edit-transaction">
-        <Resource
-          component={this.renderForm}
-          object={object}
-          error={this.otherId ? error : new Error("invalid user id")}
-          {...props} />
-      </div>
-    );
+    return <Resource
+      component={this.renderForm}
+      object={object}
+      error={error}
+      {...props}
+    />
   }
 }
 
