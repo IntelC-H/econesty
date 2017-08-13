@@ -397,14 +397,18 @@ Form.setObject = (obj, c) => {
         } else c.removeChild(c.firstChild);
       }
 
-      // TODO: install delete button in upper RH corner.
-
       ary.forEach(elem => {
+        let div = document.createElement('div');
+
         let template = c._groupTemplate.map(cld => cloneElement(cld));
         let fieldset = render(h('fieldset', {}, template));
-
-        let div = document.createElement('div');
+        let deleteButton = render(<a
+          onClick={() => div.parentElement.removeChild(div)}
+          className="form-delete-button fa fa-ban"
+        />);
+        
         div.className = "form-group";
+        div.appendChild(deleteButton);
         div.appendChild(fieldset);
         c.appendChild(div);
         Form.setObject(elem, fieldset);
