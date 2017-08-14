@@ -3,7 +3,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Form, ControlGroup, Input, Select, Button, SubmitButton, Grid, GridUnit } from 'app/pure';
 import { API } from 'app/api';
 import { Resource, SearchField } from 'app/components';
-import { Router, Link } from 'app/routing';
+import { Router, Link } from 'app/components/routing';
 
 class EditTransactionPage extends Component {
   constructor(props) {

@@ -2,8 +2,8 @@ import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Form, Input, ControlGroup, makeClassName } from 'app/pure';
-import { Link } from 'app/routing';
+import { Input, makeClassName } from 'app/pure';
+import { Link } from 'app/components/routing';
 
 const propTypes = {
   component: PropTypes.func.isRequired,
@@ -51,7 +51,7 @@ const SearchField = asyncWithProps(props => {
             {...filteredProps}
           />
       }
-      
+
       { !showsObject && hasSearch && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
       { !showsObject && hasSearch && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" />}
     </div>

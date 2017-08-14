@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Router, Link } from 'app/routing';
+import { Router, Link } from 'app/components/routing';
 import { API, APICollection, APIActionCollection } from 'app/api';
 
 import { Form, Input, Select, ControlGroup, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
@@ -12,8 +12,20 @@ import User from 'app/repr/user';
 import EditTransaction from 'app/edittransaction';
 
 // Components
-import Components, { SearchField, Resource } from 'app/components';
-import { withPromiseFactory, withPromise, asyncCollection, /*rewritePath,*/ wrap } from 'app/components/higher';
+import Components, { SearchField } from 'app/components';
+import Resource, { Loading } from 'app/components/resource';
+import { withPromiseFactory, withPromise, asyncCollection, wrap } from 'app/components/higher';
+
+/*
+
+  TODO for MVP:
+  1. Payment data creation page
+  2. Edit profile page
+  3. Fulfill Requirement page
+  4. Separate Form et al from pure.jsx
+  5. Move pure.jsx into components
+
+*/
 
 // Setup API
 API.user = new APICollection("user");
@@ -139,14 +151,6 @@ const signupForm = props =>
 
 const HeaderSearchBarRow = props => props.object.username;
 
-/*
-        <MenuItem>
-          <Form aligned>
-            <SearchField standalone api={API.user} component={HeaderSearchBarRow} />
-          </Form>
-        </MenuItem>
-*/
-
 const Page = props =>
   <div>
     <Menu horizontal fixed className="header raised-v">
@@ -154,7 +158,11 @@ const Page = props =>
         <Link href="/" className="light-text">Econesty</Link>
       </MenuHeading>
       <MenuList>
-
+        <MenuItem>
+          <Form aligned>
+            <SearchField standalone api={API.user} component={HeaderSearchBarRow} />
+          </Form>
+        </MenuItem>
         <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
       </MenuList>
     </Menu>
@@ -228,7 +236,7 @@ const MeRedirect = secure(props => {
     Router.replace("/" + urlComps.join("/"));
   });
   
-  return <Resource />; // show loading
+  return <Loading />; // show loading
 })
 const isMeURL = url => url.split("/").indexOf("me") !== -1 ? {} : false;
 

@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table, Grid, GridUnit, Button } from 'app/pure';
-import Resource from 'app/components/resource';
+import { Resource } from 'app/components/resource';
 
 // Comp: a component whose props should be loaded asynchronously. 
 // onMount: when the component is mounted, called with a single argument: setState (see below).
@@ -10,6 +10,7 @@ import Resource from 'app/components/resource';
 // setState: set the state of the underlying class-Component. The value is assumed
 //           to be an Object. Async.props and Async.state are combined and fed as
 //           props to Comp.
+//
 // forceUpdate: forces the component to update.
 export function asyncWithProps(Comp, onMount = null, onUnmount = null) {
   return class Async extends Component {

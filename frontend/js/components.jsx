@@ -1,6 +1,8 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
+import Forms from './components/forms';
+import Routing from './components/routing';
 import Resource from './components/resource';
 import SignatureField from './components/signaturefield';
 import SearchField from './components/searchfield';
@@ -27,9 +29,11 @@ Money.defaultProps = {
   value: 0.00
 }
 
-export { Higher, Resource, SearchField, SignatureField, Money };
+export { Forms, Higher, Resource, SearchField, SignatureField, Money };
 
 export default {
+  Forms: Forms,
+  Routing: Routing,
   Higher: Higher,
   Resource: Resource,
   SignatureField: SignatureField,

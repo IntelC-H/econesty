@@ -1,7 +1,7 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Link } from 'app/routing';
-import Components from 'app/components';
+import { Link } from 'app/components/routing';
+import { Money } from 'app/components';
 
 const propTypes = {
   object: PropTypes.shape({
@@ -32,7 +32,7 @@ const Transaction = props => {
   var obj = props.object;
   return (
     <tr>
-      <td><Components.Money currency={obj.offer_currency} value={parseFloat(obj.offer)} /></td>
+      <td><Money currency={obj.offer_currency} value={parseFloat(obj.offer)} /></td>
       <td><Link className="secondary" href={"/user/" + obj.buyer.id}>{obj.buyer.first_name} {obj.buyer.last_name} (@{obj.buyer.username})</Link></td>
       <td><Link className="secondary" href={"/user/" + obj.seller.id}>{obj.seller.first_name} {obj.seller.last_name} (@{obj.seller.username})</Link></td>
     </tr>
