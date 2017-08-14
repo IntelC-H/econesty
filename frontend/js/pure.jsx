@@ -21,7 +21,7 @@ function sizeProp(props, propName, componentName) {
 // makes a component that assigns props to additional classes
 const cssSubclass = (BaseComponent, mapping, baseClasses = []) => {
   const f = props => {
-    var propsCopy = Object.assign({}, props);
+    var propsCopy = Object.assign({}, props); // FIXME: copying everything is a problem.
     var classes = baseClasses.splice();
 
     for (var k in mapping) {
