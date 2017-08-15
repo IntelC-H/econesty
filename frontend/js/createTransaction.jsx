@@ -43,6 +43,7 @@ class EditTransactionPage extends Component {
 
         this.setState(st => Object.assign({}, st, {
           object: {
+            offer_currency: "USD",
             buyer_id: isBuyer ? me.id : them.id,
             buyer_payment_data_id: isBuyer ? payment.me.id : payment.them.id,
             seller_id: isBuyer ? them.id : me.id,
@@ -54,24 +55,23 @@ class EditTransactionPage extends Component {
   }
 
   onSubmit(obj) {
+    const objCopy = Object.assign({}, obj);
     console.log("submitted ", obj); // eslint-disable-line no-console
-    // const requirements = obj.requirements;
-    // obj.requirements = undefined;
+    const requirements = objCopy.requirements;
+    delete objCopy.requirements;
 
-    // const logic = transaction => {
-    //   this.setState(st => Object.assign({}, st, { object: transaction }));
-    //   Router.redirect("/transaction/" + transaction.id);
-    // };
+    const logic = transaction => {
+      Promise.all(requirements.map(r => API.requirement.create(r))).catch(err => {
 
-    // const errorLogic = e => {
-    //   this.setState(st => Object.assign({}, st, { error: e }));
-    // };
+      }).then(rs => {
+        this.setState(st => Object.assign({}, st, { object: transaction }));
+        Router.redirect("/transaction/" + transaction.id);
+      });
+    };
 
-    // (obj.id ?
-    //   API.transaction.update(obj.id, obj)
-    //   :
-    //   API.transaction.create(obj)
-    // ).catch(errorLogic).then(logic);
+    API.transaction.create(objCopy)
+                   .catch(e => this.setState(st => Object.assign({}, st, { error: e })))
+                   .then(logic);
   }
 
   addRequirement() {
@@ -94,8 +94,8 @@ class EditTransactionPage extends Component {
                 {...props}
           >
             <ControlGroup label="Offer">
-              <Select options={currencies} name="offer_currency" />
-              <Input text required name="offer" />
+              <Select options={currencies} name="offer_currency" size="1-4" />
+              <Input text required name="offer" size="1-4" />
             </ControlGroup>
             <Input hidden name="buyer_id"/>
             <Input hidden name="buyer_payment_data_id" />

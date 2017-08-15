@@ -1,6 +1,6 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { makeClassName, sizeProp, sizingClasses } from './utilities';
+import { makeClassName, sizeProp, sizingClasses, inheritClass } from './utilities';
 import { Button } from './elements';
 
 //
@@ -9,6 +9,10 @@ import { Button } from './elements';
 // 1. Stateful forms that don't lose value on each rewrite
 // 2. No more manual DOM manipulation
 //
+
+// TODO: textareas
+
+const InputGroup = inheritClass('fieldset', 'pure-group')
 
 const Input = props => {
   const {hidden, text, checkbox, password,
