@@ -3,6 +3,13 @@ import PropTypes from 'prop-types';
 import { makeClassName, sizeProp, sizingClasses } from './utilities';
 import { Button } from './elements';
 
+//
+// TODO: Rewrite!
+//
+// 1. Stateful forms that don't lose value on each rewrite
+// 2. No more manual DOM manipulation
+//
+
 const Input = props => {
   const {hidden, text, checkbox, password,
          className, type, email, url,
@@ -89,9 +96,11 @@ Input.defaultProps = {
 };
 
 const Select = props => {
-  const { name, options, value } = props;
+  const { name, options, value, className, ...filteredProps } = props;
+  var classes = sizingClasses('pure-input', props);
+  classes.unshift(className);
   return (
-    <select name={name}>
+    <select className={makeClassName.apply(this, classes)} name={name} {...filteredProps}>
       {options.map(s => <option selected={s === value} key={name + '-' + s} value={s}>{s}</option>)}
     </select>
   );
@@ -111,7 +120,12 @@ Select.toValue = select => {
 Select.propTypes = {
   name: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.any),
-  value: PropTypes.any
+  value: PropTypes.any,
+  size: sizeProp,
+  sm: sizeProp,
+  md: sizeProp,
+  lg: sizeProp,
+  xl: sizeProp
 };
 
 Select.defaultProps = {

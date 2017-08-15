@@ -10,7 +10,7 @@ import Transaction from 'app/repr/transaction';
 import User from 'app/repr/user';
 
 // Pages
-import EditTransaction from 'app/edittransaction';
+import CreateTransaction from 'app/createTransaction';
 
 // Components
 import { SearchField } from 'app/components';
@@ -266,7 +266,7 @@ export default () => {
     makeRoute("/login", wrap(Page, LoginPage)),
     makeRoute("/signup", wrap(Page, signupForm)),
     makeRoute("/user/:id", wrap(Page, Profile)),
-    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] }),
+    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, CreateTransaction)), { action: ["buy", "sell"] }),
    // makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
    // makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
     makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction))))//,

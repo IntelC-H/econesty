@@ -94,10 +94,8 @@ class EditTransactionPage extends Component {
                 {...props}
           >
             <ControlGroup label="Offer">
-              <Input text required name="offer" />
-            </ControlGroup>
-            <ControlGroup label="Currency">
               <Select options={currencies} name="offer_currency" />
+              <Input text required name="offer" />
             </ControlGroup>
             <Input hidden name="buyer_id"/>
             <Input hidden name="buyer_payment_data_id" />
@@ -110,10 +108,10 @@ class EditTransactionPage extends Component {
               <ControlGroup label="User">
                 <SearchField name="user" api={API.user} component={props => props.object.username} />
               </ControlGroup>
-              <ControlGroup label="Require Signature" message="The user will be required to provide a signature.">
+              <ControlGroup message="Require a signature">
                 <Input checkbox required name="signature_required" />
               </ControlGroup>
-              <ControlGroup label="Require Acknowledgment" message="The user has to acknowledge this transaction.">
+              <ControlGroup message="Require acknowledgment">
                 <Input checkbox required name="acknowledgment_required" />
               </ControlGroup>
             </Form>

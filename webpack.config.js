@@ -171,7 +171,9 @@ module.exports = {
     children: false,
     modulesSort: "size",
     modules: false,
-    assetsSort: "ext"
+    excludeAssets: /.*/,
+    assetsSort: "ext",
+    publicPath: "/"
   },
   entry: {
     app: [
@@ -183,7 +185,8 @@ module.exports = {
   output: {
     path: path.resolve(pkg.files),
     filename: "code/[name].js",
-    publicPath: '/'
+    publicPath: '/',
+    strictModuleExceptionHandling: true
   },
   devtool: 'source-map;',
   module: {
@@ -246,7 +249,7 @@ module.exports = {
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",
-      test: /\.(js|css|map|ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+      // test: /\.(js|css|map|ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
       threshold: 10240,
       minRatio: 0.8
     }),
