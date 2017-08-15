@@ -1,42 +1,56 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { makeClassName, sizeProp, pureSizes } from './utilities';
+import { makeClassName, sizeProp, sizingClasses } from './utilities';
+import { Button } from './elements';
 
 const Input = props => {
   const {hidden, text, checkbox, password,
          className, type, email, url,
-         size, value, onSet, ignore,
-         sm, md, lg, xl, // eslint-disable-line no-unused-vars
+         value, onSet, ignore,
+         size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
          children, onInput, // eslint-disable-line no-unused-vars
          ...filteredProps} = props;
 
   const typeString = checkbox ? "checkbox" : hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type;
 
-  let classes = [];
+  let classes = sizingClasses('pure-input', props);
   if (className) classes.push(className);
-  if (size) classes.push("pure-input-" + size);
-  pureSizes.forEach(sz => {
-    if (sz in props) {
-      classes.push('pure-input-' + sz + '-' + props[sz])
-    }
-  });
 
   filteredProps.type = typeString;
-  filteredProps.className = makeClassName.apply(classes);
+  filteredProps.className = makeClassName.apply(this, classes);
 
   if (ignore) filteredProps["data-ignore"] = ignore;
   if (value) filteredProps.value = typeString === "hidden" ? JSON.stringify(value) : value;
 
   if (onSet) {
-    // TODO: enable mutating JSON values
     filteredProps.onInput = e => {
-      var val = e.target.value;
-      const isHidden = e.target.type === "hidden";
-      onSet(val ? (isHidden ? JSON.parse(val) : val) : null); // eslint-disable-line no-extra-parens
+      var val = e.target.value || null;
+      const isJSON = val && e.target.type === "hidden" && val.length > 0;
+
+      var jsonVal = null;
+      if (isJSON) jsonVal = JSON.parse(val);
+      onSet(jsonVal || val);
+      if (isJSON) e.target.value = JSON.stringify(jsonVal);
     }
   }
 
   return h('input', filteredProps);
+};
+
+Input.setValue = (c, val) => {
+  if (!(c.dataset.ignore === "true")) {
+    if (c.type === "checkbox") c.checked = !!val;
+    else if (val)              c.value = c.type === "hidden" ? JSON.stringify(val) : val;
+    else                       c.value = null;
+    c.dispatchEvent(new InputEvent("input", { target: c }));
+  }
+};
+
+Input.toValue = inpt => {
+  if (inpt.type === "checkbox")                    return inpt.checked || false;
+  else if (!inpt.value || inpt.value.length === 0) return null;
+  else if (inpt.type === "hidden")                 return JSON.parse(inpt.value);
+  return inpt.value;
 };
 
 Input.propTypes = {
@@ -72,27 +86,6 @@ Input.defaultProps = {
   size: null,
   ignore: false,
   onSet: null
-};
-
-Input.setValue = (c, val) => {
-  if (!(c.dataset.ignore === "true")) {
-    const isHidden = c.type === "hidden";
-    if (c.type === "checkbox") {
-      c.checked = val === true;
-      c.dispatchEvent(new InputEvent("input", { target: c }));
-    } else {
-      if (val) c.value = isHidden ? JSON.stringify(val) : val;
-      else c.value = null;
-      c.dispatchEvent(new InputEvent("input", { target: c }));
-    }
-  }
-};
-
-Input.toValue = inpt => {
-  if (inpt.type === "checkbox")                    return inpt.checked || false;
-  else if (!inpt.value || inpt.value.length === 0) return null;
-  else if (inpt.type === "hidden")                 return JSON.parse(inpt.value);
-  return inpt.value;
 };
 
 const Select = props => {
@@ -244,7 +237,7 @@ Form.defaultProps = {
 
 // operates on DOM elements
 Form.toObject = (el, acc = {}) => {
-  if (!el) return acc;
+  if (!el || !el.children) return acc;
   Array.from(el.children).forEach(child => {
     const ignore = child.dataset.ignore === "true";
     const name = child.getAttribute("name") || false;

@@ -24,25 +24,23 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] if not DEBUG else ["*"]
 
 # Application definition
 
+REST_FRAMEWORK = {
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_AUTHENTICATION_CLASSES': [], # handled app-wide by middleware
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+    'PAGE_SIZE': 10
+}
+
 if DEBUG:
-    REST_FRAMEWORK = {
-        'DEFAULT_AUTHENTICATION_CLASSES': [],
-        'DEFAULT_PERMISSION_CLASSES': [],
-        'DEFAULT_RENDERER_CLASSES': [
-            'rest_framework.renderers.JSONRenderer',
-            'rest_framework.renderers.BrowsableAPIRenderer'
-        ],
-        'PAGE_SIZE': 10
-    }
-else:
-    REST_FRAMEWORK = {
-        'DEFAULT_AUTHENTICATION_CLASSES': [],
-        'DEFAULT_PERMISSION_CLASSES': [],
-        'DEFAULT_RENDERER_CLASSES': [
-            'rest_framework.renderers.JSONRenderer'
-        ],
-        'PAGE_SIZE': 10
-    }
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"].append('rest_framework.renderers.BrowsableAPIRenderer');
+    REST_FRAMEWORK["DEFAULT_PARSER_CLASSES"].append('rest_framework.parsers.FormParser');
+    REST_FRAMEWORK["DEFAULT_PARSER_CLASSES"].append('rest_framework.parsers.MultiPartParser');
 
 INSTALLED_APPS = [
     'econesty.api',
@@ -56,6 +54,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'econesty.api.middleware.AppendSlashNoRedirect',
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,7 +67,7 @@ MIDDLEWARE = [
     'econesty.api.middleware.RewriteMeToUserID',
 ]
 
-CORS_URLS_REGEX = r'^/api/.*$'
+CORS_URLS_REGEX = r'^/api.*$'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
@@ -84,7 +83,7 @@ SECURE_SSL_REDIRECT = False # TODO: config this
 
 ROOT_URLCONF = 'econesty.urls'
 
-APPEND_SLASH = True
+APPEND_SLASH = False
 
 WSGI_APPLICATION = 'econesty.wsgi.application'
 

@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Grid, GridUnit, Button } from 'app/components';
+import { Table, Grid, GridUnit, Button } from 'app/components/elements';
 import { Resource } from 'app/components/elements';
 
 // Comp: a component whose props should be loaded asynchronously. 

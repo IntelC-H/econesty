@@ -2,3 +2,19 @@
 
 {% block title %}{% if name %}{{ name }} – {% endif %}Econesty REST API{% endblock %}
 {% block branding %}<a class="navbar-brand" rel="nofollow" href="#">Econesty REST API</a>{% endblock %}
+
+ {% block breadcrumbs %}
+          <ul class="breadcrumb">
+            {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
+              {% if breadcrumb_name != "Not Found" %}
+                {% if forloop.last %}
+                  <li class="active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+                {% else %}
+                  <li><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
+                {% endif %}
+              {% endif %}
+            {% empty %}
+              {% block breadcrumbs_empty %}&nbsp;{% endblock breadcrumbs_empty %}
+            {% endfor %}
+          </ul>
+        {% endblock %}

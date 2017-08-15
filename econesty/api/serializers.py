@@ -113,7 +113,7 @@ class RequirementSerializer(BaseSerializer):
 
 class TokenSerializer(BaseSerializer):
   username = serializers.CharField(write_only=True)
-  password = serializers.CharField(write_only=True)
+  password = serializers.CharField(write_only=True, style={'input_type': 'password'})
   user = UserSerializer(many=False, read_only=True)
   key = serializers.CharField(read_only=True)
 

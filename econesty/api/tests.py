@@ -58,7 +58,7 @@ class UserTestCase(APITestCase):
     u.save()
     self.user = u
 
-  def get_token(self, client=None):
+  def get_token(self):
     """
     This returns an auth token (as in Authorization: Token <this>) for a given 
     username & password combination.
@@ -69,12 +69,17 @@ class UserTestCase(APITestCase):
       "password": self.password
     }
 
-    response = (client or self.client).post(reverse("api:token-list"), post_body, format="json")
+    print(APIRequestFactory().post(reverse("api:token-list"), post_body, format='json').__dict__)
+
+    response = self.client.post(reverse("api:token-list"), post_body, format='json')
     self.assertEqual(response.status_code, 201)
 
-    j = json.loads(str(response.rendered_content, encoding='utf8'))
+    data = str(response.rendered_content, encoding='utf8')
+    print(response.content)
+
+    j = json.loads(data)
     self.assertEqual(j["user"]["username"], post_body["username"])
-  
+
     return j["key"]
 
 #
@@ -87,7 +92,7 @@ class MiddlewareTestCase(UserTestCase, TestCase):
   def test_me_redirection(self):
     # First, run the request without credentials. It should fail.
     response = self.client.get(reverse("api:user-detail", args=["me"]), format="json")
-    self.assertEqual(response.status_code, 401) # FIXME: is this the correct status code???
+    self.assertEqual(response.status_code, 404)
 
     # Now run the request with credentials.
     self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.get_token())

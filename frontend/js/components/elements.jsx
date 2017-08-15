@@ -40,9 +40,9 @@ const ErrorDisplay = props => <div className="error"><p>{props.message}</p></div
 ErrorDisplay.propTypes = { message: PropTypes.string.isRequired };
 ErrorDisplay.defaultProps = {};
 
+// TODO: delay the showing the Loading
+
 const Resource = props => {
-  if (props.showsLoading) return <Loading />;
-  if (props.error) return <ErrorDisplay message={props.error.message} />;
   if (props.object) {
     const {
       showsLoading, error, // eslint-disable-line no-unused-vars
@@ -50,6 +50,8 @@ const Resource = props => {
     } = props;
     return h(component, filteredProps); // keep object in props
   }
+  if (props.error) return <ErrorDisplay message={props.error.message} />;
+  if (props.showsLoading) return <Loading />;
   return null;
 };
 

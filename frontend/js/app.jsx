@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Router, Link } from 'app/components/routing';
 import { API, APICollection, APIActionCollection } from 'app/api';
 
-import { Button, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit, Loading } from 'app/components/elements';
+import { Button, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit, Loading, ErrorDisplay } from 'app/components/elements';
 import { Form, Input, ControlGroup, SubmitButton } from 'app/components/forms';
 
 // Representations
@@ -94,13 +94,16 @@ class FormComponent extends Component {
 class LoginPage extends FormComponent {
   constructor(props) {
     super(props);
+    this.login = this.login.bind(this);
     this.state = { error: null };
   }
 
   login(formData) {
+    console.log(formData);
     API.token.create(formData).catch(e => {
       this.setState(st => ({...st, error: e}))
     }).then(tok => {
+      console.log(tok);
       API.setToken(tok.key);
       Router.push("/user/me");
     });
@@ -116,28 +119,11 @@ class LoginPage extends FormComponent {
         <ControlGroup label="Password">
           <Input password required name="password" />
         </ControlGroup>
-        <SubmitButton onSubmit={login}>LOGIN</SubmitButton>
+        <SubmitButton onSubmit={this.login}>LOGIN</SubmitButton>
       </Form>
     );
   }
 }
-
-// const loginForm = props =>
-//   <Form object={props.object} aligned>
-//     <ControlGroup label="Username">
-//       <Input text required name="username" />
-//     </ControlGroup>
-//     <ControlGroup label="Password">
-//       <Input password required name="password" />
-//     </ControlGroup>
-//     <SubmitButton onSubmit={saveFormTo(API.token, obj => {
-//       API.setToken(obj.key);
-//       Router.push("/user/me");
-//     })}>
-//       LOGIN
-//     </SubmitButton>
-//   </Form>
-// ;
 
 const signupForm = props =>
   <Form object={props.object} aligned>

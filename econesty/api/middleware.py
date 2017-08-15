@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.conf import settings
 import re
 from . import models
@@ -12,12 +12,10 @@ def RewriteMeToUserID(get_response):
   def middleware(request):
     user = getattr(request, "user", None)
     matchpi = request.path_info[1:]
-    if re.search(MATCH_API_ROOT, matchpi) is not None and re.search(MATCH_ME_REGEX, matchpi) is not None:
-      if user.is_authenticated:
-        # Don't use a Location redirect to avoid losing POST bodies.
-        request.path_info = re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info)
-      else:
-        return JsonResponse({ "detail": "Authentication credentials were not provided." }, status=401)
+    if user.is_authenticated and re.search(MATCH_API_ROOT, matchpi) is not None and re.search(MATCH_ME_REGEX, matchpi) is not None:
+      # Don't use a Location redirect to avoid losing POST bodies.
+      request.path_info = re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info)
+      request.path = re.sub(REPLACE_ME_REGEX, str(user.id), request.path)
     return get_response(request)
   return middleware
 
@@ -43,5 +41,14 @@ def TokenAuth(get_response):
       # DRF appeasement
       request._user = tok.user
       request._auth = tok
+    return get_response(request)
+  return middleware
+
+def AppendSlashNoRedirect(get_response):
+  def middleware(request):
+    if not request.path_info.endswith('/'):
+      request.path_info += "/"
+    if not request.path.endswith('/'):
+      request.path += "/"
     return get_response(request)
   return middleware

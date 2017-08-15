@@ -185,6 +185,7 @@ module.exports = {
     filename: "code/[name].js",
     publicPath: '/'
   },
+  devtool: 'source-map;',
   module: {
     rules: [
       {
@@ -245,13 +246,9 @@ module.exports = {
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",
-      test: /\.(js|css|ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+      test: /\.(js|css|map|ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
       threshold: 10240,
       minRatio: 0.8
-    }),
-    new webpack.SourceMapDevToolPlugin({
-      filename: '[file].map',
-      exclude: ["code/vendor.js", "code/vendor.css"]
     }),
     // new AppCachePlugin({
     //   // TODO: fill out cache: [], and fallback: []
