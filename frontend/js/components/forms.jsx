@@ -1,5 +1,6 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
+import { makeClassName, sizeProp, pureSizes } from './utilities';
 
 const Input = props => {
   const {hidden, text, checkbox, password,
@@ -13,39 +14,29 @@ const Input = props => {
 
   let classes = [];
   if (className) classes.push(className);
-  if (size) classes.push("pure-input-" + size)
-  _sizes.forEach(sz => {
+  if (size) classes.push("pure-input-" + size);
+  pureSizes.forEach(sz => {
     if (sz in props) {
       classes.push('pure-input-' + sz + '-' + props[sz])
     }
   });
 
-  let addlProps = {
-    type: typeString
-  };
+  filteredProps.type = typeString;
+  filteredProps.className = makeClassName.apply(classes);
 
-  if (ignore) {
-    addlProps["data-ignore"] = ignore;
-  }
-
-  if (classes.length > 0) {
-    addlProps.className = makeClassName.apply(classes);
-  }
-
-  if (value) {
-    const isHidden = typeString === "hidden";
-    addlProps.value = isHidden ? JSON.stringify(value) : value;
-  }
+  if (ignore) filteredProps["data-ignore"] = ignore;
+  if (value) filteredProps.value = typeString === "hidden" ? JSON.stringify(value) : value;
 
   if (onSet) {
-    addlProps.onInput = e => {
-      let val = e.target.value;
+    // TODO: enable mutating JSON values
+    filteredProps.onInput = e => {
+      var val = e.target.value;
       const isHidden = e.target.type === "hidden";
-      onSet(val ? (isHidden ? JSON.parse(val) : val) : null);
+      onSet(val ? (isHidden ? JSON.parse(val) : val) : null); // eslint-disable-line no-extra-parens
     }
   }
 
-  return h('input', Object.assign({}, filteredProps, addlProps));
+  return h('input', filteredProps);
 };
 
 Input.propTypes = {
@@ -97,6 +88,13 @@ Input.setValue = (c, val) => {
   }
 };
 
+Input.toValue = inpt => {
+  if (inpt.type === "checkbox")                    return inpt.checked || false;
+  else if (!inpt.value || inpt.value.length === 0) return null;
+  else if (inpt.type === "hidden")                 return JSON.parse(inpt.value);
+  return inpt.value;
+};
+
 const Select = props => {
   const { name, options, value } = props;
   return (
@@ -106,8 +104,15 @@ const Select = props => {
   );
 }
 
-Select.setValue = (c, val) => {
-  c.value = val;
+// FIXME: does this really work?
+Select.setValue = (select, val) => {
+  select.value = val;
+};
+
+Select.toValue = select => {
+  var val = (select.children[child.selectedIndex] || {}).value;
+  if (!val || val.length === 0) return null;
+  return val;
 };
 
 Select.propTypes = {
@@ -244,8 +249,8 @@ Form.toObject = (el, acc = {}) => {
     const ignore = child.dataset.ignore === "true";
     const name = child.getAttribute("name") || false;
     const isForm = child.dataset.form === "true";
-    const isHidden = child.type === "hidden";
-    const isCheckbox = child.type === "checkbox";
+    // const isHidden = child.type === "hidden";
+    // const isCheckbox = child.type === "checkbox";
 
     if (name && !ignore) {
       const isGroup = child.dataset.group === "true";
@@ -255,8 +260,8 @@ Form.toObject = (el, acc = {}) => {
                                                       .filter(e => e.className.toLowerCase() === "form-group")
                                                       .map(e => Form.toObject(e));
       else if (isForm && name) acc[name] = Form.toObject(child);
-      else if (tname === "input")  acc[name] = isCheckbox ? child.checked || false : (isHidden ? (child.value && child.value.length > 0 ? JSON.parse(child.value) : child.value) : child.value);
-      else if (tname === "select") acc[name] = (child.children[child.selectedIndex] || {}).value;
+      else if (tname === "input")  acc[name] = Input.toValue(child);
+      else if (tname === "select") acc[name] = Select.toValue(child);//(child.children[child.selectedIndex] || {}).value;
       else                         acc       = Form.toObject(child, acc);
     } else acc = Form.toObject(child, acc);
   });

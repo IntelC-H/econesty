@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 //import PropTypes from 'prop-types'; // TODO: prop-types
-import { Input } from 'app/pure';
+import { Input } from './forms';
 
 // TODO: use asyncWithProps
 

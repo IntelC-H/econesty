@@ -13,9 +13,7 @@
     "./node_modules/purecss/build/grids-responsive.css"
   ],
   "dependencies": {
-    "blueimp-md5": "^2.8.0",
     "font-awesome": "^4.7.0",
-    "linkstate": "^1.0.1",
     "preact": "^8.2.1",
     "prop-types": "^15.5.10",
     "purecss": "^1.0.0"

@@ -2,8 +2,9 @@ import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Input, makeClassName } from 'app/pure';
-import { Link } from 'app/components/routing';
+import { Input } from './forms';
+import { makeClassName } from './utilities';
+import { Link } from './routing';
 
 const propTypes = {
   component: PropTypes.func.isRequired,

@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Grid, GridUnit, Button } from 'app/pure';
-import { Resource } from 'app/components/resource';
+import { Table, Grid, GridUnit, Button } from 'app/components';
+import { Resource } from 'app/components/elements';
 
 // Comp: a component whose props should be loaded asynchronously. 
 // onMount: when the component is mounted, called with a single argument: setState (see below).

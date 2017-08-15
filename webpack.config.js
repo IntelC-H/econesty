@@ -166,12 +166,13 @@ const extractStyle = new ExtractTextPlugin({
 
 module.exports = {
   stats: {
+    // TODO: hide source maps & gzip files
+    performance: false,
     children: false,
     modulesSort: "size",
-    assetsSort: "ext",
-    usedExports: true
+    modules: false,
+    assetsSort: "ext"
   },
-  devtool: "source-map",
   entry: {
     app: [
       path.resolve(pkg.browser),
@@ -241,17 +242,16 @@ module.exports = {
       // },
     }),
     extractStyle,
-    // new webpack.optimize.UglifyJsPlugin({
-    //   minimize: true,
-    //   compress: false,
-    //   sourceMap: true
-    // }),
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",
-      test: /.*/,
+      test: /\.(js|css|ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
       threshold: 10240,
       minRatio: 0.8
+    }),
+    new webpack.SourceMapDevToolPlugin({
+      filename: '[file].map',
+      exclude: ["code/vendor.js", "code/vendor.css"]
     }),
     // new AppCachePlugin({
     //   // TODO: fill out cache: [], and fallback: []

@@ -1,3 +1,5 @@
+import hashlib
+
 from . import models
 import django.contrib.auth.models as amodels
 from django.contrib.auth.hashers import check_password
@@ -24,14 +26,20 @@ def writing_field(model_clazz, source, **kwargs):
   return serializers.PrimaryKeyRelatedField(**kwargs)
 
 class UserSerializer(BaseSerializer):
+  avatar_url = serializers.SerializerMethodField()
   class Meta:
     model = amodels.User
-    fields = ("id", "username", "first_name", "last_name", "email", "password", "date_joined")
+    fields = ("id", "username", "first_name", "last_name", "email", "password", "date_joined", "avatar_url")
     extra_kwargs = {
-      'password': {'write_only': True},
+      'avatar_url': { 'read_only': True },
+      'password': {'write_only': True, 'style': {'input_type': 'password'} },
       'id': {'read_only': True},
       'date_joined': {'read_only': True},
     }
+
+  def get_avatar_url(self, obj):
+    md5Email = hashlib.md5(obj.email.encode("utf8")).hexdigest()
+    return "https://www.gravatar.com/avatar/" + md5Email
 
   def create(self, data):
     u = amodels.User(**data)

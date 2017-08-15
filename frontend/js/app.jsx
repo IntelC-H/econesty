@@ -2,7 +2,8 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Router, Link } from 'app/components/routing';
 import { API, APICollection, APIActionCollection } from 'app/api';
 
-import { Form, Input, Select, ControlGroup, Button, SubmitButton, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit } from 'app/pure';
+import { Button, Menu, MenuList, MenuHeading, MenuItem, Grid, GridUnit, Loading } from 'app/components/elements';
+import { Form, Input, ControlGroup, SubmitButton } from 'app/components/forms';
 
 // Representations
 import Transaction from 'app/repr/transaction';
@@ -12,18 +13,16 @@ import User from 'app/repr/user';
 import EditTransaction from 'app/edittransaction';
 
 // Components
-import Components, { SearchField } from 'app/components';
-import Resource, { Loading } from 'app/components/resource';
-import { withPromiseFactory, withPromise, asyncCollection, wrap } from 'app/components/higher';
+import { SearchField } from 'app/components';
+import { /*withPromiseFactory, */withPromise, asyncCollection, wrap } from 'app/components/higher';
 
 /*
 
   TODO for MVP:
-  1. Payment data creation page
-  2. Edit profile page
-  3. Fulfill Requirement page
-  4. Separate Form et al from pure.jsx
-  5. Move pure.jsx into components
+  1. Stateful forms
+  2. Payment data creation page
+  3. Edit profile page
+  4. Fulfill Requirement page
 
 */
 
@@ -45,14 +44,14 @@ function saveFormTo(api, f = null) {
   };
 }
 
-function upsertFormTo(api, oid, f = null) {
-  return obj => {
-    var p = oid ? api.update(oid, obj) : api.create(obj);
-    p.catch(e => {
-      throw e;
-    }).then(f || (() => undefined));
-  };
-}
+// function upsertFormTo(api, oid, f = null) {
+//   return obj => {
+//     var p = oid ? api.update(oid, obj) : api.create(obj);
+//     p.catch(e => {
+//       throw e;
+//     }).then(f || (() => undefined));
+//   };
+// }
 
 function withAPI(api, form) {
   return props => {
@@ -73,22 +72,72 @@ function secure(comp) {
 
 // Create-Only
 
-const loginForm = props =>
-  <Form object={props.object} aligned>
-    <ControlGroup label="Username">
-      <Input text required name="username" />
-    </ControlGroup>
-    <ControlGroup label="Password">
-      <Input password required name="password" />
-    </ControlGroup>
-    <SubmitButton onSubmit={saveFormTo(API.token, obj => {
-      API.setToken(obj.key);
+class FormComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.form = null;
+    this.formRef = this.formRef.bind(this);
+    this.object = {};
+  }
+
+  componentWillUpdate() {
+    if (this.form) {
+      this.object = Form.toObject(this.form);
+    }
+  }
+
+  formRef(ref) {
+    this.form = ref;
+  }
+}
+
+class LoginPage extends FormComponent {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  login(formData) {
+    API.token.create(formData).catch(e => {
+      this.setState(st => ({...st, error: e}))
+    }).then(tok => {
+      API.setToken(tok.key);
       Router.push("/user/me");
-    })}>
-      LOGIN
-    </SubmitButton>
-  </Form>
-;
+    });
+  }
+
+  render() {
+    return makePage(
+      <Form object={this.object} aligned ref={this.formRef}>
+        {!!this.state.error && <ErrorDisplay message={this.state.error.message} />}
+        <ControlGroup label="Username">
+          <Input text required name="username" />
+        </ControlGroup>
+        <ControlGroup label="Password">
+          <Input password required name="password" />
+        </ControlGroup>
+        <SubmitButton onSubmit={login}>LOGIN</SubmitButton>
+      </Form>
+    );
+  }
+}
+
+// const loginForm = props =>
+//   <Form object={props.object} aligned>
+//     <ControlGroup label="Username">
+//       <Input text required name="username" />
+//     </ControlGroup>
+//     <ControlGroup label="Password">
+//       <Input password required name="password" />
+//     </ControlGroup>
+//     <SubmitButton onSubmit={saveFormTo(API.token, obj => {
+//       API.setToken(obj.key);
+//       Router.push("/user/me");
+//     })}>
+//       LOGIN
+//     </SubmitButton>
+//   </Form>
+// ;
 
 const signupForm = props =>
   <Form object={props.object} aligned>
@@ -226,8 +275,8 @@ const Home = () => makePage([
 ]);
 
 const NotFound = wrap(Page, () => <span>Not Found.</span>);
-const AuthRequired = props => <span>Authentication Required.</span>;
-const MeRedirect = secure(props => {
+const AuthRequired = () => <span>Authentication Required.</span>;
+const MeRedirect = secure(() => {
   // This function exists because JS's regex implementation doesn't support bidirectional lookaround.
   const urlComps = document.location.pathname.split("/").filter(x => x.length > 0);
   var idx = urlComps.indexOf("me");
@@ -235,7 +284,7 @@ const MeRedirect = secure(props => {
     urlComps[idx] = res.id.toString();
     Router.replace("/" + urlComps.join("/"));
   });
-  
+
   return <Loading />; // show loading
 })
 const isMeURL = url => url.split("/").indexOf("me") !== -1 ? {} : false;
@@ -245,7 +294,7 @@ export default () => {
   const routes = [
     makeRoute(isMeURL, MeRedirect), // support me alias for user ids.
     makeRoute("/", wrap(Page, Home)),
-    makeRoute("/login", wrap(Page, loginForm)),
+    makeRoute("/login", wrap(Page, LoginPage)),
     makeRoute("/signup", wrap(Page, signupForm)),
     makeRoute("/user/:id", wrap(Page, Profile)),
     makeRoute("/user/:id/transaction/:action", secure(wrap(Page, EditTransaction)), { action: ["buy", "sell"] }),
