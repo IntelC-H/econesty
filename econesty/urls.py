@@ -34,13 +34,14 @@ def file_exists(path):
 def frontend(request, path):
   full_path = os.path.join(settings.FRONTEND_PATH, path)
 
-  # this ordering is important because it allows serving
-  # gzip'd files in the absence of an uncompressed version.
-  if file_exists(full_path + ".gz"):
-    full_path += ".gz";
+  if full_path.endswith("/"):
+    full_path = full_path[:-1]
 
   if not file_exists(full_path):
     full_path = os.path.join(settings.FRONTEND_PATH, 'index.html')
+
+  if file_exists(full_path + ".gz"):
+    full_path += ".gz";
 
   response = StreamingHttpResponse((line for line in open(full_path, 'rb')))
 

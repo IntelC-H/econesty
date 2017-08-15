@@ -103,7 +103,7 @@ Select.setValue = (select, val) => {
 };
 
 Select.toValue = select => {
-  var val = (select.children[child.selectedIndex] || {}).value;
+  var val = (select.children[select.selectedIndex] || {}).value;
   if (!val || val.length === 0) return null;
   return val;
 };
@@ -242,21 +242,16 @@ Form.toObject = (el, acc = {}) => {
     const ignore = child.dataset.ignore === "true";
     const name = child.getAttribute("name") || false;
     const isForm = child.dataset.form === "true";
-    // const isHidden = child.type === "hidden";
-    // const isCheckbox = child.type === "checkbox";
+    const isGroup = child.dataset.group === "true";
+    const tname = child.tagName.toLowerCase();
 
-    if (name && !ignore) {
-      const isGroup = child.dataset.group === "true";
-      const tname = child.tagName.toLowerCase();
-
-      if (isForm && name && isGroup) acc[name] = Array.from(child.children)
-                                                      .filter(e => e.className.toLowerCase() === "form-group")
-                                                      .map(e => Form.toObject(e));
-      else if (isForm && name) acc[name] = Form.toObject(child);
-      else if (tname === "input")  acc[name] = Input.toValue(child);
-      else if (tname === "select") acc[name] = Select.toValue(child);//(child.children[child.selectedIndex] || {}).value;
-      else                         acc       = Form.toObject(child, acc);
-    } else acc = Form.toObject(child, acc);
+    if (name && !ignore && isForm && isGroup) acc[name] = Array.from(child.children)
+                                                          .filter(e => e.className.toLowerCase() === "form-group")
+                                                          .map(e => Form.toObject(e));
+    else if (name && !ignore && isForm)       acc[name] = Form.toObject(child);
+    else if (name && !ignore && tname === "input")  acc[name] = Input.toValue(child);
+    else if (name && !ignore && tname === "select") acc[name] = Select.toValue(child);
+    else acc = Form.toObject(child, acc);
   });
   return acc;
 };
@@ -275,10 +270,13 @@ Form.setObject = (obj, c) => {
     if (isForm && isGroup && val && val.length > 0) {
       let ary = val.slice();
 
-      while (c.firstChild && ary.length > 0) {
-        if (c.firstChild instanceof HTMLElement && c.firstChild.className === "form-group") {
-          Form.setObject(ary.shift(), c.firstChild);
-        } else c.removeChild(c.firstChild);
+      var i = 0;
+      while (ary.length > 0 && c.children.length > i) {
+        var cld = c.children[i];
+        if (cld instanceof HTMLElement && cld.className === "form-group") {
+          Form.setObject(ary.shift(), cld);
+          i++;
+        } else c.removeChild(cld);
       }
 
       ary.forEach(elem => {

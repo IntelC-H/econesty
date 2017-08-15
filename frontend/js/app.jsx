@@ -72,26 +72,7 @@ function secure(comp) {
 
 // Create-Only
 
-class FormComponent extends Component {
-  constructor(props) {
-    super(props);
-    this.form = null;
-    this.formRef = this.formRef.bind(this);
-    this.object = {};
-  }
-
-  componentWillUpdate() {
-    if (this.form) {
-      this.object = Form.toObject(this.form);
-    }
-  }
-
-  formRef(ref) {
-    this.form = ref;
-  }
-}
-
-class LoginPage extends FormComponent {
+class LoginPage extends Component {
   constructor(props) {
     super(props);
     this.login = this.login.bind(this);
@@ -99,19 +80,21 @@ class LoginPage extends FormComponent {
   }
 
   login(formData) {
-    console.log(formData);
     API.token.create(formData).catch(e => {
       this.setState(st => ({...st, error: e}))
     }).then(tok => {
-      console.log(tok);
-      API.setToken(tok.key);
-      Router.push("/user/me");
+      if (tok) {
+        API.setToken(tok.key);
+        Router.push("/user/me");
+      }
     });
   }
 
   render() {
     return makePage(
-      <Form object={this.object} aligned ref={this.formRef}>
+      <Form object={this.form ? Form.toObject(this.form.base) : {}}
+            aligned
+            ref={c => { this.form = c; }}>
         {!!this.state.error && <ErrorDisplay message={this.state.error.message} />}
         <ControlGroup label="Username">
           <Input text required name="username" />

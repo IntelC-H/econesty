@@ -1,10 +1,10 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 //import PropTypes from 'prop-types';
-import { Button, Grid, GridUnit } from 'app/components/elements';
+import { Resource, Button, Grid, GridUnit } from 'app/components/elements';
 import { Form, Input, Select, ControlGroup, SubmitButton } from 'app/components/forms';
 
 import { API } from 'app/api';
-import { Resource, SearchField } from 'app/components';
+import { SearchField } from 'app/components';
 // import { Router, Link } from 'app/components/routing';
 
 class EditTransactionPage extends Component {
@@ -75,22 +75,24 @@ class EditTransactionPage extends Component {
   }
 
   addRequirement() {
-    let obj = this.formEl ? Form.toObject(this.formEl) : this.state.object;
+    console.log(Form.toObject(this.form.base));
+    let obj = this.form ? Form.toObject(this.form.base) : this.state.object;
     obj.requirements = obj.requirements || [];
     obj.requirements.push({});
+    console.log(obj.requirements);
     this.setState(st => ({...st, object: obj}));
   }
 
-  renderForm({ object }) {
+  renderForm(props) {
     const currencies = ["USD", "EUR", "JPY", "GBP"];
     return (
       <Grid>
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
-          <Form object={object} aligned ref={ el => {
-            if (el) this.formEl = el.base;
-            return;
-          } }>
+          <Form aligned
+                ref={ el => { this.form = el; }}
+                {...props}
+          >
             <ControlGroup label="Offer">
               <Input text required name="offer" />
             </ControlGroup>
