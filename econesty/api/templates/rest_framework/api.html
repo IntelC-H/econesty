@@ -1,10 +1,20 @@
 {% extends "rest_framework/base.html" %}
 
 {% block title %}{% if name %}{{ name }} – {% endif %}Econesty REST API{% endblock %}
-{% block branding %}<a class="navbar-brand" rel="nofollow" href="/api/">Econesty REST API</a>{% endblock %}
+{% block branding %}
+  <div class="nav navbar-nav pull-left">
+    <a class="navbar-brand" style="display: inline-block;" rel="nofollow" href="/api/">Econesty REST API</a>
+  </div>
+{% endblock %}
 
 {% block bootstrap_theme %}
     <link rel="stylesheet" href="http://bootswatch.com/paper/bootstrap.min.css" type="text/css">
+{% endblock %}
+
+{% block userlinks %}
+  {% if not request.user.is_anonymous %}
+    <a class="navbar-brand" style="display: inline-block;" rel="nofollow" href="/api/user/{{ request.user.id }}">{{ request.user }}</a>
+  {% endif %}
 {% endblock %}
 
 {% block breadcrumbs %}
