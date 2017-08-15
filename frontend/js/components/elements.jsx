@@ -1,3 +1,5 @@
+import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
+import PropTypes from 'prop-types';
 import { inheritClass, cssSubclass } from './utilities';
 
 const Image = inheritClass('img', "pure-image");
