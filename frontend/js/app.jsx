@@ -14,7 +14,7 @@ import CreateTransaction from 'app/createTransaction';
 
 // Components
 import { SearchField } from 'app/components';
-import { /*withPromiseFactory, */withPromise, asyncCollection, wrap } from 'app/components/higher';
+import { /*withPromiseFactory, */withPromise, asyncCollection } from 'app/components/higher';
 
 /*
 
@@ -63,6 +63,7 @@ function withAPI(api, form) {
 function secure(comp) {
   return props => {
     if (API.isAuthenticated) return h(comp, props);
+    console.log("unauthorized!");
     Router.replace("/login");
     return null;
   };
@@ -243,11 +244,11 @@ const Home = () => makePage([
   ])
 ]);
 
-const NotFound = wrap(Page, () => <span>Not Found.</span>);
+const NotFound = () => <span>Not Found.</span>;
 const AuthRequired = () => <span>Authentication Required.</span>;
 const MeRedirect = secure(() => {
   // This function exists because JS's regex implementation doesn't support bidirectional lookaround.
-  const urlComps = document.location.pathname.split("/").filter(x => x.length > 0);
+  const urlComps = Router.getPath().split("/").filter(x => x.length > 0);
   var idx = urlComps.indexOf("me");
   API.user.me().then(res => {
     urlComps[idx] = res.id.toString();
@@ -262,16 +263,16 @@ export default () => {
   const makeRoute = (path, Comp, wcs = {}) => <Comp path={path} wildcards={wcs} />;
   const routes = [
     makeRoute(isMeURL, MeRedirect), // support me alias for user ids.
-    makeRoute("/", wrap(Page, Home)),
-    makeRoute("/login", wrap(Page, LoginPage)),
-    makeRoute("/signup", wrap(Page, signupForm)),
-    makeRoute("/user/:id", wrap(Page, Profile)),
-    makeRoute("/user/:id/transaction/:action", secure(wrap(Page, CreateTransaction)), { action: ["buy", "sell"] }),
-   // makeRoute("/payment/new", secure(wrap(Page, withPromiseFactory(paymentDataDefaults, paymentDataForm)))),
-   // makeRoute("/payment/:id", secure(wrap(Page, withAPI(API.payment_data, paymentDataForm)))),
-    makeRoute("/transaction/:id", secure(wrap(Page, withAPI(API.transaction, Transaction))))//,
-   // makeRoute("/transaction/:id/countersign", secure(wrap(Page, withPromiseFactory(countersignDefaults, countersignForm))))
+    makeRoute("/", Home),
+    makeRoute("/login", LoginPage),
+    makeRoute("/signup", signupForm),
+    makeRoute("/user/:id", Profile),
+    makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }),
+   // makeRoute("/payment/new", secure(withPromiseFactory(paymentDataDefaults, paymentDataForm))),
+   // makeRoute("/payment/:id", secure(withAPI(API.payment_data, paymentDataForm))),
+    makeRoute("/transaction/:id", secure(withAPI(API.transaction, Transaction)))//,
+   // makeRoute("/transaction/:id/countersign", secure(withPromiseFactory(countersignDefaults, countersignForm)))
   ];
 
-  return <Router notFound={NotFound}>{routes}</Router>;
+  return <Page><Router notFound={NotFound}>{routes}</Router></Page>;
 };

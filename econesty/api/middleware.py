@@ -12,10 +12,15 @@ def RewriteMeToUserID(get_response):
   def middleware(request):
     user = getattr(request, "user", None)
     matchpi = request.path_info[1:]
-    if user.is_authenticated and re.search(MATCH_API_ROOT, matchpi) is not None and re.search(MATCH_ME_REGEX, matchpi) is not None:
-      # Don't use a Location redirect to avoid losing POST bodies.
-      request.path_info = re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info)
-      request.path = re.sub(REPLACE_ME_REGEX, str(user.id), request.path)
+    if re.search(MATCH_API_ROOT, matchpi) is not None and re.search(MATCH_ME_REGEX, matchpi) is not None:
+      if not user.is_authenticated:
+        if settings.DEBUG:
+          print("unauthenticated `me` url: " + request.path_info)
+      else:
+        # Don't use a Location redirect to avoid losing POST bodies.
+        request.path_info = re.sub(REPLACE_ME_REGEX, str(user.id), request.path_info)
+        request.path = request.path_info # DRF appeasement
+
     return get_response(request)
   return middleware
 
@@ -38,6 +43,7 @@ def TokenAuth(get_response):
     if tok is not None:
       request.user = tok.user
       request.auth = tok
+
       # DRF appeasement
       request._user = tok.user
       request._auth = tok

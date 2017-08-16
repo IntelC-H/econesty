@@ -68,14 +68,11 @@ class UserTestCase(APITestCase):
       "username": self.username,
       "password": self.password
     }
-
-    print(APIRequestFactory().post(reverse("api:token-list"), post_body, format='json').__dict__)
-
+    
     response = self.client.post(reverse("api:token-list"), post_body, format='json')
     self.assertEqual(response.status_code, 201)
 
     data = str(response.rendered_content, encoding='utf8')
-    print(response.content)
 
     j = json.loads(data)
     self.assertEqual(j["user"]["username"], post_body["username"])

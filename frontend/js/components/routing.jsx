@@ -100,6 +100,10 @@ window.addEventListener("popstate", () => updateSubscribers(document.location.pa
 
 // TODO: page state
 
+Router.getPath = () => {
+  return document.location.pathname;
+}
+
 Router.push = url => {
   history.pushState(null, null, url);
   updateSubscribers(url);

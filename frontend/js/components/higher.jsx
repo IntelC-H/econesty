@@ -119,10 +119,6 @@ export function mapProps(f, Component) {
   return props => h(Component, f(props));
 }
 
-export function wrap(Wrapper, Comp) {
-  return props => <Wrapper><Comp {...props} /></Wrapper>;
-}
-
 export default {
   collection: collection,
   asyncCollection: asyncCollection,
@@ -132,6 +128,5 @@ export default {
   asyncWithProps: asyncWithProps,
   asyncWithObject: asyncWithObject,
   withPromise: withPromise,
-  withPromiseFactory: withPromiseFactory,
-  wrap: wrap
+  withPromiseFactory: withPromiseFactory
 };

@@ -7,7 +7,7 @@ import { API } from 'app/api';
 import { SearchField } from 'app/components';
 // import { Router, Link } from 'app/components/routing';
 
-class EditTransactionPage extends Component {
+class CreateTransaction extends Component {
   constructor(props) {
     super(props);
     this.formEl = null;
@@ -136,4 +136,4 @@ class EditTransactionPage extends Component {
   }
 }
 
-export default EditTransactionPage;
+export default CreateTransaction;
