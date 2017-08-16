@@ -7,7 +7,7 @@ import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import econesty.api.models
+import backend.api.models
 
 
 class Migration(migrations.Migration):
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('deleted', models.DateTimeField(editable=False, null=True)),
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('key', models.CharField(db_index=True, default=econesty.api.models.Token.make_key, max_length=128)),
+                ('key', models.CharField(db_index=True, default=backend.api.models.Token.make_key, max_length=128)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
