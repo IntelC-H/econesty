@@ -68,7 +68,28 @@ Resource.defaultProps = {
   showsLoading: true
 };
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, ErrorDisplay, Resource };
+function _toCurrencySymbol(curr) {
+  if (curr === 'USD') return '$';
+  if (curr === 'EUR') return '€';
+  if (curr === 'JPY') return '¥';
+  if (curr === 'GBP') return '£';
+  // TODO: more
+  return null;
+}
+
+const Money = props => <span>{_toCurrencySymbol(props.currency.toUpperCase()) || props.currency} {props.value}</span>;
+
+Money.propTypes = {
+  currency: PropTypes.string,
+  value: PropTypes.number
+};
+
+Money.defaultProps = {
+  currency: "USD",
+  value: 0.00
+};
+
+export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, ErrorDisplay, Resource, Money };
 
 export default {
   Image: Image,
@@ -84,5 +105,6 @@ export default {
   MenuItem: MenuItem,
   Loading: Loading,
   ErrorDisplay: ErrorDisplay,
-  Resource: Resource
+  Resource: Resource,
+  Money: Money
 };

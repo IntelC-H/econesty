@@ -98,7 +98,7 @@ const eslintOptions = {
     "no-process-env":0,
     "no-proto":0,
     "no-redeclare":1,
-    "no-return-assign":2,
+    "no-return-assign":0,
     "no-script-url":2,
     "no-self-compare":0,
     "no-sequences":0,
@@ -240,24 +240,15 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
       minChunks: Infinity
-      // minChunks(module, count) {
-      //   var context = module.context;
-      //   return context && context.indexOf('node_modules') >= 0;
-      // },
     }),
     extractStyle,
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",
-      // test: /\.(js|css|map|ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
       threshold: 10240,
       minRatio: 0.8
     }),
-    // new AppCachePlugin({
-    //   // TODO: fill out cache: [], and fallback: []
-    //   settings: ['prefer-online'],
-    //   output: 'econesty.appcache'
-    // }),
+    // TODO: AppCachePlugin
     new HtmlWebpackPlugin({
       cache: true,
       title: "Econesty",

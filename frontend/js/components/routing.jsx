@@ -122,12 +122,8 @@ Router.setURL = url => {
 }
 
 const Link = props => {
-  const { href, onClick, ...filteredProps} = props; // eslint-disable-line no-unused-vars
-
-  const myOnClick = () => {
-    Router.push(href);
-  };
-  return <a onClick={myOnClick} {...filteredProps}/>;
+  const { href, component, ...filteredProps} = props;
+  return h(component || 'a', { ...filteredProps, onClick: () => Router.push(href) });
 }
 
 export { Router, Link };

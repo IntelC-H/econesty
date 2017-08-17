@@ -12,7 +12,7 @@ import { Button } from './elements';
 
 // TODO: textareas
 
-const InputGroup = inheritClass('fieldset', 'pure-group')
+const InputGroup = inheritClass('fieldset', 'pure-group');
 
 const Input = props => {
   const {hidden, text, checkbox, password,
@@ -321,9 +321,10 @@ Form.setObject = (obj, c) => {
   }
 };
 
-export { Input, Select, ControlGroup, SubmitButton, Form };
+export { InputGroup, Input, Select, ControlGroup, SubmitButton, Form };
 
 export default {
+  InputGroup: InputGroup,
   Input: Input,
   Select: Select,
   ControlGroup: ControlGroup,

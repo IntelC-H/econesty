@@ -61,9 +61,9 @@ class CreateTransaction extends Component {
     delete objCopy.requirements;
 
     const logic = transaction => {
-      Promise.all(requirements.map(r => API.requirement.create(r))).catch(err => {
-
-      }).then(rs => {
+      // TODO: catch errors on creating requirements
+      Promise.all(requirements.map(r => API.requirement.create(r))).then(rs => {
+        transaction.requirements = rs;
         this.setState(st => Object.assign({}, st, { object: transaction }));
         Router.redirect("/transaction/" + transaction.id);
       });
@@ -75,11 +75,9 @@ class CreateTransaction extends Component {
   }
 
   addRequirement() {
-    console.log(Form.toObject(this.form.base));
     let obj = this.form ? Form.toObject(this.form.base) : this.state.object;
     obj.requirements = obj.requirements || [];
     obj.requirements.push({});
-    console.log(obj.requirements);
     this.setState(st => ({...st, object: obj}));
   }
 
@@ -90,7 +88,7 @@ class CreateTransaction extends Component {
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
           <Form aligned
-                ref={ el => { this.form = el; }}
+                ref={ el => this.form = el }
                 {...props}
           >
             <ControlGroup label="Offer">
