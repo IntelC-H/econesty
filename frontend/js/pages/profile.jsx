@@ -3,25 +3,10 @@ import { Link } from 'app/components/routing';
 import { API } from 'app/api';
 
 import { Button, Grid, GridUnit, Image, Money } from 'app/components/elements';
-
-// Components
 import { withPromiseFactory, asyncCollection } from 'app/components/higher';
-
-import AuthRequired from './authRequired';
 
 const dateOpts = { year: 'numeric', month: 'long', day: 'numeric' };
 const formatDate = x => new Date(x).toLocaleString(navigator.language, dateOpts);
-
-const Transaction = props => {
-  var obj = props.object;
-  return (
-    <tr>
-      <td><Money currency={obj.offer_currency} value={parseFloat(obj.offer)} /></td>
-      <td><Link className="secondary" href={"/user/" + obj.buyer.id}>{obj.buyer.first_name} {obj.buyer.last_name} (@{obj.buyer.username})</Link></td>
-      <td><Link className="secondary" href={"/user/" + obj.seller.id}>{obj.seller.first_name} {obj.seller.last_name} (@{obj.seller.username})</Link></td>
-    </tr>
-  );
-};
 
 const Profile = props => {
   const userId = props.matches.id;
@@ -40,11 +25,20 @@ const Profile = props => {
       );
     }
   );
-  const TransactionCollection = API.isAuthenticated ? asyncCollection(
+  const TransactionCollection = asyncCollection(
     () => <tr><th>Offer</th><th>Buyer</th><th>Seller</th></tr>,
-    Transaction,
+    props => {
+      var obj = props.object;
+      return (
+        <tr>
+          <td><Money currency={obj.offer_currency} value={parseFloat(obj.offer)} /></td>
+          <td><Link className="secondary" href={"/user/" + obj.buyer.id}>{obj.buyer.first_name} {obj.buyer.last_name} (@{obj.buyer.username})</Link></td>
+          <td><Link className="secondary" href={"/user/" + obj.seller.id}>{obj.seller.first_name} {obj.seller.last_name} (@{obj.seller.username})</Link></td>
+        </tr>
+      );
+    },
     page => API.paginate(API.user.transactions(userId, page), API.transaction)
-  ) : AuthRequired;
+  );
 
   return (
     <Grid>
