@@ -39,12 +39,13 @@ function secure(comp) {
 }
 
 const MeRedirect = secure(() => {
-  // This function exists because JS's regex implementation doesn't support bidirectional lookaround.
-  const urlComps = Router.getPath().split("/").filter(x => x.length > 0);
-  var idx = urlComps.indexOf("me");
+  // This function exists because JS's regex
+  // implementation doesn't support bidirectional lookaround.
   API.user.me().then(res => {
+    const urlComps = Router.getPath().split("/");
+    const idx = urlComps.indexOf("me");
     urlComps[idx] = res.id.toString();
-    Router.replace("/" + urlComps.join("/"));
+    Router.replace(urlComps.join("/"));
   });
 
   return <Loading />;
