@@ -29,6 +29,8 @@ import Home from 'app/pages/home';
     -  light backgrounds?
     -  make delete buttons use an X
     -  position the delete buttons right
+  - SearchField overlay allow clicking in textfield
+  - SearchField dropdown dismiss on link click
 
 */
 

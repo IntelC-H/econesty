@@ -1,5 +1,5 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
-import { SearchField } from 'app/components';
+import SearchField from 'app/components/searchfield';
 import { Form } from 'app/components/forms';
 import { Menu, MenuHeading, MenuList, MenuItem } from 'app/components/elements';
 import { Link } from 'app/components/routing';

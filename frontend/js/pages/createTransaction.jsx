@@ -4,7 +4,7 @@ import { Resource, Button, Grid, GridUnit } from 'app/components/elements';
 import { Form, Input, Select, ControlGroup, SubmitButton } from 'app/components/forms';
 
 import { API } from 'app/api';
-import { SearchField } from 'app/components';
+import { SearchField } from 'app/components/searchfield';
 // import { Router, Link } from 'app/components/routing';
 
 class CreateTransaction extends Component {
