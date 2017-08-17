@@ -33,11 +33,7 @@ import Home from 'app/pages/home';
 */
 
 function secure(comp) {
-  return props => {
-    if (API.isAuthenticated) return h(comp, props);
-    Router.replace("/login");
-    return null;
-  };
+  return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
 }
 
 const MeRedirect = secure(() => {
@@ -49,7 +45,7 @@ const MeRedirect = secure(() => {
     Router.replace("/" + urlComps.join("/"));
   });
 
-  return <Loading />; // show loading
+  return <Loading />;
 })
 
 const isMeURL = url => url.split("/").indexOf("me") !== -1 ? {} : false;
