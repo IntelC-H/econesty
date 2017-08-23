@@ -20,6 +20,7 @@ $header-height: 50px;
 $header-font-size: 1.25em;
 
 $padding: 10px;
+$border-radius: 3px;
 
 $shadow-dist: 2px;
 $shadow-blur: 5px;
@@ -123,7 +124,7 @@ hr {
 .pure-button {
   background-color: $accent-color;
   color: white;
-  border-radius: 3px;
+  border-radius: $border-radius;
 }
 
 .pure-menu-heading {
@@ -160,12 +161,6 @@ hr {
 .pure-table thead {
   color: $primary-color-text;
   background-color: $primary-color;
-}
-
-.form-delete-button {
-  float: right;
-  height: 0;
-  overflow: visible;
 }
 
 /*
@@ -284,6 +279,26 @@ hr {
       }
     }
   }
+}
+
+/*
+  Form Styling
+*/
+
+.form-group {
+  border-radius: $border-radius;
+}
+
+.form-delete-button {
+  float: right;
+  height: 0;
+  overflow: visible;
+  padding: $padding;
+  padding-right: $padding + $border-radius;
+}
+
+.control-group {
+  display: block;
 }
 
 /*

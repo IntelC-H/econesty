@@ -4,7 +4,7 @@ import { Resource, Button, Grid, GridUnit } from 'app/components/elements';
 import { Form, Input, Select, ControlGroup, SubmitButton } from 'app/components/forms';
 
 import { API } from 'app/api';
-import { SearchField } from 'app/components/searchfield';
+import SearchField from 'app/components/searchfield';
 // import { Router, Link } from 'app/components/routing';
 
 class CreateTransaction extends Component {
@@ -87,30 +87,32 @@ class CreateTransaction extends Component {
       <Grid>
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
+          <div className="informational">
+            <h3>Create a Transaction</h3>
+            <p>This is the page you use to create a transaction.</p>
+          </div>
           <Form aligned
                 ref={ el => this.form = el }
                 {...props}
           >
-            <ControlGroup label="Offer">
-              <Select options={currencies} name="offer_currency" size="1-4" />
-              <Input text required name="offer" size="1-4" />
+            <ControlGroup label="How much?">
+              <Select options={currencies} name="offer_currency" />
+              <Input text required name="offer" />
             </ControlGroup>
             <Input hidden name="buyer_id"/>
             <Input hidden name="buyer_payment_data_id" />
             <Input hidden name="seller_id" />
             <Input hidden name="seller_payment_data_id" />
-            <Form group name="requirements">
+            <Form group aligned name="requirements">
               <ControlGroup label="Terms">
                 <Input text required name="text" />
               </ControlGroup>
               <ControlGroup label="User">
                 <SearchField name="user" api={API.user} component={props => props.object.username} />
               </ControlGroup>
-              <ControlGroup message="Require a signature">
-                <Input checkbox required name="signature_required" />
-              </ControlGroup>
-              <ControlGroup message="Require acknowledgment">
-                <Input checkbox required name="acknowledgment_required" />
+              <ControlGroup>
+                <Input checkbox required name="signature_required" placeholder="Require a signature" />
+                <Input checkbox required name="acknowledgment_required" placeholder="Require acknowledgment" />
               </ControlGroup>
             </Form>
             <Button onClick={this.addRequirement}>+ Requirement</Button>

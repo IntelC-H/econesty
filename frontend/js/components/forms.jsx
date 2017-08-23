@@ -1,7 +1,7 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { makeClassName, sizeProp, sizingClasses, inheritClass } from './utilities';
-import { Button } from './elements';
+import { Button, Grid, GridUnit } from './elements';
 
 //
 // TODO: Rewrite!
@@ -10,6 +10,9 @@ import { Button } from './elements';
 // 2. No more manual DOM manipulation
 //
 
+// TODO: labels directly on checkboxes.
+// TODO: separate Checkbox form Input?
+// TODO: separate email, url, text, password, etc from Input?
 // TODO: textareas
 
 const InputGroup = inheritClass('fieldset', 'pure-group');
@@ -17,7 +20,7 @@ const InputGroup = inheritClass('fieldset', 'pure-group');
 const Input = props => {
   const {hidden, text, checkbox, password,
          className, type, email, url,
-         value, onSet, ignore,
+         value, onSet, ignore, placeholder,
          size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
          children, onInput, // eslint-disable-line no-unused-vars
          ...filteredProps} = props;
@@ -45,7 +48,11 @@ const Input = props => {
     }
   }
 
-  return h('input', filteredProps);
+  if (typeString === "checkbox" && !!placeholder && placeholder.length > 0) {
+    return <label><input {...filteredProps}/> {placeholder} </label>;
+  }
+
+  return h('input', Object.assign(filteredProps, { placeholder: placeholder }));
 };
 
 Input.setValue = (c, val) => {
@@ -137,14 +144,21 @@ Select.defaultProps = {
 };
 
 const ControlGroup = props => {
-  const { message, label, className, children } = props;
-
+  const { message, label, children } = props;
+  const hasMessage = !!message;
+  // TODO: finish pure-control-group replacement
   return (
-    <div className={makeClassName(className, "pure-control-group")}>
-      <label>{label || " "}</label>
-      {children}
-      {message !== null && <span className="pure-form-message-inline">{message}</span>}
-    </div>
+    <Grid className="control-group padded margined">
+      <GridUnit size="1" sm="1-4">
+        <label>{label || " "}</label>
+      </GridUnit>
+      <GridUnit size="1" sm={hasMessage ? "1-2" : "3-4"}>
+        {children}
+      </GridUnit>
+      {message !== null && <GridUnit size="1" sm={hasMessage ? "1-4" : "1-2"}>
+        <span className="pure-form-message-inline">{message}</span>
+      </GridUnit>}
+    </Grid>
   );
 }
 
@@ -304,7 +318,7 @@ Form.setObject = (obj, c) => {
         let fieldset = render(h('fieldset', {}, template));
         let deleteButton = render(<a
           onClick={() => div.parentElement.removeChild(div)}
-          className="form-delete-button fa fa-ban"
+          className="form-delete-button fa fa-times"
         />);
 
         div.className = "form-group";

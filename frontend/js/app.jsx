@@ -4,6 +4,7 @@ import { API } from 'app/api';
 import 'app/apiCollections';
 
 import { Router } from 'app/components/routing';
+import { Loading } from 'app/components/elements';
 
 // Pages
 import NotFound from 'app/pages/notFound';
@@ -27,7 +28,6 @@ import Home from 'app/pages/home';
   - Routing state get/set
   - make groups in forms look better
     -  light backgrounds?
-    -  make delete buttons use an X
     -  position the delete buttons right
   - SearchField overlay allow clicking in textfield
   - SearchField dropdown dismiss on link click
@@ -49,7 +49,7 @@ const MeRedirect = secure(() => {
   });
 
   return <Loading />;
-})
+});
 
 const isMeURL = url => url.split("/").indexOf("me") !== -1 ? {} : false;
 

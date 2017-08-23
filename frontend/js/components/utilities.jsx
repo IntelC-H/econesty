@@ -24,15 +24,15 @@ function sizeProp(props, propName, componentName) {
 const sizingClasses = (baseClass, props) => {
   var classes = [];
 
-  if (props.size) {
-    classes.push(baseClass + '-' + props.size);
-  }
-
-  pureSizes.forEach(sz => {
+  pureSizes.slice().reverse().forEach(sz => {
     if (props.hasOwnProperty(sz)) {
       classes.push(baseClass + '-' + sz + '-' + props[sz]);
     }
   });
+
+  if (props.size) {
+    classes.push(baseClass + '-' + props.size);
+  }
 
   return classes;
 }
@@ -50,16 +50,16 @@ const cssSubclass = (BaseComponent, mapping, baseClass, supportsSizing = false) 
     var propsCopy = {};
     var classes = [];
 
-    if (props.className) classes.push(props.className);
     if (baseClass)       classes.push(baseClass);
     if (supportsSizing)  sizingClasses(baseClass, props).forEach(c => classes.push(c));
+    else if (props.className) classes.push(props.className);
 
     for (var k in props) {
       if (props.hasOwnProperty(k)) {
         var v = props[k];
-        if (supportsSizing && (k === "size" || pureSizes.indexOf(k) !== -1)) {
+        /*if (supportsSizing && (k === "size" || pureSizes.indexOf(k) !== -1)) {
           classes.push(baseClass + '-' + k + '-' + v);
-        } else if (mapping.hasOwnProperty(k)) {
+        } else*/ if (mapping.hasOwnProperty(k)) {
           if (!!v || v === "true") {
             classes.push(mapping[k]);
           }

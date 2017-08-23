@@ -188,7 +188,7 @@ module.exports = {
     publicPath: '/',
     strictModuleExceptionHandling: true
   },
-  devtool: 'source-map;',
+  devtool: 'source-map',
   module: {
     rules: [
       {
