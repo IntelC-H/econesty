@@ -122,8 +122,11 @@ Router.setURL = url => {
 }
 
 const Link = props => {
-  const { href, component, ...filteredProps} = props;
-  return h(component || 'a', { ...filteredProps, onClick: () => Router.push(href) });
+  const { href, component, onClick, ...filteredProps} = props;
+  return h(component || 'a', { ...filteredProps, onClick: e => {
+    (onClick || (() => undefined))(e);
+    Router.push(href);
+  }});
 }
 
 export { Router, Link };

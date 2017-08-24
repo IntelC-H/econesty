@@ -5,7 +5,7 @@ import { Form, Input, Select, ControlGroup, SubmitButton } from 'app/components/
 
 import { API } from 'app/api';
 import SearchField from 'app/components/searchfield';
-// import { Router, Link } from 'app/components/routing';
+import { Router } from 'app/components/routing';
 
 class CreateTransaction extends Component {
   constructor(props) {
@@ -57,21 +57,27 @@ class CreateTransaction extends Component {
   onSubmit(obj) {
     const objCopy = Object.assign({}, obj);
     console.log("submitted ", obj); // eslint-disable-line no-console
-    const requirements = objCopy.requirements;
+    let requirements = objCopy.requirements;
+    requirements.forEach(r => {
+      r.user_id = (r.user || {}).id || null;
+      delete r.user;
+    });
     delete objCopy.requirements;
 
     const logic = transaction => {
       // TODO: catch errors on creating requirements
-      Promise.all(requirements.map(r => API.requirement.create(r))).then(rs => {
+      const rs = requirements.map(r => ({...r, transaction_id: transaction.id}))
+
+      Promise.all(rs.map(r => API.requirement.create(r))).then(rs => {
         transaction.requirements = rs;
         this.setState(st => Object.assign({}, st, { object: transaction }));
-        Router.redirect("/transaction/" + transaction.id);
+        Router.replace("/transaction/" + transaction.id);
       });
     };
 
     API.transaction.create(objCopy)
-                   .catch(e => this.setState(st => Object.assign({}, st, { error: e })))
-                   .then(logic);
+                   .then(logic)
+                   .catch(e => this.setState(st => ({...st, error: e })))
   }
 
   addRequirement() {
@@ -97,7 +103,7 @@ class CreateTransaction extends Component {
           >
             <ControlGroup label="How much?">
               <Select options={currencies} name="offer_currency" />
-              <Input text required name="offer" />
+              <Input number required name="offer" step="0.01" />
             </ControlGroup>
             <Input hidden name="buyer_id"/>
             <Input hidden name="buyer_payment_data_id" />

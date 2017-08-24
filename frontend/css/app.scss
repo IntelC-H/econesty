@@ -12,6 +12,8 @@ $searchfield-dropdown-offset: ($shadow-blur - $shadow-dist) / 2;
 //       then multiply it by two.
 $double-wide-statusbar-screen-w: $searchfield-width + 0;// 18.667em; // stylelint-disable-line
 
+$header-list-width: ($searchfield-width + $header-icon-dim + ($padding * 4));
+
 .user {
   padding: $padding;
   text-align: center;

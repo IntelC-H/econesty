@@ -20,6 +20,7 @@ def writing_field(model_clazz, source, **kwargs):
   """
   Define a field for assigning to a foreign key.
   """
+  kwargs['label'] = source.title()
   kwargs['write_only'] = True
   kwargs['source'] = source
   kwargs['queryset'] = model_clazz.objects.all()
@@ -66,6 +67,7 @@ class PaymentDataSerializer(BaseSerializer):
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True},
+      'created_at': {'read_only': True}
     }
 
 class TransactionSerializer(BaseSerializer):
@@ -84,6 +86,7 @@ class TransactionSerializer(BaseSerializer):
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True},
+      'created_at': {'read_only': True}
     }
 
 class SignatureSerializer(BaseSerializer):
@@ -94,6 +97,7 @@ class SignatureSerializer(BaseSerializer):
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True},
+      'created_at': {'read_only': True}
     }
 
 class RequirementSerializer(BaseSerializer):
@@ -108,7 +112,8 @@ class RequirementSerializer(BaseSerializer):
     model = models.Requirement
     fields = '__all__'
     extra_kwargs = {
-      'id': {'read_only': True}
+      'id': {'read_only': True},
+      'created_at': {'read_only': True}
     }
 
 class TokenSerializer(BaseSerializer):

@@ -83,10 +83,7 @@ $divider-color:        #BDBDBD !default; // hr's
   }
 }
 
-@include property-rule(position, fixed) {
-  z-index: 100;
-}
-
+@include property-rule(position, fixed);
 @include property-rule(position, relative);
 @include property-rule(display, block);
 @include property-rule(display, inline-block);

@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Grid, GridUnit } from 'app/components/elements';
+import { Grid, GridUnit, ErrorDisplay } from 'app/components/elements';
 import { Form, Input, ControlGroup, SubmitButton } from 'app/components/forms';
 import { API } from 'app/api';
 import { Router } from 'app/components/routing';
@@ -7,6 +7,7 @@ import { Router } from 'app/components/routing';
 class Login extends Component {
   constructor(props) {
     super(props);
+    this.setState = this.setState.bind(this);
     this.login = this.login.bind(this);
     this.state = { error: null };
   }

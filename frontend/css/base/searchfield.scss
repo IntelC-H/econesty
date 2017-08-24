@@ -2,7 +2,9 @@
   Search Fields
 */
 
-$searchfield-width: 8em;
+@import "./shadows";
+
+$searchfield-width: 13em;
 $searchfield-height: 2em;
 $searchicon-size: 1.5em;
 
@@ -31,7 +33,7 @@ $searchicon-size: 1.5em;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 99;
+    z-index: $raised-zindex - 1;
     background: transparent;
     width: 100%;
     height: 100%;
@@ -42,7 +44,7 @@ $searchicon-size: 1.5em;
     font-size: $searchicon-size;
     padding: 0;
     margin: 0;
-    z-index: 1;
+    z-index: $raised-zindex + 1;
 
     position: absolute;
     right: ($padding / 2);

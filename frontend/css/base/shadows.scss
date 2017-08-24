@@ -3,14 +3,23 @@ $shadow-blur: ($padding / 2) !default;
 
 $shadow-color: #999 !default;
 
+$raised-zindex: 100;
+
 .raised {
+  z-index: $raised-zindex;
   box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
 }
 
+.raised-noshadow {
+  z-index: $raised-zindex;
+}
+
 .raised-v {
+  z-index: $raised-zindex;
   box-shadow: 0 $shadow-dist $shadow-blur $shadow-color;
 }
 
 .raised-h {
+  z-index: $raised-zindex;
   box-shadow: $shadow-dist 0 $shadow-blur $shadow-color;
 }

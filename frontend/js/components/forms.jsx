@@ -18,33 +18,52 @@ import { Button, Grid, GridUnit } from './elements';
 const InputGroup = inheritClass('fieldset', 'pure-group');
 
 const Input = props => {
-  const {hidden, text, checkbox, password,
-         className, type, email, url,
+  const {className, type,
+         hidden, text, checkbox, password,
+         email, url, number, time, tel,
+         search, range,
          value, onSet, ignore, placeholder,
+         onInput,
          size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
-         children, onInput, // eslint-disable-line no-unused-vars
+         children, // eslint-disable-line no-unused-vars
          ...filteredProps} = props;
 
-  const typeString = checkbox ? "checkbox" : hidden ? "hidden" : text ? "text" : password ? "password" : email ? "email" : url ? "url" : type;
+  const typeString = checkbox ? "checkbox"
+                   : hidden ? "hidden"
+                   : text ? "text"
+                   : password ? "password"
+                   : email ? "email"
+                   : url ? "url"
+                   : number ? "number"
+                   : time ? "time"
+                   : tel ? "tel"
+                   : search ? "search"
+                   : range ? "range"
+                   : type;
 
   let classes = sizingClasses('pure-input', props);
   if (className) classes.push(className);
 
   filteredProps.type = typeString;
   filteredProps.className = makeClassName.apply(this, classes);
+  filteredProps.value = typeString === "hidden" ? JSON.stringify(value) : value;
 
   if (ignore) filteredProps["data-ignore"] = ignore;
-  if (value) filteredProps.value = typeString === "hidden" ? JSON.stringify(value) : value;
 
   if (onSet) {
     filteredProps.onInput = e => {
       var val = e.target.value || null;
       const isJSON = val && e.target.type === "hidden" && val.length > 0;
 
-      var jsonVal = null;
-      if (isJSON) jsonVal = JSON.parse(val);
-      onSet(jsonVal || val);
-      if (isJSON) e.target.value = JSON.stringify(jsonVal);
+      if (isJSON) {
+        var jsonVal = JSON.parse(val);
+        onSet(jsonVal);
+        e.target.value = JSON.stringify(jsonVal);
+      } else {
+        onSet(val);
+        e.target.value = val;
+      }
+      if (onInput) onInput(e);
     }
   }
 
@@ -52,7 +71,9 @@ const Input = props => {
     return <label><input {...filteredProps}/> {placeholder} </label>;
   }
 
-  return h('input', Object.assign(filteredProps, { placeholder: placeholder }));
+  filteredProps.placeholder = placeholder;
+
+  return h('input', filteredProps);
 };
 
 Input.setValue = (c, val) => {
@@ -76,10 +97,17 @@ Input.propTypes = {
   hidden: PropTypes.bool,
   text: PropTypes.bool,
   checkbox: PropTypes.bool,
+  number: PropTypes.bool,
   password: PropTypes.bool,
   email: PropTypes.bool,
+  time: PropTypes.bool,
+  tel: PropTypes.bool,
+  search: PropTypes.bool,
+  range: PropTypes.bool,
   url: PropTypes.bool,
-  type: PropTypes.oneOf(["hidden", "text", "checkbox", "password", "hidden"]),
+  type: PropTypes.oneOf(["hidden", "text", "checkbox", "password",
+                         "email", "url", "number", "time", "tel",
+                         "search", "range"]),
   name: PropTypes.string.isRequired,
   value: PropTypes.any,
   size: sizeProp,
@@ -96,8 +124,13 @@ Input.defaultProps = {
   hidden: false,
   text: false,
   checkbox: false,
+  number: false,
   password: false,
   email: false,
+  time: false,
+  tel: false,
+  search: false,
+  range: false,
   url: false,
   type: undefined,
   value: undefined,

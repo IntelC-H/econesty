@@ -55,6 +55,14 @@ class API {
     localStorage.setItem("token", token || null);
   }
 
+  static getUserID() {
+    return localStorage.getItem("user_id");
+  }
+
+  static setUserID(user_id) {
+    localStorage.setItem("user_id", user_id || null);
+  }
+
   static networking(method, path, urlparams, body) {
     var opts  = {
       method: method,

@@ -17,26 +17,53 @@ export function asyncWithProps(Comp, onMount = null, onUnmount = null) {
     constructor(props) {
       super(props);
       this.state = {};
+      this.queueSetState = this.queueSetState.bind(this);
+      this.queueForceUpdate = this.queueForceUpdate.bind(this);
       this.setState = this.setState.bind(this);
       this.forceUpdate = this.forceUpdate.bind(this);
+      this.queue = [];
     }
 
     componentDidMount() {
+      this.drainQueue();
+
       if (onMount) {
         onMount(this.setState);
       }
     }
 
     componentWillUnmount() {
+      this.drainQueue();
+
       if (onUnmount) {
         onUnmount(this.setState);
       }
     }
 
+    drainQueue() {
+      this.queue.forEach(({ func, args }) => func.apply(args || []));
+    }
+
+    queueSetState(state, callback) {
+      if (this.base) {
+        this.setState(state, callback);
+      } else {
+        this.queue.unshift({func: this.setState, args: [state, callback]});
+      }
+    }
+
+    queueForceUpdate() {
+      if (this.base) {
+        this.setState(state, callback);
+      } else {
+        this.queue.unshift({func: this.forceUpdate, args: []});
+      }
+    }
+
     render() {
       return <Comp
-              setState={this.setState}
-              forceUpdate={this.forceUpdate}
+              setState={this.queueSetState}
+              forceUpdate={this.queueForceUpdate}
               {...this.props}
               {...this.state}
              />;

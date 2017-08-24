@@ -18,6 +18,11 @@ import Home from 'app/pages/home';
 /*
 
   TODO for MVP:
+  - Tooltips
+    - Usernames
+    - created ats
+    - Single time display
+      - If n seconds have elapsed while this is open, never show again
   - Stateful forms
     - they hold their data
       - via key in a global registry?

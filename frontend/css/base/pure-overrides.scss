@@ -24,13 +24,7 @@
     padding-top: $padding;
     padding-bottom: $padding;
 
-    input[type='text'],
-    input[type='password'],
-    input[type='email'],
-    input[type='url'],
-    input[type='checkbox'],
-    textarea,
-    select {
+    input[type], textarea, select {
       &:focus {
         border-color: $accent-color;
       }

@@ -11,21 +11,29 @@ const propTypes = {
   api: PropTypes.instanceOf(APICollection).isRequired,
   search: PropTypes.string,
   standalone: PropTypes.bool,
-  object: PropTypes.object
+  object: PropTypes.any,
+  onClick: PropTypes.func
 };
 
 const defaultProps = {
-  search: "",
+  search: null,
   standalone: false,
-  object: null
+  object: null,
+  onClick: () => undefined
 };
 
 // FIXME: dropdown shifted to the left when `standalone === false`.
 const SearchField = asyncWithProps(props => {
-  const { search, api, setState, component, name, standalone, object, className, ...filteredProps } = props;
-
-  const FormLink = ps => <a onClick={() => setState(st => ({...st, object: ps.object, search: null}))}>{h(component, ps)}</a>;
-  const NonFormLink = ps => <Link href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
+  const { search, api, setState, component, name, standalone, object, className, onClick, ...filteredProps } = props;
+  delete filteredProps.forceUpdate;
+  const FormLink = ps => <a
+                          onClick={() => setState(st => ({...st, object: ps.object, search: null}))}
+                          >{h(component, ps)}</a>;
+  const NonFormLink = ps => <Link
+                              onClick={e => {
+                                onClick(e);
+                                setState(st => ({ ...st, search: null}));
+                              }} href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
   const SearchFieldDropdownCollection = asyncCollection(
     ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
     ps => <tr><td>{h(standalone ? NonFormLink : FormLink, ps)}</td></tr>,
@@ -36,6 +44,8 @@ const SearchField = asyncWithProps(props => {
   const hasSearch = search && search.length > 0;
   const showsObject = object && !standalone;
 
+  if (!showsObject && hasSearch) filteredProps.className = "raised-noshadow";
+
   return (
     <div className={makeClassName("searchfield", "inline-block", "relative", className)}>
       { !standalone && <Input hidden name={name} value={object} onSet={v => setState(st => ({...st, object: v}))} /> }
@@ -43,16 +53,14 @@ const SearchField = asyncWithProps(props => {
       { showsObject && <span> <Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
       { !showsObject && !hasSearch && <span className="fa fa-search search-icon"/>}
       { !showsObject &&
-          <Input
-            ignore
-            text
-            placeholder="search..."
-            onSet={v => setState(st => ({ ...st, search: v }))}
-            value={search}
-            {...filteredProps}
-          />
-      }
-
+        <Input
+          ignore
+          text
+          placeholder="search..."
+          onSet={v => setState(st => ({ ...st, search: v }))}
+          value={search || ""}
+          {...filteredProps}
+        /> }
       { !showsObject && hasSearch && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
       { !showsObject && hasSearch && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" />}
     </div>
