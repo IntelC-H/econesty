@@ -39,6 +39,10 @@ h1, h2, h3, h4, h5, h6 {
   color: $primary-text-color;
 }
 
+label {
+  vertical-align: middle;
+}
+
 a {
   text-decoration: none;
   cursor: pointer;
@@ -60,4 +64,8 @@ a {
   &:active {
     color: $accent-color;
   }
+}
+
+input:not([type=checkbox]) {
+  width: $input-width;
 }

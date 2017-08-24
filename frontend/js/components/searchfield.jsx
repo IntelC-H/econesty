@@ -35,7 +35,7 @@ const SearchField = asyncWithProps(props => {
                                 setState(st => ({ ...st, search: null}));
                               }} href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
   const SearchFieldDropdownCollection = asyncCollection(
-    ps => <tr><th>Showing {ps.object.results.length} of {ps.object.count}</th></tr>,
+    null,
     ps => <tr><td>{h(standalone ? NonFormLink : FormLink, ps)}</td></tr>,
     page => api.list(page, search),
     false
@@ -62,7 +62,7 @@ const SearchField = asyncWithProps(props => {
           {...filteredProps}
         /> }
       { !showsObject && hasSearch && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
-      { !showsObject && hasSearch && <SearchFieldDropdownCollection className="searchfield-dropdown raised-v fixed" />}
+      { !showsObject && hasSearch && <div className="searchfield-dropdown-wrapper"><SearchFieldDropdownCollection className="searchfield-dropdown raised-v" /></div>}
     </div>
   );
 });

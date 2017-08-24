@@ -4,27 +4,35 @@
 
 @import "./shadows";
 
-$searchfield-width: 13em;
-$searchfield-height: 2em;
 $searchicon-size: 1.5em;
 
 .searchfield {
+  overflow: visible;
+  color: $primary-text-color;
+  position: relative;
+
   .pure-control-group {
     margin-bottom: 0;
   }
+
   fieldset {
     padding: 0;
   }
-  color: $primary-text-color;
+
+  .searchfield-dropdown-wrapper {
+    position: relative;
+    width: 12.875em;
+  }
+
   .searchfield-dropdown {
-    min-width: $searchfield-width;
+    position: fixed;
+    width: inherit;
     .pure-table {
       border: none;
       border-bottom: 1px solid $divider-color; // stylelint-disable-line
     }
     border: 1px solid $divider-color;  // stylelint-disable-line
     background-color: $primary-color-light;
-    width: ($searchfield-width + $padding * 1.5);
   }
 
   .searchfield-dropdown-clickshield {

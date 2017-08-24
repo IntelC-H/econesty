@@ -68,7 +68,7 @@ const Input = props => {
   }
 
   if (typeString === "checkbox" && !!placeholder && placeholder.length > 0) {
-    return <label><input {...filteredProps}/> {placeholder} </label>;
+    return <label><input {...filteredProps}/>  {placeholder}</label>;
   }
 
   filteredProps.placeholder = placeholder;
@@ -185,12 +185,9 @@ const ControlGroup = props => {
       <GridUnit size="1" sm="1-4">
         <label>{label || " "}</label>
       </GridUnit>
-      <GridUnit size="1" sm={hasMessage ? "1-2" : "3-4"}>
+      <GridUnit size="1" sm="3-4">
         {children}
       </GridUnit>
-      {message !== null && <GridUnit size="1" sm={hasMessage ? "1-4" : "1-2"}>
-        <span className="pure-form-message-inline">{message}</span>
-      </GridUnit>}
     </Grid>
   );
 }

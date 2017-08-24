@@ -88,9 +88,7 @@ export function withPromiseFactory(pfact, Comp, showsLoading = true) {
   return props => h(withPromise(pfact(props), withProps(props, Comp), showsLoading), {});
 }
 
-export function collection(header, body, setPage = null) {
-  const Header = header || (() => null);
-  const Body = body || (() => null);
+export function collection(Header, Body, setPage = null) {
   const mkNavButton = (targetPage, text) => <Button key={targetPage} disabled={targetPage === null} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
 
   return props => {
@@ -98,12 +96,16 @@ export function collection(header, body, setPage = null) {
     return (
       <div className={(className || "") + " collection"} {...filteredProps}>
         <Table striped horizontal>
-          <thead>
-            <Header object={object} />
-          </thead>
-          <tbody>
-            {object.results.map((child, i) => <Body key={i} object={child} />)}
-          </tbody>
+          {!!Header &&
+            <thead>
+              <Header object={object} />
+            </thead>
+          }
+          {!!Body &&
+            <tbody>
+              {object.results.map((child, i) => <Body key={i} object={child} />)}
+            </tbody>
+          }
         </Table>
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">

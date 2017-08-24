@@ -25,17 +25,20 @@
   table {
     width: 100%;
   }
-  .collection-control {
-    .collection-page-indicator {
-      position: relative;
-      height: 100%;
+  .collection-controls {
+  //  div {
+      text-align: center;
+//    }
+  }
+  .collection-page-indicator {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    span {
+      position: absolute;
       width: 100%;
-      span {
-        position: absolute;
-        width: 100%;
-        top: 25%;
-        display: block;
-      }
+      top: 25%;
+      display: block;
     }
   }
 }
@@ -59,12 +62,9 @@
 .control-group {
   display: block;
 
-
   label {
-    vertical-align: middle;
-  }
-
-  input[type=checkbox] {
-
+    display: flex;
+    align-items: center;
+    text-align: center;
   }
 }

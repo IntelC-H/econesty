@@ -103,7 +103,7 @@ class CreateTransaction extends Component {
           >
             <ControlGroup label="How much?">
               <Select options={currencies} name="offer_currency" />
-              <Input number required name="offer" step="0.01" />
+              <Input number required name="offer" step="0.01" min="0" cols="6" />
             </ControlGroup>
             <Input hidden name="buyer_id"/>
             <Input hidden name="buyer_payment_data_id" />

@@ -4,15 +4,8 @@
   Page layout
 */
 
-$header-icon-dim: 2em;
-
+$header-icon-dim: 1em;
 $searchfield-dropdown-offset: ($shadow-blur - $shadow-dist) / 2;
-
-// TODO: calculate size of list (profile button & search bar)
-//       then multiply it by two.
-$double-wide-statusbar-screen-w: $searchfield-width + 0;// 18.667em; // stylelint-disable-line
-
-$header-list-width: ($searchfield-width + $header-icon-dim + ($padding * 4));
 
 .user {
   padding: $padding;
@@ -23,9 +16,14 @@ $header-list-width: ($searchfield-width + $header-icon-dim + ($padding * 4));
 }
 
 .header {
+  height: auto;
+  overflow: hidden; /* clearfix */
+
   .header-icon {
     color: $primary-color-text;
-    font-size: $header-icon-dim;
+    font-size: $header-icon-dim * 2;
+    height: $header-icon-dim;
+    width: $header-icon-dim;
   }
 
   background: $primary-color-dark;
@@ -44,29 +42,12 @@ $header-list-width: ($searchfield-width + $header-icon-dim + ($padding * 4));
   .pure-table thead {
     background-color: $primary-color-dark;
   }
-  .searchfield {
-    .searchfield-dropdown {
-      thead {
-        display: none;
-      }
-      border: none;
-      top: $header-height + $searchfield-dropdown-offset;
-      @media (max-width: $double-wide-statusbar-screen-w) {
-        top: ($header-height * 2) + $searchfield-dropdown-offset;
-      }
-    }
-  }
 }
 
-.content {
-  padding-top: $header-height;
-  @media (max-width: $double-wide-statusbar-screen-w) {
-    padding-top: $header-height * 2;
-  }
-}
-
-.profile-button-group {
-  @media (max-width: $double-wide-statusbar-screen-w) {
-    text-align: center;
+.header-spacer {
+  position: static; 
+  visibility: hidden;
+  .search-icon {
+    display: none;
   }
 }

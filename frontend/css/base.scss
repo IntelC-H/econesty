@@ -13,6 +13,8 @@
 $header-height: 3em !default;
 $header-font-size: 1.25em !default;
 
+$input-width: 13em;
+
 $pure-sm: 568px !default; // stylelint-disable-line
 $pure-md: 768px !default; // stylelint-disable-line
 $pure-lg: 1024px !default; // stylelint-disable-line
@@ -51,7 +53,7 @@ $divider-color:        #BDBDBD !default; // hr's
 
 @mixin property-rule($propertyName, $value) {
   .#{$value} {
-    /* additional property provided by property-rule mixin */
+    /* provided by property-rule mixin */
     #{$propertyName}: $value;
     /* user defined @content */
     @content;
@@ -59,10 +61,11 @@ $divider-color:        #BDBDBD !default; // hr's
 }
 
 @mixin sizing-rule($ruleName, $propertyName, $value) {
+  /* provided by sizing-rule mixin */
   .#{$ruleName} {
     /* provided by sizing-rule mixin */
     #{$propertyName}: $value;
-    /* additional user defined @content */
+    /* user defined @content */
     @content;
   }
 
@@ -70,7 +73,7 @@ $divider-color:        #BDBDBD !default; // hr's
   .v-#{$ruleName} {
     /* provided by sizing-rule mixin */
     #{$propertyName}: $value 0 $value 0;
-    /* additional user defined @content */
+    /* user defined @content */
     @content;
   }
 
