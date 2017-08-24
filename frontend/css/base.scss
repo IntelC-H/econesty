@@ -4,31 +4,23 @@
 // Base styles in Econesty.
 //
 
-@import "helpers";
-
-/*
- Fonts
-*/
-
 @import url('https://fonts.googleapis.com/css?family=Open+Sans');
 
 //
 // Constants
 //
 
-$header-height: 50px;
-$header-font-size: 1.25em;
+$header-height: 3em !default;
+$header-font-size: 1.25em !default;
 
-$padding: 10px;
-$border-radius: 3px;
+$pure-sm: 568px !default; // stylelint-disable-line
+$pure-md: 768px !default; // stylelint-disable-line
+$pure-lg: 1024px !default; // stylelint-disable-line
+$pure-xl: 1280px !default; // stylelint-disable-line
 
-$shadow-dist: 2px;
-$shadow-blur: 5px;
+$padding: 0.5em !default;
 
-$pure-sm: 568px;
-$pure-md: 768px;
-$pure-lg: 1024px;
-$pure-xl: 1280px;
+$border-radius: ($padding / 3) !default;
 
 //
 // Palette Colors
@@ -37,324 +29,77 @@ $pure-xl: 1280px;
 // materialpalette.com/light-green/pink
 
 // materialpalette.com/green/brown
-$primary-color-dark:   #388E3C; // UI element background
-$primary-color:        #4CAF50; // UI element background
-$primary-color-light:  #C8E6C9; // page background
-$primary-color-text:   #FFFFFF; // Text/Icons: nav bar title
-$accent-color:         #795548; // accents
-$primary-text-color:   #212121; // h1 and friends
-$secondary-text-color: #757575; // Secondary Text: p tags and detail text
-$divider-color:        #BDBDBD; // hr's
+$primary-color-dark:   #388E3C !default; // UI element background
+$primary-color:        #4CAF50 !default; // UI element background
+$primary-color-light:  #C8E6C9 !default; // page background
+$primary-color-text:   #FFFFFF !default; // Text/Icons: nav bar title
+$accent-color:         #795548 !default; // accents
+$primary-text-color:   #212121 !default; // h1 and friends
+$secondary-text-color: #757575 !default; // Secondary Text: p tags and detail text
+$divider-color:        #BDBDBD !default; // hr's
 
-//
-// Non-Palette Colors
-//
+// Mixins
 
-$shadow-color: #999;
-
-/*
-  Tags
-*/
-
-* {
-  font-family: FontAwesome, 'Open Sans', sans-serif;
-  border-color: #BDBDBD;
-}
-
-body {
-  background-color: $primary-color-light;
-  min-width: 320px;
-  position: relative;
-}
-
-hr {
-  height: 10px; 
-  border-style: solid; 
-  border-color: $divider-color; 
-  border-width: 1px 0 0 0; 
-  border-radius: 20px; 
-
-  &:before { 
-    display: block; 
-    content: ""; 
-    height: 10px; 
-    margin-top: -11px; 
-    border-style: solid; 
-    border-color: $divider-color; 
-    border-width: 0 0 1px 0; 
-    border-radius: 20px; 
+@mixin keyframes($animationName) {
+  @-webkit-keyframes #{$animationName} {
+    @content;
+  }
+  @keyframes #{$animationName} {
+    @content;
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: $primary-text-color;
-}
-
-a {
-  text-decoration: none;
-  cursor: pointer;
-  label {
-    cursor: pointer;
-  }
-  display: inherit;
-  &:visited, &:link {
-    color: inherit;
-  }
-
-  &:hover {
-    color: $accent-color;
-    span {
-      color: $accent-color;
-    }
-  }
-
-  &:active {
-    color: $accent-color;
+@mixin property-rule($propertyName, $value) {
+  .#{$value} {
+    /* additional property provided by property-rule mixin */
+    #{$propertyName}: $value;
+    /* user defined @content */
+    @content;
   }
 }
 
-hr {
-  width: 20%;
-}
+@mixin sizing-rule($ruleName, $propertyName, $value) {
+  .#{$ruleName} {
+    /* provided by sizing-rule mixin */
+    #{$propertyName}: $value;
+    /* additional user defined @content */
+    @content;
+  }
 
-/*
-  PureCSS Overrides
-*/
+  /* additional rule provided by sizing-rule mixin */
+  .v-#{$ruleName} {
+    /* provided by sizing-rule mixin */
+    #{$propertyName}: $value 0 $value 0;
+    /* additional user defined @content */
+    @content;
+  }
 
-.pure-button {
-  background-color: $accent-color;
-  color: white;
-  border-radius: $border-radius;
-}
-
-.pure-menu-heading {
-  height: $header-height - $padding * 2;
-  padding: $padding;
-  display: inline-block;
-  vertical-align: middle;
-  * {
-    padding-top: 1.5px;
-    font-size: 20pt;
-    line-height: 100%;
+  /* additional rule provided by sizing-rule mixin */
+  .h-#{$ruleName} {
+    /* additional property provided by sizing-rule mixin */
+    #{$propertyName}: 0 $value 0 $value;
+    /* user defined @content */
+    @content;
   }
 }
 
-.pure-form {
-  fieldset {
-    padding-top: $padding;
-    padding-bottom: $padding;
-
-    input[type='text'],
-    input[type='password'],
-    input[type='email'],
-    input[type='url'],
-    input[type='checkbox'],
-    textarea,
-    select {
-      &:focus {
-        border-color: $accent-color;
-      }
-    }
-  }
-}
-
-.pure-table thead {
-  color: $primary-color-text;
-  background-color: $primary-color;
-}
-
-/*
-  Text Styling
-*/
-
-.primary, h1, h2, h3, h4, h5, h6 {
-  font-size: 20px;
-  color: $primary-text-color;
-}
-
-.secondary, span, p {
-  font-size: 14px;
-  color: $secondary-text-color;
-}
-
-.light-text {
-  color: $primary-color-text;
-}
-
-.inline {
-  display: inline;
-}
-
-.inline-block {
-  display: inline-block;
-}
-
-.relative {
-  position: relative;
-}
-
-/*
-  Spacing
-*/
-
-.padded {
-  padding: $padding;
-}
-
-.margined {
-  margin: $padding;
-}
-
-/*
-  Alignment
-*/
-
-.center {
-  text-align: center;
-}
-
-/*
-  Sizing
-*/
-
-.fill-width {
-  width: 100%;
-}
-
-/*
-  Miscellaneous
-*/
-
-.fixed {
+@include property-rule(position, fixed) {
   z-index: 100;
-  position: fixed;
 }
 
-.raised {
-  box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
-}
+@include property-rule(position, relative);
+@include property-rule(display, block);
+@include property-rule(display, inline-block);
+@include property-rule(display, inline);
+@include property-rule(text-align, center);
 
-.raised-v {
-  box-shadow: 0px ($shadow-dist + 1) $shadow-blur $shadow-color;
-}
+@include sizing-rule(padded, padding, $padding);
+@include sizing-rule(margined, margin, $padding);
 
-.raised-h {
-  box-shadow: ($shadow-dist + 1) 0px $shadow-blur $shadow-color;
-}
+@import "./base/tags";
+@import "./base/text";
+@import "./base/shadows";
+@import "./base/pure-overrides";
 
-/*
-  Loading div from Components.Higher.asyncWithProps()
-*/
-
-.loading {
-  border: 8px solid mix(rgba(255, 255, 255, 0), $accent-color, 50%); // Pale background for whole circle
-  border-top: 8px solid $accent-color; // highlight a part of the circle in a bolder color.
-  border-radius: 50%; // make it a circle
-  width: 44px;
-  height: 44px;
-  animation: spin 2s linear infinite; // make it spin
-  margin: auto; // make it centered
-}
-
-@include keyframes(spin) {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/*
-  Collection styling from Components.Higher.collection()
-*/
-
-.collection {
-  .collection-control {
-    .collection-page-indicator {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      span {
-        position: absolute;
-        width: 100%;
-        top: 25%;
-        display:block;
-      }
-    }
-  }
-}
-
-/*
-  Form Styling
-*/
-
-.form-group {
-  border-radius: $border-radius;
-}
-
-.form-delete-button {
-  float: right;
-  height: 0;
-  overflow: visible;
-  padding: $padding;
-  padding-right: $padding + $border-radius;
-}
-
-.control-group {
-  display: block;
-}
-
-/*
-  Search Fields
-*/
-
-$searchfield-width: 190px;
-$searchfield-height: 34px;
-$searchicon-size: 24px;
-
-.searchfield {
-  .pure-control-group {
-    margin-bottom: 0;
-  }
-  fieldset {
-    padding: 0px;
-  }
-  color: $primary-text-color;
-  .searchfield-dropdown {
-    min-width: 190px;
-    .pure-table {
-      border: none;
-      border-bottom: 1px solid $divider-color;
-    }
-    border: 1px solid $divider-color;
-    background-color: $primary-color-light;
-    width: $searchfield-width + $padding * 1.5;
-  }
-  .searchfield-dropdown-clickshield {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    z-index: 99;
-    background: transparent;
-    width: 100%;
-    height: 100%;
-  }
-  .search-icon {
-    cursor: pointer;
-    width: $searchicon-size;
-    height: $searchicon-size;
-    font-size: $searchicon-size;
-    padding: 0px;
-    margin: 0px;
-    z-index: 1;
-
-    position: absolute;
-    right: $padding/2;
-    bottom: 2px + $padding/2;
-  }
-}
-
-.searchfield-cancel-button {
-  display: inline-block;
-  vertical-align: middle;
-  cursor: pointer;
-}
+@import "./base/components";
+@import "./base/searchfield";

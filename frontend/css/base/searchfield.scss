@@ -1,0 +1,57 @@
+/*
+  Search Fields
+*/
+
+$searchfield-width: 8em;
+$searchfield-height: 2em;
+$searchicon-size: 1.5em;
+
+.searchfield {
+  .pure-control-group {
+    margin-bottom: 0;
+  }
+  fieldset {
+    padding: 0;
+  }
+  color: $primary-text-color;
+  .searchfield-dropdown {
+    min-width: $searchfield-width;
+    .pure-table {
+      border: none;
+      border-bottom: 1px solid $divider-color; // stylelint-disable-line
+    }
+    border: 1px solid $divider-color;  // stylelint-disable-line
+    background-color: $primary-color-light;
+    width: ($searchfield-width + $padding * 1.5);
+  }
+
+  .searchfield-dropdown-clickshield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+  }
+
+  .search-icon {
+    cursor: pointer;
+    font-size: $searchicon-size;
+    padding: 0;
+    margin: 0;
+    z-index: 1;
+
+    position: absolute;
+    right: ($padding / 2);
+    bottom: (($padding + 0.125em) / 2);
+  }
+}
+
+.searchfield-cancel-button {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+}

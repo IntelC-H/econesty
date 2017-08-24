@@ -70,7 +70,7 @@ export function collection(header, body, setPage = null) {
     const { object, className, ...filteredProps } = props;
     return (
       <div className={(className || "") + " collection"} {...filteredProps}>
-        <Table striped horizontal className="fill-width">
+        <Table striped horizontal>
           <thead>
             <Header object={object} />
           </thead>

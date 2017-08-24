@@ -1,0 +1,70 @@
+/*
+  Loading component from Components.Higher.Elements.Loading
+*/
+
+.loading {
+  border: 0.5em solid mix(rgba(255, 255, 255, 0), $accent-color, 50%); // Pale background for whole circle
+  border-top: 0.5em solid $accent-color; // highlight a part of the circle in a bolder color.
+  border-radius: 50%; // make it a circle
+  width: 2.75em;
+  height: 2.75em;
+  animation: spin 2s linear infinite; // make it spin
+  margin: auto; // make it centered
+}
+
+@include keyframes(spin) {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/*
+  Collection styling from Components.Higher.collection()
+*/
+
+.collection {
+  table {
+    width: 100%;
+  }
+  .collection-control {
+    .collection-page-indicator {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      span {
+        position: absolute;
+        width: 100%;
+        top: 25%;
+        display: block;
+      }
+    }
+  }
+}
+
+/*
+  Form Styling
+*/
+
+.form-group {
+  border-radius: $border-radius;
+}
+
+.form-delete-button {
+  float: right;
+  height: 0;
+  overflow: visible;
+  padding: $padding;
+  padding-right: $padding + $border-radius;
+}
+
+.control-group {
+  display: block;
+
+
+  label {
+    vertical-align: middle;
+  }
+
+  input[type=checkbox] {
+
+  }
+}

@@ -1,0 +1,44 @@
+/*
+  PureCSS Overrides
+*/
+
+.pure-button {
+  background-color: $accent-color;
+  color: white;
+  border-radius: $border-radius;
+}
+
+.pure-menu-heading {
+  height: $header-height - $padding * 2;
+  padding: $padding;
+  display: inline-block;
+  vertical-align: middle;
+  * {
+    font-size: 2em;
+    line-height: 100%;
+  }
+}
+
+.pure-form {
+  fieldset {
+    padding-top: $padding;
+    padding-bottom: $padding;
+
+    input[type='text'],
+    input[type='password'],
+    input[type='email'],
+    input[type='url'],
+    input[type='checkbox'],
+    textarea,
+    select {
+      &:focus {
+        border-color: $accent-color;
+      }
+    }
+  }
+}
+
+.pure-table thead {
+  color: $primary-color-text;
+  background-color: $primary-color;
+}

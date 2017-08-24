@@ -1,0 +1,26 @@
+/*
+  Palette Styling
+*/
+
+.primary, h1, h2, h3, h4, h5, h6 {
+  font-size: 1.25em;
+  color: $primary-text-color;
+}
+
+.secondary, span, p {
+  font-size: 1em;
+  color: $secondary-text-color;
+}
+
+.tertiary {
+  font-size: 0.8em;
+  color: $secondary-text-color;
+}
+
+.light-text {
+  color: $primary-color-text;
+}
+
+.dark-text {
+  color: $primary-text-color;
+}

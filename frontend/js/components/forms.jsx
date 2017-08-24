@@ -148,7 +148,7 @@ const ControlGroup = props => {
   const hasMessage = !!message;
   // TODO: finish pure-control-group replacement
   return (
-    <Grid className="control-group padded margined">
+    <Grid className="control-group v-margined">
       <GridUnit size="1" sm="1-4">
         <label>{label || " "}</label>
       </GridUnit>

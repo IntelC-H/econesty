@@ -19,8 +19,8 @@ const Profile = props => {
         <div className="user">
           <Image src={user.avatar_url} />
           <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
-          <div>@{user.username}</div>
-          <div className="secondary">User number {user.id} since {formatDate(user.date_joined)}</div>
+          <div className="tertiary">(@{user.username})</div>
+          <div className="secondary">User #{user.id}, since {formatDate(user.date_joined)}</div>
         </div>
       );
     }

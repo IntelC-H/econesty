@@ -1,0 +1,16 @@
+$shadow-dist: ($padding / 5) !default;
+$shadow-blur: ($padding / 2) !default;
+
+$shadow-color: #999 !default;
+
+.raised {
+  box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
+}
+
+.raised-v {
+  box-shadow: 0 $shadow-dist $shadow-blur $shadow-color;
+}
+
+.raised-h {
+  box-shadow: $shadow-dist 0 $shadow-blur $shadow-color;
+}
