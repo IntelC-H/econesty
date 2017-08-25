@@ -44,13 +44,12 @@ const SearchField = asyncWithProps(props => {
   const hasSearch = search && search.length > 0;
   const showsObject = object && !standalone;
 
-  if (!showsObject && hasSearch) filteredProps.className = "raised-noshadow";
-
   return (
     <div className={makeClassName("searchfield", "inline-block", "relative", className)}>
       { !standalone && <Input hidden name={name} value={object} onSet={v => setState(st => ({...st, object: v}))} /> }
       { showsObject && <a onClick={() => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-times"/>}
-      { showsObject && <span> <Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
+      { showsObject && <span><Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
+      { !showsObject && hasSearch && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
       { !showsObject && !hasSearch && <span className="fa fa-search search-icon"/>}
       { !showsObject &&
         <Input
@@ -61,7 +60,7 @@ const SearchField = asyncWithProps(props => {
           value={search || ""}
           {...filteredProps}
         /> }
-      { !showsObject && hasSearch && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
+      
       { !showsObject && hasSearch && <div className="searchfield-dropdown-wrapper"><SearchFieldDropdownCollection className="searchfield-dropdown raised-v" /></div>}
     </div>
   );

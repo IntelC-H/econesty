@@ -28,11 +28,13 @@ def writing_field(model_clazz, source, **kwargs):
 
 class UserSerializer(BaseSerializer):
   avatar_url = serializers.SerializerMethodField()
+  is_me = serializers.SerializerMethodField()
   class Meta:
     model = amodels.User
-    fields = ("id", "username", "first_name", "last_name", "email", "password", "date_joined", "avatar_url")
+    fields = ("id", "username", "first_name", "last_name", "email", "password", "date_joined", "avatar_url", "is_me")
     extra_kwargs = {
       'avatar_url': { 'read_only': True },
+      'is_me': { 'read_only': True },
       'password': {'write_only': True, 'style': {'input_type': 'password'} },
       'id': {'read_only': True},
       'date_joined': {'read_only': True},
@@ -41,6 +43,11 @@ class UserSerializer(BaseSerializer):
   def get_avatar_url(self, obj):
     md5Email = hashlib.md5(obj.email.encode("utf8")).hexdigest()
     return "https://www.gravatar.com/avatar/" + md5Email
+
+  def get_is_me(self, obj):
+    if 'request' in self.context:
+      return self.context['request'].user.id is obj.id
+    return False
 
   def create(self, data):
     u = amodels.User(**data)

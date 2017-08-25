@@ -44,6 +44,7 @@ class PaginationHelperMixin(object):
 #   else:
 #     setattr(d, splt[-1], value)
 
+# TODO: set nested
 class AuthOwnershipMixin(object):
   def perform_create(self, serializer):
     user_fields = getattr(type(self), 'user_fields', None)

@@ -36,23 +36,21 @@ $searchicon-size: 1.5em;
   }
 
   .searchfield-dropdown-clickshield {
+    background: transparent;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: $raised-zindex - 1;
-    background: transparent;
-    width: 100%;
-    height: 100%;
   }
 
   .search-icon {
-    cursor: pointer;
+    pointer-events: none;
+    cursor: default;
+
     font-size: $searchicon-size;
     padding: 0;
     margin: 0;
-    z-index: $raised-zindex + 1;
 
     position: absolute;
     right: ($padding / 2);

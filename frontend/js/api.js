@@ -141,6 +141,12 @@ class APICollection {
     return API.networking(soft ? "PATCH" : "DELETE", this.baseURL + id, {}, soft ? {deleted: true} : null).then(() => null);
   }
 
+  save(body) {
+    const { id, ...filteredBody } = body;
+    if (!id) return this.create(body);
+    return this.update(id, filteredBody);
+  }
+
   classMethod(httpmeth, method, body = null, urlparams = {}) {
     return API.networking(httpmeth, this.baseURL + method, urlparams, body);
   }

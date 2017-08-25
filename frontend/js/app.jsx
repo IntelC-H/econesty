@@ -14,6 +14,7 @@ import Login from 'app/pages/login';
 import Profile from 'app/pages/profile';
 import Signup from 'app/pages/signup';
 import Home from 'app/pages/home';
+import PaymentData from 'app/pages/paymentData';
 
 /*
 
@@ -35,7 +36,6 @@ import Home from 'app/pages/home';
     -  light backgrounds?
     -  position the delete buttons right
   - SearchField overlay allow clicking in textfield
-  - SearchField dropdown dismiss on link click
 
 */
 
@@ -69,7 +69,8 @@ export default () =>
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
         makeRoute("/user/:id", Profile),
-        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] })
+        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }),
+        makeRoute("/payment", secure(PaymentData))
         // TODO:
         // /transactions
         // /payment -> manage paymentdata

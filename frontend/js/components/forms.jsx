@@ -297,6 +297,8 @@ Form.defaultProps = {
   stacked: false
 };
 
+// TODO: unnamed group Forms.
+
 // operates on DOM elements
 Form.toObject = (el, acc = {}) => {
   if (!el || !el.children) return acc;
@@ -307,9 +309,11 @@ Form.toObject = (el, acc = {}) => {
     const isGroup = child.dataset.group === "true";
     const tname = child.tagName.toLowerCase();
 
-    if (name && !ignore && isForm && isGroup) acc[name] = Array.from(child.children)
-                                                          .filter(e => e.className.toLowerCase() === "form-group")
-                                                          .map(e => Form.toObject(e));
+    if (name && !ignore && isForm && isGroup) {
+      const groups = Array.from(child.children).filter(e => e.className.toLowerCase() === "form-group");
+      const values = groups.map(e => Form.toObject(e));
+      acc[name] = values;
+    }
     else if (name && !ignore && isForm)       acc[name] = Form.toObject(child);
     else if (name && !ignore && tname === "input")  acc[name] = Input.toValue(child);
     else if (name && !ignore && tname === "select") acc[name] = Select.toValue(child);
