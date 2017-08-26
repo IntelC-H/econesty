@@ -15,6 +15,7 @@ import Profile from 'app/pages/profile';
 import Signup from 'app/pages/signup';
 import Home from 'app/pages/home';
 import PaymentData from 'app/pages/paymentData';
+import FormPage from 'app/pages/altform';
 
 /*
 
@@ -70,7 +71,8 @@ export default () =>
         makeRoute("/signup", Signup),
         makeRoute("/user/:id", Profile),
         makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }),
-        makeRoute("/payment", secure(PaymentData))
+        makeRoute("/payment", secure(PaymentData)),
+        makeRoute("/formpage", FormPage)
         // TODO:
         // /transactions
         // /payment -> manage paymentdata

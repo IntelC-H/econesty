@@ -1,4 +1,4 @@
-import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
+import { h, render, cloneElement, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { makeClassName, sizeProp, sizingClasses, inheritClass } from './utilities';
 import { Button, Grid, GridUnit } from './elements';
