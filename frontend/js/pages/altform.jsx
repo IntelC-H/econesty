@@ -5,8 +5,6 @@ class Form extends Component {
   constructor(props) {
     super(props);
     this.propagateSubmit = this.propagateSubmit.bind(this);
-    // this.formGroupRefs = {};
-    // this.rootFormGroupRef = null;
   }
 
   propagateSubmit(onSubmit, e) {
@@ -77,7 +75,7 @@ Form.defaultProps = {
 };
 
 // TODO: get value out of FormGroup
-// fieldset/ledgend wrapper
+// fieldset/legend wrapper
 class FormGroup extends Component {
   get keypath() { return this.props.keypath; }
   get type() { return this.props.type; }
