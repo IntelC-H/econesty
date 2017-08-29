@@ -2,6 +2,10 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { sizingClasses, makeClassName } from 'app/components/utilities';
 
+// TODO:
+// 1. Selects
+// 2. Caveats
+
 var Select = 1; // TODO: this is a dummy value until a new select is written.
 
 class Form extends Component {
