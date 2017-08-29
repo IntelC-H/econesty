@@ -57,9 +57,7 @@ const cssSubclass = (BaseComponent, mapping, baseClass, supportsSizing = false) 
     for (var k in props) {
       if (props.hasOwnProperty(k)) {
         var v = props[k];
-        /*if (supportsSizing && (k === "size" || pureSizes.indexOf(k) !== -1)) {
-          classes.push(baseClass + '-' + k + '-' + v);
-        } else*/ if (mapping.hasOwnProperty(k)) {
+        if (mapping.hasOwnProperty(k)) {
           if (!!v || v === "true") {
             classes.push(mapping[k]);
           }

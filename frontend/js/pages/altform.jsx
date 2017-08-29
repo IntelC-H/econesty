@@ -1,10 +1,11 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { sizingClasses, makeClassName } from 'app/components/utilities';
+import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
 
 // TODO:
 // 1. Selects
 // 2. Caveats
+// 3. PureCSS Styling
 
 var Select = 1; // TODO: this is a dummy value until a new select is written.
 
@@ -12,12 +13,11 @@ class Form extends Component {
   constructor(props) {
     super(props);
     this.set = this.set.bind(this);
-    this.propagateSubmit = this.propagateSubmit.bind(this);
+    this.getObject = this.getObject.bind(this);
+    this.recursiveSaveRefs = this.recursiveSaveRefs.bind(this);
   }
 
-  getChildContext() {
-    return { form: this };
-  }
+  getChildContext() { return { form: this }; }
 
   walk(sum, k) {
     if (!sum[k]) sum[k] = {};
@@ -29,23 +29,31 @@ class Form extends Component {
     const split = kp.split('.').filter(e => e.length > 0);
     const key = split[split.length - 1];
     var ptr = split.slice(0, -1).reduce(this.walk, obj);
+
+    // setting ptr[key] modifies obj through a reference.
     if (ref.value instanceof Object && ptr[key] instanceof Object) {
-      ptr[key] = Object.assign(ptr[key], ref.value);
-    } else ptr[key] = ref.value;
+      ptr[key] = Object.assign(ptr[key], ref.value); // Merge objects
+    } else {
+      ptr[key] = ref.value; // Set values
+    }
     return obj;
   }
 
-  propagateSubmit(onSubmit, e) {
-    if (onSubmit) onSubmit(this.refs.reduce(this.set, this.props.object || {}));
+  getObject() {
+    return this.refs.reduce(this.set, this.props.object || {});
   }
 
-  componentWillMount() {
-    this.componentWillUpdate()
-  }
-
-  componentWillUpdate() {
-    this.refs = [];
-  }
+  recursiveSaveRefs(cmp) {
+    if (cmp && ("name" in cmp) && ("value" in cmp) && !cmp.context.group) {
+      this.refs.push(cmp);
+    } else if (cmp) {
+      var childrenLength = (cmp.children || []).length
+      for (var i = 0; i < childrenLength; i++) {
+        var c = cmp.children[i];
+        this.recursiveSaveRefs(c instanceof Component ? c : c._component);
+      }
+    }
+  };
 
   render(props, state) {
     let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
@@ -54,24 +62,22 @@ class Form extends Component {
     if (stacked) cns.push("pure-form-stacked");
     if (className) cns.push(className);
 
-    filteredProps.className = cns.join(' '); // FIXME: use makeClassName
+    filteredProps.className = makeClassName.apply(this, cns);
     filteredProps.onSubmit = function(e) {
-      e.preventDefault();
-      this.propagateSubmit(onSubmit, e);
+      e.preventDefault(); // prevent form POST (messes up SPA)
+      if (onSubmit) onSubmit(this.getObject());
     }.bind(this);
 
     filteredProps.children.forEach(c => {
-      if (c.attributes) {
-        var oldref = c.attributes.ref;
-        c.attributes.ref = function(cmp) {
-          if ("name" in cmp && "value" in cmp && !cmp.context.group) {
-            this.refs.push(cmp);
-          }
-          
-          if (oldref) oldref(cmp);
-        }.bind(this);
-      }
+      if (!c.attributes) c.attributes = {}
+      var oldref = c.attributes.ref;
+      c.attributes.ref = cmp => {
+        this.recursiveSaveRefs(cmp);
+        if (oldref) oldref(cmp);
+      };
     });
+
+    this.refs = []; // clear out old refs to avoid bad values.
 
     return h('form', filteredProps);
   }
@@ -144,15 +150,9 @@ class Input extends Component {
     this.state = { value: props.value };
   }
 
-  get name() { return this.props.name; };
-
-  get value() {
-    return this.state.value;
-  }
-
-  set value(val) {
-    this.setState({ value: val });
-  }
+  get name() { return this.props.name; }
+  get value() { return this.state.value; }
+  set value(val) { this.setState({ value: val }); }
 
   // TODO: cache this
   get type() {
@@ -177,9 +177,7 @@ class Input extends Component {
 
   componentDidMount() {
     const { group } = this.context;
-    if (group) {
-      group.setValueForKey(this.props.name, this.props.value);
-    }
+    if (group) group.setValueForKey(this.props.name, this.props.value);
   }
 
   render(props, state, { form, group }) {
@@ -227,6 +225,51 @@ class Input extends Component {
   }
 }
 
+Input.propTypes = {
+  required: PropTypes.bool,
+  hidden: PropTypes.bool,
+  text: PropTypes.bool,
+  checkbox: PropTypes.bool,
+  number: PropTypes.bool,
+  password: PropTypes.bool,
+  email: PropTypes.bool,
+  time: PropTypes.bool,
+  tel: PropTypes.bool,
+  search: PropTypes.bool,
+  range: PropTypes.bool,
+  url: PropTypes.bool,
+  type: PropTypes.oneOf(["hidden", "text", "checkbox", "password",
+                         "email", "url", "number", "time", "tel",
+                         "search", "range"]),
+  name: PropTypes.string.isRequired,
+  value: PropTypes.any,
+  size: sizeProp,
+  sm: sizeProp,
+  md: sizeProp,
+  lg: sizeProp,
+  xl: sizeProp,
+  ignore: PropTypes.bool
+};
+
+Input.defaultProps = {
+  required: false,
+  hidden: false,
+  text: false,
+  checkbox: false,
+  number: false,
+  password: false,
+  email: false,
+  time: false,
+  tel: false,
+  search: false,
+  range: false,
+  url: false,
+  type: undefined,
+  value: undefined,
+  size: null,
+  ignore: false
+};
+
 const SubmitButton = props => {
   const { title, ...filteredProps } = props;
   return <input {...filteredProps} value={title} type="submit" />
@@ -240,19 +283,29 @@ SubmitButton.propTypes = {
   title: PropTypes.string
 };
 
+var people = ["nancy", "bill", "joe", "emily"];
+
 export default () => (
   <Form object={ {} } onSubmit={console.log}>
     <Input text name="query" placeholder="Query" />
     <Input hidden name="people" value={[]} />
-    <FormGroup keypath="people">
-      <Input hidden name="length" value={2} />
-    </FormGroup>
-    <FormGroup keypath="people.0.user">
-      <Input text name="username" placeholder="Username" />
-    </FormGroup>
-    <FormGroup keypath="people.1.user">
-      <Input text name="username" placeholder="Username" />
-    </FormGroup>
+    <Input hidden name="people.length" value={people.length} />
+
+    {
+      people.map((p, idx) => {
+        return (
+          <div>
+            <hr />
+            <Input text name={"people." + idx + ".name"} value={p} />
+            <FormGroup keypath={"people." + idx + ".address"} key={idx} >
+              <Input text name="address_line_one" placeholder="Address Line One" />
+              <Input text name="address_line_two" placeholder="Address Line Two" />
+            </FormGroup>
+          </div>
+        );
+      })
+    }
+
     <SubmitButton title="Submit!" />
   </Form>
 );
