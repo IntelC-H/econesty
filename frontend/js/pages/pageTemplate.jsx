@@ -2,7 +2,6 @@ import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import SearchField from 'app/components/searchfield';
 import { Form } from 'app/components/forms';
 import { Menu, MenuHeading, MenuList, MenuItem } from 'app/components/elements';
-import { makeClassName } from 'app/components/utilities';
 import { Link } from 'app/components/routing';
 import { API } from 'app/api';
 
