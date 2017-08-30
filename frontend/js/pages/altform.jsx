@@ -68,11 +68,8 @@ class Form extends Component {
   setRef(cmp) {
     if (cmp) {
       if (cmp.name && ("value" in cmp) && !this.isValidFormElement(cmp.context.group)) {
-        console.log("REFFING", cmp);
         if (!this.refs) this.refs = [cmp];
         else            this.refs.push(cmp);
-      } else {
-        console.log("SKIPPING", cmp);
       }
     } else {
       self.refs = [];
