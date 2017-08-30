@@ -2,7 +2,8 @@ import { h, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
 function makeClassName() {
-  return [].concat.apply([], Array.from(arguments).filter(a => !!a).map(a => a.split(' '))).filter(e => e.length > 0).join(' ');
+  var ret = [].concat.apply([], Array.from(arguments).filter(a => !!a).map(a => a.split(' '))).filter(e => e.length > 0).join(' ');
+  return ret.length === 0 ? undefined : ret;
 }
 
 function inheritClass(comp, cname) {
@@ -32,6 +33,10 @@ const sizingClasses = (baseClass, props) => {
 
   if (props.size) {
     classes.push(baseClass + '-' + props.size);
+  }
+
+  if (classes.length === 0) {
+    classes.push(baseClass);
   }
 
   return classes;

@@ -14,27 +14,45 @@ class Form extends Component {
     super(props);
     this.set = this.set.bind(this);
     this.getObject = this.getObject.bind(this);
-    this.recursiveSaveRefs = this.recursiveSaveRefs.bind(this);
+    this.setRef = this.setRef.bind(this);
   }
-
-  getChildContext() { return { form: this }; }
 
   walk(sum, k) {
     if (!sum[k]) sum[k] = {};
     return sum[k];
   }
 
-  set(obj, ref) {
-    let kp = ref.context.group ? ref.context.group.name + "." + ref.name : ref.name;
-    const split = kp.split('.').filter(e => e.length > 0);
-    const key = split[split.length - 1];
-    var ptr = split.slice(0, -1).reduce(this.walk, obj);
+  inherits(child, parent) {
+    if (!child && parent) return false;
+    if (child === parent) return true;
+    return this.inherits(child.__proto__, parent);
+  }
 
-    // setting ptr[key] modifies obj through a reference.
-    if (ref.value instanceof Object && ptr[key] instanceof Object) {
-      ptr[key] = Object.assign(ptr[key], ref.value); // Merge objects
-    } else {
-      ptr[key] = ref.value; // Set values
+  set(obj, ref) {
+    if (ref.base && ref.base.parentNode) {
+      let group = ref.context.group;
+      let kp = (group && group.name && group.name.length > 0 ? group.name + "." + ref.name : ref.name) || "";
+      const split = kp.split('.').filter(e => e.length > 0);
+      const key = split[split.length - 1];
+      var ptr = split.slice(0, -1).reduce(this.walk, obj);
+  
+      // setting ptr[key] modifies obj through a reference.
+      if (ref.value instanceof Object && ptr[key] instanceof Object) {
+        // Merge objects
+        ptr = ptr[key];
+        for (var k in ref.value) {
+          if (ref.value.hasOwnProperty(k)) {
+            ptr[k] = ref.value[k];
+          }
+        }
+
+        // Make sure you can use forms to set the value of any Object data structure.
+        if (this.inherits(ref.value.__proto__, ptr.__proto__)) {
+          Object.setPrototypeOf(ptr, ref.value.__proto__);
+        }
+      } else {
+        ptr[key] = ref.value; // Set values
+      }
     }
     return obj;
   }
@@ -43,15 +61,21 @@ class Form extends Component {
     return this.refs.reduce(this.set, this.props.object || {});
   }
 
-  recursiveSaveRefs(cmp) {
-    if (cmp && ("name" in cmp) && ("value" in cmp) && !cmp.context.group) {
-      this.refs.push(cmp);
-    } else if (cmp) {
-      var childrenLength = (cmp.children || []).length
-      for (var i = 0; i < childrenLength; i++) {
-        var c = cmp.children[i];
-        this.recursiveSaveRefs(c instanceof Component ? c : c._component);
+  isValidFormElement(cmp) {
+    return cmp && cmp.name && ("value" in cmp);
+  }
+
+  setRef(cmp) {
+    if (cmp) {
+      if (cmp.name && ("value" in cmp) && !this.isValidFormElement(cmp.context.group)) {
+        console.log("REFFING", cmp);
+        if (!this.refs) this.refs = [cmp];
+        else            this.refs.push(cmp);
+      } else {
+        console.log("SKIPPING", cmp);
       }
+    } else {
+      self.refs = [];
     }
   };
 
@@ -68,23 +92,23 @@ class Form extends Component {
       if (onSubmit) onSubmit(this.getObject());
     }.bind(this);
 
-    filteredProps.children.forEach(c => {
+    const swizzleRefs = c => {
       if (!c.attributes) c.attributes = {}
       var oldref = c.attributes.ref;
       c.attributes.ref = cmp => {
-        this.recursiveSaveRefs(cmp);
+        this.setRef(cmp);
         if (oldref) oldref(cmp);
       };
-    });
 
-    this.refs = []; // clear out old refs to avoid bad values.
+      if (c.children) {
+        c.children.forEach(cp => swizzleRefs(cp));
+      }
+    }
+
+    filteredProps.children.forEach(c => swizzleRefs(c));
 
     return h('form', filteredProps);
   }
-}
-
-Form.childContextTypes = {
-  form: PropTypes.instanceOf(Form)
 }
 
 Form.propTypes = {
@@ -127,7 +151,7 @@ class FormGroup extends Component {
   }
 
   render(props, state) {
-    return h('fieldset', Object.assign({}, props)); // need to copy so that children are not lost.
+    return h('fieldset', Object.assign({}, props, { className: makeClassName(props.className, "pure-group") })); // need to copy so that children are not lost.
   }
 }
 
@@ -180,7 +204,15 @@ class Input extends Component {
     if (group) group.setValueForKey(this.props.name, this.props.value);
   }
 
-  render(props, state, { form, group }) {
+  readInputDOMNode(inpt) {
+    let val = undefined;
+    if (inpt.type === "checkbox")                    val = inpt.checked || false;
+    else if (!inpt.value || inpt.value.length === 0) val = null;
+    else if (inpt.type === "hidden")                 val = JSON.parse(inpt.value);
+    else val = inpt.value;
+  }
+
+  render(props, state, { group }) {
     const {className, search, range,
            ignore, placeholder, onInput,
            type, hidden, text, time, // eslint-disable-line no-unused-vars
@@ -202,25 +234,27 @@ class Input extends Component {
     }
 
     filteredProps.onInput = function(e) {
-      let inpt = e.target;
-      let val = undefined;
-      if (inpt.type === "checkbox")                    val = inpt.checked || false;
-      else if (!inpt.value || inpt.value.length === 0) val = null;
-      else if (inpt.type === "hidden")                 val = JSON.parse(inpt.value);
-      else val = inpt.value;
-
+      let val = this.readInputDOMNode(e.target);
       if (group) group.setValueForKey(e.target.name, val);
-
       this.setState(st => ({ ...st, value: val }));
 
       if (onInput) onInput(e);
     }.bind(this);
+
+    if (this.type === "checkbox") {
+      var oldoc = filteredProps.onClick;
+      filteredProps.onClick = function(e) {
+        filteredProps.onInput(e);
+        if (oldoc) oldoc(e);
+      };
+    }
 
     if (this.type === "checkbox" && !!placeholder && placeholder.length > 0) {
       return <label><input {...filteredProps} /> {placeholder}</label>;
     }
 
     filteredProps.placeholder = placeholder;
+    filteredProps._component = this;
     return h('input', filteredProps);
   }
 }
@@ -271,8 +305,8 @@ Input.defaultProps = {
 };
 
 const SubmitButton = props => {
-  const { title, ...filteredProps } = props;
-  return <input {...filteredProps} value={title} type="submit" />
+  const { title, className, ...filteredProps } = props;
+  return <input {...filteredProps} className={makeClassName(className, "pure-button")} value={title} type="submit" />
 };
 
 SubmitButton.defaultProps = {
@@ -283,29 +317,57 @@ SubmitButton.propTypes = {
   title: PropTypes.string
 };
 
-var people = ["nancy", "bill", "joe", "emily"];
+export default class AltForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { people: ["nancy", "bill", "joe", "emily"] }
+  }
 
-export default () => (
-  <Form object={ {} } onSubmit={console.log}>
-    <Input text name="query" placeholder="Query" />
-    <Input hidden name="people" value={[]} />
-    <Input hidden name="people.length" value={people.length} />
+  deleteButton(props) {
+    return <a className="form-delete-button fa fa-times" {...props} />
+  }
 
-    {
-      people.map((p, idx) => {
-        return (
-          <div>
-            <hr />
-            <Input text name={"people." + idx + ".name"} value={p} />
-            <FormGroup keypath={"people." + idx + ".address"} key={idx} >
-              <Input text name="address_line_one" placeholder="Address Line One" />
-              <Input text name="address_line_two" placeholder="Address Line Two" />
-            </FormGroup>
-          </div>
-        );
-      })
-    }
+  deletePressed(idx) {
+    this.setState(st => {
+      var newPeople = st.people.slice();
+      newPeople.splice(idx, 1);
+      return { ...st, people: newPeople };
+    });
+  }
 
-    <SubmitButton title="Submit!" />
-  </Form>
-);
+  render(props, { people }) {
+    return (
+      <Form stacked onSubmit={console.log}>
+        <FormGroup key={people}>
+          <Input text name="query" placeholder="Query" />
+          <Input hidden name="people" value={[]} />
+          <Input hidden name="people.length" value={people.length} key={people} />
+        </FormGroup>
+        
+        {
+
+          people.map((p, idx) => {
+            return (
+              <div className="form-group" key={p}>
+                <hr />
+                <this.deleteButton onClick={() => this.deletePressed(idx) } />
+                <FormGroup>
+                  <Input text name={"people." + idx + ".name"} value={p} />
+                </FormGroup>
+                <FormGroup keypath={"people." + idx + ".address"}>
+                  <Input text name="address_line_one" placeholder="Address Line One" />
+                  <Input text name="address_line_two" placeholder="Address Line Two" />
+                  <Input checkbox name="current" placeholder="Currently lives here?" />
+                </FormGroup>
+              </div>
+            );
+          })
+
+        }
+    
+        <SubmitButton title="Submit!" />
+      </Form>
+    );
+  }
+}
+
