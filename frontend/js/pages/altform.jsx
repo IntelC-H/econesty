@@ -277,7 +277,13 @@ class Input extends Component {
     }
 
     if (this.type === "checkbox" && !!placeholder && placeholder.length > 0) {
-      return <label><input {...filteredProps} /> {placeholder}</label>;
+      filteredProps.id = filteredProps.id || Math.random().toString();
+      return (
+        <div className="checkbox">
+          <input {...filteredProps} />
+          <label for={filteredProps.id}>{" " + placeholder}</label>
+        </div>
+      );
     }
 
     filteredProps.placeholder = placeholder;
@@ -364,7 +370,7 @@ class Select extends Component {
           this.onChangeHandler(e);
           if (onChange) onChange(e);
         }}
-        {...filteredProps}
+        { ...filteredProps }
       >
         {options.map(s => <option selected={s === value} key={name + '-' + s} value={s}>{s}</option>)}
       </select>

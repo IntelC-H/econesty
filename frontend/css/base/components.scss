@@ -45,6 +45,19 @@
   Form Styling
 */
 
+.checkbox {
+  vertical-align: middle;
+
+  input[type=checkbox] {
+    display: inline-block;
+  }
+
+  label {
+    display: inline-block;
+    margin-left: $padding/2; 
+  }
+}
+
 .form-group {
   border-radius: $border-radius;
 }
