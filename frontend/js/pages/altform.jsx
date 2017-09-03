@@ -3,11 +3,8 @@ import PropTypes from 'prop-types';
 import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
 
 // TODO:
-// 1. Selects
 // 2. Caveats
 // 3. PureCSS Styling
-
-var Select = 1; // TODO: this is a dummy value until a new select is written.
 
 class Form extends Component {
   constructor(props) {
@@ -17,21 +14,28 @@ class Form extends Component {
     this.setRef = this.setRef.bind(this);
   }
 
-  walk(sum, k) {
-    if (!sum[k]) sum[k] = {};
-    return sum[k];
-  }
-
   inherits(child, parent) {
     if (!child && parent) return false;
     if (child === parent) return true;
     return this.inherits(child.__proto__, parent);
   }
 
+  /*
+    Reduce logic
+    These exist to optimize toObject().
+    Normally, these functions would be created each time getObject() is
+    called.
+   */
+
+  walk(sum, k) {
+    if (!sum[k]) sum[k] = {};
+    return sum[k];
+  }
+
   set(obj, ref) {
-    if (ref.base && ref.base.parentNode) {
+    if (ref.base && ref.base.parentNode) { // if (ref is mounted) {
       let group = ref.context.group;
-      let kp = (group && group.name && group.name.length > 0 ? group.name + "." + ref.name : ref.name) || "";
+      let kp = ((group && group.name && group.name.length && group.name.length > 0) ? group.name + "." + ref.name : ref.name) || "";
       const split = kp.split('.').filter(e => e.length > 0);
       const key = split[split.length - 1];
       var ptr = split.slice(0, -1).reduce(this.walk, obj);
@@ -57,14 +61,26 @@ class Form extends Component {
     return obj;
   }
 
+  /*
+   * getObject()
+   * returns an object built by aggregating the values of
+   * the components in this.refs.
+   */
   getObject() {
-    return this.refs.reduce(this.set, this.props.object || {});
+    return this.refs.reduce(this.set, {});
   }
 
   isValidFormElement(cmp) {
     return cmp && cmp.name && ("value" in cmp);
   }
 
+  /*
+   * setRef(cmp)
+   * A function for use with swizzleRefs. Applies 
+   * a {VNode} and all its children.
+   *  @param {Component|DOMElement} c  A (JSX) Node whose ref will be modified.
+   *  @param {Function} f  See "arbitrary function f".
+   */
   setRef(cmp) {
     if (cmp) {
       if (cmp.name && ("value" in cmp) && !this.isValidFormElement(cmp.context.group)) {
@@ -75,6 +91,28 @@ class Form extends Component {
       self.refs = [];
     }
   };
+
+  /*
+    Rendering Methods
+  */
+
+  /*
+   * swizzleRefs(c, f)
+   * Prepend a call to an arbitrary function f to the ref of
+   * a {VNode} and all its children.
+   *  @param {VNode} c  A (JSX) Node whose ref will be modified.
+   *  @param {Function} f  See "arbitrary function f".
+   */
+  swizzleRefs(c, f) {
+    if (!c.attributes) c.attributes = {}
+    var oldref = c.attributes.ref;
+    c.attributes.ref = cmp => {
+      f(cmp);
+      if (oldref) oldref(cmp);
+    };
+
+    if (c.children) c.children.forEach(cp => this.swizzleRefs(cp, f));
+  }
 
   render(props, state) {
     let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
@@ -89,20 +127,7 @@ class Form extends Component {
       if (onSubmit) onSubmit(this.getObject());
     }.bind(this);
 
-    const swizzleRefs = c => {
-      if (!c.attributes) c.attributes = {}
-      var oldref = c.attributes.ref;
-      c.attributes.ref = cmp => {
-        this.setRef(cmp);
-        if (oldref) oldref(cmp);
-      };
-
-      if (c.children) {
-        c.children.forEach(cp => swizzleRefs(cp));
-      }
-    }
-
-    filteredProps.children.forEach(c => swizzleRefs(c));
+    filteredProps.children.forEach(c => this.swizzleRefs(c, this.setRef));
 
     return h('form', filteredProps);
   }
@@ -232,8 +257,8 @@ class Input extends Component {
 
     filteredProps.onInput = function(e) {
       let val = this.readInputDOMNode(e.target);
-      if (group) group.setValueForKey(e.target.name, val);
-      this.setState(st => ({ ...st, value: val }));
+      if (group) group.setValueForKey(e.target.name, val); // TODO: only set if @group@ is a valid form element.
+      this.value = val;
 
       if (onInput) onInput(e);
     }.bind(this);
@@ -299,6 +324,58 @@ Input.defaultProps = {
   value: undefined,
   size: null,
   ignore: false
+};
+
+// TODO: factor out name & value properties,
+// as well as constructor logic.
+
+class Select extends Component {
+  get name() { return this.props.name; }
+  get value() { return this.state.value; }
+  set value(val) { this.setState({ value: val }); }
+
+  constructor(props) {
+    super(props);
+    this.setState = this.setState.bind(this);
+    this.onChangeHandler = this.onChangeHandler.bind(this);
+    this.state = { value: props.value };
+  }
+
+  onChangeHandler(e) {
+    this.value = e.target.value;
+  }
+
+  render(props, state, context) {
+    const { name, options, className, onChange, ...filteredProps } = props;
+    delete filteredProps.value;
+
+    var classes = sizingClasses('pure-input', props);
+    classes.unshift(className);
+    return (
+      <select
+        className={makeClassName.apply(this, classes)}
+        name={name}
+        onChange={e => {
+          this.onChangeHandler(e);
+          if (onChange) onChange(e);
+        }}
+        {...filteredProps}
+      >
+        {options.map(s => <option selected={s === value} key={name + '-' + s} value={s}>{s}</option>)}
+      </select>
+    );
+  }
+}
+
+// FIXME: does this really work?
+Select.setValue = (select, val) => {
+  select.value = val;
+};
+
+Select.toValue = select => {
+  var val = (select.children[select.selectedIndex] || {}).value;
+  if (!val || val.length === 0) return null;
+  return val;
 };
 
 const SubmitButton = props => {

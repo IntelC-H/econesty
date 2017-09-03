@@ -43,11 +43,7 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           {
-            loader: "babel-loader",
-            options: {
-              presets: ["latest", "react"],
-              plugins: ["transform-object-rest-spread", "syntax-decorators", ["transform-react-jsx", { "pragma": "h" }]]
-            }
+            loader: "babel-loader"
           },
           {
             loader: "eslint-loader",
