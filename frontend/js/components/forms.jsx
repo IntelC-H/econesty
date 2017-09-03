@@ -3,16 +3,6 @@ import PropTypes from 'prop-types';
 import { makeClassName, sizeProp, sizingClasses, inheritClass } from './utilities';
 import { Button, Grid, GridUnit } from './elements';
 
-//
-// TODO: Rewrite!
-//
-// 1. Stateful forms that don't lose value on each rewrite
-// 2. No more manual DOM manipulation
-//
-
-// TODO: labels directly on checkboxes.
-// TODO: separate Checkbox form Input?
-// TODO: separate email, url, text, password, etc from Input?
 // TODO: textareas
 
 const InputGroup = inheritClass('fieldset', 'pure-group');
