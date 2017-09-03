@@ -35,7 +35,12 @@ class Form extends Component {
   set(obj, ref) {
     if (ref.base && ref.base.parentNode) { // if (ref is mounted) {
       let group = ref.context.group;
-      let kp = ((group && group.name && group.name.length && group.name.length > 0) ? group.name + "." + ref.name : ref.name) || "";
+      let groupHasName = group
+                         && group.name
+                         && group.name.length
+                         && group.name.length > 0
+                         && ref.name;
+      let kp = (groupHasName ? group.name + "." : "") + (ref.name || "");
       const split = kp.split('.').filter(e => e.length > 0);
       const key = split[split.length - 1];
       var ptr = split.slice(0, -1).reduce(this.walk, obj);
@@ -104,7 +109,7 @@ class Form extends Component {
    *  @param {Function} f  See "arbitrary function f".
    */
   swizzleRefs(c, f) {
-    if (!c.attributes) c.attributes = {}
+    if (!c.attributes) c.attributes = {};
     var oldref = c.attributes.ref;
     c.attributes.ref = cmp => {
       f(cmp);
