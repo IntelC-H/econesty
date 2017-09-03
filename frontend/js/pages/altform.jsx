@@ -210,7 +210,7 @@ class Input extends Component {
     const { type, hidden, text,
             checkbox, password,
             email, url, number,
-            time, tel } = this.props;
+            search, range, time, tel } = this.props;
 
     return checkbox ? "checkbox"
          : hidden ? "hidden"
@@ -378,7 +378,6 @@ class Select extends Component {
   }
 }
 
-// FIXME: does this really work?
 Select.setValue = (select, val) => {
   select.value = val;
 };
@@ -389,17 +388,41 @@ Select.toValue = select => {
   return val;
 };
 
-const SubmitButton = props => {
-  const { title, className, ...filteredProps } = props;
-  return <input {...filteredProps} className={makeClassName(className, "pure-button")} value={title} type="submit" />
-};
+class SubmitButton extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { caveatChecked: false };
+    this.onCheckToggle = this.onCheckToggle.bind(this);
+  }
+
+  onCheckToggle(e) {
+    this.setState({ caveatChecked: e.target.checked });
+  }
+
+  render(props, { caveatChecked }) {
+    const { caveat, title, className, ...filteredProps } = props;
+    filteredProps.value = title;
+    filteredProps.disabled = caveat && caveat.length > 0 && !caveatChecked;
+    filteredProps.type = "submit";
+    filteredProps.className = makeClassName(className, "pure-button");
+    return (
+      <div>
+        {caveat && caveat.length > 0 &&
+        <Input checkbox placeholder={caveat} onClick={this.onCheckToggle} />}
+        <Input {...filteredProps} />
+      </div>
+    );
+  }
+}
 
 SubmitButton.defaultProps = {
-  title: ""
+  title: "",
+  caveat: ""
 };
 
 SubmitButton.propTypes = {
-  title: PropTypes.string
+  title: PropTypes.string,
+  caveat: PropTypes.string
 };
 
 export default class AltForm extends Component {
@@ -450,7 +473,7 @@ export default class AltForm extends Component {
 
         }
     
-        <SubmitButton title="Submit!" />
+        <SubmitButton title="Submit!" caveat="Are you sure?" />
       </Form>
     );
   }
