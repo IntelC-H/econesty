@@ -6,6 +6,16 @@ import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities
 // 2. Caveats
 // 3. PureCSS Styling
 
+function swizzleFunc(obj, fname, newf) {
+  var oldf = obj[fname];
+  if (!oldf) obj[fname] = newf;
+  else obj[fname] = function() {
+    newf.apply(obj, arguments);
+    if (oldf) oldf.apply(obj, arguments);
+  };
+  return obj;
+}
+
 class Form extends Component {
   constructor(props) {
     super(props);
@@ -110,12 +120,7 @@ class Form extends Component {
    */
   swizzleRefs(c, f) {
     if (!c.attributes) c.attributes = {};
-    var oldref = c.attributes.ref;
-    c.attributes.ref = cmp => {
-      f(cmp);
-      if (oldref) oldref(cmp);
-    };
-
+    swizzleFunc(c.attributes, "ref", f);
     if (c.children) c.children.forEach(cp => this.swizzleRefs(cp, f));
   }
 
@@ -237,6 +242,7 @@ class Input extends Component {
     else if (!inpt.value || inpt.value.length === 0) val = null;
     else if (inpt.type === "hidden")                 val = JSON.parse(inpt.value);
     else val = inpt.value;
+    return val;
   }
 
   render(props, state, { group }) {
@@ -260,20 +266,14 @@ class Input extends Component {
       else if (state.value)         filteredProps.value   = this.type === "hidden" ? JSON.stringify(state.value) : state.value;
     }
 
-    filteredProps.onInput = function(e) {
+    swizzleFunc(filteredProps, "onInput", function(e) {
       let val = this.readInputDOMNode(e.target);
       if (group) group.setValueForKey(e.target.name, val); // TODO: only set if @group@ is a valid form element.
       this.value = val;
-
-      if (onInput) onInput(e);
-    }.bind(this);
+    }.bind(this));
 
     if (this.type === "checkbox") {
-      var oldoc = filteredProps.onClick;
-      filteredProps.onClick = function(e) {
-        filteredProps.onInput(e);
-        if (oldoc) oldoc(e);
-      };
+      swizzleFunc(filteredProps, "onClick", filteredProps.onInput);
     }
 
     if (this.type === "checkbox" && !!placeholder && placeholder.length > 0) {
@@ -428,11 +428,11 @@ SubmitButton.propTypes = {
 export default class AltForm extends Component {
   constructor(props) {
     super(props);
-    this.state = { people: ["nancy", "bill", "joe", "emily"] }
+    this.state = { people: ["nancy", "bill", "joe", "emily"] };
   }
 
   deleteButton(props) {
-    return <a className="form-delete-button fa fa-times" {...props} />
+    return <a className="form-delete-button fa fa-times" {...props} />;
   }
 
   deletePressed(idx) {
