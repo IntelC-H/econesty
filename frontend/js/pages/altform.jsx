@@ -19,6 +19,7 @@ function prependFunc(obj, fname, newf) {
 class Form extends Component {
   constructor(props) {
     super(props);
+    this.walk = this.walk.bind(this);
     this.set = this.set.bind(this);
     this.getObject = this.getObject.bind(this);
     this.setRef = this.setRef.bind(this);
@@ -37,7 +38,7 @@ class Form extends Component {
     Normally, these functions would be created each time getObject() is
     called.
    */
- 
+
   walk(obj, k) {
     if (!obj[k]) obj[k] = {};
     return obj[k];
@@ -52,14 +53,15 @@ class Form extends Component {
       keys = keys.filter(e => e.length > 0);
       const key = keys[keys.length - 1];
       var ptr = keys.slice(0, -1).reduce(this.walk, obj);
-  
+
       // setting ptr[key] modifies obj through a reference.
       if (ref.value instanceof Object && ptr[key] instanceof Object) {
         // Merge objects
         ptr = ptr[key];
         for (var k in ref.value) {
           if (ref.value.hasOwnProperty(k)) {
-            ptr[k] = ref.value[k];
+            const v = ref.value[k];
+            if (v !== undefined) ptr[k] = v;
           }
         }
 
@@ -67,8 +69,8 @@ class Form extends Component {
         if (this.inherits(ref.value.__proto__, ptr.__proto__)) {
           Object.setPrototypeOf(ptr, ref.value.__proto__);
         }
-      } else {
-        ptr[key] = ref.value; // Set values
+      } else if (ref.value !== undefined) {
+        ptr[key] = ref.value;
       }
     }
     return obj;
@@ -83,27 +85,22 @@ class Form extends Component {
     return this.refs.reduce(this.set, {});
   }
 
-  isValidFormElement(cmp) {
-    return cmp && cmp.name && ("value" in cmp);
-  }
-
   /*
    * setRef(cmp)
-   * A function for use with swizzleRefs. Applies 
-   * a {VNode} and all its children.
-   *  @param {Component|DOMElement} c  A (JSX) Node whose ref will be modified.
-   *  @param {Function} f  See "arbitrary function f".
+   * Given an instance of a component, add it to this.refs if it
+   * matches the criteria of a form element. If cmp is null, reset
+   * all refs.
    */
   setRef(cmp) {
     if (cmp) {
-      if (cmp.name && ("value" in cmp) /*&& !this.isValidFormElement(cmp.context.group)*/) {
+      if (FormElement.isValid(cmp)) {
         if (!this.refs) this.refs = [cmp];
         else            this.refs.push(cmp);
       }
     } else {
       self.refs = [];
     }
-  };
+  }
 
   /*
     Rendering Methods
@@ -121,7 +118,7 @@ class Form extends Component {
     if (c.children) c.children.forEach(this.recursiveRef);
   }
 
-  render(props, state) {
+  render(props) {
     let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
     var cns = ["pure-form"];
     if (aligned) cns.push("pure-form-aligned");
@@ -159,13 +156,13 @@ Form.defaultProps = {
 
 // fieldset/legend wrapper
 class FormGroup extends Component {
-  get keypath() { return this.props.keypath; }
+  get keypath() { return this.props.keypath; } // eslint-disable-line brace-style
 
   getChildContext() {
     return { group: this };
   }
 
-  render(props, state) {
+  render(props) {
     return h('fieldset', Object.assign({}, props, { className: makeClassName(props.className, "pure-group") }));
   }
 }
@@ -182,19 +179,44 @@ FormGroup.propTypes = {
   keypath: PropTypes.string
 };
 
-class Input extends Component {
+class FormElement extends Component {
+  get name() { return this.props.name; } // eslint-disable-line brace-style
+  get ignore() { return this.props.ignore; } // eslint-disable-line brace-style
+  get value() { return this.state.value; } // eslint-disable-line brace-style
+  set value(v) { this.setState({ value: v }); } // eslint-disable-line brace-style
+
   constructor(props) {
     super(props);
-    this.setState = this.setState.bind(this);
-    this.syncValueWithDOMInput = this.syncValueWithDOMInput.bind(this);
     this.state = { value: props.value };
+    this.onInput = this.onInput.bind(this);
+    this.setState = this.setState.bind(this);
   }
 
-  get name() { return this.props.name; }
-  get value() { return this.state.value; }
-  set value(val) { this.setState({ value: val }); }
+  onInput(e) {
+    this.value = e.target.value;
+  }
+}
 
+FormElement.isValid = c => c && c.name && "value" in c;
+
+FormElement.propTypes = {
+  name: PropTypes.string.isRequired,
+  ignore: PropTypes.bool,
+  required: PropTypes.bool
+};
+
+FormElement.defaultProps = {
+  ignore: false,
+  required: false
+};
+
+class Input extends FormElement {
   // TODO: cache this
+  constructor(props) {
+    super(props);
+    this.onInput = this.onInput.bind(this);
+  }
+
   get type() {
     const { type, hidden, text,
             checkbox, password,
@@ -215,7 +237,8 @@ class Input extends Component {
          : type;
   }
 
-  syncValueWithDOMInput(inpt) {
+  onInput(e) {
+    const inpt = e.target;
     if (inpt.type === "checkbox")     this.value = inpt.checked || false;
     else if (!inpt.value)             this.value = undefined;
     else if (inpt.value.length === 0) this.value = null;
@@ -223,9 +246,9 @@ class Input extends Component {
     else                              this.value = inpt.value;
   }
 
-  render(props, state, { group }) {
-    const {className, search, range,
-           ignore, placeholder, onInput,
+  render(props) {
+    const {className, placeholder,
+           search, range, // eslint-disable-line no-unused-vars
            type, hidden, text, time, // eslint-disable-line no-unused-vars
            checkbox, password, tel, // eslint-disable-line no-unused-vars
            email, url, number, // eslint-disable-line no-unused-vars
@@ -241,14 +264,14 @@ class Input extends Component {
 
     const isCheck = this.type === "checkbox";
 
-    if (state.value !== undefined && !ignore) {
-      if (isCheck)          filteredProps.checked = !!state.value;
-      else if (state.value) filteredProps.value   = this.type === "hidden" ? JSON.stringify(state.value) : state.value;
+    if (this.value !== undefined && !props.ignore) {
+      if (isCheck)         filteredProps.checked = !!this.value;
+      else if (this.value) filteredProps.value   = this.type === "hidden" ? JSON.stringify(this.value) : this.value;
     }
 
     prependFunc(filteredProps,
                 isCheck ? "onClick" : "onInput",
-                this.syncValueWithDOMInput);
+                this.onInput);
 
     if (isCheck && !!placeholder && placeholder.length > 0) {
       filteredProps.id = filteredProps.id || Math.random().toString();
@@ -266,6 +289,7 @@ class Input extends Component {
 }
 
 Input.propTypes = {
+  ...FormElement.propTypes,
   hidden: PropTypes.bool,
   text: PropTypes.bool,
   checkbox: PropTypes.bool,
@@ -281,11 +305,6 @@ Input.propTypes = {
                          "email", "url", "number", "time", "tel",
                          "search", "range"]),
 
-  required: PropTypes.bool,
-  ignore: PropTypes.bool,
-  name: PropTypes.string.isRequired,
-  value: PropTypes.any,
-
   size: sizeProp,
   sm: sizeProp,
   md: sizeProp,
@@ -294,6 +313,7 @@ Input.propTypes = {
 };
 
 Input.defaultProps = {
+  ...FormElement.defaultProps,
   hidden: false,
   text: false,
   checkbox: false,
@@ -304,61 +324,36 @@ Input.defaultProps = {
   tel: false,
   search: false,
   range: false,
-  url: false,
-
-  required: false,
-  ignore: false
+  url: false
 };
 
-// TODO: factor out name & value properties,
-// as well as constructor logic.
-
-class Select extends Component {
-  get name() { return this.props.name; }
-  get value() { return this.state.value; }
-  set value(val) { this.setState({ value: val }); }
-
+class Select extends FormElement {
   constructor(props) {
     super(props);
-    this.setState = this.setState.bind(this);
-    this.onChangeHandler = this.onChangeHandler.bind(this);
-    this.state = { value: props.value };
+    let optVal = props.options.length > 0 ? props.options[0] : null;
+    this.state = { value: props.value || optVal };
   }
 
-  onChangeHandler(e) {
-    this.value = e.target.value;
-  }
+  render() {
+    const { value, options, className, ...filteredProps } = this.props;
 
-  render(props, state, context) {
-    const { name, options, className, onChange, ...filteredProps } = props;
-    delete filteredProps.value;
-
-    var classes = sizingClasses('pure-input', props);
-    classes.unshift(className);
-    return (
-      <select
-        className={makeClassName.apply(this, classes)}
-        name={name}
-        onChange={e => {
-          this.onChangeHandler(e);
-          if (onChange) onChange(e);
-        }}
-        { ...filteredProps }
-      >
-        {options.map(s => <option selected={s === value} key={name + '-' + s} value={s}>{s}</option>)}
-      </select>
-    );
+    prependFunc(filteredProps, "onChange", this.onInput);
+    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
+    filteredProps.children = options.map(s => <option
+                                                selected={s === value}
+                                                key={filteredProps.name + '-' + s}
+                                                value={s}>{s}</option>);
+    return h('select', filteredProps);
   }
 }
 
-Select.setValue = (select, val) => {
-  select.value = val;
+Select.propTypes = {
+  ...FormElement.propTypes,
+  options: PropTypes.arrayOf(PropTypes.string)
 };
 
-Select.toValue = select => {
-  var val = (select.children[select.selectedIndex] || {}).value;
-  if (!val || val.length === 0) return null;
-  return val;
+Select.defaultProps = {
+  ...FormElement.defaultProps
 };
 
 class SubmitButton extends Component {
@@ -421,10 +416,11 @@ export default class AltForm extends Component {
       <Form stacked onSubmit={console.log}>
         <FormGroup key={people}>
           <Input text name="query" placeholder="Query" />
+          <Select name="foobar" options={["a", "b", "c"]} />
           <Input hidden name="people" value={[]} />
           <Input hidden name="people.length" value={people.length} key={people} />
         </FormGroup>
-        
+
         {
 
           people.map((p, idx) => {
@@ -445,7 +441,7 @@ export default class AltForm extends Component {
           })
 
         }
-    
+
         <SubmitButton title="Submit!" caveat="Are you sure?" />
       </Form>
     );
