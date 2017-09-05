@@ -56,6 +56,7 @@ class Form extends Component {
 
       // setting ptr[key] modifies obj through a reference.
       if (ref.value instanceof Object && ptr[key] instanceof Object) {
+        console.log("REF NEEDS MERGE", ref, ptr[key]); 
         // Merge objects
         ptr = ptr[key];
         for (var k in ref.value) {
@@ -69,7 +70,7 @@ class Form extends Component {
         if (this.inherits(ref.value.__proto__, ptr.__proto__)) {
           Object.setPrototypeOf(ptr, ref.value.__proto__);
         }
-      } else if (ref.value !== undefined) {
+      } else  if (ref.value !== undefined) {
         ptr[key] = ref.value;
       }
     }
@@ -211,12 +212,12 @@ FormElement.defaultProps = {
 };
 
 class Input extends FormElement {
-  // TODO: cache this
   constructor(props) {
     super(props);
     this.onInput = this.onInput.bind(this);
   }
 
+  // TODO: cache this
   get type() {
     const { type, hidden, text,
             checkbox, password,
@@ -248,19 +249,16 @@ class Input extends FormElement {
 
   render(props) {
     const {className, placeholder,
-           search, range, // eslint-disable-line no-unused-vars
-           type, hidden, text, time, // eslint-disable-line no-unused-vars
+           type, search, range, // eslint-disable-line no-unused-vars
+           hidden, text, time, // eslint-disable-line no-unused-vars
            checkbox, password, tel, // eslint-disable-line no-unused-vars
            email, url, number, // eslint-disable-line no-unused-vars
            size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
            children, value, // eslint-disable-line no-unused-vars
            ...filteredProps} = props;
 
-    let classes = sizingClasses('pure-input', props);
-    if (className) classes.push(className);
-
     filteredProps.type = this.type;
-    filteredProps.className = makeClassName.apply(this, classes);
+    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', props)));
 
     const isCheck = this.type === "checkbox";
 
@@ -269,9 +267,7 @@ class Input extends FormElement {
       else if (this.value) filteredProps.value   = this.type === "hidden" ? JSON.stringify(this.value) : this.value;
     }
 
-    prependFunc(filteredProps,
-                isCheck ? "onClick" : "onInput",
-                this.onInput);
+    prependFunc(filteredProps, isCheck ? "onClick" : "onInput", this.onInput);
 
     if (isCheck && !!placeholder && placeholder.length > 0) {
       filteredProps.id = filteredProps.id || Math.random().toString();
