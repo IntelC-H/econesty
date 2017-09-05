@@ -125,3 +125,6 @@ tests/report/
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+
+# EMACS
+.tern-port
