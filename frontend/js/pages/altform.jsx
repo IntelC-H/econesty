@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
 
 // TODO:
-// 2. Caveats
-// 3. PureCSS Styling
+// 3. (PureCSS) Styling
 
 function prependFunc(obj, fname, newf) {
   var oldf = obj[fname];
@@ -26,53 +25,22 @@ class Form extends Component {
     this.recursiveRef = this.recursiveRef.bind(this);
   }
 
-  inherits(child, parent) {
-    if (!child && parent) return false;
-    if (child === parent) return true;
-    return this.inherits(child.__proto__, parent);
-  }
-
-  /*
-    Reduce logic
-    These exist to optimize toObject().
-    Normally, these functions would be created each time getObject() is
-    called.
-   */
-
   walk(obj, k) {
     if (!obj[k]) obj[k] = {};
     return obj[k];
   }
 
+  setKeypath(obj, kp, value, sep = '.') {
+    var keys = kp.split(sep).filter(e => e.length > 0);
+    const key = keys.pop();
+    keys.reduce(this.walk, obj)[key] = value;
+  }
+
   set(obj, ref) {
-    if (ref.base && ref.base.parentNode) { // if (ref is mounted) {
-      let g = ref.context.group;
-      var keys = [];
-      if (g && g.keypath) keys = keys.concat(g.keypath.split("."));
-      if (ref.name) keys = keys.concat(ref.name.split("."));
-      keys = keys.filter(e => e.length > 0);
-      const key = keys[keys.length - 1];
-      var ptr = keys.slice(0, -1).reduce(this.walk, obj);
-
-      // setting ptr[key] modifies obj through a reference.
-      if (ref.value instanceof Object && ptr[key] instanceof Object) {
-        console.log("REF NEEDS MERGE", ref, ptr[key]); 
-        // Merge objects
-        ptr = ptr[key];
-        for (var k in ref.value) {
-          if (ref.value.hasOwnProperty(k)) {
-            const v = ref.value[k];
-            if (v !== undefined) ptr[k] = v;
-          }
-        }
-
-        // Make sure you can use forms to set the value of any Object data structure.
-        if (this.inherits(ref.value.__proto__, ptr.__proto__)) {
-          Object.setPrototypeOf(ptr, ref.value.__proto__);
-        }
-      } else  if (ref.value !== undefined) {
-        ptr[key] = ref.value;
-      }
+    if (ref.base && ref.base.parentNode && ref.value !== undefined) { // if (ref is mounted && has value) {
+      let g = ref.context.group || {};
+      let kp = [g.keypath, ref.name].filter(e => !!e).join('.');
+      this.setKeypath(obj, kp, ref.value);
     }
     return obj;
   }
@@ -86,12 +54,6 @@ class Form extends Component {
     return this.refs.reduce(this.set, {});
   }
 
-  /*
-   * setRef(cmp)
-   * Given an instance of a component, add it to this.refs if it
-   * matches the criteria of a form element. If cmp is null, reset
-   * all refs.
-   */
   setRef(cmp) {
     if (cmp) {
       if (FormElement.isValid(cmp)) {
@@ -172,10 +134,6 @@ FormGroup.childContextTypes = {
   group: PropTypes.instanceOf(FormGroup)
 };
 
-FormGroup.defaultProps = {
-  keypath: null
-};
-
 FormGroup.propTypes = {
   keypath: PropTypes.string
 };
@@ -212,11 +170,6 @@ FormElement.defaultProps = {
 };
 
 class Input extends FormElement {
-  constructor(props) {
-    super(props);
-    this.onInput = this.onInput.bind(this);
-  }
-
   // TODO: cache this
   get type() {
     const { type, hidden, text,
