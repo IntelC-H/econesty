@@ -6,7 +6,7 @@ import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities
 // 2. Caveats
 // 3. PureCSS Styling
 
-function swizzleFunc(obj, fname, newf) {
+function prependFunc(obj, fname, newf) {
   var oldf = obj[fname];
   if (!oldf) obj[fname] = newf;
   else obj[fname] = function() {
@@ -22,6 +22,7 @@ class Form extends Component {
     this.set = this.set.bind(this);
     this.getObject = this.getObject.bind(this);
     this.setRef = this.setRef.bind(this);
+    this.recursiveRef = this.recursiveRef.bind(this);
   }
 
   inherits(child, parent) {
@@ -36,24 +37,21 @@ class Form extends Component {
     Normally, these functions would be created each time getObject() is
     called.
    */
-
-  walk(sum, k) {
-    if (!sum[k]) sum[k] = {};
-    return sum[k];
+ 
+  walk(obj, k) {
+    if (!obj[k]) obj[k] = {};
+    return obj[k];
   }
 
   set(obj, ref) {
     if (ref.base && ref.base.parentNode) { // if (ref is mounted) {
-      let group = ref.context.group;
-      let groupHasName = group
-                         && group.name
-                         && group.name.length
-                         && group.name.length > 0
-                         && ref.name;
-      let kp = (groupHasName ? group.name + "." : "") + (ref.name || "");
-      const split = kp.split('.').filter(e => e.length > 0);
-      const key = split[split.length - 1];
-      var ptr = split.slice(0, -1).reduce(this.walk, obj);
+      let g = ref.context.group;
+      var keys = [];
+      if (g && g.keypath) keys = keys.concat(g.keypath.split("."));
+      if (ref.name) keys = keys.concat(ref.name.split("."));
+      keys = keys.filter(e => e.length > 0);
+      const key = keys[keys.length - 1];
+      var ptr = keys.slice(0, -1).reduce(this.walk, obj);
   
       // setting ptr[key] modifies obj through a reference.
       if (ref.value instanceof Object && ptr[key] instanceof Object) {
@@ -98,7 +96,7 @@ class Form extends Component {
    */
   setRef(cmp) {
     if (cmp) {
-      if (cmp.name && ("value" in cmp) && !this.isValidFormElement(cmp.context.group)) {
+      if (cmp.name && ("value" in cmp) /*&& !this.isValidFormElement(cmp.context.group)*/) {
         if (!this.refs) this.refs = [cmp];
         else            this.refs.push(cmp);
       }
@@ -112,16 +110,15 @@ class Form extends Component {
   */
 
   /*
-   * swizzleRefs(c, f)
-   * Prepend a call to an arbitrary function f to the ref of
+   * recursiveRef(c)
+   * prependFunc setRef recursively.
    * a {VNode} and all its children.
    *  @param {VNode} c  A (JSX) Node whose ref will be modified.
-   *  @param {Function} f  See "arbitrary function f".
    */
-  swizzleRefs(c, f) {
+  recursiveRef(c) {
     if (!c.attributes) c.attributes = {};
-    swizzleFunc(c.attributes, "ref", f);
-    if (c.children) c.children.forEach(cp => this.swizzleRefs(cp, f));
+    prependFunc(c.attributes, "ref", this.setRef);
+    if (c.children) c.children.forEach(this.recursiveRef);
   }
 
   render(props, state) {
@@ -132,12 +129,15 @@ class Form extends Component {
     if (className) cns.push(className);
 
     filteredProps.className = makeClassName.apply(this, cns);
-    filteredProps.onSubmit = function(e) {
-      e.preventDefault(); // prevent form POST (messes up SPA)
-      if (onSubmit) onSubmit(this.getObject());
-    }.bind(this);
 
-    filteredProps.children.forEach(c => this.swizzleRefs(c, this.setRef));
+    if (onSubmit) {
+      filteredProps.onSubmit = function(e) {
+        e.preventDefault(); // prevent form POST (messes up SPA)
+        onSubmit(this.getObject());
+      }.bind(this);
+    }
+
+    filteredProps.children.forEach(this.recursiveRef);
 
     return h('form', filteredProps);
   }
@@ -160,30 +160,13 @@ Form.defaultProps = {
 // fieldset/legend wrapper
 class FormGroup extends Component {
   get keypath() { return this.props.keypath; }
-  get name() { return this.keypath; }
-  get value() { return this.state.value; }
-
-  constructor(props) {
-    super(props);
-    this.setState = this.setState.bind(this);
-    this.setValueForKey = this.setValueForKey.bind(this);
-    this.state = { value: {} };
-  }
-
-  setValueForKey(k, v) {
-    this.setState(st => {
-      var val = st.value;
-      val[k] = v;
-      return { ...st, value: val };
-    });
-  }
 
   getChildContext() {
     return { group: this };
   }
 
   render(props, state) {
-    return h('fieldset', Object.assign({}, props, { className: makeClassName(props.className, "pure-group") })); // need to copy so that children are not lost.
+    return h('fieldset', Object.assign({}, props, { className: makeClassName(props.className, "pure-group") }));
   }
 }
 
@@ -203,6 +186,7 @@ class Input extends Component {
   constructor(props) {
     super(props);
     this.setState = this.setState.bind(this);
+    this.syncValueWithDOMInput = this.syncValueWithDOMInput.bind(this);
     this.state = { value: props.value };
   }
 
@@ -231,18 +215,12 @@ class Input extends Component {
          : type;
   }
 
-  componentDidMount() {
-    const { group } = this.context;
-    if (group) group.setValueForKey(this.props.name, this.props.value);
-  }
-
-  readInputDOMNode(inpt) {
-    let val = undefined;
-    if (inpt.type === "checkbox")                    val = inpt.checked || false;
-    else if (!inpt.value || inpt.value.length === 0) val = null;
-    else if (inpt.type === "hidden")                 val = JSON.parse(inpt.value);
-    else val = inpt.value;
-    return val;
+  syncValueWithDOMInput(inpt) {
+    if (inpt.type === "checkbox")     this.value = inpt.checked || false;
+    else if (!inpt.value)             this.value = undefined;
+    else if (inpt.value.length === 0) this.value = null;
+    else if (inpt.type === "hidden")  this.value = JSON.parse(inpt.value);
+    else                              this.value = inpt.value;
   }
 
   render(props, state, { group }) {
@@ -261,22 +239,18 @@ class Input extends Component {
     filteredProps.type = this.type;
     filteredProps.className = makeClassName.apply(this, classes);
 
+    const isCheck = this.type === "checkbox";
+
     if (state.value !== undefined && !ignore) {
-      if (this.type === "checkbox") filteredProps.checked = !!state.value;
-      else if (state.value)         filteredProps.value   = this.type === "hidden" ? JSON.stringify(state.value) : state.value;
+      if (isCheck)          filteredProps.checked = !!state.value;
+      else if (state.value) filteredProps.value   = this.type === "hidden" ? JSON.stringify(state.value) : state.value;
     }
 
-    swizzleFunc(filteredProps, "onInput", function(e) {
-      let val = this.readInputDOMNode(e.target);
-      if (group) group.setValueForKey(e.target.name, val); // TODO: only set if @group@ is a valid form element.
-      this.value = val;
-    }.bind(this));
+    prependFunc(filteredProps,
+                isCheck ? "onClick" : "onInput",
+                this.syncValueWithDOMInput);
 
-    if (this.type === "checkbox") {
-      swizzleFunc(filteredProps, "onClick", filteredProps.onInput);
-    }
-
-    if (this.type === "checkbox" && !!placeholder && placeholder.length > 0) {
+    if (isCheck && !!placeholder && placeholder.length > 0) {
       filteredProps.id = filteredProps.id || Math.random().toString();
       return (
         <div className="checkbox">
@@ -287,13 +261,11 @@ class Input extends Component {
     }
 
     filteredProps.placeholder = placeholder;
-    filteredProps._component = this;
     return h('input', filteredProps);
   }
 }
 
 Input.propTypes = {
-  required: PropTypes.bool,
   hidden: PropTypes.bool,
   text: PropTypes.bool,
   checkbox: PropTypes.bool,
@@ -308,18 +280,20 @@ Input.propTypes = {
   type: PropTypes.oneOf(["hidden", "text", "checkbox", "password",
                          "email", "url", "number", "time", "tel",
                          "search", "range"]),
+
+  required: PropTypes.bool,
+  ignore: PropTypes.bool,
   name: PropTypes.string.isRequired,
   value: PropTypes.any,
+
   size: sizeProp,
   sm: sizeProp,
   md: sizeProp,
   lg: sizeProp,
-  xl: sizeProp,
-  ignore: PropTypes.bool
+  xl: sizeProp
 };
 
 Input.defaultProps = {
-  required: false,
   hidden: false,
   text: false,
   checkbox: false,
@@ -331,9 +305,8 @@ Input.defaultProps = {
   search: false,
   range: false,
   url: false,
-  type: undefined,
-  value: undefined,
-  size: null,
+
+  required: false,
   ignore: false
 };
 
