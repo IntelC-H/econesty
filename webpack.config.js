@@ -53,7 +53,7 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loader: extractStyle.extract({ use: ["css-loader", "sass-loader"] }),
+        loader: extractStyle.extract({ use: ["css-loader", "sass-loader"] })
       },
       {
         test: /\.css$/,

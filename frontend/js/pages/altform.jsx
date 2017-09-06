@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
+import { Grid, GridUnit, Labelled } from 'app/components/elements';
 
 // TODO:
 // 3. (PureCSS) Styling
@@ -15,32 +16,31 @@ function prependFunc(obj, fname, newf) {
   return obj;
 }
 
+function walkObject(obj, k) {
+  if (!obj[k]) obj[k] = {};
+  return obj[k];
+}
+
+function setKeypath(obj, kp, value) {
+  var keys = kp.split('.').filter(e => e.length > 0);
+  const key = keys.pop();
+  keys.reduce(walkObject, obj)[key] = value;
+}
+
 class Form extends Component {
   constructor(props) {
     super(props);
-    this.walk = this.walk.bind(this);
     this.set = this.set.bind(this);
     this.getObject = this.getObject.bind(this);
     this.setRef = this.setRef.bind(this);
     this.recursiveRef = this.recursiveRef.bind(this);
   }
 
-  walk(obj, k) {
-    if (!obj[k]) obj[k] = {};
-    return obj[k];
-  }
-
-  setKeypath(obj, kp, value, sep = '.') {
-    var keys = kp.split(sep).filter(e => e.length > 0);
-    const key = keys.pop();
-    keys.reduce(this.walk, obj)[key] = value;
-  }
-
   set(obj, ref) {
     if (ref.base && ref.base.parentNode && ref.value !== undefined) { // if (ref is mounted && has value) {
       let g = ref.context.group || {};
-      let kp = [g.keypath, ref.name].filter(e => !!e).join('.');
-      this.setKeypath(obj, kp, ref.value);
+      let kp = (g.keypath || "") + '.' + (ref.name || "");
+      setKeypath(obj, kp, ref.value);
     }
     return obj;
   }
@@ -125,8 +125,11 @@ class FormGroup extends Component {
     return { group: this };
   }
 
-  render(props) {
-    return h('fieldset', Object.assign({}, props, { className: makeClassName(props.className, "pure-group") }));
+  render() {
+    const { className, ...filteredProps } = this.props;
+    filteredProps.className = makeClassName(className, "form-group");
+    delete filteredProps.keypath;
+    return h('fieldset', filteredProps);
   }
 }
 
@@ -342,6 +345,29 @@ SubmitButton.propTypes = {
   caveat: PropTypes.string
 };
 
+const ControlGroup = props => {
+  const { label, children } = props;
+  // TODO: finish pure-control-group replacement
+  return (
+    <Grid className="control-group v-margined">
+      <GridUnit size="1" sm="1-4">
+        <label>{label || " "}</label>
+      </GridUnit>
+      <GridUnit size="1" sm="3-4">
+        {children}
+      </GridUnit>
+    </Grid>
+  );
+};
+
+ControlGroup.propTypes = {
+  label: PropTypes.string
+};
+
+ControlGroup.defaultProps = {
+  label: null
+};
+
 export default class AltForm extends Component {
   constructor(props) {
     super(props);
@@ -378,7 +404,9 @@ export default class AltForm extends Component {
                 <hr />
                 <this.deleteButton onClick={() => this.deletePressed(idx) } />
                 <FormGroup>
-                  <Input text name={"people." + idx + ".name"} value={p} />
+                  <Labelled label="Name">
+                    <Input text name={"people." + idx + ".name"} value={p} />
+                  </Labelled>
                 </FormGroup>
                 <FormGroup keypath={"people." + idx + ".address"}>
                   <Input text name="address_line_one" placeholder="Address Line One" />

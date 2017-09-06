@@ -1,6 +1,6 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { inheritClass, cssSubclass } from './utilities';
+import { inheritClass, cssSubclass, makeClassName } from './utilities';
 
 const Image = inheritClass('img', "pure-image");
 const Grid = inheritClass('div', 'pure-g');
@@ -89,7 +89,22 @@ Money.defaultProps = {
   value: 0.00
 };
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, ErrorDisplay, Resource, Money };
+const Labelled = props => {
+  const { label, children, ...filteredProps } = props;
+  filteredProps.className = makeClassName(filteredProps.className, "labelled");
+  return (
+    <Grid {...filteredProps}>
+      <GridUnit size="1" sm="1-4">
+        <label>{label || " "}</label>
+      </GridUnit>
+      <GridUnit size="1" sm="3-4">
+        {children}
+      </GridUnit>
+    </Grid> 
+  );
+};
+
+export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, ErrorDisplay, Resource, Money, Labelled };
 
 export default {
   Image: Image,
@@ -106,5 +121,6 @@ export default {
   Loading: Loading,
   ErrorDisplay: ErrorDisplay,
   Resource: Resource,
-  Money: Money
+  Money: Money,
+  Labelled: Labelled
 };

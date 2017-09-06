@@ -138,7 +138,7 @@ const Select = props => {
       {options.map(s => <option selected={s === value} key={name + '-' + s} value={s}>{s}</option>)}
     </select>
   );
-}
+};
 
 // FIXME: does this really work?
 Select.setValue = (select, val) => {
@@ -180,7 +180,7 @@ const ControlGroup = props => {
       </GridUnit>
     </Grid>
   );
-}
+};
 
 ControlGroup.propTypes = {
   message: PropTypes.string,
@@ -217,7 +217,7 @@ SubmitButton.findForm = btn => {
     btnp = btnp.parentElement;
   }
   return null;
-}
+};
 
 SubmitButton.isCaveatChecked = btn => {
   if (btn && btn.parentElement) {
@@ -225,7 +225,7 @@ SubmitButton.isCaveatChecked = btn => {
     if (checkbox && checkbox.checked) return true;
   }
   return false;
-}
+};
 
 SubmitButton.propTypes = {
   onSubmit: PropTypes.func,
