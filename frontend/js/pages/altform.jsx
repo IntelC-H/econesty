@@ -308,6 +308,7 @@ Select.defaultProps = {
   ...FormElement.defaultProps
 };
 
+// TODO: read title from children
 class SubmitButton extends Component {
   constructor(props) {
     super(props);
@@ -345,30 +346,8 @@ SubmitButton.propTypes = {
   caveat: PropTypes.string
 };
 
-const ControlGroup = props => {
-  const { label, children } = props;
-  // TODO: finish pure-control-group replacement
-  return (
-    <Grid className="control-group v-margined">
-      <GridUnit size="1" sm="1-4">
-        <label>{label || " "}</label>
-      </GridUnit>
-      <GridUnit size="1" sm="3-4">
-        {children}
-      </GridUnit>
-    </Grid>
-  );
-};
-
-ControlGroup.propTypes = {
-  label: PropTypes.string
-};
-
-ControlGroup.defaultProps = {
-  label: null
-};
-
-export default class AltForm extends Component {
+// This is a tester component for forms.
+class FormTester extends Component {
   constructor(props) {
     super(props);
     this.state = { people: ["nancy", "bill", "joe", "emily"] };
@@ -425,3 +404,14 @@ export default class AltForm extends Component {
   }
 }
 
+export { FormTester, Form, FormGroup, FormElement, Select, Input, SubmitButton };
+
+export default {
+  FormTester: FormTester,
+  Form: Form,
+  FormGroup: FormGroup,
+  FormElement: FormElement,
+  Select: Select,
+  Input: Input,
+  SubmitButton: SubmitButton
+};
