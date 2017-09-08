@@ -5,7 +5,6 @@ import 'app/apiCollections';
 
 import { Router } from 'app/components/routing';
 import { Loading } from 'app/components/elements';
-import { FormTester } from 'app/components/forms';
 
 // Pages
 import NotFound from 'app/pages/notFound';
@@ -71,8 +70,7 @@ export default () =>
         makeRoute("/signup", Signup),
         makeRoute("/user/:id", Profile),
         makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }),
-        makeRoute("/payment", secure(PaymentData)),
-        makeRoute("/formpage", FormTester)
+        makeRoute("/payment", secure(PaymentData))
         // TODO:
         // /transactions
         // /payment -> manage paymentdata

@@ -1,7 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
-import { Grid, GridUnit, Labelled } from 'app/components/elements';
 
 // TODO:
 // 1. Nested groups
@@ -357,97 +356,9 @@ SubmitButton.propTypes = {
   caveat: PropTypes.string
 };
 
-// This is a tester component for forms.
-class FormTester extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { people: ["nancy", "bill", "joe", "emily"] };
-  }
-
-  deleteButton(props) {
-    return <a className="form-delete-button fa fa-times" {...props} />;
-  }
-
-  deletePressed(idx) {
-    this.setState(st => {
-      var newPeople = st.people.slice();
-      newPeople.splice(idx, 1);
-      return { ...st, people: newPeople };
-    });
-  }
-
-  render(props, { people }) {
-    return (
-      <Form stacked onSubmit={console.log}>
-        <FormGroup key={people}>
-          <Input text name="query" placeholder="Query" />
-          <Select name="foobar" options={["a", "b", "c"]} />
-          <Input hidden name="people" value={[]} />
-          <Input hidden name="people.length" value={people.length} key={people} />
-        </FormGroup>
-
-        {
-
-          people.map((p, idx) => {
-            return (
-              <div className="form-group" key={p}>
-                <hr />
-                <this.deleteButton onClick={() => this.deletePressed(idx) } />
-                <FormGroup>
-                  <Labelled label="Name">
-                    <Input text name={"people." + idx + ".name"} value={p} />
-                  </Labelled>
-                </FormGroup>
-                <FormGroup keypath={"people." + idx + ".address"}>
-                  <Input text name="address_line_one" placeholder="Address Line One" />
-                  <Input text name="address_line_two" placeholder="Address Line Two" />
-                  <Input checkbox name="current" placeholder="Currently lives here?" />
-                </FormGroup>
-              </div>
-            );
-          })
-
-        }
-
-        <SubmitButton title="Submit!" caveat="Are you sure?" />
-      </Form>
-    );
-  }
-}
-
-/*var ary = ["ASDF", "DD", "SDFSDF"];
-FormArray("foo", ary, idx => delete ary[idx], v => {
-  <Input text name="bar" value={v} />
-}); */
-
-class FormArray extends ReferencingComponent {
-
-}
-
-function FormArray(name, ary, deleteAtIdx, makeElements) {
-  return (props => {
-    return (
-      <div>
-        <FormGroup key={ary}>
-          <Input hidden name={name} value={[]} />
-          <Input hidden name={name + ".length"} value={ary.length} key={ary} />      
-        </FormGroup>
-        {
-          ary.map((v, idx) =>
-           <FormGroup keypath={name + '.' + idx}>
-             {makeElements(v)}
-           </FormGroup>
-          )
-        }
-      </div>
-    );
-  });
-}
-
-export { FormTester, Form, FormGroup, FormElement, Select, Input, SubmitButton };
+export { Form, FormGroup, FormElement, Select, Input, SubmitButton };
 
 export default {
-  FormTester: FormTester,
   Form: Form,
   FormGroup: FormGroup,
   FormElement: FormElement,
