@@ -1,89 +1,258 @@
-import { h, render, cloneElement, Component } from 'preact'; // eslint-disable-line no-unused-vars
+import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { makeClassName, sizeProp, sizingClasses, inheritClass } from './utilities';
-import { Button, Grid, GridUnit } from './elements';
+import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
+import { Grid, GridUnit, Labelled } from 'app/components/elements';
 
-// TODO: textareas
+// TODO:
+// 1. Nested groups
 
-const InputGroup = inheritClass('fieldset', 'pure-group');
+function prependFunc(obj, fname, newf) {
+  var oldf = obj[fname];
+  if (!oldf) obj[fname] = newf;
+  else obj[fname] = function() {
+    newf.apply(obj, arguments);
+    if (oldf) oldf.apply(obj, arguments);
+  };
+  return obj;
+}
 
-const Input = props => {
-  const {className, type,
-         hidden, text, checkbox, password,
-         email, url, number, time, tel,
-         search, range,
-         value, onSet, ignore, placeholder,
-         onInput,
-         size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
-         children, // eslint-disable-line no-unused-vars
-         ...filteredProps} = props;
+function walkObject(obj, k) {
+  if (!obj[k]) obj[k] = {};
+  return obj[k];
+}
 
-  const typeString = checkbox ? "checkbox"
-                   : hidden ? "hidden"
-                   : text ? "text"
-                   : password ? "password"
-                   : email ? "email"
-                   : url ? "url"
-                   : number ? "number"
-                   : time ? "time"
-                   : tel ? "tel"
-                   : search ? "search"
-                   : range ? "range"
-                   : type;
+function setKeypath(obj, kp, value) {
+  var keys = kp.split('.').filter(e => e.length > 0);
+  const key = keys.pop();
+  keys.reduce(walkObject, obj)[key] = value;
+}
 
-  let classes = sizingClasses('pure-input', props);
-  if (className) classes.push(className);
+// Provides a mechanism for referencing children
+// that are valid form elements.
+class ReferencingComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.makeReferences = this.makeReferences.bind(this);
+    this.recursiveRef = this.recursiveRef.bind(this);
+    this.reference = this.reference.bind(this);    
+  }
 
-  filteredProps.type = typeString;
-  filteredProps.className = makeClassName.apply(this, classes);
-  filteredProps.value = typeString === "hidden" ? JSON.stringify(value) : value;
-
-  if (ignore) filteredProps["data-ignore"] = ignore;
-
-  if (onSet) {
-    filteredProps.onInput = e => {
-      var val = e.target.value || null;
-      const isJSON = val && e.target.type === "hidden" && val.length > 0;
-
-      if (isJSON) {
-        var jsonVal = JSON.parse(val);
-        onSet(jsonVal);
-        e.target.value = JSON.stringify(jsonVal);
-      } else {
-        onSet(val);
-        e.target.value = val;
+  reference(cmp) {
+    if (cmp) {
+      if (FormElement.isValid(cmp)) {
+        if (!this.refs) this.refs = [cmp];
+        else            this.refs.push(cmp);
       }
-      if (onInput) onInput(e);
+    } else {
+      self.refs = [];
     }
   }
 
-  if (typeString === "checkbox" && !!placeholder && placeholder.length > 0) {
-    return <label><input {...filteredProps}/>  {placeholder}</label>;
+  /*
+   * recursiveRef(c)
+   * Prepend a call to setRef on the ref prop of all descendants of a {VNode} c.
+   *  @param {VNode} c  A (JSX) Node whose ref will be modified.
+   */
+  recursiveRef(c) {
+    if (c instanceof Object) {
+      if (!c.attributes) c.attributes = {};
+      prependFunc(c.attributes, "ref", this.reference);
+    }
+    if (c.children) c.children.forEach(this.recursiveRef);
   }
 
-  filteredProps.placeholder = placeholder;
-
-  return h('input', filteredProps);
-};
-
-Input.setValue = (c, val) => {
-  if (!(c.dataset.ignore === "true")) {
-    if (c.type === "checkbox") c.checked = !!val;
-    else if (val)              c.value = c.type === "hidden" ? JSON.stringify(val) : val;
-    else                       c.value = null;
-    c.dispatchEvent(new InputEvent("input", { target: c }));
+  makeReferences(props = this.props) {
+    props.children.forEach(this.recursiveRef);
   }
+}
+
+class Form extends ReferencingComponent {
+  constructor(props) {
+    super(props);
+    this.set = this.set.bind(this);
+    this.getObject = this.getObject.bind(this);
+  }
+
+  set(obj, ref) {
+    if (ref.base && ref.base.parentNode && ref.value !== undefined) { // if (ref is mounted && has value) {
+      let g = ref.context.group || {};
+      let kp = (g.keypath || "") + '.' + (ref.name || "");
+      setKeypath(obj, kp, ref.value);
+    }
+    return obj;
+  }
+
+  /*
+   * getObject()
+   * returns an object built by aggregating the values of
+   * the components in this.refs.
+   */
+  getObject() {
+    console.log("REFS", this.refs);
+    return (this.refs || []).reduce(this.set, {});
+  }
+
+  render(props) {
+    let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
+    var cns = ["pure-form"];
+    if (aligned) cns.push("pure-form-aligned");
+    if (stacked) cns.push("pure-form-stacked");
+    if (className) cns.push(className);
+
+    filteredProps.className = makeClassName.apply(this, cns);
+
+    if (onSubmit) {
+      filteredProps.onSubmit = function(e) {
+        e.preventDefault(); // prevent form POST (messes up SPA)
+        onSubmit(this.getObject());
+      }.bind(this);
+    }
+
+    this.makeReferences(filteredProps);
+
+    return h('form', filteredProps);
+  }
+}
+
+Form.propTypes = {
+  onSubmit: PropTypes.func,
+  object: PropTypes.object,
+  aligned: PropTypes.bool,
+  stacked: PropTypes.bool
 };
 
-Input.toValue = inpt => {
-  if (inpt.type === "checkbox")                    return inpt.checked || false;
-  else if (!inpt.value || inpt.value.length === 0) return null;
-  else if (inpt.type === "hidden")                 return JSON.parse(inpt.value);
-  return inpt.value;
+Form.defaultProps = {
+  onSubmit: null,
+  object: null,
+  aligned: false,
+  stacked: false
 };
+
+// fieldset/legend wrapper
+class FormGroup extends Component {
+  get keypath() { return this.props.keypath; } // eslint-disable-line brace-style
+
+  getChildContext() {
+    return { group: this };
+  }
+
+  render() {
+    const { className, ...filteredProps } = this.props;
+    filteredProps.className = makeClassName(className, "form-group");
+    delete filteredProps.keypath;
+    return h('fieldset', filteredProps);
+  }
+}
+
+FormGroup.childContextTypes = {
+  group: PropTypes.instanceOf(FormGroup)
+};
+
+FormGroup.propTypes = {
+  keypath: PropTypes.string
+};
+
+class FormElement extends Component {
+  get name() { return this.props.name; } // eslint-disable-line brace-style
+  get ignore() { return this.props.ignore; } // eslint-disable-line brace-style
+  get value() { return this.state.value; } // eslint-disable-line brace-style
+  set value(v) { this.setState({ value: v }); } // eslint-disable-line brace-style
+
+  constructor(props) {
+    super(props);
+    this.state = { value: props.value };
+    this.onInput = this.onInput.bind(this);
+    this.setState = this.setState.bind(this);
+  }
+
+  onInput(e) {
+    this.value = e.target.value;
+  }
+}
+
+FormElement.isValid = c => c && c.name && "value" in c;
+
+FormElement.propTypes = {
+  name: PropTypes.string.isRequired,
+  ignore: PropTypes.bool,
+  required: PropTypes.bool
+};
+
+FormElement.defaultProps = {
+  ignore: false,
+  required: false
+};
+
+class Input extends FormElement {
+  // TODO: cache this
+  get type() {
+    const { type, hidden, text,
+            checkbox, password,
+            email, url, number,
+            search, range, time, tel } = this.props;
+
+    return checkbox ? "checkbox"
+         : hidden ? "hidden"
+         : text ? "text"
+         : password ? "password"
+         : email ? "email"
+         : url ? "url"
+         : number ? "number"
+         : time ? "time"
+         : tel ? "tel"
+         : search ? "search"
+         : range ? "range"
+         : type;
+  }
+
+  onInput(e) {
+    const inpt = e.target;
+    if (inpt.type === "checkbox")     this.value = inpt.checked || false;
+    else if (!inpt.value)             this.value = undefined;
+    else if (inpt.value.length === 0) this.value = null;
+    else if (inpt.type === "hidden")  this.value = JSON.parse(inpt.value);
+    else                              this.value = inpt.value;
+  }
+
+  render(props) {
+    const {className, placeholder,
+           type, search, range, // eslint-disable-line no-unused-vars
+           hidden, text, time, // eslint-disable-line no-unused-vars
+           checkbox, password, tel, // eslint-disable-line no-unused-vars
+           email, url, number, // eslint-disable-line no-unused-vars
+           size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
+           children, value, // eslint-disable-line no-unused-vars
+           ...filteredProps} = props;
+
+    filteredProps.type = this.type;
+    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', props)));
+
+    const isCheck = this.type === "checkbox";
+
+    if (this.value !== undefined && !props.ignore) {
+      if (isCheck)         filteredProps.checked = !!this.value;
+      else if (this.value) filteredProps.value   = this.type === "hidden" ? JSON.stringify(this.value) : this.value;
+    }
+
+    prependFunc(filteredProps, isCheck ? "onClick" : "onInput", this.onInput);
+
+    if (isCheck && !!placeholder && placeholder.length > 0) {
+      filteredProps.id = filteredProps.id || Math.random().toString();
+      return (
+        <div className="checkbox">
+          <input {...filteredProps} />
+          <label for={filteredProps.id}>{" " + placeholder}</label>
+        </div>
+      );
+    }
+
+    filteredProps.placeholder = placeholder;
+    return h('input', filteredProps);
+  }
+}
 
 Input.propTypes = {
-  required: PropTypes.bool,
+  ...FormElement.propTypes,
   hidden: PropTypes.bool,
   text: PropTypes.bool,
   checkbox: PropTypes.bool,
@@ -98,19 +267,16 @@ Input.propTypes = {
   type: PropTypes.oneOf(["hidden", "text", "checkbox", "password",
                          "email", "url", "number", "time", "tel",
                          "search", "range"]),
-  name: PropTypes.string.isRequired,
-  value: PropTypes.any,
+
   size: sizeProp,
   sm: sizeProp,
   md: sizeProp,
   lg: sizeProp,
-  xl: sizeProp,
-  ignore: PropTypes.bool,
-  onSet: PropTypes.func
+  xl: sizeProp
 };
 
 Input.defaultProps = {
-  required: false,
+  ...FormElement.defaultProps,
   hidden: false,
   text: false,
   checkbox: false,
@@ -121,251 +287,171 @@ Input.defaultProps = {
   tel: false,
   search: false,
   range: false,
-  url: false,
-  type: undefined,
-  value: undefined,
-  size: null,
-  ignore: false,
-  onSet: null
+  url: false
 };
 
-const Select = props => {
-  const { name, options, value, className, ...filteredProps } = props;
-  var classes = sizingClasses('pure-input', props);
-  classes.unshift(className);
-  return (
-    <select className={makeClassName.apply(this, classes)} name={name} {...filteredProps}>
-      {options.map(s => <option selected={s === value} key={name + '-' + s} value={s}>{s}</option>)}
-    </select>
-  );
-};
+class Select extends FormElement {
+  constructor(props) {
+    super(props);
+    let optVal = props.options.length > 0 ? props.options[0] : null;
+    this.state = { value: props.value || optVal };
+  }
 
-// FIXME: does this really work?
-Select.setValue = (select, val) => {
-  select.value = val;
-};
+  render() {
+    const { value, options, className, ...filteredProps } = this.props;
 
-Select.toValue = select => {
-  var val = (select.children[select.selectedIndex] || {}).value;
-  if (!val || val.length === 0) return null;
-  return val;
-};
+    prependFunc(filteredProps, "onChange", this.onInput);
+    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
+    filteredProps.children = options.map(s => <option
+                                                selected={s === value}
+                                                key={filteredProps.name + '-' + s}
+                                                value={s}>{s}</option>);
+    return h('select', filteredProps);
+  }
+}
 
 Select.propTypes = {
-  name: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.any),
-  value: PropTypes.any,
-  size: sizeProp,
-  sm: sizeProp,
-  md: sizeProp,
-  lg: sizeProp,
-  xl: sizeProp
+  ...FormElement.propTypes,
+  options: PropTypes.arrayOf(PropTypes.string)
 };
 
 Select.defaultProps = {
-  options: []
+  ...FormElement.defaultProps
 };
 
-const ControlGroup = props => {
-  const { message, label, children } = props;
-  const hasMessage = !!message;
-  // TODO: finish pure-control-group replacement
-  return (
-    <Grid className="control-group v-margined">
-      <GridUnit size="1" sm="1-4">
-        <label>{label || " "}</label>
-      </GridUnit>
-      <GridUnit size="1" sm="3-4">
-        {children}
-      </GridUnit>
-    </Grid>
-  );
-};
-
-ControlGroup.propTypes = {
-  message: PropTypes.string,
-  label: PropTypes.string
-};
-
-ControlGroup.defaultProps = {
-  message: null,
-  label: null
-};
-
-const SubmitButton = props => {
-  const clickHandler = e => {
-    e.preventDefault();
-    if (props.caveat && !SubmitButton.isCaveatChecked(e.target)) return;
-    props.onSubmit(Form.toObject(SubmitButton.findForm(e.target)));
-  };
-
-  return (
-    <div className="pure-controls">
-      {props.caveat !== null && <label className="pure-checkbox">
-        <input type="checkbox" className="form-caveat" /> {props.caveat}
-      </label>}
-      <Button primary onClick={clickHandler}>{props.children}</Button>
-    </div>
-  );
-};
-
-const testEl = el => el.dataset.form === "true" && el.dataset.group !== "true" && !el.hasAttribute("name");
-SubmitButton.findForm = btn => {
-  var btnp = btn;
-  while (btnp) {
-    if (testEl(btnp)) return btnp;
-    btnp = btnp.parentElement;
+// TODO: read title from children
+class SubmitButton extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { caveatChecked: false };
+    this.onCheckToggle = this.onCheckToggle.bind(this);
   }
-  return null;
-};
 
-SubmitButton.isCaveatChecked = btn => {
-  if (btn && btn.parentElement) {
-    const checkbox = btn.parentElement.querySelector('input[type="checkbox"].form-caveat');
-    if (checkbox && checkbox.checked) return true;
+  onCheckToggle(e) {
+    this.setState({ caveatChecked: e.target.checked });
   }
-  return false;
+
+  render(props, { caveatChecked }) {
+    const { caveat, title, className, ...filteredProps } = props;
+    filteredProps.value = title;
+    filteredProps.disabled = caveat && caveat.length > 0 && !caveatChecked;
+    filteredProps.type = "submit";
+    filteredProps.className = makeClassName(className, "pure-button");
+    return (
+      <div>
+        {caveat && caveat.length > 0 &&
+        <Input checkbox placeholder={caveat} onClick={this.onCheckToggle} />}
+        <Input {...filteredProps} />
+      </div>
+    );
+  }
+}
+
+SubmitButton.defaultProps = {
+  title: "",
+  caveat: ""
 };
 
 SubmitButton.propTypes = {
-  onSubmit: PropTypes.func,
+  title: PropTypes.string,
   caveat: PropTypes.string
 };
 
-SubmitButton.defaultProps = {
-  onSubmit: () => undefined,
-  caveat: null
-};
-
-
-// TODO: delete elements of array
-const Form = props => {
-  const { aligned, stacked, className, subForm, group, object, children, ...filteredProps } = props;
-  var cns = ["pure-form"];
-  if (aligned) cns.push("pure-form-aligned");
-  if (stacked) cns.push("pure-form-stacked");
-  if (subForm) cns.push("subform");
-  if (group) cns.push("groupform");
-  if (className) cns.push(className);
-
-  return (
-    <div
-      ref={e => {
-        if (e) {
-          if (group) e._groupTemplate = children;
-          else {//if (!SubmitButton.findForm(e)) { // no parent forms
-            Form.setObject(object, e);
-          }
-        }
-      }}
-      data-form
-      data-subform={subForm}
-      data-group={group}
-      className={cns.join(' ')}
-      {...filteredProps}
-    >
-      {!group && <fieldset>{children}</fieldset>}
-    </div>
-  );
-};
-
-Form.propTypes = {
-  name: PropTypes.string,
-  object: PropTypes.object,
-  subForm: PropTypes.bool,
-  group: PropTypes.bool,
-  aligned: PropTypes.bool,
-  stacked: PropTypes.bool
-};
-
-Form.defaultProps = {
-  name: null,
-  object: null,
-  subForm: false,
-  group: false,
-  aligned: false,
-  stacked: false
-};
-
-// TODO: unnamed group Forms.
-
-// operates on DOM elements
-Form.toObject = (el, acc = {}) => {
-  if (!el || !el.children) return acc;
-  Array.from(el.children).forEach(child => {
-    const ignore = child.dataset.ignore === "true";
-    const name = child.getAttribute("name") || false;
-    const isForm = child.dataset.form === "true";
-    const isGroup = child.dataset.group === "true";
-    const tname = child.tagName.toLowerCase();
-
-    if (name && !ignore && isForm && isGroup) {
-      const groups = Array.from(child.children).filter(e => e.className.toLowerCase() === "form-group");
-      const values = groups.map(e => Form.toObject(e));
-      acc[name] = values;
-    }
-    else if (name && !ignore && isForm)       acc[name] = Form.toObject(child);
-    else if (name && !ignore && tname === "input")  acc[name] = Input.toValue(child);
-    else if (name && !ignore && tname === "select") acc[name] = Select.toValue(child);
-    else acc = Form.toObject(child, acc);
-  });
-  return acc;
-};
-
-// operates on DOM elements
-// (mostly... see Form(). PLEASE DON'T CALL THIS IN YOUR CODE)
-Form.setObject = (obj, c) => {
-  if (obj && c) {
-    const isForm = c.dataset.form === "true";
-    const isGroup = c.dataset.group === "true";
-    const tname = c.tagName.toLowerCase();
-    const name = c.getAttribute("name");
-
-    const val = obj[name] || undefined;
-
-    if (isForm && isGroup && val && val.length > 0) {
-      let ary = val.slice();
-
-      var i = 0;
-      while (ary.length > 0 && c.children.length > i) {
-        var cld = c.children[i];
-        if (cld instanceof HTMLElement && cld.className === "form-group") {
-          Form.setObject(ary.shift(), cld);
-          i++;
-        } else c.removeChild(cld);
-      }
-
-      ary.forEach(elem => {
-        let div = document.createElement('div');
-
-        let template = c._groupTemplate.map(cld => cloneElement(cld));
-        let fieldset = render(h('fieldset', {}, template));
-        let deleteButton = render(<a
-          onClick={() => div.parentElement.removeChild(div)}
-          className="form-delete-button fa fa-times"
-        />);
-
-        div.className = "form-group";
-        div.appendChild(deleteButton);
-        div.appendChild(fieldset);
-        c.appendChild(div);
-        Form.setObject(elem, fieldset);
-      });
-    } else if (tname === "input") Input.setValue(c, val);
-    else if (tname === "select") Select.setValue(c, val);
-    else if (c.children && c.children.length > 0) {
-      Array.from(c.children).forEach(x => Form.setObject(name ? val : obj, x));
-    }
+// This is a tester component for forms.
+class FormTester extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { people: ["nancy", "bill", "joe", "emily"] };
   }
-};
 
-export { InputGroup, Input, Select, ControlGroup, SubmitButton, Form };
+  deleteButton(props) {
+    return <a className="form-delete-button fa fa-times" {...props} />;
+  }
+
+  deletePressed(idx) {
+    this.setState(st => {
+      var newPeople = st.people.slice();
+      newPeople.splice(idx, 1);
+      return { ...st, people: newPeople };
+    });
+  }
+
+  render(props, { people }) {
+    return (
+      <Form stacked onSubmit={console.log}>
+        <FormGroup key={people}>
+          <Input text name="query" placeholder="Query" />
+          <Select name="foobar" options={["a", "b", "c"]} />
+          <Input hidden name="people" value={[]} />
+          <Input hidden name="people.length" value={people.length} key={people} />
+        </FormGroup>
+
+        {
+
+          people.map((p, idx) => {
+            return (
+              <div className="form-group" key={p}>
+                <hr />
+                <this.deleteButton onClick={() => this.deletePressed(idx) } />
+                <FormGroup>
+                  <Labelled label="Name">
+                    <Input text name={"people." + idx + ".name"} value={p} />
+                  </Labelled>
+                </FormGroup>
+                <FormGroup keypath={"people." + idx + ".address"}>
+                  <Input text name="address_line_one" placeholder="Address Line One" />
+                  <Input text name="address_line_two" placeholder="Address Line Two" />
+                  <Input checkbox name="current" placeholder="Currently lives here?" />
+                </FormGroup>
+              </div>
+            );
+          })
+
+        }
+
+        <SubmitButton title="Submit!" caveat="Are you sure?" />
+      </Form>
+    );
+  }
+}
+
+/*var ary = ["ASDF", "DD", "SDFSDF"];
+FormArray("foo", ary, idx => delete ary[idx], v => {
+  <Input text name="bar" value={v} />
+}); */
+
+class FormArray extends ReferencingComponent {
+
+}
+
+function FormArray(name, ary, deleteAtIdx, makeElements) {
+  return (props => {
+    return (
+      <div>
+        <FormGroup key={ary}>
+          <Input hidden name={name} value={[]} />
+          <Input hidden name={name + ".length"} value={ary.length} key={ary} />      
+        </FormGroup>
+        {
+          ary.map((v, idx) =>
+           <FormGroup keypath={name + '.' + idx}>
+             {makeElements(v)}
+           </FormGroup>
+          )
+        }
+      </div>
+    );
+  });
+}
+
+export { FormTester, Form, FormGroup, FormElement, Select, Input, SubmitButton };
 
 export default {
-  InputGroup: InputGroup,
-  Input: Input,
+  FormTester: FormTester,
+  Form: Form,
+  FormGroup: FormGroup,
+  FormElement: FormElement,
   Select: Select,
-  ControlGroup: ControlGroup,
-  SubmitButton: SubmitButton,
-  Form: Form
+  Input: Input,
+  SubmitButton: SubmitButton
 };

@@ -191,6 +191,8 @@
   ],
   "dependencies": {
     "font-awesome": "^4.7.0",
+    "linkref": "^1.0.1",
+    "linkstate": "^1.1.0",
     "preact": "^8.2.5",
     "prop-types": "^15.5.10",
     "purecss": "^1.0.0"

@@ -5,6 +5,7 @@ import 'app/apiCollections';
 
 import { Router } from 'app/components/routing';
 import { Loading } from 'app/components/elements';
+import { FormTester } from 'app/components/forms';
 
 // Pages
 import NotFound from 'app/pages/notFound';
@@ -15,7 +16,6 @@ import Profile from 'app/pages/profile';
 import Signup from 'app/pages/signup';
 import Home from 'app/pages/home';
 import PaymentData from 'app/pages/paymentData';
-import { FormTester } from 'app/pages/altform';
 
 /*
 
