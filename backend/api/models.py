@@ -48,10 +48,12 @@ class Token(BaseModel):
   def read_token(cls, request):
     if 'HTTP_AUTHORIZATION' in request.META:
       auth_header = request.META['HTTP_AUTHORIZATION']
-      auth_method, token = re.split(re.compile(r'\s+', re.U), auth_header, 1)
-      if auth_method == "Token": # ensure we're using token auth
+      vals_iter = iter(re.split(re.compile(r'\s+', re.U), auth_header, 1))
+      if next(vals_iter, None) == "Token": # ensure we're using token auth
         try:
-          return cls.objects.get(key=token)
+          token = next(vals_iter, None)
+          if token is not None:
+            return cls.objects.get(key=token)
         except cls.DoesNotExist:
           pass
     return None

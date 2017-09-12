@@ -49,7 +49,6 @@ class CreateTransaction extends Component {
   }
 
   onSubmit(obj) {
-    console.log("submitted ", obj); // eslint-disable-line no-console
     const objCopy = Object.assign({}, obj);
     let requirements = objCopy.requirements;
     if (requirements) {
@@ -72,9 +71,12 @@ class CreateTransaction extends Component {
       });
     };
 
-//    API.transaction.create(objCopy)
-  //                 .then(logic)
-    //               .catch(e => this.setState(st => ({...st, error: e })));
+  //  delete objCopy.__proto__;
+    console.log("CREATING TRANSACTION", objCopy);
+
+    API.transaction.create(objCopy)
+                   .then(logic)
+                   .catch(e => this.setState(st => ({...st, error: e })));
   }
 
   addRequirement() {
@@ -117,27 +119,32 @@ class CreateTransaction extends Component {
             </Labelled>
 
             {this.state.reqs.map((r, idx) =>
-              <FormGroup key={r} keypath={"requirements." + idx}>
-                <Labelled label="Terms">
-                  <Input text name="text" />
-                </Labelled>
-                <Labelled label="User">
-                  <SearchField name="user"
-                               api={API.user}
-                               component={props => props.object.username} />
-                </Labelled>              
-                <Input checkbox
-                       name="signature_required"
-                       placeholder="Require a signature" />
-                <Input checkbox
-                       name="acknowledgment_required"
-                       placeholder="Require acknowledgment" />
-              </FormGroup>
-              // TODO: delete button
+              <div>
+                <a
+                   className="form-delete-button fa fa-times"
+                   onClick={() => this.deleteRequirementAtIndex(idx)}
+                />
+                <FormGroup key={r} keypath={"requirements." + idx}>
+                  <Labelled label="Terms">
+                    <Input text name="text" />
+                  </Labelled>
+                  <Labelled label="User">
+                    <SearchField name="user"
+                                 api={API.user}
+                                 component={props => props.object.username} />
+                  </Labelled>              
+                  <Input checkbox
+                         name="signature_required"
+                         placeholder="Require a signature" />
+                  <Input checkbox
+                         name="acknowledgment_required"
+                         placeholder="Require acknowledgment" />
+                </FormGroup>
+              </div>
             )}
 
-            <Button onClick={this.addRequirement}>+ Requirement</Button>
-            <SubmitButton>{this.isBuyer ? "BUY" : "SELL"}</SubmitButton>
+            <Button type="button" onClick={this.addRequirement}>+ Requirement</Button>
+            <Button action="submit">{this.isBuyer ? "BUY" : "SELL"}</Button>
           </Form>
           <GridUnit size="1" sm="4-24"/>
         </GridUnit>

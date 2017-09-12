@@ -2,7 +2,7 @@ import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { asyncCollection, asyncWithProps } from './higher';
 import { APICollection } from 'app/api';
-import { Input } from './forms';
+import { Input, FormGroup, FormElement } from './forms';
 import { makeClassName } from './utilities';
 import { Link } from './routing';
 
@@ -22,49 +22,82 @@ const defaultProps = {
   onClick: () => undefined
 };
 
-// FIXME: dropdown shifted to the left when `standalone === false`.
-const SearchField = asyncWithProps(props => {
-  const { search, api, setState, component, name, standalone, object, className, onClick, ...filteredProps } = props;
-  delete filteredProps.forceUpdate;
-  const FormLink = ps => <a
-                          onClick={() => setState(st => ({...st, object: ps.object, search: null}))}
-                          >{h(component, ps)}</a>;
-  const NonFormLink = ps => <Link
-                              onClick={e => {
-                                onClick(e);
-                                setState(st => ({ ...st, search: null}));
-                              }} href={api.baseURL + ps.object.id}>{h(component, ps)}</Link>;
-  const SearchFieldDropdownCollection = asyncCollection(
-    null,
-    ps => <tr><td>{h(standalone ? NonFormLink : FormLink, ps)}</td></tr>,
-    page => api.list(page, search),
-    false
-  );
+class SearchField extends FormElement {
+  constructor(props) {
+    super(props);
+    this.formLink = this.formLink.bind(this);
+    this.state = { value: this.props.value, search: this.props.search };
+    this.formLink = this.formLink.bind(this);
+    this.nonFormLink = this.nonFormLink.bind(this);
+    this.dropdownCollection = asyncCollection(
+      null,
+      ps => <tr><td>{h(this.props.standalone ? this.nonFormLink : this.formLink, ps)}</td></tr>,
+      pg => this.props.api.list(pg, this.props.api.search),
+      false
+    );
+  }
 
-  const hasSearch = search && search.length > 0;
-  const showsObject = object && !standalone;
+  get search() { return this.state.search; }
+  set search(s) { this.setState(st => ({ ...st, search: s })); }
 
-  return (
-    <div className={makeClassName("searchfield", "inline-block", "relative", className)}>
-      { !standalone && <Input hidden name={name} value={object} onSet={v => setState(st => ({...st, object: v}))} /> }
-      { showsObject && <a onClick={() => setState(st => ({...st, object: null}))} className="searchfield-cancel-button inline fa fa-times"/>}
-      { showsObject && <span><Link className="inline" href={api.baseURL + object.id} target="_blank">{h(component, { object: object })}</Link></span>}
-      { !showsObject && hasSearch && <div className="searchfield-dropdown-clickshield" onClick={() => setState({search: null})}/>}
-      { !showsObject && !hasSearch && <span className="fa fa-search search-icon"/>}
-      { !showsObject &&
-        <Input
-          ignore
-          text
-          placeholder="search..."
-          onSet={v => setState(st => ({ ...st, search: v }))}
-          value={search || ""}
-          {...filteredProps}
-        /> }
+  // Subcomponent
+  formLink(props) {
+    const { component } = this.props;
+    return <a onClick={() => this.setState(st => ({ ...st, value: props.object, search: null }))}>{h(component, props)}</a>;
+  }
+
+  // Subcomponent
+  nonFormLink(props) {
+    const { onClick, component } = this.props;
+    return <Link onClick={e => {
+      if (onClick) onClick(e);
+      this.setState(st => ({ ...st, search: null }));
+    }} href={this.props.api.baseURL + props.object.id}>{h(component, props)}</Link>;
+  }
+
+  clear() {
+    this.value = undefined;
+  }
+
+  clearSearch() {
+    this.search = undefined;
+  }
+
+  render(props) {
+    const { search, api, component, standalone, className, ...filteredProps } = props;
+
+    const hasSearch = this.input && this.input.value && this.input.value.length > 0;
+    const showsObject = this.value && !standalone;
+
+    return (
+      <div className={makeClassName("searchfield", "inline-block", "relative", className)}>
+        { showsObject && <a onClick={this.clear} className="searchfield-cancel-button inline fa fa-times"/>}
+        { showsObject && <span><Link className="inline"
+                                     href={api.baseURL + this.value.id}
+                                     target="_blank"
+                               >{h(component, { object: this.value })}</Link></span>}
+        { !showsObject && hasSearch && <div className="searchfield-dropdown-clickshield" onClick={this.clearSearch}/>}
+        { !showsObject && !hasSearch && <span className="fa fa-search search-icon"/>}
+        { !showsObject &&
+          <FormGroup>
+            <Input
+              text ignore
+              placeholder="search..."
+              ref={cmp => this.input = cmp}
+              {...filteredProps}
+            />
+          </FormGroup>
+        }
       
-      { !showsObject && hasSearch && <div className="searchfield-dropdown-wrapper"><SearchFieldDropdownCollection className="searchfield-dropdown raised-v" /></div>}
-    </div>
-  );
-});
+        { !showsObject && hasSearch &&
+          <div className="searchfield-dropdown-wrapper">
+            <this.dropdownCollectioN className="searchfield-dropdown raised-v" />
+          </div>
+        }
+      </div>
+    );
+  }
+};
 
 SearchField.propTypes = propTypes;
 SearchField.defaultProps = defaultProps;

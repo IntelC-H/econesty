@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Grid, GridUnit, ErrorDisplay } from 'app/components/elements';
-import { Form, Input, ControlGroup, SubmitButton } from 'app/components/forms';
+import { Grid, GridUnit, ErrorDisplay, Labelled } from 'app/components/elements';
+import { Form, Input, FormGroup, SubmitButton } from 'app/components/forms';
 import { API } from 'app/api';
 import { Router } from 'app/components/routing';
 
@@ -14,7 +14,7 @@ class Login extends Component {
 
   login(formData) {
     API.token.create(formData).catch(e => {
-      this.setState(st => ({...st, error: e}))
+      this.setState(st => ({...st, error: e}));
     }).then(tok => {
       if (tok) {
         API.setToken(tok.key);
@@ -28,17 +28,17 @@ class Login extends Component {
       <Grid>
         <GridUnit size="1" sm="4-24" />
         <GridUnit size="1" sm="16-24">
-          <Form object={this.form ? Form.toObject(this.form.base) : {}}
-                aligned
-                ref={c => this.form = c }>
+          <Form aligned onSubmit={this.login}>
             {!!this.state.error && <ErrorDisplay message={this.state.error.message} />}
-            <ControlGroup label="Username">
-              <Input text required name="username" />
-            </ControlGroup>
-            <ControlGroup label="Password">
-              <Input password required name="password" />
-            </ControlGroup>
-            <SubmitButton onSubmit={this.login}>LOGIN</SubmitButton>
+            <FormGroup>
+              <Labelled label="Username">
+                <Input text required name="username" />
+              </Labelled>
+              <Labelled label="Password">
+                <Input password required name="password" />
+              </Labelled>
+              <SubmitButton>LOGIN</SubmitButton>
+            </FormGroup>
           </Form>
         </GridUnit>
         <GridUnit size="1" sm="4-24" />

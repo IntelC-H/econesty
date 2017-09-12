@@ -19,23 +19,22 @@ import PaymentData from 'app/pages/paymentData';
 /*
 
   TODO for MVP:
+  - Edit Profile page
+  - Fulfill Requirement page
+  - Cache authenticated user's id
+    - it sucks to have to hit the API so many times.
+
+  - make groups in forms look better
+    -  light backgrounds?
+    -  position the delete buttons right
+  - SearchField overlay allow clicking in textfield
+  - Fix SearchField search icon in forms with screen width < 400
+
   - Tooltips
     - Usernames
     - created ats
     - Single time display
       - If n seconds have elapsed while this is open, never show again
-  - Stateful forms
-    - they hold their data
-      - via key in a global registry?
-      - until submitted?
-  - Payment data creation page
-  - Edit Profile page
-  - Fulfill Requirement page
-  - Routing state get/set
-  - make groups in forms look better
-    -  light backgrounds?
-    -  position the delete buttons right
-  - SearchField overlay allow clicking in textfield
 
 */
 
@@ -51,7 +50,7 @@ const MeRedirect = secure(() => {
     const idx = urlComps.indexOf("me");
     urlComps[idx] = res.id.toString();
     Router.replace(urlComps.join("/"));
-  });
+  }).catch(err => Router.replace('/'));
 
   return <Loading />;
 });
@@ -74,8 +73,8 @@ export default () =>
         // TODO:
         // /transactions
         // /payment -> manage paymentdata
-        // /required -> manage requirements of you
-        // /required -> check on requirements you've made of others.
+        // /required/of_me -> manage requirements of you
+        // /required/of_others -> check on requirements you've made of others.
       ]}
     </Router>
   </PageTemplate>

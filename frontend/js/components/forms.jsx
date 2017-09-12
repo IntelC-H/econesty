@@ -2,11 +2,8 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
 
-// TODO:
-// 1. Nested groups
-
 function prependFunc(obj, fname, newf) {
-  var oldf = obj[fname];
+  let oldf = obj[fname];
   if (!oldf) obj[fname] = newf;
   else obj[fname] = function() {
     newf.apply(obj, arguments);
@@ -21,7 +18,7 @@ function walkObject(obj, k) {
 }
 
 function setKeypath(obj, kp, value) {
-  var keys = kp.split('.').filter(e => e.length > 0);
+  let keys = kp.split('.').filter(e => e && e.length && e.length > 0);
   const key = keys.pop();
   keys.reduce(walkObject, obj)[key] = value;
 }
@@ -53,11 +50,13 @@ class ReferencingComponent extends Component {
    *  @param {VNode} c  A (JSX) Node whose ref will be modified.
    */
   recursiveRef(c) {
-    if (c instanceof Object) {
-      if (!c.attributes) c.attributes = {};
-      prependFunc(c.attributes, "ref", this.reference);
+    if (c) {
+      if (c instanceof Object) {
+        if (!c.attributes) c.attributes = {};
+        prependFunc(c.attributes, "ref", this.reference);
+      }
+      if (c.children) c.children.forEach(this.recursiveRef);
     }
-    if (c.children) c.children.forEach(this.recursiveRef);
   }
 
   makeReferences(props = this.props) {
@@ -74,9 +73,11 @@ class Form extends ReferencingComponent {
 
   set(obj, ref) {
     if (ref.base && ref.base.parentNode && ref.value !== undefined) { // if (ref is mounted && has value) {
-      let g = ref.context.group || {};
-      let kp = (g.keypath || "") + '.' + (ref.name || "");
-      setKeypath(obj, kp, ref.value);
+      let kp = (ref.context.groups || []).map(g => g.keypath);
+      kp.push(ref.name);
+      console.log("BEFORE", obj);
+      setKeypath(obj, kp.join('.'), ref.value);
+      console.log("AFTER", obj);
     }
     return obj;
   }
@@ -87,13 +88,13 @@ class Form extends ReferencingComponent {
    * the components in this.refs.
    */
   getObject() {
-    console.log("REFS", this.refs);
+    console.log("object", (this.refs || []).reduce(this.set, {}));
     return (this.refs || []).reduce(this.set, {});
   }
 
   render(props) {
     let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
-    var cns = ["pure-form"];
+    let cns = ["pure-form"];
     if (aligned) cns.push("pure-form-aligned");
     if (stacked) cns.push("pure-form-stacked");
     if (className) cns.push(className);
@@ -101,9 +102,11 @@ class Form extends ReferencingComponent {
     filteredProps.className = makeClassName.apply(this, cns);
 
     if (onSubmit) {
+      filteredProps.action = "javascript" + ":"; // appease JSLint
       filteredProps.onSubmit = function(e) {
         e.preventDefault(); // prevent form POST (messes up SPA)
         onSubmit(this.getObject());
+        return false;
       }.bind(this);
     }
 
@@ -132,7 +135,7 @@ class FormGroup extends Component {
   get keypath() { return this.props.keypath; } // eslint-disable-line brace-style
 
   getChildContext() {
-    return { group: this };
+    return { groups: (this.context.groups || []).concat([this]) };
   }
 
   render() {
@@ -144,7 +147,7 @@ class FormGroup extends Component {
 }
 
 FormGroup.childContextTypes = {
-  group: PropTypes.instanceOf(FormGroup)
+  groups: PropTypes.arrayOf(PropTypes.instanceOf(FormGroup))
 };
 
 FormGroup.propTypes = {
@@ -236,7 +239,7 @@ class Input extends FormElement {
     prependFunc(filteredProps, isCheck ? "onClick" : "onInput", this.onInput);
 
     if (isCheck && !!placeholder && placeholder.length > 0) {
-      filteredProps.id = filteredProps.id || Math.random().toString();
+      filteredProps.id = filteredProps.id || Math.random().toString(); // TODO: use a GUID instead. More optimal collision rates.
       return (
         <div className="checkbox">
           <input {...filteredProps} />
@@ -318,51 +321,12 @@ Select.defaultProps = {
   ...FormElement.defaultProps
 };
 
-// TODO: read title from children
-class SubmitButton extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { caveatChecked: false };
-    this.onCheckToggle = this.onCheckToggle.bind(this);
-  }
-
-  onCheckToggle(e) {
-    this.setState({ caveatChecked: e.target.checked });
-  }
-
-  render(props, { caveatChecked }) {
-    const { caveat, title, className, ...filteredProps } = props;
-    filteredProps.value = title;
-    filteredProps.disabled = caveat && caveat.length > 0 && !caveatChecked;
-    filteredProps.type = "submit";
-    filteredProps.className = makeClassName(className, "pure-button");
-    return (
-      <div>
-        {caveat && caveat.length > 0 &&
-        <Input checkbox placeholder={caveat} onClick={this.onCheckToggle} />}
-        <Input {...filteredProps} />
-      </div>
-    );
-  }
-}
-
-SubmitButton.defaultProps = {
-  title: "",
-  caveat: ""
-};
-
-SubmitButton.propTypes = {
-  title: PropTypes.string,
-  caveat: PropTypes.string
-};
-
-export { Form, FormGroup, FormElement, Select, Input, SubmitButton };
+export { Form, FormGroup, FormElement, Select, Input };
 
 export default {
   Form: Form,
   FormGroup: FormGroup,
   FormElement: FormElement,
   Select: Select,
-  Input: Input,
-  SubmitButton: SubmitButton
+  Input: Input
 };
