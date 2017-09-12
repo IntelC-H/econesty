@@ -6,6 +6,10 @@ import { API } from 'app/api';
 
 const kinds = ['btc', 'csh', 'cdt', 'dbt', 'gnc'];
 
+// TODO: load payment data
+// This means using a collection.
+// not asyncCollection.
+
 class PaymentData extends Component {
   constructor(props) {
     super(props);
@@ -19,15 +23,10 @@ class PaymentData extends Component {
   }
 
   savePaymentData(pd, idx) {
-    API.user.me().then(me => {
-      pd.user_id = me.id;
-      API.payment_data
-         .save(pd)
-         .catch(console.log)
-         .then(pdSaved => {
-           console.log("created payment data", pdSaved);
-         });
-    });
+    API.payment_data
+       .save(pd)
+       .catch(console.log)
+       .then(console.log);
   }
 
   render(props, { payments }) {
@@ -40,6 +39,7 @@ class PaymentData extends Component {
               key={pd.id ? pd.id : JSON.stringify(pd)}
               onSubmit={o => this.savePaymentData(o, idx)}
               >
+              <Input hidden name="user_id" value={API.getUserID()}/>
               <FormGroup>
                 <Select options={kinds} name="kind" />
                 <Input text required name="data" placeholder="Payment data..." />
