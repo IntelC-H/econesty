@@ -19,17 +19,16 @@ import PaymentData from 'app/pages/paymentData';
 /*
 
   TODO for MVP:
+  - Transaction detail page w/ requirements
   - Edit Profile page
   - Fulfill Requirement page
-  - Cache authenticated user's id
-    - it sucks to have to hit the API so many times.
 
+  TODO for after MVP:
   - make groups in forms look better
     -  light backgrounds?
     -  position the delete buttons right
   - SearchField overlay allow clicking in textfield
   - Fix SearchField search icon in forms with screen width < 400
-
   - Tooltips
     - Usernames
     - created ats
@@ -45,14 +44,13 @@ function secure(comp) {
 const MeRedirect = secure(() => {
   // This function exists because JS's regex
   // implementation doesn't support bidirectional lookaround.
-  API.user.me().then(res => {
+  if (API.getUserID()) {
     const urlComps = Router.getPath().split("/");
     const idx = urlComps.indexOf("me");
-    urlComps[idx] = res.id.toString();
-    Router.replace(urlComps.join("/"));
-  }).catch(err => Router.replace('/'));
-
-  return <Loading />;
+    urlComps[idx] = API.getUserID().toString();
+    return Router.replace(urlComps.join("/"));    
+  }
+  return Router.replace('/');
 });
 
 const isMeURL = url => url.split("/").indexOf("me") !== -1 ? {} : false;

@@ -98,7 +98,7 @@ class API {
                            .then(({object, res}) => {
       if (res.ok) return object;
       throw new Error(object.detail || res.statusText);
-    })
+    });
   }
 
   static paginate(promise, collection) {
