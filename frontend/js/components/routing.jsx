@@ -52,7 +52,7 @@ class Router extends Component {
     }
 
     if (this.props.notFound) {
-      return h(this.props.notFound, { url: this.state.url })
+      return h(this.props.notFound, { url: this.state.url });
     }
 
     return null;
@@ -69,8 +69,9 @@ class Router extends Component {
 
     if (path instanceof Function) {
       let res = path(url);
-      if (!(res instanceof Object)) return false;
-      return res;
+      if (!res) return false;
+      if (res instanceof Object) return res;
+      return {};
     }
 
     var urlpath_comps = url.split('/').filter(e => e.length > 0);

@@ -1,6 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Grid, GridUnit, Button } from 'app/components/elements';
-import { Resource } from 'app/components/elements';
+import { Table, Grid, GridUnit, Button } from './elements';
+import { Resource } from './elements';
+import { API } from 'app/api';
+import { Router } from './routing';
 
 // Comp: a component whose props should be loaded asynchronously. 
 // onMount: when the component is mounted, called with a single argument: setState (see below).
@@ -121,7 +123,7 @@ export function collection(Header, Body, setPage = null) {
           </GridUnit>
         </Grid>
       </div>
-    )
+    );
   };
 }
 
@@ -134,6 +136,27 @@ export function asyncCollection(header, body, makePromise, showsLoading = true) 
     ),
     props
   ));
+}
+
+export function secure(comp) {
+  return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
+}
+
+// TODO: make this wrap a components.
+// This function exists because JS's regex
+// implementation doesn't support bidirectional lookaround.
+export function replacePath(comp, gen, guard = null) {
+  return secure(() => {
+    if ((guard && guard()) || !guard) {
+      const v = gen();
+      const url = Router.getPath()
+                        .split("/")
+                        .map(u => u === comp ? v : u)
+                        .join("/");
+      return Router.replace(url);
+    }
+    return Router.replace("/");
+  });
 }
 
 export function withProps(addlProps, Component) {
@@ -149,6 +172,8 @@ export function mapProps(f, Component) {
 }
 
 export default {
+  secure: secure,
+  replacePath: replacePath,
   collection: collection,
   asyncCollection: asyncCollection,
   withProps: withProps,

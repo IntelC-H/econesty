@@ -5,6 +5,7 @@ import 'app/apiCollections';
 
 import { Router } from 'app/components/routing';
 import { Loading } from 'app/components/elements';
+import { secure, replacePath } from 'app/components/higher';
 
 // Pages
 import NotFound from 'app/pages/notFound';
@@ -17,7 +18,6 @@ import Home from 'app/pages/home';
 import PaymentData from 'app/pages/paymentData';
 
 /*
-
   TODO for MVP:
   - Transaction detail page w/ requirements
   - Edit Profile page
@@ -34,45 +34,27 @@ import PaymentData from 'app/pages/paymentData';
     - created ats
     - Single time display
       - If n seconds have elapsed while this is open, never show again
-
 */
 
-function secure(comp) {
-  return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
-}
-
-const MeRedirect = secure(() => {
-  // This function exists because JS's regex
-  // implementation doesn't support bidirectional lookaround.
-  if (API.getUserID()) {
-    const urlComps = Router.getPath().split("/");
-    const idx = urlComps.indexOf("me");
-    urlComps[idx] = API.getUserID().toString();
-    return Router.replace(urlComps.join("/"));    
-  }
-  return Router.replace('/');
-});
-
-const isMeURL = url => url.split("/").indexOf("me") !== -1 ? {} : false;
-
-const makeRoute = (path, Comp, wcs = {}) => <Comp path={path} wildcards={wcs} />;
+const makeRoute = (path, Comp, wcs) => <Comp path={path} wildcards={wcs} />;
 
 export default () =>
   <PageTemplate>
     <Router notFound={NotFound}>
       {[
-        makeRoute(isMeURL, MeRedirect), // support me alias for user ids.
+        makeRoute(u => u.split("/").indexOf("me") !== -1,
+                  replacePath("me", () => API.getUserID(),
+                                    () => !!API.getUserID())),
         makeRoute("/", Home),
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
-        makeRoute("/user/:id", Profile),
-        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }),
-        makeRoute("/payment", secure(PaymentData))
+        makeRoute("/user/:id", Profile), // view a profile
+        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }), // create transaction's
+        makeRoute("/payment", secure(PaymentData)) // manage payment_data's
         // TODO:
-        // /transactions
-        // /payment -> manage paymentdata
-        // /required/of_me -> manage requirements of you
-        // /required/of_others -> check on requirements you've made of others.
+        // /transactions -> ALL transactions you're privy to. Is this necessary? If you're viewing your own page as yourself, you should be able to see all the transactions you're privy to.
+        // /required/me -> manage requirements of you
+        // /required/others -> check on requirements you've made of others.
       ]}
     </Router>
   </PageTemplate>
