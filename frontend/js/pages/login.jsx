@@ -28,7 +28,7 @@ class Login extends Component {
       <Grid>
         <GridUnit size="1" sm="4-24" />
         <GridUnit size="1" sm="16-24">
-          <Form aligned onSubmit={this.login}>
+          <Form aligned onSubmit={this.login} method="POST">
             {!!this.state.error && <ErrorDisplay message={this.state.error.message} />}
             <FormGroup>
               <Labelled label="Username">
@@ -37,7 +37,7 @@ class Login extends Component {
               <Labelled label="Password">
                 <Input password required name="password" />
               </Labelled>
-              <SubmitButton>LOGIN</SubmitButton>
+              <input type="submit">LOGIN</input>
             </FormGroup>
           </Form>
         </GridUnit>
