@@ -41,7 +41,7 @@ class CollectionView extends Component {
                                elements: ps.results,
                                nextPage: ps.next,
                                previousPage: ps.previous,
-                               count: ps.count})); 
+                               count: ps.count}));
       });
     });
   }
@@ -56,14 +56,14 @@ class CollectionView extends Component {
     this.setState(st => ({ ...st, loading: true,
                                   page: 1 }), () => {
       this.props.collection.create(object)
-                           .then(ps => this.reloadData());
+                           .then(() => this.reloadData());
     });
   }
 
   updateElement(id, object) {
     this.setState(st => ({ ...st, loading: true }), () => {
       this.props.collection.update(id, object)
-                           .then(ps => this.reloadData());
+                           .then(() => this.reloadData());
     });
   }
 
@@ -151,7 +151,10 @@ class CollectionCreation extends Component {
   }
 }
 
-CollectionCreation.propTypes = {};
+CollectionCreation.propTypes = {
+  cancelText: PropTypes.string,
+  createText: PropTypes.string
+};
 CollectionCreation.defaultProps = {
   cancelText: "Cancel",
   createText: "+ New"

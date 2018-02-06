@@ -4,7 +4,6 @@ import { API } from 'app/api';
 import 'app/apiCollections';
 
 import { Router } from 'app/components/routing';
-import { Loading } from 'app/components/elements';
 import { secure, replacePath } from 'app/components/higher';
 
 // Pages
