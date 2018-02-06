@@ -1,5 +1,4 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Grid, GridUnit, Button } from './elements';
 import { Resource } from './elements';
 import { API } from 'app/api';
 import { Router } from './routing';
@@ -90,54 +89,6 @@ export function withPromiseFactory(pfact, Comp, showsLoading = true) {
   return props => h(withPromise(pfact(props), withProps(props, Comp), showsLoading), {});
 }
 
-export function collection(Header, Body, setPage = null) {
-  const mkNavButton = (targetPage, text) => <Button key={targetPage} disabled={targetPage === null} className="margined raised" onClick={() => setPage(targetPage)}>{text}</Button>;
-
-  return props => {
-    const { object, className, ...filteredProps } = props;
-    return (
-      <div className={(className || "") + " collection"} {...filteredProps}>
-        <Table striped horizontal>
-          {!!Header &&
-            <thead>
-              <Header object={object} />
-            </thead>
-          }
-          {!!Body &&
-            <tbody>
-              {object.results.map((child, i) => <Body key={i} object={child} />)}
-            </tbody>
-          }
-        </Table>
-        <Grid className="collection-controls">
-          <GridUnit className="center collection-control" size="1-3">
-            {setPage && mkNavButton(object.previous, "❮")}
-          </GridUnit>
-          <GridUnit className="center collection-control" size="1-3">
-            <div className="collection-page-indicator">
-              <span>{object.page} of {Math.ceil(object.count/10) || 1}</span>
-            </div>
-          </GridUnit>
-          <GridUnit className="center collection-control" size="1-3">
-            {setPage && mkNavButton(object.next, "❯")}
-          </GridUnit>
-        </Grid>
-      </div>
-    );
-  };
-}
-
-export function asyncCollection(header, body, makePromise, showsLoading = true) {
-  return asyncWithProps(props => h(
-    withPromise(
-      makePromise(props.page || 1),
-      collection(header, body, p => props.setState({page: p})),
-      showsLoading
-    ),
-    props
-  ));
-}
-
 export function secure(comp) {
   return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
 }
@@ -174,8 +125,6 @@ export function mapProps(f, Component) {
 export default {
   secure: secure,
   replacePath: replacePath,
-  collection: collection,
-  asyncCollection: asyncCollection,
   withProps: withProps,
   withObject: withObject,
   mapProps: mapProps,

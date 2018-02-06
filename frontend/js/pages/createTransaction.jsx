@@ -1,14 +1,10 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-//import PropTypes from 'prop-types';
 import { Loading, ErrorDisplay, Button, Grid, GridUnit, Labelled } from 'app/components/elements';
 import { Form, FormGroup, Input, Select } from 'app/components/forms';
 
 import { API } from 'app/api';
 import SearchField from 'app/components/searchfield';
 import { Router } from 'app/components/routing';
-
-// import linkState from 'linkstate';
-// import linkRef from 'linkref';
 
 class CreateTransaction extends Component {
   constructor(props) {

@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 
 API.user = new APICollection("user");
 API.user.me = () => API.user.classMethod("GET", "me");
-API.user.transactions = (userId, page = 1) => API.user.instanceMethod("GET", "transactions", userId, null, {page: page});
+API.user.transactions = (userId) =>
+  new APICollection("user/" + userId + "/transactions");
 API.user.payment = otherId => API.user.instanceMethod("GET", "payment", otherId);
 
 API.user.shape = PropTypes.shape({

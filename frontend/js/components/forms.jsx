@@ -193,6 +193,7 @@ FormElement.defaultProps = {
   required: false
 };
 
+// TODO: better use of value prop
 class Input extends FormElement {
   constructor(props) {
     super(props);
@@ -236,7 +237,7 @@ class Input extends FormElement {
            checkbox, password, tel, // eslint-disable-line no-unused-vars
            email, url, number, // eslint-disable-line no-unused-vars
            size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
-           children, value, // eslint-disable-line no-unused-vars
+           children, // eslint-disable-line no-unused-vars
            ...filteredProps} = props;
 
     filteredProps.type = this.type;

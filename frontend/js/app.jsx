@@ -19,9 +19,8 @@ import PaymentData from 'app/pages/paymentData';
 /*
   TODO for MVP:
   - Signup page
-  - Correct bugs in PaymentData component
-  - Transaction detail page w/ requirements
   - Edit Profile page
+  - Transaction detail page w/ requirements
   - Fulfill Requirement page
 
   TODO for after MVP:

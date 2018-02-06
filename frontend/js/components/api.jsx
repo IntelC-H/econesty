@@ -6,9 +6,10 @@ import { Button, Grid, GridUnit, Loading } from 'app/components/elements';
 class CollectionView extends Component {
   /*
     Props:
+    search: A string by which to limit results
     collection: the API collection to show a view for
-    children: a representation of the page. Rendered w/ the prop `collectionView`
-              which refers to the the enclosing collection view.
+    children: a representation of the collection. Rendered w/ the prop
+              `collectionView` which refers to the the enclosing CollectionView.
   */
   constructor(props) {
     super(props);
@@ -34,7 +35,8 @@ class CollectionView extends Component {
   // Reloads the collection's current page from the server.
   reloadData() {
     this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.list(this.state.page)
+      this.props.collection.list(this.state.page,
+                                 this.props.search)
                            .then(ps => {
         this.setState(st => ({ ...st,
                                loading: false,
@@ -78,6 +80,10 @@ class CollectionView extends Component {
     return this.state.elements;
   }
 
+  getCollection() {
+    return this.props.collection;
+  }
+
   setPage(page) {
     this.setState(st => ({ ...st, page: page }), () => this.reloadData());
   }
@@ -94,8 +100,11 @@ class CollectionView extends Component {
     this.reloadData();
   }
 
+  // TODO: make sure the className of the loading matches
+  // the behavior of Higher.asyncCollection
   render({ className, children, ...props}, state) {
-    if (state.loading) return <Loading />;
+    if (state.loading) return <Loading
+                                className={(className || "") + " collection"} />;
 
     const prevPage = this.state.previousPage;
     const nextPage = this.state.nextPage;
@@ -135,6 +144,16 @@ CollectionView.defaultProps = {};
 // Create elements in REST collections. Must be a direct child
 // of a CollectionView.
 class CollectionCreation extends Component {
+  /*
+    Props:
+    createText: text to be displayed on the button that "opens" the creation
+                form, as represented by `children`.
+    cancelText: text to be displayed on the button that "closes" the creation
+                form, as represented by `children`.
+    children: JSX which should implement element creation for a collection.
+              Rendered w/ the prop `collectionView` which refers to the the
+              enclosing CollectionView.
+  */
   constructor(props) {
     super(props);
     this.setVisible = this.setVisible.bind(this);
@@ -167,8 +186,57 @@ CollectionCreation.defaultProps = {
   createText: "+ New"
 };
 
-export { CollectionView, CollectionCreation };
+// Loads a specific element in a collection.
+class ElementView extends Component {
+  /*
+    Props:
+    collection: the API collection to load an element from
+    elementID: the id of the element in the collection to load
+    children: a representation of the page. Rendered w/ the prop `elementView`
+              which refers to the the enclosing ElementView.
+  */
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: true,
+      element: null
+    };
+  }
+
+  getElement() {
+    return this.state.element;
+  }
+
+  reloadData() {
+    this.setState(st => ({ ...st, loading: true }), () => {
+      this.props.collection.read(this.props.elementID)
+                           .then(element => {
+        this.setState(st => ({
+          ...st,
+          element: element,
+          loading: false
+        }));
+      });
+    });
+  }
+
+  componentWillMount() {
+    this.reloadData();
+  }
+
+  render({ children, collection, elementID, ...props }, { loading }) {  // eslint-disable-line no-unused-vars
+    if (loading) return <Loading />;
+    return (
+      <div {...props}>
+        {children.map(c => cloneElement(c, { elementView: this }))}
+      </div>
+    );
+  }
+}
+
+export { CollectionView, CollectionCreation, ElementView };
 export default {
   CollectionView: CollectionView,
-  CollectionCreation: CollectionCreation
+  CollectionCreation: CollectionCreation,
+  ElementView: ElementView
 };

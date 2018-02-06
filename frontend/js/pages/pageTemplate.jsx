@@ -16,7 +16,7 @@ const NavBar = props =>
           <SearchField
             standalone
             api={API.user}
-            component={props => props.object.username}
+            component={props => props.element.username}
           />
         </Form>
       </MenuItem>
