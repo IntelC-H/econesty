@@ -44,28 +44,30 @@ function PaymentDataCreateForm({ collectionView }) {
 }
 
 function PaymentDataCollectionBody({ collectionView }) {
-  let elements = collectionView.getElements();
   return (
-    <Grid>
-      <GridUnit size="1" sm="4-24"/>
-      <GridUnit size="1" sm="16-24">
-        {elements.map(pd => <PaymentDatum
-                              paymentData={pd}
-                              onSubmit={collectionView.saveElement} /> )}
-      </GridUnit>
-      <GridUnit size="1" sm="4-24"/>
-    </Grid>
+    <div>
+      {collectionView.getElements().map(pd =>
+         <PaymentDatum
+           paymentData={pd}
+           onSubmit={collectionView.saveElement} /> )}
+    </div>
   );
 }
 
 function PaymentData() {
   return (
-    <CollectionView collection={API.payment_data}>
-      <PaymentDataCollectionBody />
-      <CollectionCreation>
-        <PaymentDataCreateForm />
-      </CollectionCreation>
-    </CollectionView>
+    <Grid>
+      <GridUnit size="1" sm="4-24"/>
+      <GridUnit size="1" sm="16-24">
+        <CollectionView collection={API.payment_data}>
+          <CollectionCreation>
+            <PaymentDataCreateForm />
+          </CollectionCreation>
+          <PaymentDataCollectionBody />
+        </CollectionView>
+      </GridUnit>
+      <GridUnit size="1" sm="4-24"/>
+    </Grid>
   );
 }
 
