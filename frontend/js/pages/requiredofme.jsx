@@ -6,13 +6,6 @@ import { Table, Button } from 'app/components/elements';
 import { Form, Input, syntheticSubmit } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 
-/*
-// These are probably useful for implementing this page
-import { Button, Grid, GridUnit, Image, Money, Table } from 'app/components/elements';
-import { CollectionView, ElementView } from 'app/components/api';
-import { Form, FormGroup, Input } from 'app/components/forms';
-*/
-
 function RequirementRow({ collectionView, element }) {
   return (
     <tr>

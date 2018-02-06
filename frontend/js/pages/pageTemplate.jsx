@@ -8,7 +8,7 @@ import { API } from 'app/api';
 const NavBar = props =>
   <Menu horizontal fixed={!props.spacer} className={props.spacer ? "header-spacer header" : "header raised-v"}>
     <MenuHeading>
-      <Link href="/" className="light-text">Econesty</Link>
+      <Link href="/" className="light-text">Econe$ty</Link>
     </MenuHeading>
     <MenuList>
       <MenuItem>

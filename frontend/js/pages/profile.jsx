@@ -23,11 +23,14 @@ function TransactionCollectionBody({ collectionView }) {
     <div className="collection">
       <Table striped horizontal>
         <thead>
-          <tr><th>Offer</th><th>Buyer</th><th>Seller</th></tr>
+          <tr><th>#</th><th>Offer</th><th>Buyer</th><th>Seller</th></tr>
         </thead>
         <tbody>
           {collectionView.getElements().map(obj =>
             <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}> {/* TODO: highlight on hover */}
+              <td>
+                {obj.id}
+              </td>
               <td>
                 <Money
                   currency={obj.offer_currency}
