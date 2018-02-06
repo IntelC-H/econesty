@@ -71,8 +71,8 @@ function EditableUserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <div className="user editable">
+      <Image src={user.avatar_url} />
       <Form aligned onSubmit={elementView.updateElement}>
-        <Image src={user.avatar_url} />
         <FormGroup>
           <Input name="first_name" value={user.first_name} />
           <Input name="last_name" value={user.last_name} />
