@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Labelled } from 'app/components/elements';
-import { Form, ControlGroup, Input } from 'app/components/forms';
+import { Form, Input } from 'app/components/forms';
 import { Router } from 'app/components/routing';
 import { API } from 'app/api';
 
@@ -10,9 +10,9 @@ function saveFormTo(api, f = null) {
       throw e;
     }).then(f || (() => undefined));
   };
-};
+}
 
-const Signup = props =>
+const Signup = props => // eslint-disable-line no-unused-vars
   <Form
     aligned
     onSubmit={saveFormTo(API.user, u => Router.push("/user/" + u.id))}>

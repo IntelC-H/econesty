@@ -1,6 +1,6 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { asyncCollection, asyncWithProps } from './higher';
+import { asyncCollection } from './higher';
 import { APICollection } from 'app/api';
 import { Input, FormGroup, FormElement } from './forms';
 import { makeClassName } from './utilities';
@@ -37,8 +37,13 @@ class SearchField extends FormElement {
     );
   }
 
-  get search() { return this.state.search; }
-  set search(s) { this.setState(st => ({ ...st, search: s })); }
+  get search() {
+    return this.state.search;
+  }
+
+  set search(s) {
+    this.setState(st => ({ ...st, search: s }));
+  }
 
   // Subcomponent
   formLink(props) {
@@ -64,7 +69,7 @@ class SearchField extends FormElement {
   }
 
   render(props) {
-    const { search, api, component, standalone, className, ...filteredProps } = props;
+    const { /*search, */ api, component, standalone, className, ...filteredProps } = props;
 
     const hasSearch = this.input && this.input.value && this.input.value.length > 0;
     const showsObject = this.value && !standalone;
@@ -88,16 +93,15 @@ class SearchField extends FormElement {
             />
           </FormGroup>
         }
-      
         { !showsObject && hasSearch &&
           <div className="searchfield-dropdown-wrapper">
-            <this.dropdownCollectioN className="searchfield-dropdown raised-v" />
+            <this.dropdownCollection className="searchfield-dropdown raised-v" />
           </div>
         }
       </div>
     );
   }
-};
+}
 
 SearchField.propTypes = propTypes;
 SearchField.defaultProps = defaultProps;

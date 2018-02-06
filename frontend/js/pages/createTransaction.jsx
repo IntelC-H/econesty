@@ -1,14 +1,14 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 //import PropTypes from 'prop-types';
-import { Resource, Loading, ErrorDisplay, Button, Grid, GridUnit, Labelled } from 'app/components/elements';
-import { Form, FormGroup, Input, Select, SubmitButton } from 'app/components/forms';
+import { Loading, ErrorDisplay, Button, Grid, GridUnit, Labelled } from 'app/components/elements';
+import { Form, FormGroup, Input, Select } from 'app/components/forms';
 
 import { API } from 'app/api';
 import SearchField from 'app/components/searchfield';
 import { Router } from 'app/components/routing';
 
-import linkState from 'linkstate';
-import linkRef from 'linkref';
+// import linkState from 'linkstate';
+// import linkRef from 'linkref';
 
 class CreateTransaction extends Component {
   constructor(props) {
@@ -21,9 +21,17 @@ class CreateTransaction extends Component {
     this.addRequirement = this.addRequirement.bind(this);
   }
 
-  get isBuyer() { return this.props.matches.action === "buy"; }
-  get isSeller() { return this.props.matches.action === "sell"; }
-  get otherId() { return parseInt(this.props.matches.id); }
+  get isBuyer() {
+    return this.props.matches.action === "buy";
+  }
+
+  get isSeller() {
+    return this.props.matches.action === "sell";
+  }
+
+  get otherId() {
+    return parseInt(this.props.matches.id);
+  }
 
   componentDidMount() {
     if (!this.state.hiddens) {
@@ -72,7 +80,6 @@ class CreateTransaction extends Component {
     };
 
   //  delete objCopy.__proto__;
-    console.log("CREATING TRANSACTION", objCopy);
 
     API.transaction.create(objCopy)
                    .then(logic)
@@ -132,7 +139,7 @@ class CreateTransaction extends Component {
                     <SearchField name="user"
                                  api={API.user}
                                  component={props => props.object.username} />
-                  </Labelled>              
+                  </Labelled>
                   <Input checkbox
                          name="signature_required"
                          placeholder="Require a signature" />
