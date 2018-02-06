@@ -38,7 +38,9 @@ import PaymentData from 'app/pages/paymentData';
       - If n seconds have elapsed while this is open, never show again
 */
 
-const makeRoute = (path, Comp, wcs) => <Comp path={path} wildcards={wcs} />;
+function makeRoute(path, Comp, wcs) {
+  return <Comp path={path} wildcards={wcs} />;
+}
 
 export default () =>
   <PageTemplate>

@@ -3,77 +3,66 @@ import PropTypes from 'prop-types';
 import { Resource, Button, Grid, GridUnit } from 'app/components/elements';
 import { Form, Input, Select, ControlGroup, FormGroup } from 'app/components/forms';
 import { API } from 'app/api';
+import { CollectionView, CollectionCreation } from 'app/components/api';
 
 const kinds = ['btc', 'csh', 'cdt', 'dbt', 'gnc'];
 
-// TODO: load payment data
-// This means using a collection.
-// not asyncCollection.
-
-class PaymentData extends Component {
-  constructor(props) {
-    super(props);
-    this.savePaymentData = this.savePaymentData.bind(this);
-    this.state = { payments: [] };
-    this.newPayment = this.newPayment.bind(this);
-  }
-
-  newPayment() {
-    this.setState(st => ({ ...st, payments: st.payments.concat([{}])}));
-  }
-
-  // Newly created PaymentData are not added to self.state.payments
-
-  createPaymentData(pd) {
-    API.payment_data
-       .save(pd)
-       .catch(console.log)
-       .then(newpd => {
-         console.log("Created paymentdata")
-       });
-  }
-
-  updatePaymentData(pd) {
-    console.log("Saving ", pd);
-    API.payment_data
-       .save(pd)
-       .catch(console.log)
-       .then(pd => {
-         console.log("Saved payment datum: ", pd);
-       });
-  }
-
-  render(props, { payments }) {
+class PaymentDatum extends Component {
+  // TODO: detect changes and hide/show submit button accordingly
+  render({ paymentData, onSubmit }) {
     return (
-      <Grid>
-        <GridUnit size="1" sm="4-24"/>
-        <GridUnit size="1" sm="16-24">
-          {payments.map(pd =>
-            <Form
-              key={pd.id ? pd.id : JSON.stringify(pd)}
-              onSubmit={pd.id ? this.updatePaymentData : this.createPaymentData}
-              >
-              <Input hidden name="user_id" value={API.getUserID()}/>
-              <FormGroup>
-                <Select options={kinds} name="kind" />
-                <Input text required name="data" placeholder="Payment data..." />
-              </FormGroup>
-              <FormGroup>
-                <Input checkbox required name="encrypted" placeholder="Encrypted?" />
-              </FormGroup>
-              <Button action="submit">{pd.id ? "Update" : "Create"}</Button>
-            </Form>
-          )}
-          <Button onClick={this.newPayment}>+ New</Button>
-        </GridUnit>
-        <GridUnit size="1" sm="4-24"/>
-      </Grid>
+      <Form key={paymentData.id || "createpd"} onSubmit={onSubmit}>
+        <Input hidden name="user_id" value={paymentData.id || API.getUserID()}/>
+        <FormGroup>
+          <Select options={kinds} name="kind" value={paymentData.kind}/>
+          <Input text required
+                 name="data"
+                 value={paymentData.data}
+                 placeholder="Payment data..." />
+        </FormGroup>
+        <FormGroup>
+          <Input checkbox name="encrypted" placeholder="Encrypted?" value={paymentData.encrypted}/>
+        </FormGroup>
+        <Button action="submit">Save</Button>
+      </Form>
     );
   }
 }
 
-PaymentData.propTypes = {};
-PaymentData.defaultProps = {};
+PaymentDatum.defaultProps = {
+  paymentData: {},
+  onSubmit: () => null
+};
+
+function PaymentDataCreateForm({ collectionView }) {
+  return <PaymentDatum onSubmit={collectionView.saveElement} />;
+}
+
+function PaymentDataCollectionBody({ collectionView }) {
+  let elements = collectionView.getElements();
+  return (
+    <Grid>
+      <GridUnit size="1" sm="4-24"/>
+      <GridUnit size="1" sm="16-24">
+        {elements.map(pd => <PaymentDatum
+                              paymentData={pd}
+                              onSubmit={collectionView.saveElement} /> )}
+      </GridUnit>
+      <GridUnit size="1" sm="4-24"/>
+    </Grid>
+  );
+}
+
+function PaymentData(props) {
+  return (
+    <CollectionView collection={API.payment_data}>
+      <PaymentDataCollectionBody />
+      <CollectionCreation>
+        <PaymentDataCreateForm />
+      </CollectionCreation>
+    </CollectionView>
+  );
+}
 
 export { PaymentData };
 export default PaymentData;

@@ -18,8 +18,7 @@ function walkObject(obj, k) {
 }
 
 function setKeypath(obj, kp, value) {
-  let keys = kp.split('.').filter(e => e && e.length && e.length > 0);
-  const key = keys.pop();
+  let [key, ...keys] = kp.split('.').filter(e => e && e.length > 0);
   keys.reduce(walkObject, obj)[key] = value;
 }
 
@@ -30,17 +29,22 @@ class ReferencingComponent extends Component {
     super(props);
     this.makeReferences = this.makeReferences.bind(this);
     this.recursiveRef = this.recursiveRef.bind(this);
-    this.reference = this.reference.bind(this);    
+    this.reference = this.reference.bind(this);
+    this.shouldReference = this.shouldReference.bind(this);  
   }
+
+  shouldReference(cmp) {
+    return true;
+  } 
 
   reference(cmp) {
     if (cmp) {
-      if (FormElement.isValid(cmp)) {
+      if (this.shouldReference(cmp)) {
         if (!this.refs) this.refs = [cmp];
         else            this.refs.push(cmp);
       }
     } else {
-      self.refs = [];
+      this.refs = [];
     }
   }
 
@@ -59,8 +63,8 @@ class ReferencingComponent extends Component {
     }
   }
 
-  makeReferences(props = this.props) {
-    props.children.forEach(this.recursiveRef);
+  makeReferences(children = this.props.children) {
+    children.forEach(this.recursiveRef);
   }
 }
 
@@ -69,15 +73,18 @@ class Form extends ReferencingComponent {
     super(props);
     this.set = this.set.bind(this);
     this.getObject = this.getObject.bind(this);
+    this.domOnSubmit = this.domOnSubmit.bind(this);
+  }
+
+  shouldReference(cmp) {
+    return super.shouldReference(cmp) && FormElement.isValid(cmp);
   }
 
   set(obj, ref) {
     if (ref.base && ref.base.parentNode && ref.value !== undefined) { // if (ref is mounted && has value) {
       let kp = (ref.context.groups || []).map(g => g.keypath);
       kp.push(ref.name);
-      console.log("BEFORE", obj);
       setKeypath(obj, kp.join('.'), ref.value);
-      console.log("AFTER", obj);
     }
     return obj;
   }
@@ -88,11 +95,18 @@ class Form extends ReferencingComponent {
    * the components in this.refs.
    */
   getObject() {
-    console.log("object", (this.refs || []).reduce(this.set, {}));
     return (this.refs || []).reduce(this.set, {});
   }
 
+  domOnSubmit(e) {
+    e.preventDefault(); // prevent form POST (messes up SPA)
+    this.props.onSubmit(this.getObject());
+    return false;
+  }
+
   render(props) {
+    this.makeReferences();
+
     let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
     let cns = ["pure-form"];
     if (aligned) cns.push("pure-form-aligned");
@@ -103,14 +117,8 @@ class Form extends ReferencingComponent {
 
     if (onSubmit) {
       filteredProps.action = "javascript" + ":"; // appease JSLint
-      filteredProps.onSubmit = function(e) {
-        e.preventDefault(); // prevent form POST (messes up SPA)
-        onSubmit(this.getObject());
-        return false;
-      }.bind(this);
+      filteredProps.onSubmit = this.domOnSubmit;
     }
-
-    this.makeReferences(filteredProps);
 
     return h('form', filteredProps);
   }
@@ -186,6 +194,11 @@ FormElement.defaultProps = {
 };
 
 class Input extends FormElement {
+  constructor(props) {
+    super(props);
+    if (this.type === "checkbox" && !this.value) this.state.value = false;
+  }
+
   // TODO: cache this
   get type() {
     const { type, hidden, text,
@@ -238,7 +251,7 @@ class Input extends FormElement {
 
     prependFunc(filteredProps, isCheck ? "onClick" : "onInput", this.onInput);
 
-    if (isCheck && !!placeholder && placeholder.length > 0) {
+    if (isCheck && placeholder && placeholder.length > 0) {
       filteredProps.id = filteredProps.id || Math.random().toString(); // TODO: use a GUID instead. More optimal collision rates.
       return (
         <div className="checkbox">

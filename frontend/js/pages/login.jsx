@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Grid, GridUnit, ErrorDisplay, Labelled } from 'app/components/elements';
-import { Form, Input, FormGroup, SubmitButton } from 'app/components/forms';
+import { Grid, GridUnit, ErrorDisplay, Labelled, Button } from 'app/components/elements';
+import { Form, Input, FormGroup } from 'app/components/forms';
 import { API } from 'app/api';
 import { Router } from 'app/components/routing';
 
@@ -37,7 +37,7 @@ class Login extends Component {
               <Labelled label="Password">
                 <Input password required name="password" />
               </Labelled>
-              <input type="submit">LOGIN</input>
+              <Button type="submit">LOGIN</Button>
             </FormGroup>
           </Form>
         </GridUnit>
