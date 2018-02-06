@@ -30,12 +30,12 @@ class ReferencingComponent extends Component {
     this.makeReferences = this.makeReferences.bind(this);
     this.recursiveRef = this.recursiveRef.bind(this);
     this.reference = this.reference.bind(this);
-    this.shouldReference = this.shouldReference.bind(this);  
+    this.shouldReference = this.shouldReference.bind(this);
   }
 
-  shouldReference(cmp) {
+  shouldReference(cmp) { // eslint-disable-line no-unused-vars
     return true;
-  } 
+  }
 
   reference(cmp) {
     if (cmp) {

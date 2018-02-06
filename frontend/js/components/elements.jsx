@@ -100,7 +100,7 @@ const Labelled = props => {
       <GridUnit size="1" sm="3-4">
         {children}
       </GridUnit>
-    </Grid> 
+    </Grid>
   );
 };
 

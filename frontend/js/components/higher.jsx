@@ -145,9 +145,9 @@ export function secure(comp) {
 // TODO: make this wrap a components.
 // This function exists because JS's regex
 // implementation doesn't support bidirectional lookaround.
-export function replacePath(comp, gen, guard = null) {
+export function replacePath(comp, gen, guard = () => true) {
   return secure(() => {
-    if ((guard && guard()) || !guard) {
+    if (guard()) {
       const v = gen();
       const url = Router.getPath()
                         .split("/")
