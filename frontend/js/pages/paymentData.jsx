@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Resource, Button, Grid, GridUnit } from 'app/components/elements';
-import { Form, Input, Select, ControlGroup, FormGroup } from 'app/components/forms';
+import { Button, Grid, GridUnit } from 'app/components/elements';
+import { Form, Input, Select, FormGroup } from 'app/components/forms';
 import { API } from 'app/api';
 import { CollectionView, CollectionCreation } from 'app/components/api';
 
@@ -29,6 +29,11 @@ class PaymentDatum extends Component {
   }
 }
 
+PaymentDatum.propTypes = {
+  paymentData: PropTypes.shape(API.payment_data.shape),
+  onSubmit: PropTypes.func
+};
+
 PaymentDatum.defaultProps = {
   paymentData: {},
   onSubmit: () => null
@@ -53,7 +58,7 @@ function PaymentDataCollectionBody({ collectionView }) {
   );
 }
 
-function PaymentData(props) {
+function PaymentData() {
   return (
     <CollectionView collection={API.payment_data}>
       <PaymentDataCollectionBody />
