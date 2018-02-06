@@ -2,7 +2,7 @@ import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-u
 import PropTypes from 'prop-types';
 import { Button, Grid, GridUnit, Loading } from 'app/components/elements';
 
-// TODO: deletion
+// TODO: errors & error recovery
 class CollectionView extends Component {
   /*
     Props:
@@ -63,6 +63,13 @@ class CollectionView extends Component {
   updateElement(id, object) {
     this.setState(st => ({ ...st, loading: true }), () => {
       this.props.collection.update(id, object)
+                           .then(() => this.reloadData());
+    });
+  }
+
+  deleteElement(id, soft = false) {
+    this.setState(st => ({ ...st, loading: true }), () => {
+      this.props.collection.delete(id, soft)
                            .then(() => this.reloadData());
     });
   }
