@@ -197,6 +197,7 @@ class ElementView extends Component {
   */
   constructor(props) {
     super(props);
+    this.updateElement = this.updateElement.bind(this);
     this.state = {
       loading: true,
       element: null
@@ -214,6 +215,20 @@ class ElementView extends Component {
         this.setState(st => ({
           ...st,
           element: element,
+          loading: false
+        }));
+      });
+    });
+  }
+
+  updateElement(obj) {
+    const { id, ...xs } = obj; // eslint-disable-line no-unused-vars
+    this.setState(st => ({ ...st, loading: true }), () => {
+      this.props.collection.update(this.getElement().id, obj)
+                           .then(newObj => {
+        this.setState(st => ({
+          ...st,
+          element: newObj,
           loading: false
         }));
       });

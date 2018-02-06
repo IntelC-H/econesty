@@ -5,6 +5,12 @@ Econesty is a SPA (single-page app), and as such, the frontend is completely dec
   - Django & DRF for the backend REST API & for serving the frontend.
   - ReactJS (Preact) using JSX and ES6 for the frontend, using webpack to translate modern syntax into browser-friendly JavaScript.
 
+## Preparing PostgreSQL
+
+Ensure you have PostgreSQL running, and that there's a database called
+`econesty`, owned by a user `econesty`. Ensure the user `econesty` can create
+tables in the database `econesty`.
+
 ## Building the Backend
 
 Make sure you have a copy of `python` 3.* installed in your system using your package manager. You can probably use the version of python preinstalled by your operating system.

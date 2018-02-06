@@ -1,20 +1,20 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Link } from 'app/components/routing';
+import { Link, Router } from 'app/components/routing';
 import { API } from 'app/api';
 
 import { Button, Grid, GridUnit, Image, Money, Table } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
+import { Form, FormGroup, Input } from 'app/components/forms';
 
 const dateOpts = { year: 'numeric', month: 'long', day: 'numeric' };
 const formatDate = x => new Date(x).toLocaleString(navigator.language, dateOpts);
 
-function UserLink({ user }) {
+function BriefUserInfo({ user }) {
   return (
-    <Link
-      className="secondary"
-      href={"/user/" + user.id}>
+    <span
+      className="secondary">
       {user.first_name} {user.last_name} (@{user.username})
-    </Link>
+    </span>
   );
 }
 
@@ -27,17 +27,17 @@ function TransactionCollectionBody({ collectionView }) {
         </thead>
         <tbody>
           {collectionView.getElements().map(obj =>
-            <tr key={obj.id}>
+            <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}> {/* TODO: highlight on hover */}
               <td>
                 <Money
                   currency={obj.offer_currency}
                   value={parseFloat(obj.offer)} />
               </td>
               <td>
-                <UserLink user={obj.buyer} />
+                <BriefUserInfo user={obj.buyer} />
               </td>
               <td>
-                <UserLink user={obj.seller} />
+                <BriefUserInfo user={obj.seller} />
               </td>
             </tr>
           )}
@@ -45,6 +45,11 @@ function TransactionCollectionBody({ collectionView }) {
       </Table>
     </div>
   );
+}
+
+function User({ elementView }) {
+  if (elementView.getElement().is_me) return <EditableUserRepresentation elementView={elementView} />;
+  return <UserRepresentation elementView={elementView} />;
 }
 
 function UserRepresentation({ elementView }) {
@@ -55,11 +60,36 @@ function UserRepresentation({ elementView }) {
       <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
       <div className="tertiary">(@{user.username})</div>
       <div className="secondary">User #{user.id}, since {formatDate(user.date_joined)}</div>
-      {user.is_me && <Link
+    </div>
+  );
+}
+
+function EditableUserRepresentation({ elementView }) {
+  let user = elementView.getElement();
+  return (
+    <div className="user editable">
+      <Form aligned onSubmit={elementView.updateElement}>
+        <Image src={user.avatar_url} />
+        <FormGroup>
+          <Input name="first_name" value={user.first_name} />
+          <Input name="last_name" value={user.last_name} />
+        </FormGroup>
+        <FormGroup>
+          <Input name="username" value={user.username} />
+          <Input name="email" value={user.email} />
+        </FormGroup>
+        <Button action="submit">Save</Button>
+      </Form>
+      <Link
         component={Button}
         className="margined raised"
         href="/payment"
-      >Payment Options</Link>}
+      >Payment Options</Link>
+      <Link
+        component={Button}
+        className="margined raised"
+        href="/required"
+      >Required</Link>
     </div>
   );
 }
@@ -71,7 +101,7 @@ function Profile(props) {
     <Grid>
       <GridUnit size="1" sm="1-4">
         <ElementView collection={API.user} elementID={userId}>
-          <UserRepresentation />
+          <User />
         </ElementView>
       </GridUnit>
       <GridUnit size="1" sm="17-24">

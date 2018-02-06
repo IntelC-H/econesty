@@ -15,11 +15,11 @@ import Profile from 'app/pages/profile';
 import Signup from 'app/pages/signup';
 import Home from 'app/pages/home';
 import PaymentData from 'app/pages/paymentData';
+import TransactionDetail from 'app/pages/transactiondetail';
+import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-  - Signup page
-  - Edit Profile page
   - Transaction detail page w/ requirements
   - Fulfill Requirement page
 
@@ -52,11 +52,9 @@ export default () =>
         makeRoute("/signup", Signup),
         makeRoute("/user/:id", Profile), // view a profile
         makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }), // create transaction's
-        makeRoute("/payment", secure(PaymentData)) // manage payment_data's
-        // TODO:
-        // /transactions -> ALL transactions you're privy to. Is this necessary? If you're viewing your own page as yourself, you should be able to see all the transactions you're privy to.
-        // /required/me -> manage requirements of you
-        // /required/others -> check on requirements you've made of others.
+        makeRoute("/payment", secure(PaymentData)), // manage payment_data's
+        makeRoute("/transaction/:id", secure(TransactionDetail)), // your transactions
+        makeRoute("/required", secure(RequiredOfMe)) // manage requirements of you
       ]}
     </Router>
   </PageTemplate>

@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Labelled } from 'app/components/elements';
+import { Labelled, Button } from 'app/components/elements';
 import { Form, Input } from 'app/components/forms';
 import { Router } from 'app/components/routing';
 import { API } from 'app/api';
