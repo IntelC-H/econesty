@@ -135,7 +135,7 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
     DjangoFilterBackend,
     AuthOwnershipFilter,
   )
-  filter_fields = ('text','signature_required','acknowledged','acknowledgment_required','transaction_id',)
+  filter_fields = ('text','signature_required','acknowledged','acknowledgment_required','transaction_id', 'user__id',)
   search_fields = ('text',)
   ordering_fields = ('created_at',)
   ordering = "-created_at"

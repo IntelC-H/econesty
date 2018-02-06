@@ -335,12 +335,17 @@ Select.defaultProps = {
   ...FormElement.defaultProps
 };
 
-export { Form, FormGroup, FormElement, Select, Input };
+function syntheticSubmit(formId) {
+  return () => document.getElementById(formId).submit();
+}
+
+export { Form, FormGroup, FormElement, Select, Input, syntheticSubmit };
 
 export default {
   Form: Form,
   FormGroup: FormGroup,
   FormElement: FormElement,
   Select: Select,
-  Input: Input
+  Input: Input,
+  syntheticSubmit: syntheticSubmit
 };

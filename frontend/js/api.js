@@ -111,8 +111,9 @@ class API {
 
 // Represents a collection in your REST API.
 class APICollection {
-  constructor(resource) {
+  constructor(resource, urlParams = {}) {
     this.resource = resource;
+    this.urlParams = urlParams;
     this.onInstance = this.onInstance.bind(this);
   }
 
@@ -120,17 +121,27 @@ class APICollection {
     return '/' + this.resource + '/';
   }
 
+  _getURLParams() {
+    if (typeof this.urlParams === "function") {
+      return this.urlParams();
+    }
+    return this.urlParams;
+  }
+
   create(body) {
     return API.networking("POST", this.baseURL, {}, body).then(this.onInstance);
   }
 
   read(id) {
-    return API.networking("GET", this.baseURL + id, {}, null).then(this.onInstance);
+    return API.networking("GET", this.baseURL + id, this._getURLParams(), null).then(this.onInstance);
   }
 
   list(page, q = null) {
     var ps = q ? {page: page, search: q} : {page: page};
-    return API.paginate(API.networking("GET", this.baseURL, ps, null), this);
+    return API.paginate(API.networking("GET",
+                                       this.baseURL,
+                                       { ...this._getURLParams(), ...ps},
+                                       null), this);
   }
 
   update(id, body = null) {
@@ -164,7 +175,7 @@ class APICollection {
 // A collection that applies an action after receiving a JSON representation
 // of one of it's instances.
 class APIActionCollection extends APICollection {
-  constructor(resource, action){
+  constructor(resource, action) {
     super(resource);
     this.action = action;
   }
