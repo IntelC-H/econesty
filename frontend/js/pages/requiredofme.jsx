@@ -6,6 +6,7 @@ import { Table, Button } from 'app/components/elements';
 import { Form, Input, syntheticSubmit } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 
+// FIXME: submitting a signature causes an error 400 (Bad Request)
 function RequirementRow({ collectionView, element }) {
   return (
     <tr>
