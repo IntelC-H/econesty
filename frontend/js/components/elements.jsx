@@ -77,7 +77,7 @@ function _toCurrencySymbol(curr) {
   return null;
 }
 
-const Money = props => <span>{_toCurrencySymbol(props.currency.toUpperCase()) || props.currency} {props.value}</span>;
+const Money = props => <span>{_toCurrencySymbol(props.currency.toUpperCase()) || props.currency}{props.value}</span>;
 
 Money.propTypes = {
   currency: PropTypes.string,
