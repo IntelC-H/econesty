@@ -86,7 +86,7 @@ class TransactionSerializer(BaseSerializer):
   seller_id = writing_field(amodels.User, "seller")
   seller_payment_data = PaymentDataSerializer(read_only=True)
   seller_payment_data_id = writing_field(models.PaymentData, "seller_payment_data")
-  completed = serializers.BooleanField(read_only=True)
+  completed = serializers.ReadOnlyField(source='is_completed')
 
   class Meta:
     model = models.Transaction
@@ -101,6 +101,7 @@ class RequirementSerializer(BaseSerializer):
   user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
   transaction_id = writing_field(models.Transaction, "transaction")
+  fulfilled = serializers.ReadOnlyField(source='is_fulfilled')
 
   class Meta:
     model = models.Requirement

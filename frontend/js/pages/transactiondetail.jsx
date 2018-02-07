@@ -41,12 +41,10 @@ function TransactionRequirements({ collectionView }) {
       </thead>
       <tbody>
         {rs.map(r => {
-          let fulfilled = (r.acknowledged || !r.acknowledgement_required)
-                       && (Boolean(r.signature) || !r.signature_required);
           return <tr key={r.id}>
                    <td><UserLink user={r.user} /></td>
                    <td>{r.text}</td>
-                   <td>{fulfilled ? "FULFILLED" : "UNFULFILLED"}</td>
+                   <td>{r.fulfilled ? "FULFILLED" : "UNFULFILLED"}</td>
                  </tr>;
         })}
       </tbody>

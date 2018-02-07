@@ -87,9 +87,17 @@ class Transaction(BaseModel):
   seller_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_pd")
   offer = models.DecimalField(max_digits=11, decimal_places=2)
   offer_currency = models.CharField(max_length=3, default="USD")
-  completed = models.BooleanField(default=False)
 
   objects = TransactionManager()
+  
+  @property
+  def is_completed(self):
+    rqs = Requirement.objects.filter(transaction__id=self.id)
+    for req in rqs:
+      if not req.is_fulfilled:
+        return False
+    return True
+  
 
 class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
@@ -101,3 +109,10 @@ class Requirement(BaseModel):
   acknowledgment_required = models.BooleanField(default=False)
 
   objects = RequirementsManager()
+
+  @property
+  def is_fulfilled(self):
+    print(self)
+    ack = self.acknowledged    or not self.acknowledgment_required
+    sig = bool(self.signature) or not self.signature_required
+    return ack and sig
