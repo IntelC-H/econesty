@@ -62,10 +62,12 @@ API.signature.shape = PropTypes.shape({
 
 API.requirement = new APICollection("requirement");
 API.requirement.ofMe = new APICollection("requirement", () => ({ user__id: API.getUserID() }));
+API.requirement.forTransaction = (tid) => new APICollection("requirement", { transaction__id: tid });
 API.requirement.shape = PropTypes.shape({
   id: PropTypes.number,
   created_at: PropTypes.string, // maybe date?
   user: API.user.shape,
+  text: PropTypes.string,
   transaction: API.transaction.shape,
   signature: API.signature.shape,
   signature_required: PropTypes.bool,
