@@ -6,7 +6,6 @@ import { Table, Button } from 'app/components/elements';
 import { Form, Input, syntheticSubmit } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 
-// FIXME: submitting a signature causes an error 400 (Bad Request)
 function RequirementRow({ collectionView, element }) {
   return (
     <tr>
@@ -22,7 +21,7 @@ function RequirementRow({ collectionView, element }) {
         </Form>
       </td>
       <td>
-        <Form key={element.id + "-sig"} onSubmit={collectionView.saveElement}>
+        <Form key={element.id + "-sig"} onSubmit={obj => collectionView.updateElement(element.id, obj)}>
           <Input text required={element.signature_required}
                  disabled={Boolean(element.signature)}
                  name="signature" value={element.signature}/>

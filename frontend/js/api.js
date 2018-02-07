@@ -154,7 +154,7 @@ class APICollection {
 
   save(body) {
     const { id, ...filteredBody } = body;
-    if (!id) return this.create(body);
+    if (id !== null && id !== undefined) return this.create(body);
     return this.update(id, filteredBody);
   }
 

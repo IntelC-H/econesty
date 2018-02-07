@@ -96,24 +96,11 @@ class TransactionSerializer(BaseSerializer):
       'created_at': {'read_only': True}
     }
 
-class SignatureSerializer(BaseSerializer):
-  user = UserSerializer(many=False, read_only=True)
-  user_id = writing_field(amodels.User, "user")
-  class Meta:
-    model = models.Signature
-    fields = '__all__'
-    extra_kwargs = {
-      'id': {'read_only': True},
-      'created_at': {'read_only': True}
-    }
-
 class RequirementSerializer(BaseSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
   transaction_id = writing_field(models.Transaction, "transaction")
-  signature = SignatureSerializer(many=False, read_only=True)
-  signature_id = writing_field(models.Signature, "signature", required = False, default = None)
 
   class Meta:
     model = models.Requirement

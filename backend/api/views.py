@@ -115,17 +115,6 @@ class PaymentDataViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   ordering = "-created_at"
   user_fields = ("user",)
 
-class SignatureViewSet(AuthOwnershipMixin, EconestyBaseViewset):
-  serializer_class = serializers.SignatureSerializer
-  queryset = models.Signature.objects.select_related("user")
-  filter_backends = (
-    filters.OrderingFilter,
-    AuthOwnershipFilter,
-  )
-  ordering_fields = ('created_at',)
-  ordering = "-created_at"
-  user_fields = ("user",)
-
 class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   serializer_class = serializers.RequirementSerializer
   queryset = models.Requirement.objects.all()

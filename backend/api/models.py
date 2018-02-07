@@ -91,15 +91,11 @@ class Transaction(BaseModel):
 
   objects = TransactionManager()
 
-class Signature(BaseModel):
-  user = models.ForeignKey(User, on_delete=models.CASCADE)
-  data = JSONField() # stores a JSON structure describing a signature.
-
 class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
   text = models.TextField(blank=True, null=True)
   transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='api_req_transaction')
-  signature = models.OneToOneField(Signature, on_delete=models.SET_NULL, blank=True, null=True, related_name='api_req_sig')
+  signature = models.TextField(blank=True, null=True)
   signature_required = models.BooleanField(default=False)
   acknowledged = models.BooleanField(default=False)
   acknowledgment_required = models.BooleanField(default=False)

@@ -34,24 +34,24 @@ class CollectionView extends Component {
 
   // Reloads the collection's current page from the server.
   reloadData() {
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.list(this.state.page,
-                                 this.props.search)
-                           .then(ps => {
-        this.setState(st => ({ ...st,
-                               loading: false,
-                               elements: ps.results,
-                               nextPage: ps.next,
-                               previousPage: ps.previous,
-                               count: ps.count}));
-      });
+    if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
+    this.props.collection.list(this.state.page,
+                               this.props.search)
+                         .then(ps => {
+      this.setState(st => ({ ...st,
+                             loading: false,
+                             elements: ps.results,
+                             nextPage: ps.next,
+                             previousPage: ps.previous,
+                             count: ps.count}));
     });
   }
 
+  // FIXME: something is fundamentally wrong...
   saveElement(object) {
     const { id, ...xs } = object;
-    if (id) this.updateElement(id, xs);
-    else    this.createElement(xs);
+    if (id !== null && id !== undefined) this.updateElement(id, xs);
+    else                                 this.createElement(xs);
   }
 
   createElement(object) {
