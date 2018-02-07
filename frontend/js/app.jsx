@@ -21,7 +21,6 @@ import RequiredOfMe from 'app/pages/requiredofme';
 /*
   TODO for MVP:
   - Transaction detail page w/ requirements
-  - Fulfill Requirement page
 
   TODO for after MVP:
   - make groups in forms look better
