@@ -35,26 +35,26 @@ class UserViewSet(EconestyBaseViewset):
   search_fields = ('username', 'email', 'first_name', 'last_name')
   ordering_fields = ('username', 'email', 'first_name', 'last_name')
 
-  # Finds a common payment method to use for a transaction.
-  @detail_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
-  def payment(self, request, pk = None):
-    def makeKindHash(acc, x):
-      acc[x.kind] = x
-      return acc
+  # # Finds a common payment method to use for a transaction.
+  # @detail_route(methods=["GET"], permission_classes=[permissions.IsAuthenticated])
+  # def payment(self, request, pk = None):
+  #   def makeKindHash(acc, x):
+  #     acc[x.kind] = x
+  #     return acc
 
-    me = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=request.user.id), {})
-    them = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=str(pk)), {})
+  #   me = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=request.user.id), {})
+  #   them = reduce(makeKindHash, models.PaymentData.objects.filter(user__id=str(pk)), {})
 
-    for k in models.PaymentData.KINDS:
-      m = me.get(k, None)
-      t = them.get(k, None)
-      if m is not None and t is not None:
-        return Response({
-          'me': serializers.PaymentDataSerializer(m).data,
-          'them': serializers.PaymentDataSerializer(t).data
-        })
+  #   for k in models.PaymentData.KINDS:
+  #     m = me.get(k, None)
+  #     t = them.get(k, None)
+  #     if m is not None and t is not None:
+  #       return Response({
+  #         'me': serializers.PaymentDataSerializer(m).data,
+  #         'them': serializers.PaymentDataSerializer(t).data
+  #       })
 
-    raise NotFound(detail="No common payment data.", code=404)
+  #   raise NotFound(detail="No common payment data.", code=404)
 
   # TODO: if pk == request.user.id, proxy through to TransactionViewSet
   # Returns the all transactions user id PK shares with the authed user.
@@ -78,7 +78,7 @@ class TransactionViewSet(EconestyBaseViewset):
   )
   ordering_fields = ('created_at',)
   ordering = "created_at"
-  filter_fields = ('offer','offer_currency',)
+  filter_fields = ('amount','success',)
   user_fields = ('buyer','seller',)
 
   @list_route(methods=["GET"])
@@ -102,18 +102,16 @@ class TransactionViewSet(EconestyBaseViewset):
     xaction.save()
     return Response(serializers.TransactionSerializer(xaction).data)
 
-class PaymentDataViewSet(AuthOwnershipMixin, EconestyBaseViewset):
-  serializer_class = serializers.PaymentDataSerializer
-  queryset = models.PaymentData.objects.select_related("user")
+# TODO: AuthOwnershipMixin?
+class WalletViewSet(EconestyBaseViewset):
+  serializer_class = serializers.WalletSerializer
+  queryset = models.Wallet.objects.all()
   filter_backends = (
     filters.OrderingFilter,
-    DjangoFilterBackend,
-    AuthOwnershipFilter,
+    DjangoFilterBackend
   )
-  filter_fields = ('kind','encrypted',)
   ordering_fields = ('created_at','kind','encrypted',)
   ordering = "-created_at"
-  user_fields = ("user",)
 
 class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   serializer_class = serializers.RequirementSerializer

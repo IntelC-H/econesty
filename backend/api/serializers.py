@@ -1,13 +1,13 @@
 import hashlib
 
+from .fields import WIFPrivateKeySerializer
+
 from . import models
 import django.contrib.auth.models as amodels
 from django.contrib.auth.hashers import check_password
 from rest_framework import serializers
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-
-# TODO: all the user_fields from views.py have to be taken into account here.
 
 class BaseSerializer(serializers.ModelSerializer):
   def to_representation(self, obj):
@@ -66,11 +66,13 @@ class UserSerializer(BaseSerializer):
     instance.save()
     return instance
 
-class PaymentDataSerializer(BaseSerializer):
+class WalletSerializer(BaseSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
+  private_key = WIFPrivateKeySerializer(user_field="user")
+  address = serializers.ReadOnlyField()
   class Meta:
-    model = models.PaymentData
+    model = models.Wallet
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True},
@@ -80,12 +82,12 @@ class PaymentDataSerializer(BaseSerializer):
 class TransactionSerializer(BaseSerializer):
   buyer = UserSerializer(read_only=True)
   buyer_id = writing_field(amodels.User, "buyer")
-  buyer_payment_data = PaymentDataSerializer(read_only=True)
-  buyer_payment_data_id = writing_field(models.PaymentData, "buyer_payment_data")
+  buyer_wallet = WalletSerializer(read_only=True)
+  buyer_wallet_id = writing_field(models.Wallet, "buyer_wallet")
   seller = UserSerializer(read_only=True)
   seller_id = writing_field(amodels.User, "seller")
-  seller_payment_data = PaymentDataSerializer(read_only=True)
-  seller_payment_data_id = writing_field(models.PaymentData, "seller_payment_data")
+  seller_wallet = WalletSerializer(read_only=True)
+  seller_wallet_id = writing_field(models.Wallet, "seller_wallet")
   completed = serializers.ReadOnlyField(source='is_completed')
 
   class Meta:
@@ -93,7 +95,8 @@ class TransactionSerializer(BaseSerializer):
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True},
-      'created_at': {'read_only': True}
+      'created_at': {'read_only': True},
+      'success': {'read_only': True}
     }
 
 class RequirementSerializer(BaseSerializer):

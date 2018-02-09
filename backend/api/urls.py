@@ -9,7 +9,7 @@ router = routers.DefaultRouter(trailing_slash=True)
 router.register(r'user', views.UserViewSet, base_name=r'user')
 router.register(r'transaction', views.TransactionViewSet, base_name=r'transaction')
 router.register(r'requirement', views.RequirementViewSet, base_name=r'requirement')
-router.register(r'payment_data', views.PaymentDataViewSet, base_name=r'payment_data')
+router.register(r'wallet', views.WalletViewSet, base_name=r'wallet')
 router.register(r'token', views.TokenViewSet, base_name=r'token')
 
 @api_view()

@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 
+from .fields import WIFPrivateKeyField
+
 from safedelete.models import SafeDeleteModel
 
 import uuid
@@ -58,46 +60,34 @@ class Token(BaseModel):
           pass
     return None
 
-class PaymentData(BaseModel):
-  BITCOIN='btc'
-  CASH='csh'
-  CREDIT_CARD='cdt'
-  DEBIT_CARD='dbt'
-  GENERIC='gnc'
-  KINDS = [BITCOIN, CASH, CREDIT_CARD, DEBIT_CARD, GENERIC]
-  kind = models.CharField(
-    max_length=3,
-    choices=(
-      (BITCOIN, 'Bitcoin'),
-      (CASH, 'Cash'),
-      (CREDIT_CARD, 'Credit Card'),
-      (DEBIT_CARD, 'Debit Card'),
-      (GENERIC, 'Other')
-    ),
-    default=GENERIC
-  )
-  data = models.TextField()
-  encrypted = models.BooleanField() # using a key stored exclusively in the user's mind
+class Wallet(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
+  private_key = WIFPrivateKeyField() # TODO: figure out user
+
+  @property
+  def address(self):
+    return self.private_key.address
 
 class Transaction(BaseModel):
   buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_buyer")
-  buyer_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_buyer_pd")
   seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_seller")
-  seller_payment_data = models.ForeignKey(PaymentData, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_pd")
-  offer = models.DecimalField(max_digits=11, decimal_places=2)
-  offer_currency = models.CharField(max_length=3, default="USD")
+  buyer_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_buyer_wallet")
+  seller_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_wallet")
+  amount = models.DecimalField(max_digits=11, decimal_places=2)
+  success = models.BooleanField(default=False)
 
   objects = TransactionManager()
-  
+
   @property
   def is_completed(self):
+    if not self.buyer_wallet or not self.seller_wallet:
+      return False
+
     rqs = Requirement.objects.filter(transaction__id=self.id)
     for req in rqs:
       if not req.is_fulfilled:
         return False
     return True
-  
 
 class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
@@ -116,3 +106,4 @@ class Requirement(BaseModel):
     ack = self.acknowledged    or not self.acknowledgment_required
     sig = bool(self.signature) or not self.signature_required
     return ack and sig
+
