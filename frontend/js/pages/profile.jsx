@@ -86,8 +86,8 @@ function EditableUserRepresentation({ elementView }) {
       <Link
         component={Button}
         className="margined raised"
-        href="/payment"
-      >Payment Options</Link>
+        href="/wallets"
+      >Wallets</Link>
       <Link
         component={Button}
         className="margined raised"

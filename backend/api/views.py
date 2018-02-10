@@ -44,7 +44,7 @@ class UserViewSet(EconestyBaseViewset):
       qs = qs & (man.filter(buyer__id=user_id) | man.filter(seller__id=user_id))
 
     return self.paginated_response(
-      qs.ordered_by("-created_at"),
+      qs.order_by("-created_at"),
       serializer = serializers.TransactionSerializer
     )
 
@@ -70,6 +70,7 @@ class WalletViewSet(EconestyBaseViewset):
   )
   ordering_fields = ('created_at','kind','encrypted',)
   ordering = "-created_at"
+  filter_fields = ('user__id',)
 
 class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   serializer_class = serializers.RequirementSerializer
@@ -80,7 +81,7 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
     DjangoFilterBackend,
     AuthOwnershipFilter,
   )
-  filter_fields = ('text','signature_required','acknowledged','acknowledgment_required','transaction__id', 'user__id',)
+  filter_fields = ('text','acknowledged','transaction__id', 'user__id',)
   search_fields = ('text',)
   ordering_fields = ('created_at',)
   ordering = "-created_at"

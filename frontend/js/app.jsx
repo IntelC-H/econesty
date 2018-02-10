@@ -14,13 +14,13 @@ import Login from 'app/pages/login';
 import Profile from 'app/pages/profile';
 import Signup from 'app/pages/signup';
 import Home from 'app/pages/home';
-import PaymentData from 'app/pages/paymentData';
+import Wallets from 'app/pages/wallets';
 import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-  - Transaction detail page w/ requirements
+  - Finish transition to bitcoin
 
   TODO for after MVP:
   - make groups in forms look better
@@ -51,7 +51,7 @@ export default () =>
         makeRoute("/signup", Signup),
         makeRoute("/user/:id", Profile), // view a profile
         makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }), // create transaction's
-        makeRoute("/payment", secure(PaymentData)), // manage payment_data's
+        makeRoute("/wallets", secure(Wallets)), // manage payment_data's
         makeRoute("/transaction/:id", secure(TransactionDetail)), // your transactions
         makeRoute("/required", secure(RequiredOfMe)) // manage requirements of you
       ]}
