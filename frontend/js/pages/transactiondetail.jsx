@@ -60,7 +60,7 @@ function TransactionDetail({ matches }) {
         <ElementView collection={API.transaction} elementID={matches.id}>
           <TransactionInfo />
         </ElementView>
-        <CollectionView collection={API.requirement.forTransaction(matches.id)}>
+        <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
           <TransactionRequirements />
         </CollectionView>
       </GridUnit>

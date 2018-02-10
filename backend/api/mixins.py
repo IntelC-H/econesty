@@ -30,20 +30,6 @@ class PaginationHelperMixin(object):
       ).data
     )
 
-# def set_keypath(kpath, value, aDict, separator = '.'):
-#   splt = kpath.split(separator)
-#   d = aDict
-#   for k in splt[:-1]:
-#     if hasattr(d, "__getitem__"):
-#       d = d[k]
-#     else:
-#       d = getattr(d, k)
-
-#   if hasattr(d, "__setitem__"):
-#     d[splt[-1]] = value
-#   else:
-#     setattr(d, splt[-1], value)
-
 # TODO: set nested
 class AuthOwnershipMixin(object):
   def perform_create(self, serializer):

@@ -2,8 +2,6 @@ from django.contrib.auth.models import User, AnonymousUser
 from rest_framework import permissions
 from functools import reduce
 
-# TODO: Redact PaymentData from object?
-
 class Sensitive(permissions.BasePermission):
   def has_permission(self, request, view):
     u = getattr(request, "user", AnonymousUser())

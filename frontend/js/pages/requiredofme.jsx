@@ -60,7 +60,7 @@ function RequirementsCollection({ collectionView }) {
 
 function RequiredOfMe(props) { // eslint-disable-line no-unused-vars
   return (
-    <CollectionView collection={API.requirement.ofMe}>
+    <CollectionView collection={API.requirement.withParams({ user_id: API.getUserID })}>
       <RequirementsCollection />
     </CollectionView>
   );

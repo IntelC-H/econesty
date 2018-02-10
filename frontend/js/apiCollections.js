@@ -2,12 +2,17 @@
 import { API, APICollection, APIActionCollection } from 'app/api';
 import PropTypes from 'prop-types';
 
-API.user = new APICollection("user");
-API.user.me = () => API.user.classMethod("GET", "me");
-API.user.transactions = (userId) =>
-  new APICollection("user/" + userId + "/transactions");
-API.user.payment = otherId => API.user.instanceMethod("GET", "payment", otherId);
+const baseShape = {
+  id: PropTypes.number,
+  created_at: PropTypes.string // maybe date?
+};
 
+const stringOrInteger = PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.number
+]);
+
+API.user = new APICollection("user");
 API.user.shape = PropTypes.shape({
   id: PropTypes.number,
   first_name: PropTypes.string,
@@ -26,51 +31,32 @@ API.token.shape = PropTypes.shape({
   key: PropTypes.string
 });
 
-API.payment_data = new APICollection("payment_data");
-API.payment_data.shape = PropTypes.shape({
-  id: PropTypes.number,
-  created_at: PropTypes.string, // maybe date?
+API.wallet = new APICollection("wallet");
+API.wallet.shape = PropTypes.shape({
+  ...baseShape,
   user: API.user.shape,
-  kind: PropTypes.string,
-  data: PropTypes.string,
-  encrypted: PropTypes.bool
+  private_key: PropTypes.string,
+  address: PropTypes.string
 });
 
 API.transaction = new APICollection("transaction");
 API.transaction.shape = PropTypes.shape({
-  id: PropTypes.number,
-  created_at: PropTypes.string, // maybe date?
-  offer_currency: PropTypes.string,
-  offer: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]),
+  ...baseShape,
   buyer: API.user.shape,
   seller: API.user.shape,
-  buyer_payment_data: API.payment_data.shape,
-  seller_payment_data: API.payment_data.shape,
-  completed: PropTypes.bool
-});
-
-API.signature = new APICollection("signature");
-API.signature.shape = PropTypes.shape({
-  id: PropTypes.number,
-  created_at: PropTypes.string, // maybe date?
-  user: API.user.shape,
-  data: PropTypes.oneOfType([PropTypes.object, PropTypes.string]) // json
+  buyer_wallet: API.wallet.shape,
+  seller_wallet: API.wallet.shape,
+  amount: stringOrInteger,
+  completed: PropTypes.bool,
+  success: PropTypes.bool
 });
 
 API.requirement = new APICollection("requirement");
-API.requirement.ofMe = new APICollection("requirement", () => ({ user__id: API.getUserID() }));
-API.requirement.forTransaction = (tid) => new APICollection("requirement", { transaction__id: tid });
 API.requirement.shape = PropTypes.shape({
-  id: PropTypes.number,
-  created_at: PropTypes.string, // maybe date?
+  ...baseShape,
   user: API.user.shape,
   text: PropTypes.string,
   transaction: API.transaction.shape,
-  signature: API.signature.shape,
-  signature_required: PropTypes.bool,
-  acknowledged: PropTypes.bool,
-  acknowledgment_required: PropTypes.bool
+  signature: PropTypes.string,
+  acknowledged: PropTypes.bool
 });

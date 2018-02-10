@@ -11,24 +11,6 @@ import uuid
 from hashlib import sha1
 import hmac
 import re
-from functools import reduce
-
-class RequirementsManager(models.Manager):
-  def pending(self):
-    return self.all().filter(signature=None, signature_required=True) | self.all().filter(acknowledged=False, acknowledgment_required=True)
-
-class TransactionManager(models.Manager):
-  def pending(self):
-    return self.filter(id__in=Requirement.objects.pending().values("transaction_id"))
-
-  def nonpending(self):
-    return self.exclude(id__in=Requirement.objects.pending().values("transaction_id"))
-
-  def owned_by(self, *args):
-    return reduce(
-      lambda acc, x: x if acc is None else acc & x,
-      [self.all().filter(buyer__id = id) | self.all().filter(seller__id = id) for id in args]
-    )
 
 class BaseModel(SafeDeleteModel):
   created_at = models.DateTimeField(default=timezone.now)
@@ -62,7 +44,7 @@ class Token(BaseModel):
 
 class Wallet(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  private_key = WIFPrivateKeyField() # TODO: figure out user
+  private_key = WIFPrivateKeyField()
 
   @property
   def address(self):
@@ -74,9 +56,9 @@ class Transaction(BaseModel):
   buyer_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_buyer_wallet")
   seller_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_wallet")
   amount = models.DecimalField(max_digits=11, decimal_places=2)
-  success = models.BooleanField(default=False)
-
-  objects = TransactionManager()
+  success = models.BooleanField(default=False) # Whether or not the transaction
+                                               # succeeded - i.e. payment went
+                                               # through.
 
   @property
   def is_completed(self):
@@ -93,17 +75,10 @@ class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')
   text = models.TextField(blank=True, null=True)
   transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='api_req_transaction')
-  signature = models.TextField(blank=True, null=True)
-  signature_required = models.BooleanField(default=False)
+  signature = models.TextField(blank=True, null=True) # just a string for now
   acknowledged = models.BooleanField(default=False)
-  acknowledgment_required = models.BooleanField(default=False)
-
-  objects = RequirementsManager()
 
   @property
   def is_fulfilled(self):
-    print(self)
-    ack = self.acknowledged    or not self.acknowledgment_required
-    sig = bool(self.signature) or not self.signature_required
-    return ack and sig
+    return self.acknowledged and bool(self.signature)
 

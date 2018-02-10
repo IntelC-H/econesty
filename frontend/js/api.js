@@ -128,6 +128,14 @@ class APICollection {
     return this.urlParams;
   }
 
+  withParams(urlParams = {}) {
+    return new APICollection(this.resource, urlParams);
+  }
+
+  append(pth) {
+    return new APICollection(this.resource + pth, this.urlParams);
+  }
+
   create(body) {
     return API.networking("POST", this.baseURL, {}, body).then(this.onInstance);
   }

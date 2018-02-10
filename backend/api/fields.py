@@ -29,21 +29,22 @@ class WIFPrivateKeySerializer(serializers.Field):
     self.user_field = user_field
     super(WIFPrivateKeySerializer, self).__init__(**kwargs)
 
+  def should_redact(self, instance, context = None):
+    if self.user_field and self.parent:
+      request = (context or self.context).get("request")
+      if request and hasattr(request, "user"):
+        user = get_attribute(instance, self.user_field.split("."))
+        return not request.user.id is user.id
+      return True
+    else:
+      return False
+
   def get_attribute(self, instance):
     return instance # keep whole model instance around
 
   def to_representation(self, instance):
-    redact = False
-    if self.user_field:
-      request = self.context.get("request")
-      if request and hasattr(request, "user"):
-        user = get_attribute(instance, self.user_field.split("."))
-        redact = not request.user.id is user.id
-      else:
-        redact = True
-
-    if redact:
-      return "<REDACTED>"
+    if self.should_redact(instance):
+      return None
 
     value = get_attribute(instance, self.source_attrs)
     return value.to_wif()

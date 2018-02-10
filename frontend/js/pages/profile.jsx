@@ -112,15 +112,15 @@ function Profile(props) {
           <Link
             component={Button}
             className="margined raised"
-            href={"/user/" + userId + "/transaction/buy"}
+            href={API.user.baseURL + userId + "/transaction/buy"}
           >Buy From</Link>
           <Link
             component={Button}
             className="margined raised"
-            href={"/user/" + userId + "/transaction/sell"}
+            href={API.user.baseURL + userId + "/transaction/sell"}
           >Sell To</Link>
         </div>
-        <CollectionView collection={API.user.transactions(userId)}>
+        <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody />
         </CollectionView>
       </GridUnit>
