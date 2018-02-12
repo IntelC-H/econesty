@@ -52,6 +52,7 @@ class CreateTransaction extends Component {
     }
   }
 
+  // TODO: submit requirements with transaction
   onSubmit(obj) {
     const objCopy = Object.assign({}, obj);
     let requirements = objCopy.requirements;
@@ -74,8 +75,6 @@ class CreateTransaction extends Component {
         Router.replace("/transaction/" + transaction.id);
       });
     };
-
-  //  delete objCopy.__proto__;
 
     API.transaction.create(objCopy)
                    .then(logic)
@@ -112,9 +111,9 @@ class CreateTransaction extends Component {
                    value={this.state.reqs.length}
                    key={this.state.reqs.length}/>
             <Input hidden name="buyer_id" value={values.buyer_id} />
-            <Input hidden name="buyer_payment_data_id" value={values.buyer_payment_data_id} />
+            <Input hidden name="buyer_wallet_id" value={values.buyer_wallet_id} />
             <Input hidden name="seller_id" value={values.seller_id} />
-            <Input hidden name="seller_payment_data_id" value={values.seller_payment_data_id} />
+            <Input hidden name="seller_wallet_id" value={values.seller_wallet_id} />
 
             <Labelled label="How much?">
               <Select options={currencies} name="offer_currency" />
@@ -134,7 +133,7 @@ class CreateTransaction extends Component {
                   <Labelled label="User">
                     <SearchField name="user"
                                  api={API.user}
-                                 component={props => props.object.username} />
+                                 component={props => props.element.username} />
                   </Labelled>
                   <Input checkbox
                          name="signature_required"

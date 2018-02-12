@@ -4,6 +4,8 @@ from rest_framework.fields import get_attribute
 
 from bit import PrivateKeyTestnet, PrivateKey, wif_to_key
 
+# Django model fields
+
 class WIFPrivateKeyField(models.TextField):
   description = "A BitCoin private key (stored in WIF format)"
 
@@ -24,10 +26,13 @@ class WIFPrivateKeyField(models.TextField):
   def get_prep_value(self, value):
     return value.to_wif()
 
-class WIFPrivateKeySerializer(serializers.Field):
-  def __init__(self, user_field = None, **kwargs):
+## DRF Serializer Fields
+
+class RedactableField(serializers.Field):
+  def __init__(self, user_field = None, serializer = None, **kwargs):
     self.user_field = user_field
-    super(WIFPrivateKeySerializer, self).__init__(**kwargs)
+    self.subserializer = serializer
+    super().__init__(**kwargs)
 
   def should_redact(self, instance, context = None):
     if self.user_field and self.parent:
@@ -43,10 +48,19 @@ class WIFPrivateKeySerializer(serializers.Field):
     return instance # keep whole model instance around
 
   def to_representation(self, instance):
-    if self.should_redact(instance):
-      return None
-
     value = get_attribute(instance, self.source_attrs)
+    if self.should_redact(instance):
+      return self.to_redacted_representation(value)
+    return self.to_plain_representation(value)
+
+  def to_redacted_representation(self, value):
+    return None
+
+  def to_plain_representation(self, value):
+    return value
+
+class WIFPrivateKeySerializerField(RedactableField):
+  def to_plain_representation(self, value):
     return value.to_wif()
 
   def to_internal_value(self, data):
@@ -56,4 +70,14 @@ class WIFPrivateKeySerializer(serializers.Field):
       return wif_to_key(data)
     except (ValueError):
       self.fail('invalid', data=data)
+
+class BitcoinBalanceField(RedactableField):
+  def to_internal_value(self, data):
+    try:
+        return float(data)
+    except (TypeError, ValueError):
+        self.fail('invalid')
+  
+  def to_plain_representation(self, value):
+    return float(value)
 

@@ -2,6 +2,9 @@ from django.contrib.auth.models import User, AnonymousUser
 from rest_framework import permissions
 from functools import reduce
 
+def safe_getattr(obj, key):
+  return getattr(obj, key, None)
+
 class Sensitive(permissions.BasePermission):
   def has_permission(self, request, view):
     u = getattr(request, "user", AnonymousUser())
@@ -16,15 +19,14 @@ class Sensitive(permissions.BasePermission):
 
   def check_permission(self, authuser, obj, user_fields = []):
     if obj is None:
-      return False
-
-    if obj.id == authuser.id:
       return True
 
-    def f(acc, x):
-      return acc or self.check_permission(authuser, reduce(getattr, x.split('__'), obj))
+    for field in user_fields:
+      user = reduce(safe_getattr, field.split('__'), obj)
+      if user and user.id is authuser.id:
+        return True
 
-    return reduce(f, user_fields, False)
+    return False
 
 def exempt_methods(perm_cls, methods):
   class Wrapped(perm_cls):

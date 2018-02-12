@@ -50,6 +50,10 @@ class Wallet(BaseModel):
   def address(self):
     return self.private_key.address
 
+  @property
+  def balance(self):
+    return self.private_key.get_balance('btc')
+
 class Transaction(BaseModel):
   buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_buyer")
   seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_seller")
@@ -65,11 +69,21 @@ class Transaction(BaseModel):
     if not self.buyer_wallet or not self.seller_wallet:
       return False
 
+    # TODO: optimization: use query, not python for this
     rqs = Requirement.objects.filter(transaction__id=self.id)
     for req in rqs:
       if not req.is_fulfilled:
         return False
     return True
+
+  def finalize(self):
+    self.buyer_wallet.private_key.send([
+      (self.seller_wallet.private_key.address, self.amount, 'btc')
+    ])
+    # An error will be raised here if there's a problem, and success will
+    # never set to True
+    self.success = True
+    self.save()
 
 class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')

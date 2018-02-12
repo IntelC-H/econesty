@@ -54,4 +54,32 @@ class EconestyBaseViewset(PaginationHelperMixin,
                           viewsets.ModelViewSet):
   pagination_class = EconestyPagination
   permission_classes = (Sensitive,)
-  pass
+
+  def on_update(self, request, obj, partial):
+    pass
+
+  def on_create(self, request, obj):
+    pass
+
+  def on_destroy(self, request, obj):
+    pass
+  
+  def create(self, request):
+    v = super().create(request)
+    self.on_create(request, v)
+    return v
+
+  def update(self, request, pk = None):
+    v = super().update(request, pk)
+    self.on_update(request, v, False)
+    return v
+
+  def partial_update(self, request, pk = None):
+    v = super().partial_update(request, pk)
+    self.on_update(request, v, True)
+    return v
+
+  def destroy(self, request, pk = None):
+    v = super().destroy(request, pk)
+    self.on_destroy(request, v)
+    return v

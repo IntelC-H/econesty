@@ -1,6 +1,6 @@
 import hashlib
 
-from .fields import WIFPrivateKeySerializer
+from .fields import WIFPrivateKeySerializerField, BitcoinBalanceField
 
 from . import models
 import django.contrib.auth.models as amodels
@@ -69,7 +69,7 @@ class UserSerializer(BaseSerializer):
 class WalletSerializer(BaseSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
-  private_key = WIFPrivateKeySerializer(user_field="user")
+  private_key = WIFPrivateKeySerializerField(user_field="user")
   address = serializers.ReadOnlyField()
   class Meta:
     model = models.Wallet
@@ -78,6 +78,9 @@ class WalletSerializer(BaseSerializer):
       'id': {'read_only': True},
       'created_at': {'read_only': True}
     }
+
+class WalletDetailSerializer(WalletSerializer):
+  balance = BitcoinBalanceField(user_field="user")
 
 class TransactionSerializer(BaseSerializer):
   buyer = UserSerializer(read_only=True)
@@ -103,7 +106,7 @@ class RequirementSerializer(BaseSerializer):
   user = UserSerializer(many=False, read_only=True)
   user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
-  transaction_id = writing_field(models.Transaction, "transaction")
+  transaction_id = writing_field(models.Transaction, "transaction", required=False)
   fulfilled = serializers.ReadOnlyField(source='is_fulfilled')
 
   class Meta:
@@ -113,6 +116,17 @@ class RequirementSerializer(BaseSerializer):
       'id': {'read_only': True},
       'created_at': {'read_only': True}
     }
+
+class TransactionSerializerWithRequrements(TransactionSerializer):
+  requirements = RequirementSerializer(required=False, many=True)
+
+  def create(self, validated_data):
+    reqs_data = validated_data.pop('requirements') if "requirements" in validated_data else []
+    trans = models.Transaction.objects.create(**validated_data)
+    for req_data in reqs_data:
+      req_data["transaction_id"] = trans.id
+      models.Requirement.objects.create(**req_data)
+    return trans
 
 class TokenSerializer(BaseSerializer):
   username = serializers.CharField(write_only=True)

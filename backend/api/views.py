@@ -49,7 +49,7 @@ class UserViewSet(EconestyBaseViewset):
     )
 
 class TransactionViewSet(EconestyBaseViewset):
-  serializer_class = serializers.TransactionSerializer
+  serializer_class = serializers.TransactionSerializerWithRequrements
   queryset = models.Transaction.objects.all()
   filter_backends = (
     filters.OrderingFilter,
@@ -61,6 +61,16 @@ class TransactionViewSet(EconestyBaseViewset):
   filter_fields = ('amount','success',)
   user_fields = ('buyer','seller',)
 
+  def on_create(self, request, transaction):
+    if transaction.is_completed:
+      transaction.finalize()
+
+  def on_update(self, request, requirement, partial):
+    if requirement.transaction.is_completed:
+      requirement.transaction.finalize()
+
+  # TODO: hook into create and update and call finalize
+
 class WalletViewSet(EconestyBaseViewset):
   serializer_class = serializers.WalletSerializer
   queryset = models.Wallet.objects.all()
@@ -68,9 +78,15 @@ class WalletViewSet(EconestyBaseViewset):
     filters.OrderingFilter,
     DjangoFilterBackend
   )
-  ordering_fields = ('created_at','kind','encrypted',)
+  ordering_fields = ('created_at',)
   ordering = "-created_at"
   filter_fields = ('user__id',)
+  user_fields = ('user',)
+
+  def get_serializer_class(self):
+    if self.action == 'retrieve':
+      return serializers.WalletDetailSerializer
+    return super().get_serializer_class()
 
 class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   serializer_class = serializers.RequirementSerializer
@@ -86,6 +102,14 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   ordering_fields = ('created_at',)
   ordering = "-created_at"
   user_fields = ('user','transaction__buyer','transaction__seller',)
+
+  def on_create(self, request, requirement):
+    if requirement.transaction.is_completed:
+      requirement.transaction.finalize()
+
+  def on_update(self, request, requirement, partial):
+    if requirement.transaction.is_completed:
+      requirement.transaction.finalize()
 
 class TokenViewSet(WriteOnlyViewset):
   serializer_class = serializers.TokenSerializer

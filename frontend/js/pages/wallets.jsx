@@ -9,16 +9,19 @@ class Wallet extends Component {
   // TODO: detect changes and hide/show save button accordingly
   render({ wallet, onSubmit }) {
     return (
-      <Form key={wallet.id || "createwallet"} onSubmit={onSubmit}>
-        <Input hidden name="user_id" value={wallet.user.id || API.getUserID()}/>
-        <FormGroup>
-          <Input text required
-                 name="private_key"
-                 value={wallet.private_key}
-                 placeholder="WIF-formatted Bitcoin private key" />
-        </FormGroup>
-        <Button action="submit">Save</Button>
-      </Form>
+      <div>
+        <p>Address: {wallet.address}</p>
+        <Form key={wallet.id || "createwallet"} onSubmit={onSubmit}>
+          <Input hidden name="user_id" value={wallet.user.id || API.getUserID()}/>
+          <FormGroup>
+            <Input text required
+                   name="private_key"
+                   value={wallet.private_key}
+                   placeholder="WIF-formatted Bitcoin private key" />
+          </FormGroup>
+          <Button action="submit">Save</Button>
+        </Form>
+      </div>
     );
   }
 }
