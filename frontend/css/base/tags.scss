@@ -49,13 +49,14 @@ a {
   label {
     cursor: pointer;
   }
-  display: inherit;
+  display: inline;//inherit;
   &:visited, &:link {
     color: inherit;
   }
 
   &:hover {
     color: $accent-color;
+    text-decoration: underline;
     span {
       color: $accent-color;
     }

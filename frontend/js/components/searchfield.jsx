@@ -64,6 +64,7 @@ const propTypes = {
 const defaultProps = {
   search: null,
   standalone: false,
+  placeholder: "search...",
   onClick: () => undefined
 };
 
@@ -145,7 +146,6 @@ class SearchField extends FormElement {
             <Input
               {...filteredProps}
               text ignore
-              placeholder="search..."
               onInput={e => this.search = e.target.value }
               value={this.search}
             />

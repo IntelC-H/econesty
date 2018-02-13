@@ -4,7 +4,6 @@ import { API } from 'app/api';
 import 'app/apiCollections';
 
 import { Router } from 'app/components/routing';
-import { secure, replacePath } from 'app/components/higher';
 
 // Pages
 import NotFound from 'app/pages/notFound';
@@ -20,9 +19,8 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-  - Finish transition to bitcoin
-
-  TODO for after MVP:
+  - test bitcoin implementation
+  - make look purdy
   - make groups in forms look better
     -  light backgrounds?
     -  position the delete buttons right
@@ -31,9 +29,28 @@ import RequiredOfMe from 'app/pages/requiredofme';
   - Tooltips
     - Usernames
     - created ats
-    - Single time display
-      - If n seconds have elapsed while this is open, never show again
 */
+
+function secure(comp) {
+  return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
+}
+
+// TODO: make this wrap a components.
+// This function exists because JS's regex
+// implementation doesn't support bidirectional lookaround.
+function replacePath(comp, gen, guard = () => true) {
+  return secure(() => {
+    if (guard()) {
+      const v = gen();
+      const url = Router.getPath()
+                        .split("/")
+                        .map(u => u === comp ? v : u)
+                        .join("/");
+      return Router.replace(url);
+    }
+    return Router.replace("/");
+  });
+}
 
 function makeRoute(path, Comp, wcs) {
   return <Comp path={path} wildcards={wcs} />;
