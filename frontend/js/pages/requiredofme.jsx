@@ -3,7 +3,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { API } from 'app/api';
 import { CollectionView } from 'app/components/api';
 import { Table, Button } from 'app/components/elements';
-import { Form, Input, syntheticSubmit } from 'app/components/forms';
+import { Form, Input } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 
 function RequirementRow({ collectionView, element }) {

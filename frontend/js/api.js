@@ -56,7 +56,7 @@ class API {
   }
 
   static getUserID() {
-    return localStorage.getItem("user_id");
+    return parseInt(localStorage.getItem("user_id"));
   }
 
   static setUserID(user_id) {
@@ -93,11 +93,12 @@ class API {
                        .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(ups[k]))
                        .join("&");
 
-    return fetch(url, opts).then(res => res.json()
-                                           .then(j => ({ object: j, res: res })))
-                           .then(({object, res}) => {
-      if (res.ok) return object;
-      throw new Error(object.detail || res.statusText);
+    return fetch(url, opts)
+             .then(res => res.text().then(t => ({text: t, res: res})))
+             .then(({text, res}) => {
+      let obj = text.length === 0 ? null : JSON.parse(text);
+      if (res.ok) return obj;
+      throw new Error((obj ? obj.detail : null) || res.statusText);
     });
   }
 

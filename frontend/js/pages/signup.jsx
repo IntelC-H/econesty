@@ -18,11 +18,10 @@ const Signup = props => // eslint-disable-line no-unused-vars
     onSubmit={saveFormTo(API.user, u => {
       API.token.create({username: u.username,
                         password: u.password})
-               .catch(console.log)
                .then(tok => {
-        API.setToken(tok.key);
-        Router.push("/user/me");
-      });
+                 API.setToken(tok.key);
+                 Router.push("/user/me");
+               });
     })}>
     <Labelled label="First Name">
       <Input text required name="first_name" />

@@ -40,7 +40,7 @@ const sizingClasses = (baseClass, props) => {
   }
 
   return classes;
-}
+};
 
 // makes a component that assigns props to additional classes
 // BaseComponent => Either a function that takes props and returns

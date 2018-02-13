@@ -26,9 +26,29 @@ class PaginationHelperMixin(object):
     return self.get_paginated_response(
       serializer_p(
         transform(self.paginate_queryset(queryset) or queryset),
-        many=True
+        many=True,
+        context=self.get_serializer_context()
       ).data
     )
+
+  def unpaginated_response(self, queryset, serializer = None, transform = (lambda x: x)):
+    serializer_p = serializer or getattr(type(self), "serializer_class")
+    queryset_p = transform(queryset)
+    return Response({
+      'count': queryset_p.count(),
+      'results': serializer_p(
+                   queryset_p,
+                   many=True,
+                   context=self.get_serializer_context()).data
+    })
+
+  def signleton_response(self, queryset, serializer = None):
+    serializer_p = serializer or getattr(type(self), "serializer_class")
+    return Response(
+             serializer_p(
+               queryset,
+               many=False,
+               context=self.get_serializer_context()).data)
 
 # TODO: set nested
 class AuthOwnershipMixin(object):

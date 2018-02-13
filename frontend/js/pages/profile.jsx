@@ -32,7 +32,7 @@ function TransactionCollectionBody({ collectionView }) {
                 {obj.id}
               </td>
               <td>
-                <span>BTC {obj.amount}</span>
+                <span>BTC {parseFloat(obj.amount)}</span>
               </td>
               <td>
                 <BriefUserInfo user={obj.buyer} />

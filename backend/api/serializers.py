@@ -91,6 +91,7 @@ class TransactionSerializer(BaseSerializer):
   seller_id = writing_field(amodels.User, "seller")
   seller_wallet = WalletSerializer(read_only=True)
   seller_wallet_id = writing_field(models.Wallet, "seller_wallet", required=False)
+  completed = serializers.ReadOnlyField()
 
   class Meta:
     model = models.Transaction
@@ -98,8 +99,7 @@ class TransactionSerializer(BaseSerializer):
     extra_kwargs = {
       'id': {'read_only': True},
       'created_at': {'read_only': True},
-      'success': {'read_only': True},
-      'completed': {'read_only': True}
+      'success': {'read_only': True}
     }
 
 class RequirementSerializer(BaseSerializer):

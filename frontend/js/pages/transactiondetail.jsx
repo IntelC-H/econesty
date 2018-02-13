@@ -1,8 +1,14 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Grid, GridUnit, Money, Table } from 'app/components/elements';
+import { Grid, GridUnit, Table, Labelled, Button } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
+import { Form, FormGroup, Select, Input } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 import { API } from 'app/api';
+
+function makeWalletsPromise() {
+  return API.user.append("/" + API.getUserID() + "/all_wallets")
+                 .list(-1).then(({ results }) => results);
+}
 
 function UserLink({ user }) {
   return (
@@ -16,10 +22,52 @@ function UserLink({ user }) {
 
 function TransactionInfo({ elementView }) {
   let t = elementView.getElement();
+
+  console.log("TRANSACTION VIEW", t, API.getUserID());
+
+  let needsSellerWallet = t.seller_wallet === null || t.seller_wallet === undefined;
+  let needsBuyerWallet = t.buyer_wallet === null || t.buyer_wallet === undefined;
+  let isBuyer = t.buyer.id === API.getUserID();
+  let isSeller = t.seller.id === API.getUserID();
+
+  console.log(typeof(API.getUserID()));
+  console.log("needsSellerWallet", needsSellerWallet);
+  console.log("needsBuyerWallet", needsBuyerWallet);
+  console.log("isBuyer", isBuyer);
+  console.log("isSeller", isSeller);
+
   return (
     <div className="center">
       <h1>Transaction #{t.id}{t.completed ? "" : " (INCOMPLETE)"}</h1>
-      <h2 className="secondary"><UserLink user={t.seller} /> is transferring BTC {t.amount} to <UserLink user={t.buyer}/></h2>
+      <h2 className="secondary"><UserLink user={t.seller} /> is transferring BTC {parseFloat(t.amount)} to <UserLink user={t.buyer}/></h2>
+
+      {needsSellerWallet && isSeller && <Form aligned onSubmit={elementView.updateElement}>
+        <FormGroup>
+          <Input hidden name="id" value={t.id} />
+          <Labelled label="Seller's Wallet">
+            <Select
+              options={makeWalletsPromise}
+              name="seller_wallet_id"
+              transform={w => w.id}
+              faceTransform={w => w.private_key} />
+          </Labelled>
+          <Button action="submit">SAVE WALLET</Button>
+        </FormGroup>
+      </Form>}
+
+      {needsBuyerWallet && isBuyer && <Form aligned onSubmit={elementView.updateElement}>
+        <FormGroup>
+          <Input hidden name="id" value={t.id} />
+          <Labelled label="Buyer's Wallet">
+            <Select
+              options={makeWalletsPromise}
+              name="buyer_wallet_id"
+              transform={w => w.id}
+              faceTransform={w => w.private_key} />
+          </Labelled>
+        </FormGroup>
+      </Form>}
+
     </div>
   );
 }

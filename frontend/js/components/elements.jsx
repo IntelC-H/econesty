@@ -35,6 +35,8 @@ const GridUnit = cssSubclass('div', {}, 'pure-u', true);
 
 const Loading = inheritClass('div', 'loading');
 
+const DeleteButton = inheritClass('a', 'form-delete-button fa fa-times');
+
 const ErrorDisplay = props => <div className="error"><p>{props.message}</p></div>;
 
 ErrorDisplay.propTypes = { message: PropTypes.string.isRequired };
@@ -68,27 +70,6 @@ Resource.defaultProps = {
   showsLoading: true
 };
 
-function _toCurrencySymbol(curr) {
-  if (curr === 'USD') return '$';
-  if (curr === 'EUR') return '€';
-  if (curr === 'JPY') return '¥';
-  if (curr === 'GBP') return '£';
-  // TODO: more
-  return null;
-}
-
-const Money = props => <span>{_toCurrencySymbol(props.currency.toUpperCase()) || props.currency}{props.value}</span>;
-
-Money.propTypes = {
-  currency: PropTypes.string,
-  value: PropTypes.number
-};
-
-Money.defaultProps = {
-  currency: "USD",
-  value: 0.00
-};
-
 const Labelled = props => {
   const { label, children, ...filteredProps } = props;
   filteredProps.className = makeClassName(filteredProps.className, "labelled");
@@ -104,7 +85,7 @@ const Labelled = props => {
   );
 };
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, ErrorDisplay, Resource, Money, Labelled };
+export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, ErrorDisplay, Resource, Labelled, DeleteButton };
 
 export default {
   Image: Image,
@@ -121,6 +102,6 @@ export default {
   Loading: Loading,
   ErrorDisplay: ErrorDisplay,
   Resource: Resource,
-  Money: Money,
-  Labelled: Labelled
+  Labelled: Labelled,
+  DeleteButton: DeleteButton
 };

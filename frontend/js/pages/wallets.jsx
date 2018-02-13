@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Button, Grid, GridUnit } from 'app/components/elements';
+import { Button, Grid, GridUnit, DeleteButton, Labelled } from 'app/components/elements';
 import { Form, Input, FormGroup } from 'app/components/forms';
 import { API } from 'app/api';
 import { CollectionView, CollectionCreation } from 'app/components/api';
@@ -10,8 +10,7 @@ class Wallet extends Component {
   render({ wallet, onSubmit }) {
     return (
       <div>
-        <p>Address: {wallet.address}</p>
-        <Form key={wallet.id || "createwallet"} onSubmit={onSubmit}>
+        <Form onSubmit={onSubmit}>
           <Input hidden name="user_id" value={wallet.user.id || API.getUserID()}/>
           <FormGroup>
             <Input text required
@@ -32,21 +31,43 @@ Wallet.propTypes = {
 };
 
 Wallet.defaultProps = {
-  wallet: {},
+  wallet: {user:{}},
   onSubmit: () => null
 };
 
 function WalletCreateForm({ collectionView }) {
-  return <Wallet onSubmit={collectionView.saveElement} />;
+  return (
+    <div>
+      <Form onSubmit={collectionView.saveElement}>
+        <Input hidden name="user_id" value={API.getUserID()}/>
+        <FormGroup>
+          <Input text required
+                 name="private_key"
+                 placeholder="WIF-formatted Bitcoin private key" />
+        </FormGroup>
+        <Button action="submit">Save</Button>
+      </Form>
+    </div>
+  );
 }
 
 function WalletCollectionBody({ collectionView }) {
   return (
     <div>
       {collectionView.getElements().map(w =>
-         <Wallet
-           wallet={w}
-           onSubmit={collectionView.saveElement} /> )}
+         <div>
+            <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
+            <Form>
+              <FormGroup>
+                <Labelled label="Address">
+                  <Input text disabled={true} value={w.address} />
+                </Labelled>
+                <Labelled label="Private Key">
+                  <Input text disabled={true} value={w.private_key} />
+                </Labelled>
+              </FormGroup>
+            </Form>
+         </div>)}
     </div>
   );
 }

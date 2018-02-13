@@ -48,6 +48,13 @@ class UserViewSet(EconestyBaseViewset):
       serializer = serializers.TransactionSerializer
     )
 
+  @detail_route(methods=["GET"], permission_classes=[Sensitive])
+  def all_wallets(self, request, pk = None):
+    return self.unpaginated_response(
+      models.Wallet.objects.filter(user__id=pk),
+      serializer = serializers.WalletSerializer
+    )
+
 class TransactionViewSet(EconestyBaseViewset):
   serializer_class = serializers.TransactionSerializer
   queryset = models.Transaction.objects.all()

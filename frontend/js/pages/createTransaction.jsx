@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Button, Grid, GridUnit, Labelled } from 'app/components/elements';
-import { Form, FormGroup, Input } from 'app/components/forms';
+import { Button, Grid, GridUnit, Labelled, DeleteButton } from 'app/components/elements';
+import { Form, FormGroup, Input, Select } from 'app/components/forms';
 
 import { CollectionView, CollectionCreation } from 'app/components/api';
 import { API, DummyAPICollection } from 'app/api';
@@ -31,10 +31,7 @@ function RequirementCollection({ collectionView }) {
    <div>
    {rs.map(r =>
        <Form aligned onSubmit={collectionView.saveElement}>
-         <a
-           className="form-delete-button fa fa-times"
-           onClick={() => collectionView.deleteElement(r.id)}
-         />
+         <DeleteButton onClick={() => collectionView.deleteElement(r.id)} />
          <FormGroup>
            {r.id !== null && r.id !== undefined && <Input hidden name="id" value={r.id} /> }
            <Labelled label="Terms">
@@ -59,6 +56,12 @@ class CreateTransaction extends Component {
     this.state = {};
     this.onSubmit = this.onSubmit.bind(this);
     this.dummyCollection = new DummyAPICollection();
+    this.makeWalletsPromise = this.makeWalletsPromise.bind(this);
+  }
+
+  makeWalletsPromise() {
+    return API.user.append("/" + API.getUserID() + "/all_wallets")
+                   .list(-1).then(({ results }) => results);
   }
 
   onSubmit(obj) {
@@ -69,19 +72,15 @@ class CreateTransaction extends Component {
       return r;
     });
 
-    console.log("CREATING", obj);
-
     API.transaction.create(obj)
-                   .catch(console.log)
-                   .then(t => {
-                     console.log("CREATED: ", t);
-                     return Router.replace(API.transaction.baseURL + t.id);});
+                   .then(t => Router.replace(API.transaction.baseURL + t.id));
   }
 
   render({ matches }) {
     let act = matches.action;
-    let buyer_id = act === "buy" ? API.getUserID() : parseInt(matches.id);
-    let seller_id = act === "buy" ? parseInt(matches.id) : API.getUserID();
+    let isBuyer = act === "buy";
+    let buyer_id = isBuyer ? API.getUserID() : parseInt(matches.id);
+    let seller_id = isBuyer ? parseInt(matches.id) : API.getUserID();
 
     return (
       <Grid>
@@ -95,7 +94,13 @@ class CreateTransaction extends Component {
             <Input hidden name="buyer_id" value={buyer_id} />
             <Input hidden name="seller_id" value={seller_id} />
 
-            {/* TODO: wallet selection */}
+            <Labelled label="Your Wallet">
+              <Select
+                options={this.makeWalletsPromise}
+                name={isBuyer ? "buyer_wallet_id" : "seller_wallet_id"}
+                transform={w => w.id}
+                faceTransform={w => w.private_key} />
+            </Labelled>
 
             <Labelled label="How much?">
               <Input number required name="amount" step="0.0001" min="0" cols="7" />

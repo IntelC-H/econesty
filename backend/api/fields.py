@@ -37,6 +37,7 @@ class RedactableField(serializers.Field):
   def should_redact(self, instance, context = None):
     if self.user_field and self.parent:
       request = (context or self.context).get("request")
+      print(request)
       if request and hasattr(request, "user"):
         user = get_attribute(instance, self.user_field.split("."))
         return not request.user.id is user.id

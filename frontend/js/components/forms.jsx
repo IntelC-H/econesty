@@ -1,5 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
+import { Loading } from 'app/components/elements';
 import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
 
 function prependFunc(obj, fname, newf) {
@@ -226,7 +227,6 @@ class Input extends FormElement {
   }
 
   onInput(e) {
-    console.log("onInput", e.target);
     const inpt = e.target;
     if (inpt.type === "checkbox")     this.value = inpt.checked || false;
     else if (!inpt.value)             this.value = undefined;
@@ -314,30 +314,58 @@ Input.defaultProps = {
 class Select extends FormElement {
   constructor(props) {
     super(props);
-    let optVal = props.options.length > 0 ? props.options[0] : null;
-    this.state = { value: props.value || optVal };
+    this.state = {
+      value: props.value || !this.isAsync && props.options.length > 0 ? props.transform(props.options[0]) : null,
+      loading: false,
+      options: this.isAsync ? [] : props.options
+    };
   }
 
-  render() {
-    const { value, options, className, ...filteredProps } = this.props;
+  get isAsync() {
+    return typeof this.props.options === "function";
+  }
+
+  componentWillMount() {
+    if (this.isAsync) {
+      if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
+        this.props.options().then(es => {
+          this.setState(st => ({ ...st,
+                                 loading: false,
+                                 value: es.length > 0 && st.value !== null && st.value !== undefined ? st.value : this.props.transform(es[0]),
+                                 options: es}));
+      });
+    }
+  }
+
+  render(props, { loading }) {
+    if (this.isAsync && loading) return <Loading />;
+
+    const { transform, faceTransform, value, options, className, ...filteredProps } = props;
 
     prependFunc(filteredProps, "onChange", this.onInput);
     filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
-    filteredProps.children = options.map(s => <option
-                                                selected={s === value}
-                                                key={filteredProps.name + '-' + s}
-                                                value={s}>{s}</option>);
+    filteredProps.children = this.state.options.map(s => {
+      let sprime = transform(s);
+      return <option
+               selected={sprime === value}
+               key={filteredProps.name + '-' + s}
+               value={sprime}>{faceTransform(s)}</option>;
+    });
     return h('select', filteredProps);
   }
 }
 
 Select.propTypes = {
   ...FormElement.propTypes,
-  options: PropTypes.arrayOf(PropTypes.string)
+  options: PropTypes.arrayOf(PropTypes.string),
+  transform: PropTypes.func, // transform the value for the form
+  faceTransform: PropTypes.func // transform the value for display
 };
 
 Select.defaultProps = {
-  ...FormElement.defaultProps
+  ...FormElement.defaultProps,
+  transform: x => x,
+  faceTransform: x => x
 };
 
 export { Form, FormGroup, FormElement, Select, Input };
