@@ -86,11 +86,11 @@ class TransactionSerializer(BaseSerializer):
   buyer = UserSerializer(read_only=True)
   buyer_id = writing_field(amodels.User, "buyer")
   buyer_wallet = WalletSerializer(read_only=True)
-  buyer_wallet_id = writing_field(models.Wallet, "buyer_wallet", required=False)
+  buyer_wallet_id = writing_field(models.Wallet, "buyer_wallet", required=False, allow_null=True)
   seller = UserSerializer(read_only=True)
   seller_id = writing_field(amodels.User, "seller")
   seller_wallet = WalletSerializer(read_only=True)
-  seller_wallet_id = writing_field(models.Wallet, "seller_wallet", required=False)
+  seller_wallet_id = writing_field(models.Wallet, "seller_wallet", required=False, allow_null=True)
   completed = serializers.ReadOnlyField()
 
   class Meta:
@@ -107,14 +107,14 @@ class RequirementSerializer(BaseSerializer):
   user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
   transaction_id = writing_field(models.Transaction, "transaction", required=False)
+  fulfilled = serializers.ReadOnlyField()
 
   class Meta:
     model = models.Requirement
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True},
-      'created_at': {'read_only': True},
-      'fulfilled': {'read_only': True}
+      'created_at': {'read_only': True}
     }
 
 class TransactionSerializerWithRequirements(TransactionSerializer):
