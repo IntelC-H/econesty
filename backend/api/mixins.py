@@ -60,26 +60,19 @@ class EconestyBaseViewset(PaginationHelperMixin,
 
   def on_create(self, request, obj):
     pass
-
-  def on_destroy(self, request, obj):
-    pass
   
   def create(self, request):
     v = super().create(request)
-    self.on_create(request, v)
+    self.on_create(request, v.data["id"])
     return v
 
   def update(self, request, pk = None):
     v = super().update(request, pk)
-    self.on_update(request, v, False)
+    self.on_update(request, pk, False)
     return v
 
   def partial_update(self, request, pk = None):
-    v = super().partial_update(request, pk)
-    self.on_update(request, v, True)
+    v = super().update(request, pk, partial=True)
+    self.on_update(request, pk, True)
     return v
 
-  def destroy(self, request, pk = None):
-    v = super().destroy(request, pk)
-    self.on_destroy(request, v)
-    return v

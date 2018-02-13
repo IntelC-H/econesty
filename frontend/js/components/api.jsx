@@ -47,7 +47,6 @@ class CollectionView extends Component {
     });
   }
 
-  // FIXME: something is fundamentally wrong...
   saveElement(object) {
     const { id, ...xs } = object;
     if (id !== null && id !== undefined) this.updateElement(id, xs);
@@ -100,8 +99,6 @@ class CollectionView extends Component {
     this.reloadData();
   }
 
-  // TODO: make sure the className of the loading matches
-  // the behavior of Higher.asyncCollection
   render({ className, children, ...props}, state) {
     if (state.loading) return <Loading
                                 className={(className || "") + " collection"} />;

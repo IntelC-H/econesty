@@ -49,7 +49,7 @@ class UserViewSet(EconestyBaseViewset):
     )
 
 class TransactionViewSet(EconestyBaseViewset):
-  serializer_class = serializers.TransactionSerializerWithRequrements
+  serializer_class = serializers.TransactionSerializer
   queryset = models.Transaction.objects.all()
   filter_backends = (
     filters.OrderingFilter,
@@ -61,13 +61,20 @@ class TransactionViewSet(EconestyBaseViewset):
   filter_fields = ('amount','success',)
   user_fields = ('buyer','seller',)
 
-  def on_create(self, request, transaction):
-    if transaction.is_completed:
+  def get_serializer_class(self):
+    if self.action in ["create", "update", "partial_update"]:
+      return serializers.TransactionSerializerWithRequirements
+    return super().get_serializer_class()
+
+  def on_create(self, request, pk):
+    transaction = self.get_queryset().get(id=pk)
+    if transaction.completed:
       transaction.finalize()
 
-  def on_update(self, request, requirement, partial):
-    if requirement.transaction.is_completed:
-      requirement.transaction.finalize()
+  def on_update(self, request, pk, partial):
+    transaction = self.get_queryset().get(id=pk)
+    if transaction.completed:
+      transaction.finalize()
 
   # TODO: hook into create and update and call finalize
 
@@ -103,12 +110,14 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   ordering = "-created_at"
   user_fields = ('user','transaction__buyer','transaction__seller',)
 
-  def on_create(self, request, requirement):
-    if requirement.transaction.is_completed:
+  def on_create(self, request, pk):
+    requirement = self.get_queryset().get(id=pk)
+    if requirement.transaction.completed:
       requirement.transaction.finalize()
 
-  def on_update(self, request, requirement, partial):
-    if requirement.transaction.is_completed:
+  def on_update(self, request, pk, partial):
+    requirement = self.get_queryset().get(id=pk)
+    if requirement.transaction.completed:
       requirement.transaction.finalize()
 
 class TokenViewSet(WriteOnlyViewset):

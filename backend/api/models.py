@@ -59,27 +59,27 @@ class Transaction(BaseModel):
   seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_seller")
   buyer_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_buyer_wallet")
   seller_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_wallet")
-  amount = models.DecimalField(max_digits=11, decimal_places=2)
+  amount = models.DecimalField(max_digits=11, decimal_places=8)
   success = models.BooleanField(default=False) # Whether or not the transaction
                                                # succeeded - i.e. payment went
                                                # through.
 
   @property
-  def is_completed(self):
+  def completed(self):
     if not self.buyer_wallet or not self.seller_wallet:
       return False
 
     # TODO: optimization: use query, not python for this
     rqs = Requirement.objects.filter(transaction__id=self.id)
     for req in rqs:
-      if not req.is_fulfilled:
+      if not req.fulfilled:
         return False
     return True
 
   def finalize(self):
-    self.buyer_wallet.private_key.send([
-      (self.seller_wallet.private_key.address, self.amount, 'btc')
-    ])
+    # self.buyer_wallet.private_key.send([
+    #   (self.seller_wallet.private_key.address, self.amount, 'btc')
+    # ])
     # An error will be raised here if there's a problem, and success will
     # never set to True
     self.success = True
@@ -93,6 +93,6 @@ class Requirement(BaseModel):
   acknowledged = models.BooleanField(default=False)
 
   @property
-  def is_fulfilled(self):
+  def fulfilled(self):
     return self.acknowledged and bool(self.signature)
 

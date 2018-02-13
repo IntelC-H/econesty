@@ -86,12 +86,11 @@ class TransactionSerializer(BaseSerializer):
   buyer = UserSerializer(read_only=True)
   buyer_id = writing_field(amodels.User, "buyer")
   buyer_wallet = WalletSerializer(read_only=True)
-  buyer_wallet_id = writing_field(models.Wallet, "buyer_wallet")
+  buyer_wallet_id = writing_field(models.Wallet, "buyer_wallet", required=False)
   seller = UserSerializer(read_only=True)
   seller_id = writing_field(amodels.User, "seller")
   seller_wallet = WalletSerializer(read_only=True)
-  seller_wallet_id = writing_field(models.Wallet, "seller_wallet")
-  completed = serializers.ReadOnlyField(source='is_completed')
+  seller_wallet_id = writing_field(models.Wallet, "seller_wallet", required=False)
 
   class Meta:
     model = models.Transaction
@@ -99,7 +98,8 @@ class TransactionSerializer(BaseSerializer):
     extra_kwargs = {
       'id': {'read_only': True},
       'created_at': {'read_only': True},
-      'success': {'read_only': True}
+      'success': {'read_only': True},
+      'completed': {'read_only': True}
     }
 
 class RequirementSerializer(BaseSerializer):
@@ -107,22 +107,30 @@ class RequirementSerializer(BaseSerializer):
   user_id = writing_field(amodels.User, "user")
   transaction = TransactionSerializer(many=False, read_only=True)
   transaction_id = writing_field(models.Transaction, "transaction", required=False)
-  fulfilled = serializers.ReadOnlyField(source='is_fulfilled')
 
   class Meta:
     model = models.Requirement
     fields = '__all__'
     extra_kwargs = {
       'id': {'read_only': True},
-      'created_at': {'read_only': True}
+      'created_at': {'read_only': True},
+      'fulfilled': {'read_only': True}
     }
 
-class TransactionSerializerWithRequrements(TransactionSerializer):
+class TransactionSerializerWithRequirements(TransactionSerializer):
   requirements = RequirementSerializer(required=False, many=True)
 
   def create(self, validated_data):
-    reqs_data = validated_data.pop('requirements') if "requirements" in validated_data else []
-    trans = models.Transaction.objects.create(**validated_data)
+    reqs_data = validated_data.pop('requirements', [])
+    trans = super().create(validated_data)
+    for req_data in reqs_data:
+      req_data["transaction_id"] = trans.id
+      models.Requirement.objects.create(**req_data)
+    return trans
+
+  def update(self, instance, validated_data):
+    reqs_data = validated_data.pop('requirements', [])
+    trans = super().update(instance, validated_data)
     for req_data in reqs_data:
       req_data["transaction_id"] = trans.id
       models.Requirement.objects.create(**req_data)

@@ -7,22 +7,24 @@ import { Form, Input, syntheticSubmit } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 
 function RequirementRow({ collectionView, element }) {
+  let form = null;
   return (
     <tr>
       <td>{element.text}</td>
       <td>
         <Form key={element.id + "-ack"}
               id={element.id + "-ack"}
-              onSubmit={collectionView.saveElement}>
-          <Input checkbox required={element.acknowledgment_required}
+              ref={e => form = e}
+              onSubmit={obj => collectionView.updateElement(element.id, obj)}>
+          <Input checkbox
                           disabled={element.acknowledged}
-                          onInput={syntheticSubmit(element.id + "-ack")}
+                          onClick={() => form.submit()}
                           name="acknowledged" value={element.acknowledged}/>
         </Form>
       </td>
       <td>
         <Form key={element.id + "-sig"} onSubmit={obj => collectionView.updateElement(element.id, obj)}>
-          <Input text required={element.signature_required}
+          <Input text
                  disabled={Boolean(element.signature)}
                  name="signature" value={element.signature}/>
           {!Boolean(element.signature) &&

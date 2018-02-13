@@ -19,7 +19,7 @@ function TransactionInfo({ elementView }) {
   return (
     <div className="center">
       <h1>Transaction #{t.id}{t.completed ? "" : " (INCOMPLETE)"}</h1>
-      <h2 className="secondary"><UserLink user={t.seller} /> is transferring <Money currency={t.currency} value={t.offer} /> to <UserLink user={t.buyer}/> via {t.buyer_payment_data.kind}</h2>
+      <h2 className="secondary"><UserLink user={t.seller} /> is transferring BTC {t.amount} to <UserLink user={t.buyer}/></h2>
     </div>
   );
 }

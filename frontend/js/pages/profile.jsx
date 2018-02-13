@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Link, Router } from 'app/components/routing';
 import { API } from 'app/api';
 
-import { Button, Grid, GridUnit, Image, Money, Table } from 'app/components/elements';
+import { Button, Grid, GridUnit, Image, Table } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
 import { Form, FormGroup, Input } from 'app/components/forms';
 
@@ -23,7 +23,7 @@ function TransactionCollectionBody({ collectionView }) {
     <div className="collection">
       <Table striped horizontal>
         <thead>
-          <tr><th>#</th><th>Offer</th><th>Buyer</th><th>Seller</th></tr>
+          <tr><th>#</th><th>Amount</th><th>Buyer</th><th>Seller</th></tr>
         </thead>
         <tbody>
           {collectionView.getElements().map(obj =>
@@ -32,9 +32,7 @@ function TransactionCollectionBody({ collectionView }) {
                 {obj.id}
               </td>
               <td>
-                <Money
-                  currency={obj.offer_currency}
-                  value={parseFloat(obj.offer)} />
+                <span>BTC {obj.amount}</span>
               </td>
               <td>
                 <BriefUserInfo user={obj.buyer} />

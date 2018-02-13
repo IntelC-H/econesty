@@ -109,6 +109,59 @@ class API {
   }
 }
 
+class DummyAPICollection {
+  constructor() {
+    this.elements = {};
+    this.currentID = 1;
+    // when not commented, CreateTransaction setting requirements works.
+    //this.getElements = this.getElements.bind(this);
+  }
+
+  getElements() {
+    return Object.values(this.elements);
+  }
+
+  create(body) {
+    let withID = { ...body, id: this.currentID };
+    this.elements[this.currentID] = withID;
+    this.currentID += 1;
+    return new Promise((resolve, reject) => resolve(withID)); // eslint-disable-line no-unused-vars
+  }
+
+  read(id) {
+    return new Promise((resolve, reject) => resolve(this.elements[id])); // eslint-disable-line no-unused-vars
+  }
+
+  list(page) {
+    let zeroPage = page - 1;
+    let allElements = this.getElements();
+    return new Promise((resolve, reject) => resolve({ // eslint-disable-line no-unused-vars
+      previous: page <= 1 ? null : page - 1,
+      next: page >= Math.floor(allElements.length / 10) ? null : page + 1,
+      page: page,
+      count: allElements.length,
+      results: allElements.slice(zeroPage, zeroPage + 10)
+    }));
+  }
+
+  update(id, body = null) {
+    this.elements[id] = { ...this.elements[id], ...body || {} };
+    return new Promise((resolve, reject) => resolve(this.elements[id])); // eslint-disable-line no-unused-vars
+  }
+
+  delete(id) {
+    let v = this.elements[id];
+    delete this.elements[id];
+    return new Promise((resolve, reject) => resolve(v)); // eslint-disable-line no-unused-vars
+  }
+
+  save(body) {
+    const { id, ...filteredBody } = body;
+    if (id !== null && id !== undefined) return this.create(body);
+    return this.update(id, filteredBody);
+  }
+}
+
 // Represents a collection in your REST API.
 class APICollection {
   constructor(resource, urlParams = {}) {
@@ -198,6 +251,7 @@ class APIActionCollection extends APICollection {
 export {
   API,
   APICollection,
+  DummyAPICollection,
   APIActionCollection
 }
 export default API;

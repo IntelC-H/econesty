@@ -1,100 +1,88 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Loading, ErrorDisplay, Button, Grid, GridUnit, Labelled } from 'app/components/elements';
-import { Form, FormGroup, Input, Select } from 'app/components/forms';
+import { Button, Grid, GridUnit, Labelled } from 'app/components/elements';
+import { Form, FormGroup, Input } from 'app/components/forms';
 
-import { API } from 'app/api';
+import { CollectionView, CollectionCreation } from 'app/components/api';
+import { API, DummyAPICollection } from 'app/api';
 import SearchField from 'app/components/searchfield';
 import { Router } from 'app/components/routing';
+
+function RequirementCreationForm({ collectionView }) {
+  return (
+    <Form aligned onSubmit={collectionView.saveElement}>
+      <FormGroup>
+        <Labelled label="Terms">
+          <Input text name="text" />
+        </Labelled>
+        <Labelled label="User">
+          <SearchField name="user"
+                       api={API.user}
+                       component={props => props.element.username} />
+        </Labelled>
+      </FormGroup>
+      <Button action="submit">CREATE</Button>
+    </Form>
+  );
+}
+
+function RequirementCollection({ collectionView }) {
+  let rs = collectionView.getElements();
+  return (
+   <div>
+   {rs.map(r =>
+       <Form aligned onSubmit={collectionView.saveElement}>
+         <a
+           className="form-delete-button fa fa-times"
+           onClick={() => collectionView.deleteElement(r.id)}
+         />
+         <FormGroup>
+           {r.id !== null && r.id !== undefined && <Input hidden name="id" value={r.id} /> }
+           <Labelled label="Terms">
+             <Input text name="text" value={r.text} />
+           </Labelled>
+           <Labelled label="User">
+             <SearchField name="user"
+                          api={API.user}
+                          value={r.user}
+                          component={props => props.element.username} />
+           </Labelled>
+         </FormGroup>
+         <Button action="submit">SAVE</Button>
+       </Form>)}
+    </div>
+  );
+}
 
 class CreateTransaction extends Component {
   constructor(props) {
     super(props);
-    this.formEl = null;
+    this.state = {};
     this.onSubmit = this.onSubmit.bind(this);
-    this.state = { hiddens: null, error: null, reqs: [] };
-    this.setState = this.setState.bind(this);
-    this.renderForm = this.renderForm.bind(this);
-    this.addRequirement = this.addRequirement.bind(this);
+    this.dummyCollection = new DummyAPICollection();
   }
 
-  get isBuyer() {
-    return this.props.matches.action === "buy";
-  }
-
-  get isSeller() {
-    return this.props.matches.action === "sell";
-  }
-
-  get otherId() {
-    return parseInt(this.props.matches.id);
-  }
-
-  componentDidMount() {
-    if (!this.state.hiddens) {
-      API.user.payment(this.otherId).catch(e => this.setState(st => {
-        return Object.assign({}, st, { error: e });
-      })).then(res => {
-        const isBuyer = this.isBuyer;
-
-        var me = res.me.user;
-        var them = res.them.user;
-        var payment = res;
-
-        this.setState(st => Object.assign({}, st, {
-          hiddens: {
-            buyer_id: isBuyer ? me.id : them.id,
-            buyer_payment_data_id: isBuyer ? payment.me.id : payment.them.id,
-            seller_id: isBuyer ? them.id : me.id,
-            seller_payment_data_id: isBuyer ? payment.them.id : payment.me.id
-          }
-        }));
-      });
-    }
-  }
-
-  // TODO: submit requirements with transaction
   onSubmit(obj) {
-    const objCopy = Object.assign({}, obj);
-    let requirements = objCopy.requirements;
-    if (requirements) {
-      requirements.forEach(r => {
-        r.user_id = (r.user || {}).id || null;
-        delete r.user;
-      });
-    }
-
-    delete objCopy.requirements;
-
-    const logic = transaction => {
-      // TODO: catch errors on creating requirements
-      const rs = requirements.map(r => ({...r, transaction_id: transaction.id}));
-
-      Promise.all(rs.map(r => API.requirement.create(r))).then(rs => {
-        transaction.requirements = rs;
-        this.setState(st => Object.assign({}, st, { object: transaction }));
-        Router.replace("/transaction/" + transaction.id);
-      });
-    };
-
-    API.transaction.create(objCopy)
-                   .then(logic)
-                   .catch(e => this.setState(st => ({...st, error: e })));
-  }
-
-  addRequirement() {
-    this.setState(st => ({...st, reqs: st.reqs.concat([Math.random()]) }));
-  }
-
-  deleteRequirementAtIndex(idx) {
-    this.setState(st => {
-      var ary = st.reqs.slice();
-      ary.splice(idx, 1);
-      return { ...st, reqs: ary };
+    obj.requirements = this.dummyCollection.getElements().map(r => {
+      r.user_id = (r.user || {}).id || null;
+      delete r.user;
+      delete r.id;
+      return r;
     });
+
+    console.log("CREATING", obj);
+
+    API.transaction.create(obj)
+                   .catch(console.log)
+                   .then(t => {
+                     console.log("CREATED: ", t);
+                     return Router.replace(API.transaction.baseURL + t.id);});
   }
 
-  renderForm(values) {
-    const currencies = ["USD", "EUR", "JPY", "GBP"];
+  render({ matches }) {
+    let act = matches.action;
+    let buyer_id = act === "buy" ? API.getUserID() : parseInt(matches.id);
+    let seller_id = act === "buy" ? parseInt(matches.id) : API.getUserID();
+
     return (
       <Grid>
         <GridUnit size="1" sm="4-24"/>
@@ -103,61 +91,27 @@ class CreateTransaction extends Component {
             <h3>Create a Transaction</h3>
             <p>This is the page you use to create a transaction.</p>
           </div>
-
           <Form aligned onSubmit={this.onSubmit}>
-            <Input hidden name="requirements" value={[]} />
-            <Input hidden
-                   name="requirements.length"
-                   value={this.state.reqs.length}
-                   key={this.state.reqs.length}/>
-            <Input hidden name="buyer_id" value={values.buyer_id} />
-            <Input hidden name="buyer_wallet_id" value={values.buyer_wallet_id} />
-            <Input hidden name="seller_id" value={values.seller_id} />
-            <Input hidden name="seller_wallet_id" value={values.seller_wallet_id} />
+            <Input hidden name="buyer_id" value={buyer_id} />
+            <Input hidden name="seller_id" value={seller_id} />
+
+            {/* TODO: wallet selection */}
 
             <Labelled label="How much?">
-              <Select options={currencies} name="offer_currency" />
-              <Input number required name="offer" step="0.01" min="0" cols="6" />
+              <Input number required name="amount" step="0.0001" min="0" cols="7" />
             </Labelled>
-
-            {this.state.reqs.map((r, idx) =>
-              <div>
-                <a
-                   className="form-delete-button fa fa-times"
-                   onClick={() => this.deleteRequirementAtIndex(idx)}
-                />
-                <FormGroup key={r} keypath={"requirements." + idx}>
-                  <Labelled label="Terms">
-                    <Input text name="text" />
-                  </Labelled>
-                  <Labelled label="User">
-                    <SearchField name="user"
-                                 api={API.user}
-                                 component={props => props.element.username} />
-                  </Labelled>
-                  <Input checkbox
-                         name="signature_required"
-                         placeholder="Require a signature" />
-                  <Input checkbox
-                         name="acknowledgment_required"
-                         placeholder="Require acknowledgment" />
-                </FormGroup>
-              </div>
-            )}
-
-            <Button type="button" onClick={this.addRequirement}>+ Requirement</Button>
-            <Button action="submit">{this.isBuyer ? "BUY" : "SELL"}</Button>
+            <CollectionView collection={this.dummyCollection}>
+              <CollectionCreation createText="+ Requirement">
+                <RequirementCreationForm />
+              </CollectionCreation>
+              <RequirementCollection />
+            </CollectionView>
+            <Button action="submit">CREATE</Button>
           </Form>
-          <GridUnit size="1" sm="4-24"/>
         </GridUnit>
+        <GridUnit size="1" sm="4-24"/>
       </Grid>
     );
-  }
-
-  render(props, { hiddens, error }) {
-    if (error) return <ErrorDisplay message={error.message}/>;
-    if (!hiddens) return <Loading/>;
-    return this.renderForm(hiddens);
   }
 }
 

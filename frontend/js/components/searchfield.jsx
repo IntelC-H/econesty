@@ -131,7 +131,7 @@ class SearchField extends FormElement {
               className="inline"
               href={api.baseURL + this.value.id}
               target="_blank">
-              {h(component, { object: this.value })}
+              {h(component, { element: this.value })}
             </Link>
           </span>}
         { !showsObject && hasSearch &&

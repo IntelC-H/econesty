@@ -38,13 +38,12 @@ class ReferencingComponent extends Component {
   }
 
   reference(cmp) {
+    if (!this.refs) this.refs = [];
     if (cmp) {
       if (this.shouldReference(cmp)) {
         if (!this.refs) this.refs = [cmp];
         else            this.refs.push(cmp);
       }
-    } else {
-      this.refs = [];
     }
   }
 
@@ -61,6 +60,7 @@ class ReferencingComponent extends Component {
       }
       if (c.children) c.children.forEach(this.recursiveRef);
     }
+    return c;
   }
 
   makeReferences(children = this.props.children) {
@@ -74,6 +74,10 @@ class Form extends ReferencingComponent {
     this.set = this.set.bind(this);
     this.getObject = this.getObject.bind(this);
     this.domOnSubmit = this.domOnSubmit.bind(this);
+  }
+
+  submit() {
+    this.base.dispatchEvent(new Event("submit"));
   }
 
   shouldReference(cmp) {
@@ -166,7 +170,7 @@ class FormElement extends Component {
   get name() { return this.props.name; } // eslint-disable-line brace-style
   get ignore() { return this.props.ignore; } // eslint-disable-line brace-style
   get value() { return this.state.value; } // eslint-disable-line brace-style
-  set value(v) { this.setState({ value: v }); } // eslint-disable-line brace-style
+  set value(v) { this.setState(st => ({ ...st, value: v })); } // eslint-disable-line brace-style
 
   constructor(props) {
     super(props);
@@ -222,6 +226,7 @@ class Input extends FormElement {
   }
 
   onInput(e) {
+    console.log("onInput", e.target);
     const inpt = e.target;
     if (inpt.type === "checkbox")     this.value = inpt.checked || false;
     else if (!inpt.value)             this.value = undefined;
@@ -335,17 +340,12 @@ Select.defaultProps = {
   ...FormElement.defaultProps
 };
 
-function syntheticSubmit(formId) {
-  return () => document.getElementById(formId).submit();
-}
-
-export { Form, FormGroup, FormElement, Select, Input, syntheticSubmit };
+export { Form, FormGroup, FormElement, Select, Input };
 
 export default {
   Form: Form,
   FormGroup: FormGroup,
   FormElement: FormElement,
   Select: Select,
-  Input: Input,
-  syntheticSubmit: syntheticSubmit
+  Input: Input
 };
