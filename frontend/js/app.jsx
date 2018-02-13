@@ -56,14 +56,21 @@ function makeRoute(path, Comp, wcs) {
   return <Comp path={path} wildcards={wcs} />;
 }
 
+function redirectOnAuth(path, FallbackComp) {
+  return props => {
+    if (API.isAuthenticated) return Router.replace(path);
+    return <FallbackComp {...props} />;
+  };
+}
+
 export default () =>
   <PageTemplate>
     <Router notFound={NotFound}>
       {[
+        makeRoute("/", redirectOnAuth("/user/me", Home)),
         makeRoute(u => u.split("/").indexOf("me") !== -1,
                   replacePath("me", () => API.getUserID(),
                                     () => !!API.getUserID())),
-        makeRoute("/", Home),
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
         makeRoute("/user/:id", Profile), // view a profile

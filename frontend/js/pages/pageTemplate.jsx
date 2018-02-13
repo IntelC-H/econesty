@@ -21,7 +21,6 @@ const NavBar = props =>
           />
         </Form>
       </MenuItem>
-      <MenuItem><Link href="/user/me" className="light-text"><span className="fa fa-user-circle-o header-icon" aria-hidden="true"></span></Link></MenuItem>
     </MenuList>
   </Menu>
 ;

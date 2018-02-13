@@ -93,8 +93,10 @@ function EditableUserRepresentation({ elementView }) {
       >Required</Link>
       <Button
         onClick={() => {
-          API.networking("DELETE", "/token/clear", {}, {}).then(() =>           API.clearAuth());
-          Router.push("/");
+          API.networking("DELETE", "/token/clear", {}, {}).then(() => {
+            API.clearAuth();
+            Router.push("/");
+          });
         }}
         className="margined raised"
       >LOG OUT</Button>
