@@ -43,6 +43,11 @@
 */
 
 class API {
+  static clearAuth() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_id");
+  }
+
   static get isAuthenticated() {
     return API.getToken() !== null;
   }

@@ -130,3 +130,11 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
 class TokenViewSet(WriteOnlyViewset):
   serializer_class = serializers.TokenSerializer
   queryset = models.Token.objects.all()
+
+  @list_route(methods=["DELETE"])
+  def clear(self, request):
+    if request.auth:
+      request.auth.delete()
+      return Response({}, status=204)
+    else:
+      return Response({}, status=401)
