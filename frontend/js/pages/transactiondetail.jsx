@@ -23,23 +23,15 @@ function UserLink({ user }) {
 function TransactionInfo({ elementView }) {
   let t = elementView.getElement();
 
-  console.log("TRANSACTION VIEW", t, API.getUserID());
-
   let needsSellerWallet = t.seller_wallet === null || t.seller_wallet === undefined;
   let needsBuyerWallet = t.buyer_wallet === null || t.buyer_wallet === undefined;
   let isBuyer = t.buyer.id === API.getUserID();
   let isSeller = t.seller.id === API.getUserID();
 
-  console.log(typeof(API.getUserID()));
-  console.log("needsSellerWallet", needsSellerWallet);
-  console.log("needsBuyerWallet", needsBuyerWallet);
-  console.log("isBuyer", isBuyer);
-  console.log("isSeller", isSeller);
-
   return (
     <div className="center">
       <h1>Transaction #{t.id}</h1>
-      <h2>{t.completed ? (t.success ? "SUCCESS" : "FAILURE") : "INCOMPLETE"}</h2>
+      <h2>{t.completed ? t.success ? "SUCCESS" : "FAILURE" : "INCOMPLETE"}</h2>
       <h3 className="secondary"><UserLink user={t.seller} /> is transferring BTC {parseFloat(t.amount)} to <UserLink user={t.buyer}/></h3>
 
       {needsSellerWallet && isSeller && <Form aligned onSubmit={elementView.updateElement}>
