@@ -14,9 +14,10 @@ function RequirementCreationForm({ collectionView }) {
         <Labelled label="Terms">
           <Input text name="text" />
         </Labelled>
-        <Labelled label="User">
+        <Labelled label="Responsible User">
           <SearchField name="user"
                        api={API.user}
+                       placeholder="find a user..."
                        component={props => props.element.username} />
         </Labelled>
       </FormGroup>
@@ -37,10 +38,11 @@ function RequirementCollection({ collectionView }) {
            <Labelled label="Terms">
              <Input text name="text" value={r.text} />
            </Labelled>
-           <Labelled label="User">
+           <Labelled label="Responsible User">
              <SearchField name="user"
                           api={API.user}
                           value={r.user}
+                          placeholder="find a user..."
                           component={props => props.element.username} />
            </Labelled>
          </FormGroup>

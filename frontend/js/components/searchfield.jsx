@@ -89,6 +89,7 @@ class SearchField extends FormElement {
 
   reset() {
     this.search = null;
+    this.value = undefined;
   }
 
   setFormValue(v) {
