@@ -74,7 +74,7 @@ export default () =>
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
         makeRoute("/user/:id", Profile), // view a profile
-        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["buy", "sell"] }), // create transaction's
+        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["send", "receive"] }), // create transaction's
         makeRoute("/wallets", secure(Wallets)), // manage payment_data's
         makeRoute("/transaction/:id", secure(TransactionDetail)), // your transactions
         makeRoute("/required", secure(RequiredOfMe)) // manage requirements of you

@@ -7,7 +7,7 @@ import { h, Component, cloneElement } from 'preact';
 */
 
 // TODO: specific values for given wildcards. EG: /user/:id/transaction/:action,
-// :action should only be "buy" or "sell"
+// :action should only be "send" or "receive"
 
 // TODO: move these out of the global namespace. It's a code smell.
 const subscribers = [];

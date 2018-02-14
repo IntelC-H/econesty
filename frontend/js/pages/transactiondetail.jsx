@@ -23,25 +23,25 @@ function UserLink({ user }) {
 function TransactionInfo({ elementView }) {
   let t = elementView.getElement();
 
-  let needsSellerWallet = t.seller_wallet === null || t.seller_wallet === undefined;
-  let needsBuyerWallet = t.buyer_wallet === null || t.buyer_wallet === undefined;
-  let isBuyer = t.buyer.id === API.getUserID();
-  let isSeller = t.seller.id === API.getUserID();
+  let needsRecipientWallet = t.recipient_wallet === null || t.recipient_wallet === undefined;
+  let needsSenderWallet = t.sender_wallet === null || t.sender_wallet === undefined;
+  let isSender = t.sender.id === API.getUserID();
+  let isRecipient = t.recipient.id === API.getUserID();
 
   return (
     <div className="center">
       <h1>Transaction #{t.id}</h1>
       <h2>{t.completed ? t.success ? "SUCCESS" : "FAILURE" : "INCOMPLETE"}</h2>
-      <h3 className="secondary"><UserLink user={t.seller} /> is transferring BTC {parseFloat(t.amount)} to <UserLink user={t.buyer}/></h3>
+      <h3 className="secondary"><UserLink user={t.recipient} /> is transferring BTC {parseFloat(t.amount)} to <UserLink user={t.sender}/></h3>
       {t.error && <p>{t.error}</p>}
 
-      {needsSellerWallet && isSeller && <Form aligned onSubmit={elementView.updateElement}>
+      {needsRecipientWallet && isRecipient && <Form aligned onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <Labelled label="Seller's Wallet">
+          <Labelled label="Recipient's Wallet">
             <Select
               options={makeWalletsPromise}
-              name="seller_wallet_id"
+              name="recipient_wallet_id"
               transform={w => w.id}
               faceTransform={w => w.private_key} />
           </Labelled>
@@ -49,13 +49,13 @@ function TransactionInfo({ elementView }) {
         </FormGroup>
       </Form>}
 
-      {needsBuyerWallet && isBuyer && <Form aligned onSubmit={elementView.updateElement}>
+      {needsSenderWallet && isSender && <Form aligned onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <Labelled label="Buyer's Wallet">
+          <Labelled label="Sender's Wallet">
             <Select
               options={makeWalletsPromise}
-              name="buyer_wallet_id"
+              name="sender_wallet_id"
               transform={w => w.id}
               faceTransform={w => w.private_key} />
           </Labelled>

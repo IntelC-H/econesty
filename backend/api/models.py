@@ -55,10 +55,10 @@ class Wallet(BaseModel):
     return self.private_key.get_balance('btc')
 
 class Transaction(BaseModel):
-  buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_buyer")
-  seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_seller")
-  buyer_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_buyer_wallet")
-  seller_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_seller_wallet")
+  sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_sender")
+  recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_recipient")
+  sender_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_sender_wallet")
+  recipient_wallet = models.ForeignKey(Wallet, on_delete=models.SET_NULL, null=True, related_name="api_trans_recipient_wallet")
   amount = models.DecimalField(max_digits=11, decimal_places=8)
   success = models.BooleanField(default=False) # Whether or not the transaction
                                                # succeeded - i.e. payment went
@@ -67,21 +67,16 @@ class Transaction(BaseModel):
 
   @property
   def completed(self):
-    if not self.buyer_wallet or not self.seller_wallet:
+    if not self.sender_wallet or not self.recipient_wallet:
       return False
-
-    # TODO: optimization: use query, not python for this
-    rqs = Requirement.objects.filter(transaction__id=self.id)
-    for req in rqs:
-      if not req.fulfilled:
-        return False
-    return True
+    return Requirement.fulfilled_queryset().filter(transaction__id=self.id).exists()
 
   def finalize(self):
+    amount = float(self.amount)
     try: 
-      self.buyer_wallet.private_key.get_unspents()
-      self.buyer_wallet.private_key.send([
-        (self.seller_wallet.private_key.address, float(self.amount), 'btc')
+      self.sender_wallet.private_key.get_unspents()
+      self.sender_wallet.private_key.send([
+        (self.recipient_wallet.private_key.address, amount, 'btc')
       ])
       # An error will be raised here if there's a problem, and success will
       # never set to True
@@ -101,3 +96,6 @@ class Requirement(BaseModel):
   def fulfilled(self):
     return self.acknowledged and bool(self.signature)
 
+  @classmethod
+  def fulfilled_queryset(cls):
+    return cls.objects.filter(signature__isnull=False, acknowledged=True)

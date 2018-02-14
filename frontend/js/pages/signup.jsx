@@ -15,14 +15,17 @@ function saveFormTo(api, f = null) {
 const Signup = props => // eslint-disable-line no-unused-vars
   <Form
     aligned
-    onSubmit={saveFormTo(API.user, u => {
-      API.token.create({username: u.username,
-                        password: u.password})
-               .then(tok => {
-                 API.setToken(tok.key);
-                 Router.push("/user/me");
-               });
-    })}>
+    onSubmit={obj => {
+      console.log("Creating user", obj);
+      API.user.create(obj).then(() => {
+        API.token.create({username: obj.username,
+                          password: obj.password})
+                 .then(tok => {
+                   API.setToken(tok.key);
+                   Router.push("/user/me");
+                 });
+      });
+    }}>
     <Labelled label="First Name">
       <Input text required name="first_name" />
     </Labelled>

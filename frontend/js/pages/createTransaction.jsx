@@ -80,9 +80,9 @@ class CreateTransaction extends Component {
 
   render({ matches }) {
     let act = matches.action;
-    let isBuyer = act === "buy";
-    let buyer_id = isBuyer ? API.getUserID() : parseInt(matches.id);
-    let seller_id = isBuyer ? parseInt(matches.id) : API.getUserID();
+    let isSender = act === "send";
+    let sender_id = isSender ? API.getUserID() : parseInt(matches.id);
+    let recipient_id = isSender ? parseInt(matches.id) : API.getUserID();
 
     return (
       <Grid>
@@ -93,13 +93,13 @@ class CreateTransaction extends Component {
             <p>This is the page you use to create a transaction.</p>
           </div>
           <Form aligned onSubmit={this.onSubmit}>
-            <Input hidden name="buyer_id" value={buyer_id} />
-            <Input hidden name="seller_id" value={seller_id} />
+            <Input hidden name="sender_id" value={sender_id} />
+            <Input hidden name="recipient_id" value={recipient_id} />
 
             <Labelled label="Your Wallet">
               <Select
                 options={this.makeWalletsPromise}
-                name={isBuyer ? "buyer_wallet_id" : "seller_wallet_id"}
+                name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
                 transform={w => w.id}
                 faceTransform={w => w.private_key} />
             </Labelled>

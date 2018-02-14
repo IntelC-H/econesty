@@ -50,8 +50,9 @@ class UserSerializer(BaseSerializer):
     return False
 
   def create(self, data):
+    password = data.pop("password")
     u = amodels.User(**data)
-    u.set_password(data["password"])
+    u.set_password(password)
     u.save()
     return u
 
@@ -60,9 +61,8 @@ class UserSerializer(BaseSerializer):
     instance.first_name = data.get("first_name", instance.first_name)
     instance.last_name = data.get("last_name", instance.last_name)
     instance.email = data.get("email", instance.email)
-    passwd = data.get("password", None)
-    if passwd is not None:
-      instance.set_password(passwd)
+    if "password" in data:
+      instance.set_password(data["password"])
     instance.save()
     return instance
 
@@ -83,14 +83,14 @@ class WalletDetailSerializer(WalletSerializer):
   balance = BitcoinBalanceField(user_field="user")
 
 class TransactionSerializer(BaseSerializer):
-  buyer = UserSerializer(read_only=True)
-  buyer_id = writing_field(amodels.User, "buyer")
-  buyer_wallet = WalletSerializer(read_only=True)
-  buyer_wallet_id = writing_field(models.Wallet, "buyer_wallet", required=False, allow_null=True)
-  seller = UserSerializer(read_only=True)
-  seller_id = writing_field(amodels.User, "seller")
-  seller_wallet = WalletSerializer(read_only=True)
-  seller_wallet_id = writing_field(models.Wallet, "seller_wallet", required=False, allow_null=True)
+  sender = UserSerializer(read_only=True)
+  sender_id = writing_field(amodels.User, "sender")
+  sender_wallet = WalletSerializer(read_only=True)
+  sender_wallet_id = writing_field(models.Wallet, "sender_wallet", required=False, allow_null=True)
+  recipient = UserSerializer(read_only=True)
+  recipient_id = writing_field(amodels.User, "recipient")
+  recipient_wallet = WalletSerializer(read_only=True)
+  recipient_wallet_id = writing_field(models.Wallet, "recipient_wallet", required=False, allow_null=True)
   completed = serializers.ReadOnlyField()
 
   class Meta:

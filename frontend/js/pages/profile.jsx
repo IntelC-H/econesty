@@ -23,7 +23,7 @@ function TransactionCollectionBody({ collectionView }) {
     <div className="collection">
       <Table striped horizontal>
         <thead>
-          <tr><th>#</th><th>Amount</th><th>Buyer</th><th>Seller</th></tr>
+          <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th></tr>
         </thead>
         <tbody>
           {collectionView.getElements().map(obj =>
@@ -35,10 +35,10 @@ function TransactionCollectionBody({ collectionView }) {
                 <span>BTC {parseFloat(obj.amount)}</span>
               </td>
               <td>
-                <BriefUserInfo user={obj.buyer} />
+                <BriefUserInfo user={obj.sender} />
               </td>
               <td>
-                <BriefUserInfo user={obj.seller} />
+                <BriefUserInfo user={obj.recipient} />
               </td>
             </tr>
           )}
@@ -119,13 +119,13 @@ function Profile(props) {
           <Link
             component={Button}
             className="margined raised"
-            href={API.user.baseURL + userId + "/transaction/buy"}
-          >Buy From</Link>
+            href={API.user.baseURL + userId + "/transaction/send"}
+          >Send BTC</Link>
           <Link
             component={Button}
             className="margined raised"
-            href={API.user.baseURL + userId + "/transaction/sell"}
-          >Sell To</Link>
+            href={API.user.baseURL + userId + "/transaction/receive"}
+          >Receive BTC</Link>
         </div>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody />

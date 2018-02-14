@@ -42,10 +42,10 @@ API.wallet.shape = PropTypes.shape({
 API.transaction = new APICollection("transaction");
 API.transaction.shape = PropTypes.shape({
   ...baseShape,
-  buyer: API.user.shape,
-  seller: API.user.shape,
-  buyer_wallet: API.wallet.shape,
-  seller_wallet: API.wallet.shape,
+  sender: API.user.shape,
+  recipient: API.user.shape,
+  sender_wallet: API.wallet.shape,
+  recipient_wallet: API.wallet.shape,
   amount: stringOrInteger,
   completed: PropTypes.bool,
   success: PropTypes.bool

@@ -315,7 +315,7 @@ class Select extends FormElement {
   constructor(props) {
     super(props);
     this.state = {
-      value: props.value || !this.isAsync && props.options.length > 0 ? props.transform(props.options[0]) : null,
+      value: props.value || (!this.isAsync && props.options.length > 0 ? props.transform(props.options[0]) : null),
       loading: false,
       options: this.isAsync ? [] : props.options
     };
@@ -328,11 +328,14 @@ class Select extends FormElement {
   componentWillMount() {
     if (this.isAsync) {
       if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
-        this.props.options().then(es => {
-          this.setState(st => ({ ...st,
-                                 loading: false,
-                                 value: es.length > 0 && st.value !== null && st.value !== undefined ? st.value : this.props.transform(es[0]),
-                                 options: es}));
+      this.props.options().then(es => {
+        this.setState(st => {
+          let hasValue = st.value !== null && st.value !== undefined;
+          return ({ ...st,
+                               loading: false,
+                               value: es.length === 0 || hasValue ? st.value : this.props.transform(es[0]),
+                               options: es});
+        });
       });
     }
   }
@@ -345,14 +348,20 @@ class Select extends FormElement {
 
     prependFunc(filteredProps, "onChange", this.onInput);
     filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
-    filteredProps.children = this.state.options.map(s => {
-      let sprime = transform(s);
-      let isSame = (sprime ? sprime.toString() : null) === (this.value ? this.value.toString() : null);
-      return <option
-               selected={isSame}
-               key={filteredProps.name + '-' + s}
-               value={sprime}>{faceTransform(s)}</option>;
-    });
+
+    if (!this.state.options || this.state.options.length === 0) {
+      filteredProps.disabled = true;
+      filteredProps.children = [<option selected={false}>No Options</option>];
+    } else {
+      filteredProps.children = this.state.options.map(s => {
+        let sprime = transform(s);
+        let isSame = (sprime ? sprime.toString() : null) === (this.value ? this.value.toString() : null);
+        return <option
+                 selected={isSame}
+                 key={filteredProps.name + '-' + s}
+                 value={sprime}>{faceTransform(s)}</option>;
+      });
+    }
     return h('select', filteredProps);
   }
 }

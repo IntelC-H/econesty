@@ -44,9 +44,9 @@ class UserViewSet(EconestyBaseViewset):
     me_id = request.user.id
 
     man = models.Transaction.objects
-    qs = man.filter(buyer__id=me_id) | man.filter(seller__id=me_id)
+    qs = man.filter(sender__id=me_id) | man.filter(recipient__id=me_id)
     if user_id is not me_id:
-      qs = qs & (man.filter(buyer__id=user_id) | man.filter(seller__id=user_id))
+      qs = qs & (man.filter(sender__id=user_id) | man.filter(recipient__id=user_id))
 
     return self.paginated_response(
       qs.order_by("-created_at"),
@@ -71,16 +71,12 @@ class TransactionViewSet(EconestyBaseViewset):
   ordering_fields = ('created_at',)
   ordering = "created_at"
   filter_fields = ('amount','success',)
-  user_fields = ('buyer','seller',)
+  user_fields = ('sender','recipient',)
 
   def get_serializer_class(self):
     if self.action in ["create", "update", "partial_update"]:
       return serializers.TransactionSerializerWithRequirements
     return super().get_serializer_class()
-
-  @list_route(methods=["GET"])
-  def test(self, request):
-    raise APIException("FUCK", code=400)
 
   @detail_route(methods=["POST"], permission_classes=[Sensitive])
   def finalize(self, request, pk):
@@ -145,7 +141,7 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
   search_fields = ('text',)
   ordering_fields = ('created_at',)
   ordering = "-created_at"
-  user_fields = ('user','transaction__buyer','transaction__seller',)
+  user_fields = ('user','transaction__sender','transaction__recipient',)
 
   def on_create(self, request, pk):
     requirement = self.get_queryset().get(id=pk)
