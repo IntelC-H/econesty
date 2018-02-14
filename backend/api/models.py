@@ -63,6 +63,7 @@ class Transaction(BaseModel):
   success = models.BooleanField(default=False) # Whether or not the transaction
                                                # succeeded - i.e. payment went
                                                # through.
+  error = models.TextField(null=True)
 
   @property
   def completed(self):
@@ -77,17 +78,17 @@ class Transaction(BaseModel):
     return True
 
   def finalize(self):
-    print("MAKING TRANSACTION", {"from": self.buyer_wallet.private_key, "to": self.seller_wallet.private_key.address, "amount": self.amount})
     try: 
+      self.buyer_wallet.private_key.get_unspents()
       self.buyer_wallet.private_key.send([
         (self.seller_wallet.private_key.address, float(self.amount), 'btc')
       ])
       # An error will be raised here if there's a problem, and success will
       # never set to True
       self.success = True
-      self.save()
-    except:
-      pass # TODO: record the error
+    except Exception as e:
+      self.error = str(e)
+    self.save()
 
 class Requirement(BaseModel):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_req_user')

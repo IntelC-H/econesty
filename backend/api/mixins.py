@@ -83,16 +83,16 @@ class EconestyBaseViewset(PaginationHelperMixin,
   
   def create(self, request):
     v = super().create(request)
-    self.on_create(request, v.data["id"])
-    return v
+    new_res = self.on_create(request, v.data["id"])
+    return new_res or v
 
   def update(self, request, pk = None):
     v = super().update(request, pk)
-    self.on_update(request, pk, False)
-    return v
+    new_res = self.on_update(request, pk, False)
+    return new_res or v
 
   def partial_update(self, request, pk = None):
     v = super().update(request, pk, partial=True)
-    self.on_update(request, pk, True)
-    return v
+    new_res = self.on_update(request, pk, True)
+    return new_res or v
 

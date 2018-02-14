@@ -340,14 +340,16 @@ class Select extends FormElement {
   render(props, { loading }) {
     if (this.isAsync && loading) return <Loading />;
 
-    const { transform, faceTransform, value, options, className, ...filteredProps } = props;
+    const { value, options, // eslint-disable-line no-unused-vars
+            transform, faceTransform, className, ...filteredProps } = props;
 
     prependFunc(filteredProps, "onChange", this.onInput);
     filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
     filteredProps.children = this.state.options.map(s => {
       let sprime = transform(s);
+      let isSame = (sprime ? sprime.toString() : null) === (this.value ? this.value.toString() : null);
       return <option
-               selected={sprime === value}
+               selected={isSame}
                key={filteredProps.name + '-' + s}
                value={sprime}>{faceTransform(s)}</option>;
     });

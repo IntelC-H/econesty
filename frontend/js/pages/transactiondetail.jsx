@@ -33,6 +33,7 @@ function TransactionInfo({ elementView }) {
       <h1>Transaction #{t.id}</h1>
       <h2>{t.completed ? t.success ? "SUCCESS" : "FAILURE" : "INCOMPLETE"}</h2>
       <h3 className="secondary"><UserLink user={t.seller} /> is transferring BTC {parseFloat(t.amount)} to <UserLink user={t.buyer}/></h3>
+      {t.error && <p>{t.error}</p>}
 
       {needsSellerWallet && isSeller && <Form aligned onSubmit={elementView.updateElement}>
         <FormGroup>

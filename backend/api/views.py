@@ -19,6 +19,11 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, APIException
 
+class PaymentRequired(APIException):
+  status_code = 402
+  default_detail = 'Request was valid, but a payment was required.'
+  default_code = 'payment_required'
+
 class UserViewSet(EconestyBaseViewset):
   permission_classes = (exempt_methods(Sensitive, ["GET", "POST", "OPTIONS"]),) # Users cannot be updated nor deleted without auth.
   queryset = User.objects.all()
@@ -73,17 +78,42 @@ class TransactionViewSet(EconestyBaseViewset):
       return serializers.TransactionSerializerWithRequirements
     return super().get_serializer_class()
 
+  @list_route(methods=["GET"])
+  def test(self, request):
+    raise APIException("FUCK", code=400)
+
+  @detail_route(methods=["POST"], permission_classes=[Sensitive])
+  def finalize(self, request, pk):
+    try:
+      t = self.get_queryset().get(id=pk)
+    except models.DoesNotExist as e:
+      raise NotFound(detail="Transaction does not exist.", code=404)
+
+    if t.completed:
+      try: 
+        transaction.finalize()      
+      except Exception as e:
+        raise APIException(detail=str(e), code=402)
+
   def on_create(self, request, pk):
     transaction = self.get_queryset().get(id=pk)
     if transaction.completed:
-      transaction.finalize()
+      try: 
+        transaction.finalize()
+        s = serializers.TransactionSerializer(transaction)
+        return Response(s.data)
+      except Exception as e:
+        raise APIException(detail=str(e), code=402)
 
   def on_update(self, request, pk, partial):
-    transaction = self.get_queryset().get(id=pk)
+    transaction =  self.get_queryset().get(id=pk)
     if transaction.completed:
-      transaction.finalize()
-
-  # TODO: hook into create and update and call finalize
+      try: 
+        transaction.finalize()
+        s = serializers.TransactionSerializer(transaction)
+        return Response(s.data)
+      except Exception as e:
+        raise APIException(detail=str(e), code=402)
 
 class WalletViewSet(EconestyBaseViewset):
   serializer_class = serializers.WalletSerializer
@@ -119,13 +149,19 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
 
   def on_create(self, request, pk):
     requirement = self.get_queryset().get(id=pk)
-    if requirement.transaction.completed:
-      requirement.transaction.finalize()
+    if requirement.transaction.completwed:
+      try: 
+        requirement.transaction.finalize()      
+      except Exception as e:
+        raise APIException(detail=str(e), code=402)
 
   def on_update(self, request, pk, partial):
     requirement = self.get_queryset().get(id=pk)
     if requirement.transaction.completed:
-      requirement.transaction.finalize()
+      try: 
+        requirement.transaction.finalize()      
+      except Exception as e:
+        raise APIException(detail=str(e), code=402)
 
 class TokenViewSet(WriteOnlyViewset):
   serializer_class = serializers.TokenSerializer
