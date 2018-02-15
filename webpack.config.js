@@ -13,14 +13,24 @@ const extractStyle = new ExtractTextPlugin({
 
 module.exports = {
   stats: {
-    // TODO: hide source maps & gzip files
-    performance: false,
+    assets: false,
+    performance: true,
     children: false,
     modulesSort: "size",
     modules: false,
     excludeAssets: /.*/,
     assetsSort: "ext",
-    publicPath: "/"
+    publicPath: false,
+    version: false,
+    hash: true,
+    timings: false
+  },
+  performance: {
+    hints: false,
+    maxAssetSize: 90000,
+    assetFilter: function(assetFilename) {
+      return assetFilename.endsWith('.js');
+    }
   },
   entry: {
     app: [

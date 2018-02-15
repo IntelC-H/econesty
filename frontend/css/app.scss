@@ -51,3 +51,20 @@ $searchfield-dropdown-offset: ($shadow-blur - $shadow-dist) / 2;
     display: none;
   }
 }
+
+.section {
+  margin-top: 1em;
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0.25em;
+  }
+
+  p:first-of-type { // eslint-disable-line declaration-colon-space-after
+    margin-top: 0.25em;
+  }
+
+  p:last-of-type { // eslint-disable-line declaration-colon-space-after
+    margin-bottom: 0.25em;
+  }
+}
+

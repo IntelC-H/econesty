@@ -45,16 +45,13 @@
   Form Styling
 */
 
-.checkbox {
+label.checkbox {
   vertical-align: middle;
+  display: inline-block;
+  margin: $padding/2; 
 
   input[type=checkbox] {
     display: inline-block;
-  }
-
-  label {
-    display: inline-block;
-    margin-left: $padding/2; 
   }
 }
 

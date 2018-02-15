@@ -260,10 +260,7 @@ class Input extends FormElement {
     if (isCheck && placeholder && placeholder.length > 0) {
       filteredProps.id = filteredProps.id || Math.random().toString(); // TODO: use a GUID instead. More optimal collision rates.
       return (
-        <div className="checkbox">
-          <input {...filteredProps} />
-          <label for={filteredProps.id}>{" " + placeholder}</label>
-        </div>
+        <label className="checkbox">{placeholder + " "}<input {...filteredProps} /></label>
       );
     }
 
@@ -331,10 +328,12 @@ class Select extends FormElement {
       this.props.options().then(es => {
         this.setState(st => {
           let hasValue = st.value !== null && st.value !== undefined;
-          return ({ ...st,
-                               loading: false,
-                               value: es.length === 0 || hasValue ? st.value : this.props.transform(es[0]),
-                               options: es});
+          return {
+            ...st,
+            loading: false,
+            value: es.length === 0 || hasValue ? st.value : this.props.transform(es[0]),
+            options: es
+          };
         });
       });
     }

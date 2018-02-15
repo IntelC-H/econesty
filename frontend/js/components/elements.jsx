@@ -5,7 +5,7 @@ import { inheritClass, cssSubclass, makeClassName } from './utilities';
 const Image = inheritClass('img', "pure-image");
 const Grid = inheritClass('div', 'pure-g');
 const GridUnit = cssSubclass('div', {}, 'pure-u', true);
-const MenuHeading = inheritClass('span', 'pure-menu-heading');
+const MenuHeading = inheritClass('div', 'pure-menu-heading');
 const MenuLink = inheritClass('a', 'pure-menu-link');
 const MenuList = inheritClass('ul', 'pure-menu-list');
 const ButtonGroup = inheritClass('div', 'pure-button-group');

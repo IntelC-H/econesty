@@ -8,7 +8,6 @@ const Signup = props => // eslint-disable-line no-unused-vars
   <Form
     aligned
     onSubmit={obj => {
-      console.log("Creating user", obj);
       API.user.create(obj).then(() => {
         API.token.create({username: obj.username,
                           password: obj.password})

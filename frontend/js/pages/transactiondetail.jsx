@@ -45,7 +45,7 @@ function TransactionInfo({ elementView }) {
               transform={w => w.id}
               faceTransform={w => w.private_key} />
           </Labelled>
-          <Button action="submit">SAVE WALLET</Button>
+          <Button className="margined raised" action="submit">SAVE WALLET</Button>
         </FormGroup>
       </Form>}
 
@@ -73,16 +73,16 @@ function TransactionRequirements({ collectionView }) {
     <Table striped horizontal>
       <thead>
         <tr>
-        <th>User</th>
         <th>Text</th>
+        <th>User</th>
         <th>Status</th>
         </tr>
       </thead>
       <tbody>
         {rs.map(r => {
           return <tr key={r.id}>
-                   <td><UserLink user={r.user} /></td>
                    <td>{r.text}</td>
+                   <td><UserLink user={r.user} /></td>
                    <td>{r.fulfilled ? "FULFILLED" : "UNFULFILLED"}</td>
                  </tr>;
         })}
