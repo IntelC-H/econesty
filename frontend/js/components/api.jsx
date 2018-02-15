@@ -135,8 +135,13 @@ class CollectionView extends Component {
   }
 }
 
-CollectionView.propTypes = {};
-CollectionView.defaultProps = {};
+CollectionView.propTypes = {
+  search: PropTypes.string,
+  collection: PropTypes.object.isRequired
+};
+CollectionView.defaultProps = {
+  search: null
+};
 
 // Create elements in REST collections. Must be a direct child
 // of a CollectionView.

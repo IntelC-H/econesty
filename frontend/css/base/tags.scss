@@ -70,3 +70,13 @@ a {
 input:not([type=checkbox]) {
   width: 100%;//  width: $input-width;
 }
+
+select {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  option {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}

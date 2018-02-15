@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 
 import { API } from 'app/api';
 import { CollectionView } from 'app/components/api';
-import { Table, Button } from 'app/components/elements';
+import { Table, Button, SideMargins } from 'app/components/elements';
 import { Form, Input } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 
@@ -43,28 +43,32 @@ function RequirementRow({ collectionView, element }) {
 
 function RequirementsCollection({ collectionView }) {
   return (
-    <Table>
-      <thead>
-        <tr>
-          <th>Text</th>
-          <th>Acknowledged</th>
-          <th>Signature</th>
-          <th>Transaction</th>
-        </tr>
-      </thead>
-      <tbody>
-        {collectionView.getElements().map(e =>
-          <RequirementRow collectionView={collectionView} element={e} />)}
-      </tbody>
-    </Table>
+    <div className="collection">
+      <Table striped horizontal>
+        <thead>
+          <tr>
+            <th>Text</th>
+            <th>Acknowledged</th>
+            <th>Signature</th>
+            <th>Transaction</th>
+          </tr>
+        </thead>
+        <tbody>
+          {collectionView.getElements().map(e =>
+            <RequirementRow collectionView={collectionView} element={e} />)}
+        </tbody>
+      </Table>
+    </div>
   );
 }
 
 function RequiredOfMe(props) { // eslint-disable-line no-unused-vars
   return (
-    <CollectionView collection={API.requirement.withParams({ user__id: API.getUserID() })}>
-      <RequirementsCollection />
-    </CollectionView>
+    <SideMargins>
+      <CollectionView collection={API.requirement.withParams({ user__id: API.getUserID() })}>
+        <RequirementsCollection />
+      </CollectionView>
+    </SideMargins>
   );
 }
 

@@ -4,14 +4,6 @@ import { Form, Input } from 'app/components/forms';
 import { Router } from 'app/components/routing';
 import { API } from 'app/api';
 
-function saveFormTo(api, f = null) {
-  return obj => {
-    api.create(obj).catch(e => {
-      throw e;
-    }).then(f || (() => undefined));
-  };
-}
-
 const Signup = props => // eslint-disable-line no-unused-vars
   <Form
     aligned

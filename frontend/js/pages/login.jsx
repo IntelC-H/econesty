@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Grid, GridUnit, ErrorDisplay, Labelled, Button } from 'app/components/elements';
+import { Error, Labelled, Button, SideMargins } from 'app/components/elements';
 import { Form, Input, FormGroup } from 'app/components/forms';
 import { API } from 'app/api';
 import { Router } from 'app/components/routing';
@@ -25,24 +25,23 @@ class Login extends Component {
 
   render() {
     return (
-      <Grid>
-        <GridUnit size="1" sm="4-24" />
-        <GridUnit size="1" sm="16-24">
-          <Form aligned onSubmit={this.login} method="POST">
-            {!!this.state.error && <ErrorDisplay message={this.state.error.message} />}
-            <FormGroup>
-              <Labelled label="Username">
-                <Input text required name="username" />
-              </Labelled>
-              <Labelled label="Password">
-                <Input password required name="password" />
-              </Labelled>
-              <Button type="submit">LOGIN</Button>
-            </FormGroup>
-          </Form>
-        </GridUnit>
-        <GridUnit size="1" sm="4-24" />
-      </Grid>
+     <SideMargins>
+       <Form aligned onSubmit={this.login} method="POST">
+         {!!this.state.error &&
+           <Error>
+             <p>{this.state.error.message}</p>
+           </Error>}
+         <FormGroup>
+           <Labelled label="Username">
+             <Input text required name="username" />
+           </Labelled>
+           <Labelled label="Password">
+             <Input password required name="password" />
+           </Labelled>
+           <Button type="submit">LOGIN</Button>
+         </FormGroup>
+       </Form>
+      </SideMargins>
     );
   }
 }

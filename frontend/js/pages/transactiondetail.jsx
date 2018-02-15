@@ -32,7 +32,7 @@ function TransactionInfo({ elementView }) {
     <div className="center">
       <h1>Transaction #{t.id}</h1>
       <h2>{t.completed ? t.success ? "SUCCESS" : "FAILURE" : "INCOMPLETE"}</h2>
-      <h3 className="secondary"><UserLink user={t.recipient} /> is transferring BTC {parseFloat(t.amount)} to <UserLink user={t.sender}/></h3>
+      <h3 className="secondary"><UserLink user={t.recipient} /> is sending BTC {parseFloat(t.amount)} to <UserLink user={t.sender}/></h3>
       {t.error && <p>{t.error}</p>}
 
       {needsRecipientWallet && isRecipient && <Form aligned onSubmit={elementView.updateElement}>
@@ -70,17 +70,13 @@ function TransactionInfo({ elementView }) {
 function TransactionRequirements({ collectionView }) {
   let rs = collectionView.getElements();
   return (
-    <Table>
+    <Table striped horizontal>
       <thead>
-        <th>
-          <td>User</td>
-        </th>
-        <th>
-          <td>Text</td>
-        </th>
-        <th>
-          <td>Status</td>
-        </th>
+        <tr>
+        <th>User</th>
+        <th>Text</th>
+        <th>Status</th>
+        </tr>
       </thead>
       <tbody>
         {rs.map(r => {

@@ -79,3 +79,14 @@
     text-align: center;
   }
 }
+
+@media (max-width: $pure-sm) {
+  .labelled {
+    & > * {
+      display: block;
+    }
+    * {
+      width: 100%;
+    }
+  }
+}
