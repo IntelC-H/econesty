@@ -46,6 +46,7 @@ class API {
   static clearAuth() {
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
+    document.cookie = "Authorization=;";
   }
 
   static get isAuthenticated() {
@@ -58,6 +59,7 @@ class API {
 
   static setToken(token) {
     localStorage.setItem("token", token || null);
+    document.cookie = "Authorization=Token " + token + "; Path=/api";
   }
 
   static getUserID() {

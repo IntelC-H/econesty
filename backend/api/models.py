@@ -21,6 +21,16 @@ class BaseModel(SafeDeleteModel):
   class Meta:
     abstract = True
 
+WHITESPACE_REGEX = re.compile(r'\s+', re.U)
+def read_token(string):
+  try:
+    kind, token = re.split(WHITESPACE_REGEX, string, 1)
+    if kind == "Token":
+      return token
+  except:
+    pass
+  return None
+
 class Token(BaseModel):
   def make_key():
     return hmac.new(uuid.uuid4().bytes, digestmod=sha1).hexdigest()
@@ -30,16 +40,17 @@ class Token(BaseModel):
 
   @classmethod
   def read_token(cls, request):
+    token = None
     if 'HTTP_AUTHORIZATION' in request.META:
-      auth_header = request.META['HTTP_AUTHORIZATION']
-      vals_iter = iter(re.split(re.compile(r'\s+', re.U), auth_header, 1))
-      if next(vals_iter, None) == "Token": # ensure we're using token auth
-        try:
-          token = next(vals_iter, None)
-          if token is not None:
-            return cls.objects.get(key=token)
-        except cls.DoesNotExist:
-          pass
+      token = read_token(request.META['HTTP_AUTHORIZATION'])
+    elif "Authorization" in request.COOKIES:
+      token = read_token(request.COOKIES["Authorization"])
+
+    try:
+      if token is not None:
+        return cls.objects.get(key=token)
+    except cls.DoesNotExist:
+      pass
     return None
 
 class Wallet(BaseModel):
