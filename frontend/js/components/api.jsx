@@ -236,9 +236,10 @@ class ElementView extends Component {
     );
   }
 
-  componentDidUpdate({ collection, elementID }, prevState) {
+  componentDidUpdate({ collection, elementID },
+                     prevState) { // eslint-disable-line no-unused-vars
     if (collection.resource !== this.props.collection.resource ||
-        collection.urlParams !== this.props.collection.urlParams || 
+        collection.urlParams !== this.props.collection.urlParams ||
         elementID !== this.props.elementID) {
       this.reloadData();
     }
