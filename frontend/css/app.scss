@@ -1,6 +1,21 @@
 @import "base";
 
 /*
+  Tags
+*/
+
+input[type], textarea, select {
+  &:focus {
+    border-color: $accent-color;
+  }
+}
+
+thead {
+  color: $primary-color-text;
+  background-color: $primary-color;
+}
+
+/*
   Page layout
 */
 
@@ -19,37 +34,19 @@ $searchfield-dropdown-offset: ($shadow-blur - $shadow-dist) / 2;
   height: auto;
   overflow: hidden; /* clearfix */
 
-  .header-icon {
-    color: $primary-color-text;
-    font-size: $header-icon-dim * 2;
-    height: $header-icon-dim;
-    width: $header-icon-dim;
-  }
-
   background: $primary-color-dark;
-  fieldset {
-    padding: 0em;
-  }
-  input[type=text] {
-    margin-bottom: 0em;
-  }
+
   ul.pure-menu-list {
     float: right;
     li {
-      padding: $padding ($padding / 2) $padding ($padding / 2);
+      padding: $padding
     }
-  }
-  .pure-table thead {
-    background-color: $primary-color-dark;
   }
 }
 
 .header-spacer {
   position: static; 
   visibility: hidden;
-  .search-icon {
-    display: none;
-  }
 }
 
 .section {

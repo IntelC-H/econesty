@@ -1,12 +1,12 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-// import { asyncCollection } from './higher';
 import { APICollection } from 'app/api';
-import { Input, FormGroup, FormElement } from './forms';
+import { Input, FormElement } from './forms';
 import { Table } from './elements';
 import { CollectionView } from './api';
 import { makeClassName } from './utilities';
 import { Link } from './routing';
+import { DeleteButton, SearchIcon } from './elements';
 
 function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
@@ -45,7 +45,8 @@ function SearchFieldRow({ collectionView, searchField, element }) {
   return (
     <tr>
       <td>
-        <a onClick={() => searchField.setFormValue(element)}>
+        <a onMouseDown={e => e.preventDefault()}
+           onMouseUp={() => searchField.setFormValue(element)}>
           {h(component, linkBodyProps)}
         </a>
       </td>
@@ -71,20 +72,38 @@ const defaultProps = {
 class SearchField extends FormElement {
   constructor(props) {
     super(props);
+    this.inputNode = null; // a ref
     this.reset = this.reset.bind(this);
     this.setState = this.setState.bind(this);
+    this.onBlur = this.onBlur.bind(this);
+    this.onFocus = this.onFocus.bind(this);
+    this.onSearchChange = this.onSearchChange.bind(this);
     this.state = {
-      value: this.props.value,
-      search: this.props.search
+      ...this.state,
+      search: this.props.search,
+      focused: false
     };
   }
 
-  get search() {
-    return this.state.search;
+  get showsObject() {
+    return Boolean(this.value) && !this.props.standalone;
   }
 
-  set search(s) {
-    this.setState(st => ({ ...st, search: s }));
+  onSearchChange(e) {
+    this.setState(st => ({ ...st, search: e.target.value }));
+  }
+
+  onFocus(e) {
+    console.log("FOCUS");
+    this.setState(st => ({ ...st, focused: true }));
+  }
+
+  onBlur(e) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    console.log("BLUR");
+    this.setState(st => ({ ...st, focused: false }));
+    return false;
   }
 
   reset() {
@@ -108,54 +127,54 @@ class SearchField extends FormElement {
     return this.props.onClick;
   }
 
-  render(props) {
-    const { search, value, // eslint-disable-line no-unused-vars
-            api, component, standalone,
-            className, ...filteredProps } = props;
+  componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
+    if (this.props.search !== nextProps.search) {
+      this.setState(st => ({ ...st, search: nextProps.search }));
+    }
+  }
 
-    const hasSearch = Boolean(this.search) && this.search.length > 0;
-    const showsObject = Boolean(this.value) && !standalone;
+  shouldComponentUpdate(nextProps, nextState) {
+    if (super.shouldComponentUpdate(nextProps, nextState)) return true;
+    if (this.props.search !== nextProps.search) return true;
+    if (this.state.search !== nextState.search) return true;
 
-    const wrapperClassName = makeClassName("searchfield",
-                                           "inline-block",
-                                           "relative",
-                                           className);
+    // TODO: Fix clicking on a search element when zero search is the case    
+    if (this.state.focused !== nextState.focused) return true;
+   //  && !Boolean(this.state.search)) return true;
 
+    return false;
+  }
+
+  render({ value, standalone, // eslint-disable-line no-unused-vars
+           api, component, className, ...props }, { focused, search }) {
     return (
-      <div className={wrapperClassName}>
-        { showsObject &&
-          <a
-            onClick={this.reset}
-            className="searchfield-cancel-button inline fa fa-times"/>}
-        { showsObject &&
-          <span>
-            <Link
-              className="inline"
-              href={api.baseURL + this.value.id}
-              target="_blank">
-              {h(component, { element: this.value })}
-            </Link>
-          </span>}
-        { !showsObject && hasSearch &&
+      <div className={makeClassName("searchfield", className)}>
+        { this.showsObject && <DeleteButton onClick={this.reset} />}
+        { this.showsObject &&
+          <Link href={api.baseURL + this.value.id}>
+            {h(component, { element: this.value })}
+          </Link>
+        }
+        { !this.showsObject && focused &&
           <div
             className="searchfield-dropdown-clickshield"
-            onClick={this.reset}/>}
-        { !showsObject && !hasSearch &&
-          <span className="fa fa-search search-icon"/>}
-        { !showsObject &&
-          <FormGroup>
-            <Input
-              {...filteredProps}
-              text ignore
-              onInput={e => this.search = e.target.value }
-              value={this.search}
-            />
-          </FormGroup>
+            onClick={this.reset} />}
+        { !this.showsObject && <SearchIcon /> }
+        { !this.showsObject &&
+          <Input
+            {...props}
+            text ignore
+            onFocus={this.onFocus}
+            onBlur={this.onBlur}
+            onInput={this.onSearchChange}
+      
+          />
         }
-        { !showsObject && hasSearch &&
+        { !this.showsObject && focused &&
           <CollectionView
-            collection={this.props.api}
-            search={this.search}
+            collection={api}
+            search={search}
             className="searchfield-dropdown raised-v">
             <SearchResultsView searchField={this} />
           </CollectionView>

@@ -13,28 +13,6 @@ body {
   position: relative;
 }
 
-// TODO: hr styling without px
-// $hr-height: 10px;
-
-// hr {
-//   height: $hr-height;
-//   border-style: solid; 
-//   border-color: $divider-color; 
-//   border-width: 1px 0 0 0; // stylelint-disable-line
-//   border-radius: ($hr-height * 2); 
-
-//   &:before {
-//     display: block;
-//     content: "";
-//     height: $hr-height;
-//     margin-top: (-1 * $hr-height);//-11px; (-1 * ($hr-height + 1px))
-//     border-style: solid;
-//     border-color: $divider-color;
-//     border-width: 0 0 1px 0; // stylelint-disable-line
-//     border-radius: ($hr-height * 2);
-//   }
-// }
-
 h1, h2, h3, h4, h5, h6 {
   color: $primary-text-color;
 }
@@ -79,4 +57,9 @@ select {
     text-overflow: ellipsis;
     overflow: hidden;
   }
+}
+
+fieldset {
+  padding-top: $padding;
+  padding-bottom: $padding;
 }

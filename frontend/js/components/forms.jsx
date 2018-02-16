@@ -176,12 +176,22 @@ class FormElement extends Component {
   constructor(props) {
     super(props);
     this.state = { value: props.value };
-    this.onInput = this.onInput.bind(this);
     this.setState = this.setState.bind(this);
   }
 
-  onInput(e) {
-    this.value = e.target.value;
+  componentWillReceiveProps(nextProps) {
+    if (this.props.value !== nextProps.value) {
+      this.setState(st => ({ ...st, value: nextProps.value }));
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { name, ignore, value } = this.props;
+    if (name !== nextProps.name) return true;
+    if (ignore !== nextProps.ignore) return true;
+    if (value !== nextProps.value) return true;
+    if (this.state.value !== nextState.value) return true;
+    return false;
   }
 }
 
@@ -202,7 +212,16 @@ FormElement.defaultProps = {
 class Input extends FormElement {
   constructor(props) {
     super(props);
+    this.onInput = this.onInput.bind(this);
     if (this.type === "checkbox" && !this.value) this.state.value = false;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log("RECEIVING", nextProps);
+    if (nextProps.value !== this.state.value) {
+      console.log("UPDATING VALUE");
+      this.setState(st => ({ ...st, value: nextProps.value}));
+    }
   }
 
   // TODO: cache this
@@ -258,7 +277,6 @@ class Input extends FormElement {
     prependFunc(filteredProps, isCheck ? "onClick" : "onInput", this.onInput);
 
     if (isCheck && placeholder && placeholder.length > 0) {
-      filteredProps.id = filteredProps.id || Math.random().toString(); // TODO: use a GUID instead. More optimal collision rates.
       return (
         <label className="checkbox">{placeholder + " "}<input {...filteredProps} /></label>
       );

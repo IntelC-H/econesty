@@ -9,9 +9,12 @@ const MenuHeading = inheritClass('div', 'pure-menu-heading');
 const MenuLink = inheritClass('a', 'pure-menu-link');
 const MenuList = inheritClass('ul', 'pure-menu-list');
 const ButtonGroup = inheritClass('div', 'pure-button-group');
+
 const Loading = inheritClass('div', 'loading');
-const DeleteButton = inheritClass('a', 'form-delete-button fa fa-times');
 const Error = inheritClass('div', "error");
+
+const DeleteButton = inheritClass('a', 'delete-button fa fa-times');
+const SearchIcon = inheritClass('span', "search-icon fa fa-search");
 
 const Button = cssSubclass(props => props.href ? 'a' : 'button', {
   primary: 'pure-button-primary',
@@ -63,7 +66,7 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, Error, Labelled, DeleteButton, SideMargins };
+export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins };
 
 export default {
   Image: Image,
@@ -81,5 +84,6 @@ export default {
   Error: Error,
   Labelled: Labelled,
   DeleteButton: DeleteButton,
+  SearchIcon: SearchIcon,
   SideMargins: SideMargins
 };

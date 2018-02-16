@@ -10,23 +10,15 @@ $searchicon-size: 1.5em;
   overflow: visible;
   color: $primary-text-color;
   position: relative;
-
-  .pure-control-group {
-    margin-bottom: 0;
-  }
+  display: inline-block;
 
   fieldset {
     padding: 0;
   }
 
-  .searchfield-dropdown-wrapper {
-    position: relative;
-    width: 12.875em;
-  }
-
   .searchfield-dropdown {
     position: fixed;
-    width: inherit;
+    width: $input-width - $padding;
     .pure-table {
       border: none;
       border-bottom: 1px solid $divider-color; // stylelint-disable-line
@@ -54,14 +46,8 @@ $searchicon-size: 1.5em;
 
     top: ($padding / 2);
     bottom: ($padding / 2);
+    right: ($padding / 2);
     height: auto;
     position: absolute;
-    right: ($padding / 2);
   }
-}
-
-.searchfield-cancel-button {
-  display: inline-block;
-  vertical-align: middle;
-  cursor: pointer;
 }
