@@ -11,9 +11,9 @@ class CollectionView extends Component {
     children: a representation of the collection. Rendered w/ the prop
               `collectionView` which refers to the the enclosing CollectionView.
   */
+
   constructor(props) {
     super(props);
-    this.setState = this.setState.bind(this);
     this.reloadData = this.reloadData.bind(this);
     this.setPage = this.setPage.bind(this);
     this.gotoNextPage = this.gotoNextPage.bind(this);
@@ -34,17 +34,17 @@ class CollectionView extends Component {
 
   // Reloads the collection's current page from the server.
   reloadData() {
-    if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
+    this.setState(st => ({ ...st, loading: true }));
     this.props.collection.list(this.state.page,
                                this.props.search)
-                         .then(ps => {
+                         .then(ps =>
       this.setState(st => ({ ...st,
                              loading: false,
                              elements: ps.results,
                              nextPage: ps.next,
                              previousPage: ps.previous,
-                             count: ps.count}));
-    });
+                             count: ps.count}))
+    );
   }
 
   saveElement(object) {
@@ -54,25 +54,21 @@ class CollectionView extends Component {
   }
 
   createElement(object) {
-    this.setState(st => ({ ...st, loading: true,
-                                  page: 1 }), () => {
-      this.props.collection.create(object)
-                           .then(() => this.reloadData());
-    });
+    this.setState(st => ({ ...st, loading: true, page: 1 }));
+    this.props.collection.create(object)
+                         .then(this.reloadData);
   }
 
   updateElement(id, object) {
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.update(id, object)
-                           .then(() => this.reloadData());
-    });
+    this.setState(st => ({ ...st, loading: true }));
+    this.props.collection.update(id, object)
+                         .then(this.reloadData);
   }
 
   deleteElement(id, soft = false) {
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.delete(id, soft)
-                           .then(() => this.reloadData());
-    });
+    this.setState(st => ({ ...st, loading: true }));
+    this.props.collection.delete(id, soft)
+                         .then(this.reloadData);
   }
 
   getElements() {
@@ -99,35 +95,45 @@ class CollectionView extends Component {
     this.reloadData();
   }
 
-  render({ className, children, ...props}, state) {
-    if (state.loading) return <Loading
-                                className={(className || "") + " collection"} />;
+  shouldComponentUpdate(nextProps, nextState) {
+    const { search, collection, children } = this.props;
+    if (nextProps.search !== search) return true;
+    if (nextProps.collection.resource !== collection.resource) return true;
+    if (nextProps.collection.urlParams !== collection.urlParams) return true;
+    if (nextProps.children !== children) return true;
+    const { page, count, elements, loading } = this.state;
+    if (nextState.page !== page) return true;
+    if (nextState.count !== count) return true;
+    if (nextState.elements !== elements) return true;
+    if (nextState.loading !== loading) return true;
+    return false;
+  }
 
-    const prevPage = this.state.previousPage;
-    const nextPage = this.state.nextPage;
+  render({ className, children, ...props},
+         { loading, page, count, nextPage, previousPage }) {
+    if (loading) return <Loading className={(className || "") + " collection"} />;
+    let childPropsDiff = { collectionView: this };
     return (
       <div className={(className || "") + " collection"} {...props}>
-	{children.map(c => cloneElement(c, { collectionView: this }))}
+	{children.map(c => cloneElement(c, childPropsDiff))}
 
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">
-            <Button key={"previous-" + prevPage}
-                    disabled={prevPage === null}
+            <Button disabled={previousPage === null}
                     className="margined raised"
                     onClick={this.gotoPreviousPage}
-                    >{"❮"}</Button>
+                    >❮</Button>
           </GridUnit>
           <GridUnit className="center collection-control" size="1-3">
             <div className="collection-page-indicator">
-              <span>{this.state.page} of {Math.ceil(this.state.count/10) || 1}</span>
+              <span>{page} of {Math.ceil(count/10) || 1}</span>
             </div>
           </GridUnit>
           <GridUnit className="center collection-control" size="1-3">
-            <Button key={"next-" + nextPage}
-                    disabled={nextPage === null}
+            <Button disabled={nextPage === null}
                     className="margined raised"
                     onClick={this.gotoNextPage}
-                    >{"❯"}</Button>
+                    >❯</Button>
           </GridUnit>
         </Grid>
       </div>
@@ -199,6 +205,7 @@ class ElementView extends Component {
   */
   constructor(props) {
     super(props);
+    this.reloadData = this.reloadData.bind(this);
     this.updateElement = this.updateElement.bind(this);
     this.state = {
       loading: true,
@@ -211,34 +218,46 @@ class ElementView extends Component {
   }
 
   reloadData() {
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.read(this.props.elementID)
-                           .then(element => {
-        this.setState(st => ({
-          ...st,
-          element: element,
-          loading: false
-        }));
-      });
-    });
+    this.setState({ element: null, loading: true });
+    this.props.collection.read(this.props.elementID)
+                         .then(element => this.setState({
+      element: element,
+      loading: false
+    }));
   }
 
   updateElement(obj) {
-    const { id, ...xs } = obj; // eslint-disable-line no-unused-vars
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.update(this.getElement().id, obj)
-                           .then(newObj => {
-        this.setState(st => ({
-          ...st,
-          element: newObj,
-          loading: false
-        }));
-      });
-    });
+    this.setState({ element: null, loading: true });
+    this.props.collection.save({ id: this.props.elementID, ...obj }).then(newObj =>
+      this.setState({
+        element: newObj,
+        loading: false
+      })
+    );
+  }
+
+  componentDidUpdate({ collection, elementID }, prevState) {
+    if (collection.resource !== this.props.collection.resource ||
+        collection.urlParams !== this.props.collection.urlParams || 
+        elementID !== this.props.elementID) {
+      this.reloadData();
+    }
   }
 
   componentWillMount() {
     this.reloadData();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { elementID, collection, children } = this.props;
+    if (nextProps.elementID !== elementID) return true;
+    if (nextProps.collection.resource !== collection.resource) return true;
+    if (nextProps.collection.urlParams !== collection.urlParams) return true;
+    if (nextProps.children !== children) return true;
+    const { element, loading } = this.state;
+    if (nextState.element !== element) return true;
+    if (nextState.loading !== loading) return true;
+    return false;
   }
 
   render({ children, collection, elementID, ...props }, { loading }) {  // eslint-disable-line no-unused-vars
@@ -250,6 +269,12 @@ class ElementView extends Component {
     );
   }
 }
+
+ElementView.propTypes = {
+  collection: PropTypes.object.isRequired,
+  elementID: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+};
+ElementView.defaultProps = {};
 
 export { CollectionView, CollectionCreation, ElementView };
 export default {
