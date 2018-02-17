@@ -31,10 +31,12 @@ function SearchFieldRow({ collectionView, searchField, element }) {
         <td>
           <Link
             href={collectionView.getCollection().baseURL + element.id}
-            onClick={e => {
+            onMouseDown={e => e.preventDefault() }
+            onMouseUp={e => {
               let onClick = searchField.getClickAction();
               if (onClick) onClick(e);
               searchField.reset();
+              searchField.blur();
             }}>
             {h(component, linkBodyProps)}
           </Link>
@@ -85,6 +87,14 @@ class SearchField extends FormElement {
     };
   }
 
+  blur() {
+    if (this.inputNode) this.inputNode.base.blur();
+  }
+
+  focus() {
+    if (this.inputNode) this.inputNode.base.focus();
+  }
+
   get showsObject() {
     return Boolean(this.value) && !this.props.standalone;
   }
@@ -93,15 +103,11 @@ class SearchField extends FormElement {
     this.setState(st => ({ ...st, search: e.target.value }));
   }
 
-  onFocus(e) {
-    console.log("FOCUS");
+  onFocus() {
     this.setState(st => ({ ...st, focused: true }));
   }
 
-  onBlur(e) {
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    console.log("BLUR");
+  onBlur() {
     this.setState(st => ({ ...st, focused: false }));
     return false;
   }
@@ -138,11 +144,7 @@ class SearchField extends FormElement {
     if (super.shouldComponentUpdate(nextProps, nextState)) return true;
     if (this.props.search !== nextProps.search) return true;
     if (this.state.search !== nextState.search) return true;
-
-    // TODO: Fix clicking on a search element when zero search is the case    
     if (this.state.focused !== nextState.focused) return true;
-   //  && !Boolean(this.state.search)) return true;
-
     return false;
   }
 
@@ -165,10 +167,10 @@ class SearchField extends FormElement {
           <Input
             {...props}
             text ignore
+            ref={x => this.inputNode = x}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onInput={this.onSearchChange}
-      
           />
         }
         { !this.showsObject && focused &&

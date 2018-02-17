@@ -126,9 +126,9 @@ window.addEventListener("popstate", () => updateSubscribers(Router.getPath()));
 
 // TODO: page state
 
-function Link({ href, component, onClick, ...props}) {
-  return h(component || 'a', { ...props, onClick: e => {
-    if (onClick) onClick(e);
+function Link({ href, component, onMouseUp, ...props}) {
+  return h(component || 'a', { ...props, onMouseUp: e => {
+    if (onMouseUp) onMouseUp(e);
     if (href) Router.push(href);
   }});
 }

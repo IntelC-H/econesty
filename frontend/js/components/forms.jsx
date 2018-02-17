@@ -217,9 +217,7 @@ class Input extends FormElement {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("RECEIVING", nextProps);
     if (nextProps.value !== this.state.value) {
-      console.log("UPDATING VALUE");
       this.setState(st => ({ ...st, value: nextProps.value}));
     }
   }

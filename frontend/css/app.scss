@@ -22,12 +22,18 @@ thead {
 $header-icon-dim: 1em;
 $searchfield-dropdown-offset: ($shadow-blur - $shadow-dist) / 2;
 
+.vcenter {
+  position: relative;
+  transform: translateY(100%);
+}
+
 .user {
   padding: $padding;
   text-align: center;
   img {
     border-radius: 50%;
   }
+  margin: auto;
 }
 
 .header {

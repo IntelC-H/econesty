@@ -34,7 +34,6 @@ class CollectionView extends Component {
 
   // Reloads the collection's current page from the server.
   reloadData(page = this.state.page, search = this.props.search) {
-    console.log("API COLL RELOAD", search);
     this.setState(st => ({ ...st, loading: true }));
     this.props.collection.list(page, search).then(ps =>
       this.setState(st => ({ ...st,
