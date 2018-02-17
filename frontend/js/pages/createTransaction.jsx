@@ -7,7 +7,7 @@ import { API, DummyAPICollection } from 'app/api';
 import SearchField from 'app/components/searchfield';
 import { Router } from 'app/components/routing';
 
-function RequirementCreationForm({ collectionView }) {
+function RequirementCreationForm({ collectionView, CancelButton }) {
   return (
     <Form aligned onSubmit={collectionView.saveElement} className="section">
       <FormGroup>
@@ -22,12 +22,16 @@ function RequirementCreationForm({ collectionView }) {
         </Labelled>
       </FormGroup>
       <Button action="submit">ADD</Button>
+      <CancelButton />
     </Form>
   );
 }
 
 function RequirementCollection({ collectionView }) {
   let rs = collectionView.getElements();
+  if (rs.length === 0) return (
+                         <h3 className="secondary">No Requirements</h3>
+                       );
   return (
    <div>
    {rs.map(r =>
@@ -89,7 +93,7 @@ class CreateTransaction extends Component {
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
           <div className="section">
-            <h3 className="primary">{isSender ? "Send BTC" : "Receive BTC"}</h3>
+            <h1 className="primary">{isSender ? "Send BTC" : "Receive BTC"}</h1>
           </div>
           <Form aligned onSubmit={this.onSubmit}>
             <Input hidden name="sender_id" value={sender_id} />
@@ -106,6 +110,8 @@ class CreateTransaction extends Component {
             <Labelled label="How much?">
               <Input number required name="amount" step="0.0001" min="0" cols="7" />
             </Labelled>
+
+            <h2>Requirements for Transaction:</h2>
             <CollectionView collection={this.dummyCollection}>
               <CollectionCreation createText="+ Requirement">
                 <RequirementCreationForm />

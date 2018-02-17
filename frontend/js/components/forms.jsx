@@ -169,6 +169,10 @@ class FormElement extends Component {
     this.setState = this.setState.bind(this);
   }
 
+  static isValid(c) {
+    return c && c.name && "value" in c;
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.props.value !== nextProps.value || nextProps.value !== this.state.value) {
       this.setState(st => ({ ...st, value: nextProps.value }));
@@ -184,8 +188,6 @@ class FormElement extends Component {
     return false;
   }
 }
-
-FormElement.isValid = c => c && c.name && "value" in c;
 
 FormElement.propTypes = {
   name: PropTypes.string.isRequired,
@@ -321,31 +323,33 @@ Input.defaultProps = {
 class Select extends FormElement {
   constructor(props) {
     super(props);
-    this.state = {
-      ...this.state,
-      value: props.value || (!this.isAsync && props.options.length > 0 ? props.transform(props.options[0]) : null), // TODO: fixme
-      loading: false,
-      options: this.isAsync ? [] : props.options
-    };
+    this.state = this.applyPropsToState({ ...this.state, loading: false }, props);
   }
 
   get isAsync() {
-    return typeof this.props.options === "function";
+    return this.state.loadOptions !== undefined;
+  }
+
+  applyPropsToState(state, { value, options, transform }) {
+    let async = typeof options === "function";
+    return {
+      ...state,
+      value: value || (!async && options.length > 0 ? transform(options[0]) : null),
+      options: async ? [] : options,
+      loadOptions: async ? options : undefined
+    };
   }
 
   reloadData() {
-    if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
-    this.props.options().then(es => {
-      this.setState(st => {
-        let hasValue = st.value !== null && st.value !== undefined;
-        return {
-          ...st,
-          loading: false,
-          value: es.length === 0 || hasValue ? st.value : this.props.transform(es[0]),
-          options: es
-        };
-      });
-    });
+    this.setState(st => ({ ...st, loading: true }));
+    this.state.loadOptions().then(es =>
+      this.setState(st => ({
+        ...st,
+        loading: false,
+        value: st.value || (es.length > 0 ? this.props.transform(es[0]) : null),
+        options: es
+      }))
+    );
   }
 
   componentWillMount() {
@@ -356,15 +360,20 @@ class Select extends FormElement {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (super.shouldComponentUpdate(nextProps, nextState)) return true;
-    if (this.props.options !== nextProps.options) return true;
     if (this.state.options !== nextState.options) return true;
     if (this.state.loading !== nextState.loading) return true;
+  //  if (this.state.value !== nextState.value) return true; // Is this necessary?
     return false;
   }
 
   componentWillReceiveProps(nextProps) {
     super.componentWillReceiveProps(nextProps);
-    // TODO: implement me 
+    this.setState(st => this.applyPropsToState(st, nextProps));
+  }
+
+  onInput(e) {
+    this.value = e.target.value;
+    console.log(e, this.value);
   }
 
   render({ value, options, // eslint-disable-line no-unused-vars

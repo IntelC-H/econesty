@@ -120,7 +120,7 @@ class CollectionView extends Component {
     let childPropsDiff = { collectionView: this };
     return (
       <div className={(className || "") + " collection"} {...props}>
-	{count > 0 && children.map(c => cloneElement(c, childPropsDiff))}
+	{children.map(c => cloneElement(c, childPropsDiff))}
         {count === 0 && empty}
         {showsControls && count > 0 &&
         <Grid className="collection-controls">
@@ -184,10 +184,16 @@ class CollectionCreation extends Component {
 
   render({ children, collectionView, createText, cancelText }) {
     if (this.state.visible) {
+      if (children.length === 0) return null;
+
+      let childProps = {
+        collectionView: collectionView,
+        CancelButton: props => <Button onClick={() => this.setVisible(false)}>{cancelText}</Button>
+      };
+
       return (
         <div>
-          {children.map(c => cloneElement(c, { collectionView: collectionView }))}
-          <Button onClick={() => this.setVisible(false)}>{cancelText}</Button>
+          {children.map(c => cloneElement(c, childProps))}
         </div>
       );
     }

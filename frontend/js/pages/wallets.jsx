@@ -35,7 +35,7 @@ Wallet.defaultProps = {
   onSubmit: () => null
 };
 
-function WalletCreateForm({ collectionView }) {
+function WalletCreateForm({ collectionView, CancelButton }) {
   return (
     <div>
       <Form onSubmit={collectionView.saveElement}>
@@ -46,6 +46,7 @@ function WalletCreateForm({ collectionView }) {
                  placeholder="WIF-formatted Bitcoin private key" />
         </FormGroup>
         <Button action="submit">Save</Button>
+        <CancelButton />
       </Form>
     </div>
   );
