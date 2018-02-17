@@ -81,16 +81,6 @@ function EditableUserRepresentation({ elementView }) {
         </FormGroup>
         <Button action="submit">Save</Button>
       </Form>
-      <Link
-        component={Button}
-        className="margined raised"
-        href="/wallets"
-      >Wallets</Link>
-      <Link
-        component={Button}
-        className="margined raised"
-        href="/required"
-      >Required</Link>
       <Button
         onClick={() => {
           API.networking("DELETE", "/token/clear", {}, {}).then(() => {
@@ -105,7 +95,7 @@ function EditableUserRepresentation({ elementView }) {
 }
 
 function Profile(props) {
-  const userId = props.matches.id;
+  const userId = parseInt(props.matches.id);
 
   return (
     <Grid>
@@ -126,6 +116,18 @@ function Profile(props) {
             className="margined raised"
             href={API.user.baseURL + userId + "/transaction/receive"}
           >Receive BTC</Link>
+          {userId === API.getUserID() &&
+          <Link
+            component={Button}
+            className="margined raised"
+            href="/wallets"
+          >Wallets</Link>}
+          {userId === API.getUserID() &&
+          <Link
+            component={Button}
+            className="margined raised"
+            href="/required"
+          >Required</Link>}
         </div>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody />

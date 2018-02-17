@@ -19,7 +19,6 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-  - test bitcoin implementation
   - make look purdy
   - make groups in forms look better
     -  light backgrounds?
@@ -35,16 +34,15 @@ function secure(comp) {
   return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
 }
 
-// TODO: make this wrap a components.
 // This function exists because JS's regex
 // implementation doesn't support bidirectional lookaround.
-function replacePath(comp, gen, guard = () => true) {
+function replacePath(pathcomp, gen, guard = () => true) {
   return secure(() => {
     if (guard()) {
       const v = gen();
       const url = Router.getPath()
                         .split("/")
-                        .map(u => u === comp ? v : u)
+                        .map(u => u === pathcomp ? v : u)
                         .join("/");
       return Router.replace(url);
     }
@@ -70,10 +68,10 @@ export default () =>
         makeRoute("/", redirectOnAuth("/user/me", Home)),
         makeRoute(u => u.split("/").indexOf("me") !== -1,
                   replacePath("me", () => API.getUserID(),
-                                    () => !!API.getUserID())),
+                                    () => API.isAuthenticated)),
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
-        makeRoute("/user/:id", Profile), // view a profile
+        makeRoute("/user/:id", secure(Profile)), // view a profile
         makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["send", "receive"] }), // create transaction's
         makeRoute("/wallets", secure(Wallets)), // manage payment_data's
         makeRoute("/transaction/:id", secure(TransactionDetail)), // your transactions

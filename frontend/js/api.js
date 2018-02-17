@@ -50,7 +50,8 @@ class API {
   }
 
   static get isAuthenticated() {
-    return API.getToken() !== null;
+    let t = API.getToken();
+    return t !== null && t !== undefined;
   }
 
   static getToken() {
