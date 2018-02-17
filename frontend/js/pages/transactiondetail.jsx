@@ -45,7 +45,7 @@ function TransactionInfo({ elementView }) {
               transform={w => w.id}
               faceTransform={w => w.private_key} />
           </Labelled>
-          <Button className="margined raised" action="submit">SAVE WALLET</Button>
+          <Button action="submit">SAVE WALLET</Button>
         </FormGroup>
       </Form>}
 

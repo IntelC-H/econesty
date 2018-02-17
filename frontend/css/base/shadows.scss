@@ -5,6 +5,10 @@ $shadow-color: #999 !default;
 
 $raised-zindex: 100;
 
+.shadowed {
+  box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
+}
+
 .raised {
   z-index: $raised-zindex;
   box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;

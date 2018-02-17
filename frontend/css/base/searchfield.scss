@@ -44,9 +44,12 @@ $searchicon-size: 1.5em;
     padding: 0;
     margin: 0;
 
+    float: right;
+
     top: ($padding / 2);
     bottom: ($padding / 2);
     right: ($padding / 2);
+    left: auto;
     height: auto;
     position: absolute;
   }

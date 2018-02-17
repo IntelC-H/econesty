@@ -5,6 +5,7 @@
 */
 
 input[type], textarea, select {
+  margin: 0em;
   &:focus {
     border-color: $accent-color;
   }

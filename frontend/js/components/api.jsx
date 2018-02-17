@@ -114,7 +114,7 @@ class CollectionView extends Component {
     return false;
   }
 
-  render({ className, children, ...props},
+  render({ className, children, showsControls, ...props},
          { loading, page, count, nextPage, previousPage }) {
     if (loading) return <Loading className={(className || "") + " collection"} />;
     let childPropsDiff = { collectionView: this };
@@ -122,6 +122,7 @@ class CollectionView extends Component {
       <div className={(className || "") + " collection"} {...props}>
 	{children.map(c => cloneElement(c, childPropsDiff))}
 
+        {showsControls && 
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">
             <Button disabled={previousPage === null}
@@ -140,17 +141,19 @@ class CollectionView extends Component {
                     onClick={this.gotoNextPage}
                     >❯</Button>
           </GridUnit>
-        </Grid>
+        </Grid>}
       </div>
     );
   }
 }
 
 CollectionView.propTypes = {
+  showsControls: PropTypes.bool,
   search: PropTypes.string,
   collection: PropTypes.object.isRequired
 };
 CollectionView.defaultProps = {
+  showsControls: true,
   search: null
 };
 

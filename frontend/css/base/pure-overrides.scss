@@ -2,11 +2,19 @@
   PureCSS Overrides
 */
 
+.pure-form {
+  input[type], textarea, select {
+    margin: 0em;
+  }
+}
+
 .pure-button {
   background-color: $accent-color;
   color: white;
   border-radius: $border-radius;
   height: 2.5em;
+  box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
+  margin: $padding;
 }
 
 .pure-menu-heading {

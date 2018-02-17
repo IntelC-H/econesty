@@ -8,20 +8,6 @@ import { makeClassName } from './utilities';
 import { Link } from './routing';
 import { DeleteButton, SearchIcon } from './elements';
 
-function SearchResultsView({ searchField, collectionView }) {
-  let elements = collectionView.getElements();
-  return (
-    <Table striped horizontal>
-      <tbody>
-        {elements.map(e => <SearchFieldRow
-                             collectionView={collectionView}
-                             searchField={searchField}
-                             element={e} />)}
-      </tbody>
-    </Table>
-  );
-}
-
 function SearchFieldRow({ collectionView, searchField, element }) {
   let component = searchField.getLinkComponent();
   let linkBodyProps = { element: element };
@@ -56,20 +42,19 @@ function SearchFieldRow({ collectionView, searchField, element }) {
   );
 }
 
-const propTypes = {
-  component: PropTypes.func.isRequired,
-  api: PropTypes.instanceOf(APICollection).isRequired,
-  search: PropTypes.string,
-  standalone: PropTypes.bool,
-  onClick: PropTypes.func
-};
-
-const defaultProps = {
-  search: null,
-  standalone: false,
-  placeholder: "search...",
-  onClick: () => undefined
-};
+function SearchResultsView({ searchField, collectionView }) {
+  let elements = collectionView.getElements();
+  return (
+    <Table striped horizontal>
+      <tbody>
+        {elements.map(e => <SearchFieldRow
+                             collectionView={collectionView}
+                             searchField={searchField}
+                             element={e} />)}
+      </tbody>
+    </Table>
+  );
+}
 
 class SearchField extends FormElement {
   constructor(props) {
@@ -177,6 +162,7 @@ class SearchField extends FormElement {
           <CollectionView
             collection={api}
             search={search}
+            showsControls={false}
             className="searchfield-dropdown raised-v">
             <SearchResultsView searchField={this} />
           </CollectionView>
@@ -186,7 +172,19 @@ class SearchField extends FormElement {
   }
 }
 
-SearchField.propTypes = propTypes;
-SearchField.defaultProps = defaultProps;
+SearchField.propTypes = {
+  component: PropTypes.func.isRequired,
+  api: PropTypes.instanceOf(APICollection).isRequired,
+  search: PropTypes.string,
+  standalone: PropTypes.bool,
+  onClick: PropTypes.func
+};
+
+SearchField.defaultProps = {
+  search: null,
+  standalone: false,
+  placeholder: "search...",
+  onClick: () => undefined
+};
 
 export default SearchField;

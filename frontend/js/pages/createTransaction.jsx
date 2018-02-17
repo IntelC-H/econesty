@@ -9,7 +9,7 @@ import { Router } from 'app/components/routing';
 
 function RequirementCreationForm({ collectionView }) {
   return (
-    <Form aligned onSubmit={collectionView.saveElement}>
+    <Form aligned onSubmit={collectionView.saveElement} className="section">
       <FormGroup>
         <Labelled label="Terms">
           <Input text name="text" />
@@ -88,9 +88,8 @@ class CreateTransaction extends Component {
       <Grid>
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
-          <div className="informational">
-            <h3>Create a Transaction</h3>
-            <p>This is the page you use to create a transaction.</p>
+          <div className="section">
+            <h3 className="primary">{isSender ? "Send BTC" : "Receive BTC"}</h3>
           </div>
           <Form aligned onSubmit={this.onSubmit}>
             <Input hidden name="sender_id" value={sender_id} />
