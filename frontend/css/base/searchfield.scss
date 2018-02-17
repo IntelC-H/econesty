@@ -27,15 +27,6 @@ $searchicon-size: 1.5em;
     background-color: $primary-color-light;
   }
 
-  .searchfield-dropdown-clickshield {
-    background: transparent;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
   .search-icon {
     pointer-events: none;
     cursor: default;

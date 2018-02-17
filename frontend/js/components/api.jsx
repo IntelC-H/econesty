@@ -122,7 +122,7 @@ class CollectionView extends Component {
       <div className={(className || "") + " collection"} {...props}>
 	{children.map(c => cloneElement(c, childPropsDiff))}
 
-        {showsControls && 
+        {showsControls &&
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">
             <Button disabled={previousPage === null}

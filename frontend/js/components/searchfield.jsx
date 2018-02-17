@@ -143,10 +143,6 @@ class SearchField extends FormElement {
             {h(component, { element: this.value })}
           </Link>
         }
-        { !this.showsObject && focused &&
-          <div
-            className="searchfield-dropdown-clickshield"
-            onClick={this.reset} />}
         { !this.showsObject && <SearchIcon /> }
         { !this.showsObject &&
           <Input

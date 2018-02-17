@@ -19,15 +19,18 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-  - make look purdy
-  - make groups in forms look better
-    -  light backgrounds?
-    -  position the delete buttons right
-  - SearchField overlay allow clicking in textfield
-  - Fix SearchField search icon in forms with screen width < 400
-  - Tooltips
-    - Usernames
-    - created ats
+    JavaScript
+    - CollectionView empty collection - don't show empty tables etc
+    - Hide profile buttons when appropriate ("Send BTC" and "Receive BTC")
+    - Tooltips
+      - Usernames
+      - created ats
+    CSS
+    - make look purdy
+    - make groups in forms look better
+      -  light backgrounds?
+      -  position the delete buttons right
+    - Fix SearchField search icon in forms with screen width < 400
 */
 
 function secure(comp) {
@@ -57,7 +60,7 @@ function makeRoute(path, Comp, wcs) {
 function redirectOnAuth(path, FallbackComp) {
   return props => {
     if (API.isAuthenticated) return Router.replace(path);
-    return <FallbackComp {...props} />;
+    return h(FallbackComp, props);
   };
 }
 
