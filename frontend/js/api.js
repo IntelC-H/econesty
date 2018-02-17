@@ -46,7 +46,7 @@ class API {
   static clearAuth() {
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
-    document.cookie = "Authorization=;";
+    document.cookie = "Authorization=; Max-Age=-99999999;";
   }
 
   static get isAuthenticated() {

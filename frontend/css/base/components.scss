@@ -46,16 +46,17 @@
 */
 
 label.checkbox {
-  vertical-align: middle;
   display: inline-block;
-  margin: $padding/2; 
+  margin: $padding;
 
   input[type=checkbox] {
-    display: inline-block;
+    margin-left: $padding;
+    height: 1.25em;
+    width: 1.25em;
   }
 }
 
-.form-group {
+fieldset {
   border-radius: $border-radius;
 }
 

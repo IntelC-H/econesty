@@ -54,19 +54,19 @@ class CollectionView extends Component {
   createElement(object) {
     this.setState(st => ({ ...st, loading: true, page: 1 }));
     this.props.collection.create(object)
-                         .then(this.reloadData);
+                         .then(() => this.reloadData());
   }
 
   updateElement(id, object) {
     this.setState(st => ({ ...st, loading: true }));
     this.props.collection.update(id, object)
-                         .then(this.reloadData);
+                         .then(() => this.reloadData());
   }
 
   deleteElement(id, soft = false) {
     this.setState(st => ({ ...st, loading: true }));
     this.props.collection.delete(id, soft)
-                         .then(this.reloadData);
+                         .then(() => this.reloadData());
   }
 
   getElements() {
@@ -114,15 +114,15 @@ class CollectionView extends Component {
     return false;
   }
 
-  render({ className, children, showsControls, ...props},
+  render({ className, children, showsControls, empty, ...props},
          { loading, page, count, nextPage, previousPage }) {
     if (loading) return <Loading className={(className || "") + " collection"} />;
     let childPropsDiff = { collectionView: this };
     return (
       <div className={(className || "") + " collection"} {...props}>
-	{children.map(c => cloneElement(c, childPropsDiff))}
-
-        {showsControls &&
+	{count > 0 && children.map(c => cloneElement(c, childPropsDiff))}
+        {count === 0 && empty}
+        {showsControls && count > 0 &&
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">
             <Button disabled={previousPage === null}
@@ -148,11 +148,13 @@ class CollectionView extends Component {
 }
 
 CollectionView.propTypes = {
+  empty: PropTypes.node,
   showsControls: PropTypes.bool,
   search: PropTypes.string,
   collection: PropTypes.object.isRequired
 };
 CollectionView.defaultProps = {
+  empty: null,
   showsControls: true,
   search: null
 };
@@ -245,7 +247,7 @@ class ElementView extends Component {
   }
 
   componentDidUpdate({ collection, elementID },
-                     prevState) { // eslint-disable-line no-unused-vars
+                       prevState) { // eslint-disable-line no-unused-vars
     if (collection.resource !== this.props.collection.resource ||
         collection.urlParams !== this.props.collection.urlParams ||
         elementID !== this.props.elementID) {

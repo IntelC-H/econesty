@@ -129,7 +129,8 @@ function Profile(props) {
             href="/required"
           >Required</Link>}
         </div>
-        <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
+        <CollectionView collection={API.user.append("/" + userId + "/transactions")}
+                        empty={<p>No Transactions</p>}>
           <TransactionCollectionBody />
         </CollectionView>
       </GridUnit>

@@ -21,7 +21,7 @@ function RequirementCreationForm({ collectionView }) {
                        component={props => props.element.username} />
         </Labelled>
       </FormGroup>
-      <Button action="submit">CREATE</Button>
+      <Button action="submit">ADD</Button>
     </Form>
   );
 }

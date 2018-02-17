@@ -14,13 +14,13 @@ function RequirementRow({ collectionView, element }) {
       <p>{element.text}</p>
       <Form key={element.id + "-ack"}
             ref={e => form = e}
-            onSubmit={obj => collectionView.updateElement(element.id, obj)}>
+            onSubmit={collectionView.saveElement}>
+        <Input hidden name="id" value={element.id} />
         <Input checkbox
                placeholder="Acknowledged"
                disabled={element.acknowledged}
                onClick={() => form.submit()}
                name="acknowledged" value={element.acknowledged}/>
-
         <Input text
                disabled={Boolean(element.signature)}
                name="signature" value={element.signature}/>

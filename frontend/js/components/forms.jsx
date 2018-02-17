@@ -8,19 +8,14 @@ function prependFunc(obj, fname, newf) {
   if (!oldf) obj[fname] = newf;
   else obj[fname] = function() {
     newf.apply(obj, arguments);
-    if (oldf) oldf.apply(obj, arguments);
+    oldf.apply(obj, arguments);
   };
   return obj;
 }
 
-function walkObject(obj, k) {
-  if (!obj[k]) obj[k] = {};
-  return obj[k];
-}
-
 function setKeypath(obj, kp, value) {
   let [key, ...keys] = kp.split('.').filter(e => e && e.length > 0);
-  keys.reduce(walkObject, obj)[key] = value;
+  keys.reduce((o, k) => o[k] ? o[k] : o[k] = {}, obj)[key] = value;
 }
 
 // Provides a mechanism for referencing children
@@ -54,11 +49,9 @@ class ReferencingComponent extends Component {
    *  @param {VNode} c  A (JSX) Node whose ref will be modified.
    */
   recursiveRef(c) {
-    if (c) {
-      if (c instanceof Object) {
-        if (!c.attributes) c.attributes = {};
-        prependFunc(c.attributes, "ref", this.reference);
-      }
+    if (c && c instanceof Object) {
+      if (!c.attributes) c.attributes = {};
+      prependFunc(c.attributes, "ref", this.reference);
       if (c.children) c.children.forEach(this.recursiveRef);
     }
     return c;
@@ -143,7 +136,6 @@ Form.defaultProps = {
   stacked: false
 };
 
-// fieldset/legend wrapper
 class FormGroup extends Component {
   get keypath() { return this.props.keypath; } // eslint-disable-line brace-style
 
@@ -151,11 +143,9 @@ class FormGroup extends Component {
     return { groups: (this.context.groups || []).concat([this]) };
   }
 
-  render() {
-    const { className, ...filteredProps } = this.props;
-    filteredProps.className = makeClassName(className, "form-group");
-    delete filteredProps.keypath;
-    return h('fieldset', filteredProps);
+  render({ keypath, // eslint-disable-line no-unused-vars
+           ...props}) {
+    return h('fieldset', props);
   }
 }
 
@@ -180,7 +170,7 @@ class FormElement extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.value !== nextProps.value) {
+    if (this.props.value !== nextProps.value || nextProps.value !== this.state.value) {
       this.setState(st => ({ ...st, value: nextProps.value }));
     }
   }
@@ -213,13 +203,8 @@ class Input extends FormElement {
   constructor(props) {
     super(props);
     this.onInput = this.onInput.bind(this);
+    this.toggleCheckbox = this.toggleCheckbox.bind(this);
     if (this.type === "checkbox" && !this.value) this.state.value = false;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.state.value) {
-      this.setState(st => ({ ...st, value: nextProps.value}));
-    }
   }
 
   // TODO: cache this
@@ -252,6 +237,12 @@ class Input extends FormElement {
     else                              this.value = inpt.value;
   }
 
+  toggleCheckbox() {
+    if (!this.props.disabled) {
+      this.value = !this.value;
+    }
+  }
+
   render(props) {
     const {className, placeholder,
            type, search, range, // eslint-disable-line no-unused-vars
@@ -276,7 +267,10 @@ class Input extends FormElement {
 
     if (isCheck && placeholder && placeholder.length > 0) {
       return (
-        <label className="checkbox">{placeholder + " "}<input {...filteredProps} /></label>
+        <label className="checkbox">
+          <span onClick={this.toggleCheckbox}>{placeholder + " "}</span>
+          <input {...filteredProps} />
+        </label>
       );
     }
 
@@ -328,7 +322,8 @@ class Select extends FormElement {
   constructor(props) {
     super(props);
     this.state = {
-      value: props.value || (!this.isAsync && props.options.length > 0 ? props.transform(props.options[0]) : null),
+      ...this.state,
+      value: props.value || (!this.isAsync && props.options.length > 0 ? props.transform(props.options[0]) : null), // TODO: fixme
       loading: false,
       options: this.isAsync ? [] : props.options
     };
@@ -338,28 +333,43 @@ class Select extends FormElement {
     return typeof this.props.options === "function";
   }
 
+  reloadData() {
+    if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
+    this.props.options().then(es => {
+      this.setState(st => {
+        let hasValue = st.value !== null && st.value !== undefined;
+        return {
+          ...st,
+          loading: false,
+          value: es.length === 0 || hasValue ? st.value : this.props.transform(es[0]),
+          options: es
+        };
+      });
+    });
+  }
+
   componentWillMount() {
     if (this.isAsync) {
-      if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
-      this.props.options().then(es => {
-        this.setState(st => {
-          let hasValue = st.value !== null && st.value !== undefined;
-          return {
-            ...st,
-            loading: false,
-            value: es.length === 0 || hasValue ? st.value : this.props.transform(es[0]),
-            options: es
-          };
-        });
-      });
+      this.reloadData();
     }
   }
 
-  render(props, { loading }) {
-    if (this.isAsync && loading) return <Loading />;
+  shouldComponentUpdate(nextProps, nextState) {
+    if (super.shouldComponentUpdate(nextProps, nextState)) return true;
+    if (this.props.options !== nextProps.options) return true;
+    if (this.state.options !== nextState.options) return true;
+    if (this.state.loading !== nextState.loading) return true;
+    return false;
+  }
 
-    const { value, options, // eslint-disable-line no-unused-vars
-            transform, faceTransform, className, ...filteredProps } = props;
+  componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
+    // TODO: implement me 
+  }
+
+  render({ value, options, // eslint-disable-line no-unused-vars
+           transform, faceTransform, className, ...filteredProps }, { loading }) {
+    if (this.isAsync && loading) return <Loading />;
 
     prependFunc(filteredProps, "onChange", this.onInput);
     filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
