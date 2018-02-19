@@ -22,10 +22,9 @@ const Button = cssSubclass(props => props.href ? 'a' : 'button', {
 }, 'pure-button');
 
 const Table = cssSubclass('table', {
-  bordered: 'pure-table-bordered',
-  horizontal: 'pure-table-horizontal',
-  striped: 'pure-table-striped'
-}, 'pure-table');
+  selectable: 'table-selectable',
+  striped: 'table-striped'
+}, null);
 
 const Menu = cssSubclass('div', {
   horizontal: 'pure-menu-horizontal',

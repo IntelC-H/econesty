@@ -1,0 +1,40 @@
+@import "./variables";
+@import "./mixins";
+
+/*
+  Styling for forms and form elements
+*/
+
+input[type], textarea, select {
+  &:not([type=checkbox]) {
+    height: 2.5em;
+  }
+
+  display: inline-block;
+  border: 1px solid #ccc; // stylelint-disable-line unit-whitelist
+  box-shadow: inset 0 1px 3px #ddd; // stylelint-disable-line unit-whitelist
+  border-radius: 4px; // stylelint-disable-line unit-whitelist
+  vertical-align: middle;
+  box-sizing: border-box;
+
+  margin: 0;
+  max-width: 100%;
+  padding: $padding;
+}
+
+label.checkbox {
+  display: inline-block;
+  margin: $padding;
+
+  input[type=checkbox] {
+    margin-left: $padding;
+    height: 1.25em;
+    width: 1.25em;
+  }
+}
+
+fieldset {
+  border-radius: $border-radius;
+  padding-top: $padding;
+  padding-bottom: $padding;
+}

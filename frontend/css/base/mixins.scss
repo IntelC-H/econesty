@@ -1,0 +1,44 @@
+@import "./variables";
+@import "./fonts";
+
+@mixin shadowed {
+  box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
+}
+
+@mixin shadowed-v {
+  box-shadow: 0 $shadow-dist $shadow-blur $shadow-color;
+}
+
+@mixin shadowed-h {
+  box-shadow: $shadow-dist 0 $shadow-blur $shadow-color;
+}
+
+@mixin noshadow {
+  box-shadow: none;
+}
+
+@mixin raised {
+  z-index: 100;
+}
+
+@mixin clearfix {
+  overflow: hidden;
+}
+
+@mixin sticky {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+}
+
+@mixin open-sans($fonts...) {
+  font-family: append(append($fonts, 'Open Sans', comma), sans-serif, comma);
+}
+
+@mixin keyframes($animationName) {
+  @-webkit-keyframes #{$animationName} {
+    @content;
+  }
+  @keyframes #{$animationName} {
+    @content;
+  }
+}

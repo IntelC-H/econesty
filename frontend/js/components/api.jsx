@@ -126,7 +126,6 @@ class CollectionView extends Component {
         <Grid className="collection-controls">
           <GridUnit className="center collection-control" size="1-3">
             <Button disabled={previousPage === null}
-                    className="margined raised"
                     onClick={this.gotoPreviousPage}
                     >❮</Button>
           </GridUnit>
@@ -137,7 +136,6 @@ class CollectionView extends Component {
           </GridUnit>
           <GridUnit className="center collection-control" size="1-3">
             <Button disabled={nextPage === null}
-                    className="margined raised"
                     onClick={this.gotoNextPage}
                     >❯</Button>
           </GridUnit>
@@ -188,7 +186,7 @@ class CollectionCreation extends Component {
 
       let childProps = {
         collectionView: collectionView,
-        CancelButton: props => <Button onClick={() => this.setVisible(false)}>{cancelText}</Button>
+        CancelButton: () => <Button onClick={() => this.setVisible(false)}>{cancelText}</Button>
       };
 
       return (

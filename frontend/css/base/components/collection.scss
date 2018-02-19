@@ -1,0 +1,24 @@
+/*
+  <CollectionView /> component
+*/
+
+.collection {
+  table {
+    width: 100%;
+  }
+  .collection-controls {
+    text-align: center;
+  }
+  .collection-page-indicator {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    span {
+      position: absolute;
+      width: 100%;
+      top: 25%;
+      height: 50%;
+      display: block;
+    }
+  }
+}

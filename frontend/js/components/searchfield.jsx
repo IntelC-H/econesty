@@ -159,7 +159,7 @@ class SearchField extends FormElement {
             collection={api}
             search={search}
             showsControls={false}
-            className="searchfield-dropdown raised-v">
+            className="searchfield-dropdown">
             <SearchResultsView searchField={this} />
           </CollectionView>
         }

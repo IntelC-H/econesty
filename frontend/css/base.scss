@@ -1,105 +1,19 @@
-//
-// base.scss
-//
-// Base styles in Econesty.
-//
+/*
+  Base styles in Econesty.
+*/
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+@import "base/fonts";
+@import "base/mixins";
 
-//
-// Constants
-//
+@import "base/pure-overrides";
 
-$header-height: 3em !default;
-$header-font-size: 1.25em !default;
+@import "base/forms";
 
-$input-width: 13em;
+@import "base/components/deletebutton";
+@import "base/components/searchfield";
+@import "base/components/loading";
+@import "base/components/collection";
+@import "base/components/labelled";
+@import "base/components/table";
 
-$pure-sm: 568px !default; // stylelint-disable-line
-$pure-md: 768px !default; // stylelint-disable-line
-$pure-lg: 1024px !default; // stylelint-disable-line
-$pure-xl: 1280px !default; // stylelint-disable-line
-
-$padding: 0.5em !default;
-
-$border-radius: ($padding / 3) !default;
-
-//
-// Palette Colors
-//
-
-// materialpalette.com/light-green/pink
-
-// materialpalette.com/green/brown
-$primary-color-dark:   #388E3C !default; // UI element background
-$primary-color:        #4CAF50 !default; // UI element background
-$primary-color-light:  #C8E6C9 !default; // page background
-$primary-color-text:   #FFFFFF !default; // Text/Icons: nav bar title
-$accent-color:         #795548 !default; // accents
-$primary-text-color:   #212121 !default; // h1 and friends
-$secondary-text-color: #757575 !default; // Secondary Text: p tags and detail text
-$divider-color:        #BDBDBD !default; // hr's
-
-// Mixins
-
-@mixin keyframes($animationName) {
-  @-webkit-keyframes #{$animationName} {
-    @content;
-  }
-  @keyframes #{$animationName} {
-    @content;
-  }
-}
-
-@mixin property-rule($propertyName, $value) {
-  .#{$value} {
-    /* provided by property-rule mixin */
-    #{$propertyName}: $value;
-    /* user defined @content */
-    @content;
-  }
-}
-
-@mixin sizing-rule($ruleName, $propertyName, $value) {
-  /* provided by sizing-rule mixin */
-  .#{$ruleName} {
-    /* provided by sizing-rule mixin */
-    #{$propertyName}: $value;
-    /* user defined @content */
-    @content;
-  }
-
-  /* additional rule provided by sizing-rule mixin */
-  .v-#{$ruleName} {
-    /* provided by sizing-rule mixin */
-    #{$propertyName}: $value 0 $value 0;
-    /* user defined @content */
-    @content;
-  }
-
-  /* additional rule provided by sizing-rule mixin */
-  .h-#{$ruleName} {
-    /* additional property provided by sizing-rule mixin */
-    #{$propertyName}: 0 $value 0 $value;
-    /* user defined @content */
-    @content;
-  }
-}
-
-@include property-rule(position, fixed);
-@include property-rule(position, relative);
-@include property-rule(display, block);
-@include property-rule(display, inline-block);
-@include property-rule(display, inline);
-@include property-rule(text-align, center);
-
-@include sizing-rule(padded, padding, $padding);
-@include sizing-rule(margined, margin, $padding);
-
-@import "./base/tags";
-@import "./base/text";
-@import "./base/shadows";
-@import "./base/pure-overrides";
-
-@import "./base/components";
-@import "./base/searchfield";
+@import "base/variables";

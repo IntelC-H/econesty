@@ -21,13 +21,13 @@ function BriefUserInfo({ user }) {
 function TransactionCollectionBody({ collectionView }) {
   return (
     <div className="collection">
-      <Table striped horizontal>
+      <Table striped selectable>
         <thead>
           <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th></tr>
         </thead>
         <tbody>
           {collectionView.getElements().map(obj =>
-            <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}> {/* TODO: highlight on hover */}
+            <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}>
               <td>
                 {obj.id}
               </td>
@@ -88,7 +88,6 @@ function EditableUserRepresentation({ elementView }) {
             Router.push("/");
           });
         }}
-        className="margined raised"
       >LOG OUT</Button>
     </div>
   );
@@ -108,24 +107,20 @@ function Profile(props) {
         <div className="profile-button-group">
           <Link
             component={Button}
-            className="margined raised"
             href={API.user.baseURL + userId + "/transaction/send"}
           >Send BTC</Link>
           <Link
             component={Button}
-            className="margined raised"
             href={API.user.baseURL + userId + "/transaction/receive"}
           >Receive BTC</Link>
           {userId === API.getUserID() &&
           <Link
             component={Button}
-            className="margined raised"
             href="/wallets"
           >Wallets</Link>}
           {userId === API.getUserID() &&
           <Link
             component={Button}
-            className="margined raised"
             href="/required"
           >Required</Link>}
         </div>

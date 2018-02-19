@@ -1,0 +1,24 @@
+/*
+  <Labelled /> component
+*/
+
+.labelled {
+  display: block;
+
+  label {
+    display: flex;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: $pure-sm) {
+  .labelled {
+    & > * {
+      display: block;
+    }
+    * {
+      width: 100%;
+    }
+  }
+}

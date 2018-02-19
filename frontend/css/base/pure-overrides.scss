@@ -2,18 +2,15 @@
   PureCSS Overrides
 */
 
-.pure-form {
-  input[type], textarea, select {
-    margin: 0em;
-  }
-}
+@import "./mixins";
+@import "./variables";
 
 .pure-button {
   background-color: $accent-color;
   color: white;
   border-radius: $border-radius;
   height: 2.5em;
-  box-shadow: $shadow-dist $shadow-dist $shadow-blur $shadow-color;
+  @include shadowed;
   margin: $padding;
 }
 

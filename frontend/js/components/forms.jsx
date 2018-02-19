@@ -256,7 +256,6 @@ class Input extends FormElement {
            ...filteredProps} = props;
 
     filteredProps.type = this.type;
-    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', props)));
 
     const isCheck = this.type === "checkbox";
 
@@ -373,7 +372,6 @@ class Select extends FormElement {
 
   onInput(e) {
     this.value = e.target.value;
-    console.log(e, this.value);
   }
 
   render({ value, options, // eslint-disable-line no-unused-vars

@@ -1,12 +1,13 @@
 /*
-  Search Fields
+  <SearchField /> component
 */
 
-@import "./shadows";
-
-$searchicon-size: 1.5em;
+@import "base/mixins";
+@import "base/variables";
 
 .searchfield {
+  $searchicon-size: 1.5em;
+
   overflow: visible;
   color: $primary-text-color;
   position: relative;
@@ -17,17 +18,19 @@ $searchicon-size: 1.5em;
   }
 
   .searchfield-dropdown {
+    @include shadowed-v;
+    @include raised;
     position: fixed;
     width: $input-width - $padding;
     .pure-table {
       border: none;
-      border-bottom: 1px solid $divider-color; // stylelint-disable-line
     }
     border: 1px solid $divider-color;  // stylelint-disable-line
     background-color: $primary-color-light;
   }
 
   .search-icon {
+    // Make the cursor ignore the search icon
     pointer-events: none;
     cursor: default;
 
@@ -35,13 +38,11 @@ $searchicon-size: 1.5em;
     padding: 0;
     margin: 0;
 
-    float: right;
-
+    position: absolute;
     top: ($padding / 2);
     bottom: ($padding / 2);
     right: ($padding / 2);
     left: auto;
     height: auto;
-    position: absolute;
   }
 }

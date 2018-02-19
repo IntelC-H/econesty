@@ -1,0 +1,48 @@
+/*
+  <Table /> component
+*/
+
+table {
+  $table-color: white !default !global;
+
+  background-color: $table-color;
+  border-collapse: collapse;
+  border-spacing: 0;
+  empty-cells: show;
+  border: 1px solid #cbcbcb; // stylelint-disable-line unit-whitelist
+
+  td, th {
+    border-left: 1px solid #cbcbcb; /* inner column border */ // stylelint-disable-line unit-whitelist
+    border-width: 0 0 1px 0px; // stylelint-disable-line unit-whitelist
+    font-size: inherit;
+    margin: 0;
+    overflow: visible; /* compat with long titles */
+    padding: 0.5em 1em; /* cell padding */
+  }
+
+  thead {
+    text-align: left;
+    vertical-align: bottom;
+  
+    background-color: darken($table-color, 12);
+    color: invert(darken($table-color, 12));
+  }
+
+  &.table-striped tbody {
+    tr:nth-child(2n-1) {
+      td {
+        background-color: darken($table-color, 5);
+      }
+    }
+  }
+
+  &.table-selectable tbody {
+    tr:hover td {
+      background-color: darken($table-color, 15);;
+    }
+    tr:active td {
+      background-color: darken($table-color, 20);;
+    }
+  }
+}
+

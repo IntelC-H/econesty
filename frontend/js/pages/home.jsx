@@ -4,7 +4,7 @@ import { Link } from 'app/components/routing';
 import { Button } from 'app/components/elements';
 
 const Home = () =>
-  <div className="vcenter center section">
+  <div id="home" className="section">
     <h1 className="primary">ECONESTY</h1>
     <h3 className="secondary">Decentralized BitCoin transaction assurance</h3>
     <p>Join now and start using bitcoin with peace of mind!</p>

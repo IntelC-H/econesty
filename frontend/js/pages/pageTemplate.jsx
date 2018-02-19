@@ -1,35 +1,26 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import SearchField from 'app/components/searchfield';
-import { Form } from 'app/components/forms';
-import { Menu, MenuHeading, MenuList, MenuItem } from 'app/components/elements';
+import { MenuList, MenuItem } from 'app/components/elements';
 import { Link } from 'app/components/routing';
 import { API } from 'app/api';
 
-const NavBar = props =>
-  <Menu horizontal fixed={!props.spacer} className={props.spacer ? "header-spacer header" : "header raised-v"}>
-    <MenuHeading>
-      <Link href="/" className="light-text">Econe$ty</Link>
-    </MenuHeading>
-    <MenuList>
-      <MenuItem>
-        <Form aligned>
+const PageTemplate = props =>
+  <div>
+    <div className="header">
+      <Link href="/" className="heading light-text">Econe$ty</Link>
+
+      <MenuList>
+        <MenuItem>
           <SearchField
             standalone
             api={API.user}
             placeholder="search users"
             component={props => props.element.username}
           />
-        </Form>
-      </MenuItem>
-    </MenuList>
-  </Menu>
-;
-
-const PageTemplate = props =>
-  <div>
-    <NavBar />
-    <NavBar spacer />
-    <div className="content margined">
+        </MenuItem>
+      </MenuList>
+  </div>
+    <div className="content">
       {props.children}
     </div>
   </div>

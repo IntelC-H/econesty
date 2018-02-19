@@ -20,6 +20,7 @@ import RequiredOfMe from 'app/pages/requiredofme';
 /*
   TODO for MVP:
     JavaScript
+    - Fix SearchField not resetting after clicking a row!
     - CollectionView empty collection - don't show empty tables etc
     - Hide profile buttons when appropriate ("Send BTC" and "Receive BTC")
     - Tooltips
