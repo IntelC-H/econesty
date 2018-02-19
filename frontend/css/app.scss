@@ -1,8 +1,8 @@
 @import "base";
 
-span, p {
-  font-size: 1em;
-}
+/*
+  Generic
+*/
 
 // h1, h2, h3, h4, h5, h6 {
 //   font-size: 1.25em;
@@ -46,7 +46,7 @@ thead {
 
 body {
   // background-color: $primary-color-light;
-  min-width: 20em;
+  min-width: 20rem;
   position: relative;
 }
 
@@ -73,9 +73,6 @@ a {
   &:hover {
     // color: $accent-color;
     text-decoration: underline;
-    // span {
-    //   color: $accent-color;
-    // }
   }
 
   // &:active {
@@ -126,34 +123,38 @@ a {
 
   .heading {
     display: inline-block;
-    margin: ($padding / 2);
+    margin: $padding;
     text-transform: uppercase;
-    white-space: nowrap;
-    font-size: 2.5em;
-    line-height: 90%;
+    font-size: $element-height;
+    line-height: 100%;
   }
 
-  ul.pure-menu-list {
+  ul.menu-list {
     float: right;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
     li {
-      padding: $padding
+      display: inline-block;
+      margin: $padding
     }
   }
 }
 
 .section {
-  margin-top: 1em;
+  $_factor: 2;
+  margin-top: $padding * $_factor;
 
   h1, h2, h3, h4, h5, h6 {
-    margin-bottom: 0.25em;
+    margin-bottom: $padding / $_factor;
   }
 
   p:first-of-type { // stylelint-disable-line declaration-colon-space-after
-    margin-top: 0.25em;
+    margin-top: $padding / $_factor;
   }
 
   p:last-of-type { // stylelint-disable-line declaration-colon-space-after
-    margin-bottom: 0.25em;
+    margin-bottom: $padding / $_factor;
   }
 }
 

@@ -19,6 +19,10 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
+    Both
+    - Make PureCSS grids independent of purecss
+    - Make inputs have gridding capabilities
+
     JavaScript
     - Fix SearchField not resetting after clicking a row!
     - CollectionView empty collection - don't show empty tables etc

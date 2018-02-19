@@ -245,38 +245,34 @@ class Input extends FormElement {
     }
   }
 
-  render(props) {
-    const {className, placeholder,
-           type, search, range, // eslint-disable-line no-unused-vars
-           hidden, text, time, // eslint-disable-line no-unused-vars
-           checkbox, password, tel, // eslint-disable-line no-unused-vars
-           email, url, number, // eslint-disable-line no-unused-vars
-           size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
-           children, // eslint-disable-line no-unused-vars
-           ...filteredProps} = props;
+  render({type, search, range, // eslint-disable-line no-unused-vars
+          hidden, text, time, // eslint-disable-line no-unused-vars
+          checkbox, password, tel, // eslint-disable-line no-unused-vars
+          email, url, number, // eslint-disable-line no-unused-vars
+          // size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
+          ...props}) {
 
-    filteredProps.type = this.type;
+    props.type = this.type;
 
     const isCheck = this.type === "checkbox";
 
     if (this.value !== undefined && !props.ignore) {
-      if (isCheck)         filteredProps.checked = !!this.value;
-      else if (this.value) filteredProps.value   = this.type === "hidden" ? JSON.stringify(this.value) : this.value;
+      if (isCheck)         props.checked = !!this.value;
+      else if (this.value) props.value   = this.type === "hidden" ? JSON.stringify(this.value) : this.value;
     }
 
-    prependFunc(filteredProps, isCheck ? "onClick" : "onInput", this.onInput);
+    prependFunc(props, isCheck ? "onClick" : "onInput", this.onInput);
 
-    if (isCheck && placeholder && placeholder.length > 0) {
+    if (isCheck && props.placeholder && props.placeholder.length > 0) {
       return (
         <label className="checkbox">
-          <span onClick={this.toggleCheckbox}>{placeholder + " "}</span>
-          <input {...filteredProps} />
+          <span onClick={this.toggleCheckbox}>{props.placeholder + " "}</span>
+          <input {...props} />
         </label>
       );
     }
 
-    filteredProps.placeholder = placeholder;
-    return h('input', filteredProps);
+    return h('input', props);
   }
 }
 

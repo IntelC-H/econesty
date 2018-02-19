@@ -2,17 +2,16 @@
 // Constants
 //
 
-$header-height: 3em !default;
-$header-font-size: 1.25em !default;
+$input-width: 13rem;
 
-$input-width: 13em;
+$element-height: 2.5rem;
 
 $pure-sm: 568px !default; // stylelint-disable-line
 $pure-md: 768px !default; // stylelint-disable-line
 $pure-lg: 1024px !default; // stylelint-disable-line
 $pure-xl: 1280px !default; // stylelint-disable-line
 
-$padding: 0.5em !default;
+$padding: 0.5rem !default;
 
 $border-radius: ($padding / 3) !default;
 

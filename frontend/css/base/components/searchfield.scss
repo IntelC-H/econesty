@@ -34,9 +34,16 @@
     pointer-events: none;
     cursor: default;
 
+    // Make the icon height accurate
+    display: table;
+    .search-icon::before {
+      display: table-cell;
+      vertical-align: middle;
+    }
+
     font-size: $searchicon-size;
     padding: 0;
-    margin: 0;
+    margin: $padding/4;
 
     position: absolute;
     top: ($padding / 2);

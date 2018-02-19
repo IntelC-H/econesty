@@ -5,9 +5,6 @@ import { inheritClass, cssSubclass, makeClassName } from './utilities';
 const Image = inheritClass('img', "pure-image");
 const Grid = inheritClass('div', 'pure-g');
 const GridUnit = cssSubclass('div', {}, 'pure-u', true);
-const MenuHeading = inheritClass('div', 'pure-menu-heading');
-const MenuLink = inheritClass('a', 'pure-menu-link');
-const MenuList = inheritClass('ul', 'pure-menu-list');
 const ButtonGroup = inheritClass('div', 'pure-button-group');
 
 const Loading = inheritClass('div', 'loading');
@@ -25,17 +22,6 @@ const Table = cssSubclass('table', {
   selectable: 'table-selectable',
   striped: 'table-striped'
 }, null);
-
-const Menu = cssSubclass('div', {
-  horizontal: 'pure-menu-horizontal',
-  scrollable: 'pure-menu-scrollable',
-  fixed: 'pure-menu-fixed'
-}, 'pure-menu');
-
-const MenuItem = cssSubclass('li', {
-  disabled: 'pure-menu-disabled',
-  selected: 'pure-menu-selected'
-}, 'pure-menu-item');
 
 const SideMargins = ({ children, ...props }) =>
   <Grid>
@@ -65,7 +51,7 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table, Menu, MenuHeading, MenuLink, MenuList, MenuItem, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins };
+export { Image, Grid, GridUnit, Button, ButtonGroup, Table,  Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins };
 
 export default {
   Image: Image,
@@ -74,11 +60,6 @@ export default {
   Button: Button,
   ButtonGroup: ButtonGroup,
   Table: Table,
-  Menu: Menu,
-  MenuHeading: MenuHeading,
-  MenuLink: MenuLink,
-  MenuList: MenuList,
-  MenuItem: MenuItem,
   Loading: Loading,
   Error: Error,
   Labelled: Labelled,
