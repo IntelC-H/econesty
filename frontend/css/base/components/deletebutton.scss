@@ -2,17 +2,22 @@
   <DeleteButton /> component
 */
 
+@import "base/variables";
+
 .delete-button {
   float: right;
-  height: 0;
+  height: $element-height;
+  width: $element-height;
   overflow: visible;
   margin: 0;
-  padding-left: $padding/2;
 
-  // Make the icon height accurate
-  display: table;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   &::before {
-    display: table-cell;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

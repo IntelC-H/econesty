@@ -135,7 +135,7 @@ class SearchField extends FormElement {
       <div className={makeClassName("searchfield", className)}>
         { this.showsObject && <DeleteButton onClick={this.reset} />}
         { this.showsObject &&
-          <Link href={api.baseURL + this.value.id}>
+          <Link href={api.baseURL + this.value.id} className="searchfield-value-link">
             {h(component, { element: this.value })}
           </Link>
         }
