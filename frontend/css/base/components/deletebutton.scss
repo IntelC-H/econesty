@@ -6,6 +6,13 @@
   float: right;
   height: 0;
   overflow: visible;
-  padding: $padding;
-  padding-right: $padding + $border-radius;
+  margin: 0;
+  padding-left: $padding/2;
+
+  // Make the icon height accurate
+  display: table;
+  &::before {
+    display: table-cell;
+    vertical-align: middle;
+  }
 }

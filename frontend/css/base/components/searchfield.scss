@@ -16,6 +16,7 @@
     @include shadowed-v;
     @include raised;
     position: fixed;
+    width: inherit;
     //width: $input-width - $padding;
 
     margin: 0;
@@ -38,7 +39,7 @@
 
     // Make the icon height accurate
     display: table;
-    .search-icon::before {
+    &::before {
       display: table-cell;
       vertical-align: middle;
     }
