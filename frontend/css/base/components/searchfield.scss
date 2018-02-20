@@ -9,24 +9,26 @@
   $searchicon-size: 1.5em;
 
   overflow: visible;
-  color: $primary-text-color;
   position: relative;
   display: inline-block;
-
-  fieldset {
-    padding: 0;
-  }
 
   .searchfield-dropdown {
     @include shadowed-v;
     @include raised;
     position: fixed;
-    width: $input-width - $padding;
-    .pure-table {
+    //width: $input-width - $padding;
+
+    margin: 0;
+    * {
+      margin: 0;
+    }
+
+    table {
       border: none;
     }
+
     border: 1px solid $divider-color;  // stylelint-disable-line
-    background-color: $primary-color-light;
+    background-color: white;
   }
 
   .search-icon {

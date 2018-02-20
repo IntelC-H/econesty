@@ -72,12 +72,12 @@ function EditableUserRepresentation({ elementView }) {
       <Image src={user.avatar_url} />
       <Form aligned onSubmit={elementView.updateElement}>
         <FormGroup>
-          <Input name="first_name" value={user.first_name} />
-          <Input name="last_name" value={user.last_name} />
+          <Input text name="first_name" value={user.first_name} />
+          <Input text name="last_name" value={user.last_name} />
         </FormGroup>
         <FormGroup>
-          <Input name="username" value={user.username} />
-          <Input name="email" value={user.email} />
+          <Input text name="username" value={user.username} />
+          <Input text name="email" value={user.email} />
         </FormGroup>
         <Button action="submit">Save</Button>
       </Form>

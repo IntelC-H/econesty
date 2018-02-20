@@ -96,6 +96,7 @@ class CreateTransaction extends Component {
             <h1 className="primary">{isSender ? "Send BTC" : "Receive BTC"}</h1>
           </div>
           <Form aligned onSubmit={this.onSubmit}>
+            <FormGroup>
             <Input hidden name="sender_id" value={sender_id} />
             <Input hidden name="recipient_id" value={recipient_id} />
 
@@ -119,6 +120,7 @@ class CreateTransaction extends Component {
               <RequirementCollection />
             </CollectionView>
             <Button action="submit">CREATE</Button>
+            </FormGroup>
           </Form>
         </GridUnit>
         <GridUnit size="1" sm="4-24"/>

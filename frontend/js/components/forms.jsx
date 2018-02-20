@@ -102,16 +102,15 @@ class Form extends ReferencingComponent {
     return false;
   }
 
-  render(props) {
+  render({ aligned, stacked, onSubmit, ...filteredProps }) {
     this.makeReferences();
 
-    let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
-    let cns = ["pure-form"];
-    if (aligned) cns.push("pure-form-aligned");
-    if (stacked) cns.push("pure-form-stacked");
-    if (className) cns.push(className);
+    // let cns = ["pure-form"];
+    // if (aligned) cns.push("pure-form-aligned");
+    // if (stacked) cns.push("pure-form-stacked");
+    // if (className) cns.push(className);
 
-    filteredProps.className = makeClassName.apply(this, cns);
+   // filteredProps.className = makeClassName.apply(this, cns);
 
     if (onSubmit) {
       filteredProps.action = "javascript" + ":"; // appease JSLint
@@ -371,11 +370,11 @@ class Select extends FormElement {
   }
 
   render({ value, options, // eslint-disable-line no-unused-vars
-           transform, faceTransform, className, ...filteredProps }, { loading }) {
+           transform, faceTransform, ...filteredProps }, { loading }) {
     if (this.isAsync && loading) return <Loading />;
 
     prependFunc(filteredProps, "onChange", this.onInput);
-    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
+  //  filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
 
     if (!this.state.options || this.state.options.length === 0) {
       filteredProps.disabled = true;

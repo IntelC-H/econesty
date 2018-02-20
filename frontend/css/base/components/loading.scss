@@ -3,6 +3,7 @@
 */
 
 @import "base/mixins";
+@import "base/variables";
 
 @include keyframes(spin) {
   0% { transform: rotate(0deg); }
@@ -13,8 +14,8 @@
   border: 0.5em solid mix(rgba(255, 255, 255, 0), $accent-color, 50%); // Pale background for whole circle
   border-top: 0.5em solid $accent-color; // highlight a part of the circle in a bolder color.
   border-radius: 50%; // make it a circle
-  width: 2.5em;
-  height: 2.5em;
+  width: $element-height;
+  height: $element-height;
   animation: spin 2s linear infinite; // make it spin
   margin: auto; // make it centered
 }

@@ -22,25 +22,19 @@ function sizeProp(props, propName, componentName) {
 
 // Given a baseClass and props, return the derivative class
 // names of baseClass that implement the sizing in props.
-const sizingClasses = (baseClass, props) => {
+function sizingClasses(baseClass, props) {
   var classes = [];
 
-  pureSizes.slice().reverse().forEach(sz => {
-    if (props.hasOwnProperty(sz)) {
-      classes.push(baseClass + '-' + sz + '-' + props[sz]);
-    }
-  });
+  pureSizes.filter(e => e in props).forEach(sz =>
+    classes.unshift(baseClass + '-' + sz + '-' + props[sz])
+  );
 
   if (props.size) {
     classes.push(baseClass + '-' + props.size);
   }
 
-  if (classes.length === 0) {
-    classes.push(baseClass);
-  }
-
   return classes;
-};
+}
 
 // makes a component that assigns props to additional classes
 // BaseComponent => Either a function that takes props and returns
@@ -48,27 +42,26 @@ const sizingClasses = (baseClass, props) => {
 // mapping => An object whose keys are props (in Preact parlance, attributes)
 //            and whose values are the classes they correspond to.
 // baseClass => An invariant class. Used with sizing.
-// supportsSizing => Turn on/off PureCSS sizing. For example, pure-u and pure-input
-//                   support sizing.
-const cssSubclass = (BaseComponent, mapping, baseClass, supportsSizing = false) => {
+// supportsSizing => Turn on/off PureCSS sizing. For example, pure-u and
+//                   pure-input support sizing.
+function cssSubclass(BaseComponent, mapping, baseClass, supportsSizing = false) {
   const f = props => {
     var propsCopy = {};
     var classes = [];
 
-    if (baseClass)       classes.push(baseClass);
-    if (supportsSizing)  sizingClasses(baseClass, props).forEach(c => classes.push(c));
+    if (baseClass && baseClass !== "pure-u") classes.push(baseClass);
+    if (supportsSizing) sizingClasses(baseClass, props)
+                          .forEach(e => classes.push(e));
     else if (props.className) classes.push(props.className);
 
     for (var k in props) {
-      if (props.hasOwnProperty(k)) {
-        var v = props[k];
-        if (mapping.hasOwnProperty(k)) {
-          if (!!v || v === "true") {
-            classes.push(mapping[k]);
-          }
-        } else {
-          propsCopy[k] = v;
+      var v = props[k];
+      if (k in mapping) {
+        if (Boolean(v) || String(v) === "true") {
+          classes.push(mapping[k]);
         }
+      } else if (!pureSizes.includes(k) && k !== "size") {
+        propsCopy[k] = v;
       }
     }
 
@@ -108,4 +101,4 @@ export default {
   sizingClasses: sizingClasses,
   cssSubclass: cssSubclass,
   pureSizes: pureSizes
-}
+};

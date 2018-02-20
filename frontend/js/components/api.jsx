@@ -114,7 +114,9 @@ class CollectionView extends Component {
     return false;
   }
 
-  render({ className, children, showsControls, empty, ...props},
+  render({ className, children, showsControls, empty,
+           collection, search, // eslint-disable-line no-unused-vars
+           ...props},
          { loading, page, count, nextPage, previousPage }) {
     if (loading) return <Loading className={(className || "") + " collection"} />;
     let childPropsDiff = { collectionView: this };

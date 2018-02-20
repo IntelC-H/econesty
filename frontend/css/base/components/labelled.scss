@@ -3,12 +3,19 @@
 */
 
 .labelled {
-  display: block;
-
-  label {
-    display: flex;
-    align-items: center;
-    text-align: center;
+  & > * {
+    position: relative;
+    label {
+      position: absolute;
+      margin: auto;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 33%;
+      width: 100%;
+      line-height: 100%;
+    }
   }
 }
 
@@ -16,9 +23,11 @@
   .labelled {
     & > * {
       display: block;
-    }
-    * {
-      width: 100%;
+      label {
+        margin: $padding 0;
+        position: initial;
+        width: 100%;
+      }
     }
   }
 }

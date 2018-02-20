@@ -5,7 +5,6 @@ import { inheritClass, cssSubclass, makeClassName } from './utilities';
 const Image = inheritClass('img', "pure-image");
 const Grid = inheritClass('div', 'pure-g');
 const GridUnit = cssSubclass('div', {}, 'pure-u', true);
-const ButtonGroup = inheritClass('div', 'pure-button-group');
 
 const Loading = inheritClass('div', 'loading');
 const Error = inheritClass('div', "error");
@@ -16,7 +15,7 @@ const SearchIcon = inheritClass('span', "search-icon fa fa-search");
 const Button = cssSubclass(props => props.href ? 'a' : 'button', {
   primary: 'pure-button-primary',
   active: 'pure-button-active'
-}, 'pure-button');
+}, 'button');
 
 const Table = cssSubclass('table', {
   selectable: 'table-selectable',
@@ -51,14 +50,13 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Image, Grid, GridUnit, Button, ButtonGroup, Table,  Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins };
+export { Image, Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins };
 
 export default {
   Image: Image,
   Grid: Grid,
   GridUnit: GridUnit,
   Button: Button,
-  ButtonGroup: ButtonGroup,
   Table: Table,
   Loading: Loading,
   Error: Error,

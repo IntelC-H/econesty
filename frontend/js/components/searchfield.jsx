@@ -13,30 +13,26 @@ function SearchFieldRow({ collectionView, searchField, element }) {
   let linkBodyProps = { element: element };
   if (searchField.isStandalone()) {
     return (
-      <tr>
-        <td>
-          <Link
+      <Link component='tr'
             href={collectionView.getCollection().baseURL + element.id}
-            onMouseDown={e => e.preventDefault() }
+            onMouseDown={e => e.preventDefault()}
             onMouseUp={e => {
               let onClick = searchField.getClickAction();
               if (onClick) onClick(e);
               searchField.reset();
               searchField.blur();
             }}>
-            {h(component, linkBodyProps)}
-          </Link>
+        <td>
+          {h(component, linkBodyProps)}
         </td>
-      </tr>
+      </Link>
     );
   }
   return (
-    <tr>
+    <tr onMouseDown={e => e.preventDefault()}
+        onMouseUp={() => searchField.setFormValue(element)}>
       <td>
-        <a onMouseDown={e => e.preventDefault()}
-           onMouseUp={() => searchField.setFormValue(element)}>
           {h(component, linkBodyProps)}
-        </a>
       </td>
     </tr>
   );
@@ -45,7 +41,7 @@ function SearchFieldRow({ collectionView, searchField, element }) {
 function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
   return (
-    <Table striped horizontal>
+    <Table striped selectable>
       <tbody>
         {elements.map(e => <SearchFieldRow
                              collectionView={collectionView}
