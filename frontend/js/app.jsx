@@ -20,22 +20,21 @@ import RequiredOfMe from 'app/pages/requiredofme';
 /*
   TODO for MVP:
     Both
-    - Make PureCSS grids independent of purecss
     - Make inputs have gridding capabilities
-
     JavaScript
     - Fix SearchField not resetting after clicking a row!
     - CollectionView empty collection - don't show empty tables etc
     - Hide profile buttons when appropriate ("Send BTC" and "Receive BTC")
-    - Tooltips
-      - Usernames
-      - created ats
+    - Tooltips? (For usernames, created ats, etc)
+    - Fix bug:
+      - Click a username from the user search
+      - Click a different user from the user search
+      - Click the first username from the search
+      - THEN: transactions aren't loaded.
     CSS
     - make look purdy
     - make groups in forms look better
-      -  light backgrounds?
-      -  position the delete buttons right
-    - Fix SearchField search icon in forms with screen width < 400
+      - light backgrounds?
 */
 
 function secure(comp) {
