@@ -4,6 +4,11 @@
 
 table {
   $table-color: white !default !global;
+  $table-header-color: darken($table-color, 12) !default !global;
+  $table-header-text-color: invert($table-header-color) !default !global;
+  $table-body-row-stripe-color: darken($table-color, 5) !default !global;
+  $table-body-row-hover-color: darken($table-color, 15) !default !global;
+  $table-body-row-active-color: darken($table-color, 20) !default !global;
 
   background-color: $table-color;
   border-collapse: collapse;
@@ -24,24 +29,24 @@ table {
     text-align: left;
     vertical-align: bottom;
   
-    background-color: darken($table-color, 12);
-    color: invert(darken($table-color, 12));
+    background-color: $table-header-color;
+    color: $table-header-text-color;
   }
 
   &.table-striped tbody {
     tr:nth-child(2n-1) {
       td {
-        background-color: darken($table-color, 5);
+        background-color: $table-body-row-stripe-color;
       }
     }
   }
 
   &.table-selectable tbody {
     tr:hover td {
-      background-color: darken($table-color, 15);;
+      background-color: $table-body-row-hover-color;
     }
     tr:active td {
-      background-color: darken($table-color, 20);;
+      background-color: $table-body-row-active-color;
     }
   }
 }
