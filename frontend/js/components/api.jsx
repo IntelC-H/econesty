@@ -74,6 +74,10 @@ class CollectionView extends Component {
                          .then(this.reloadData);
   }
 
+  isLoaded() {
+    return !this.state.loading;
+  }
+
   getElements() {
     return this.state.elements;
   }

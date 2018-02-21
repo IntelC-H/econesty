@@ -5,48 +5,30 @@ import { Input, FormElement } from './forms';
 import { Table } from './elements';
 import { CollectionView } from './api';
 import { makeClassName } from './utilities';
-import { Link } from './routing';
+import { Link, Router } from './routing';
 import { DeleteButton, SearchIcon } from './elements';
-
-function SearchFieldRow({ collectionView, searchField, element }) {
-  let component = searchField.getLinkComponent();
-  let linkBodyProps = { element: element };
-  if (searchField.isStandalone()) {
-    return (
-      <Link component='tr'
-            href={collectionView.getCollection().baseURL + element.id}
-            onMouseDown={e => e.preventDefault()}
-            onMouseUp={e => {
-              let onClick = searchField.getClickAction();
-              if (onClick) onClick(e);
-              searchField.reset();
-              searchField.blur();
-            }}>
-        <td>
-          {h(component, linkBodyProps)}
-        </td>
-      </Link>
-    );
-  }
-  return (
-    <tr onMouseDown={e => e.preventDefault()}
-        onMouseUp={() => searchField.setFormValue(element)}>
-      <td>
-          {h(component, linkBodyProps)}
-      </td>
-    </tr>
-  );
-}
 
 function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
+  if (elements.length === 0) return null;
   return (
     <Table striped selectable>
       <tbody>
-        {elements.map(e => <SearchFieldRow
-                             collectionView={collectionView}
-                             searchField={searchField}
-                             element={e} />)}
+        {elements.map(element => 
+          <tr onMouseDown={e => e.preventDefault()}
+              onMouseUp={e => {
+                let onClick = searchField.getClickAction();
+                if (onClick) onClick(e);
+                searchField.selectElement(element);
+                if (searchField.isStandalone()) {
+                  searchField.reset();
+                  searchField.blur();
+                }
+              }}>
+            <td>
+              {h(searchField.getLinkComponent(), { element: element })}
+            </td>
+          </tr>)}
       </tbody>
     </Table>
   );
@@ -56,10 +38,12 @@ class SearchField extends FormElement {
   constructor(props) {
     super(props);
     this.inputNode = null; // a ref
+    this.collectionView = null; // a ref
     this.reset = this.reset.bind(this);
     this.setState = this.setState.bind(this);
     this.onBlur = this.onBlur.bind(this);
     this.onFocus = this.onFocus.bind(this);
+    this.onKeyUp = this.onKeyUp.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.state = {
       ...this.state,
@@ -92,13 +76,30 @@ class SearchField extends FormElement {
     this.setState(st => ({ ...st, focused: false }));
   }
 
+  onKeyUp(e) {
+    if (e.key === "Enter") {
+      this.blur();
+      if (this.collectionView && this.collectionView.isLoaded()) {
+        let es = this.collectionView.getElements();
+        if (es.length > 0) {
+          this.reset();
+          this.selectElement(es[0]);
+        }
+      }
+    }
+  }
+
   reset() {
     this.setState(st => ({ ...st, search: null }));
     this.value = null;
   }
 
-  setFormValue(v) {
-    this.setState(st => ({ ...st, search: null, value: v }));
+  selectElement(v) {
+    if (this.isStandalone()) {
+      Router.push(this.collectionView.getCollection().baseURL + v.id);
+    } else {
+      this.setState(st => ({ ...st, search: null, value: v }));
+    }
   }
 
   isStandalone() {
@@ -121,20 +122,19 @@ class SearchField extends FormElement {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (super.shouldComponentUpdate(nextProps, nextState)) return true;
-    if (this.props.search !== nextProps.search) return true;
-    if (this.state.search !== nextState.search) return true;
-    if (this.state.focused !== nextState.focused) return true;
-    return false;
+    return super.shouldComponentUpdate(nextProps, nextState)
+        || this.state.search !== nextState.search
+        || this.state.focused !== nextState.focused;
   }
 
   render({ value, standalone, // eslint-disable-line no-unused-vars
            api, component, className, ...props }, { focused, search }) {
     return (
       <div className={makeClassName("searchfield", className)}>
-        { this.showsObject && <DeleteButton onClick={this.reset} />}
+        { this.showsObject && <DeleteButton onClick={this.reset} /> }
         { this.showsObject &&
-          <Link href={api.baseURL + this.value.id} className="searchfield-value-link">
+          <Link href={api.baseURL + this.value.id}
+                className="searchfield-value-link">
             {h(component, { element: this.value })}
           </Link>
         }
@@ -144,7 +144,8 @@ class SearchField extends FormElement {
             {...props}
             text ignore
             value={focused ? search : undefined}
-            ref={x => this.inputNode = x}
+            ref={n => this.inputNode = n}
+            onKeyUp={this.onKeyUp}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onInput={this.onSearchChange}
@@ -153,6 +154,7 @@ class SearchField extends FormElement {
         { !this.showsObject && focused &&
           <div className="searchfield-dropdown-container">
             <CollectionView
+              ref={n => this.collectionView = n}
               collection={api}
               search={search}
               showsControls={false}
