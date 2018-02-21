@@ -9,6 +9,7 @@ class CollectionView extends Component {
     Props:
     search: A string by which to limit results
     collection: the API collection to show a view for
+    empty: Something to render in the absence of elements
     children: a representation of the collection. Rendered w/ the prop
               `collectionView` which refers to the the enclosing CollectionView.
   */
@@ -24,6 +25,8 @@ class CollectionView extends Component {
     this.saveElement = this.saveElement.bind(this);
     this.getElements = this.getElements.bind(this);
     this.state = {
+      search: props.search, // the current search string
+      collection: props.collection, // the collection to load elements from
       page: 1, // the current page
       count: 0, // the number of elements in the whole collection
       nextPage: null, // the next page number or null if no next page
@@ -34,9 +37,10 @@ class CollectionView extends Component {
   }
 
   // Reloads the collection's current page from the server.
-  reloadData(page = this.state.page, search = this.props.search) {
+  reloadData() {
+    const { collection, page, search } = this.state;
     this.setState(st => ({ ...st, loading: true }));
-    this.props.collection.list(page, search).then(ps =>
+    collection.list(page, search).then(ps =>
       this.setState(st => ({ ...st,
                              loading: false,
                              elements: ps.results,
@@ -54,20 +58,20 @@ class CollectionView extends Component {
 
   createElement(object) {
     this.setState(st => ({ ...st, loading: true, page: 1 }));
-    this.props.collection.create(object)
-                         .then(() => this.reloadData());
+    this.state.collection.create(object)
+                         .then(this.reloadData);
   }
 
   updateElement(id, object) {
     this.setState(st => ({ ...st, loading: true }));
-    this.props.collection.update(id, object)
-                         .then(() => this.reloadData());
+    this.state.collection.update(id, object)
+                         .then(this.reloadData);
   }
 
   deleteElement(id, soft = false) {
     this.setState(st => ({ ...st, loading: true }));
-    this.props.collection.delete(id, soft)
-                         .then(() => this.reloadData());
+    this.state.collection.delete(id, soft)
+                         .then(this.reloadData);
   }
 
   getElements() {
@@ -79,7 +83,7 @@ class CollectionView extends Component {
   }
 
   setPage(page) {
-    this.setState(st => ({ ...st, page: page }), () => this.reloadData());
+    this.setState(st => ({ ...st, page: page }), this.reloadData);
   }
 
   gotoPreviousPage() {
@@ -95,23 +99,25 @@ class CollectionView extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let shouldReload = false;
-    if (nextProps.search !== this.props.search) shouldReload = true;
-    if (nextProps.collection !== this.props.collection) shouldReload = true;
-    if (shouldReload) this.reloadData(this.state.page, nextProps.search);
+    let newSearch = nextProps.search !== this.state.search;
+    let newCollection = nextProps.collection !== this.state.collection;
+    if (newSearch || newCollection) {
+      this.setState((st, props) => ({
+        ...st,
+        search: (newSearch ? nextProps : props).search,
+        collection: (newCollection ? nextProps : props).collection
+      }), this.reloadData);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { search, collection, children } = this.props;
-    if (nextProps.search !== search) return true;
-    if (nextProps.collection.resource !== collection.resource) return true;
-    if (nextProps.collection.urlParams !== collection.urlParams) return true;
-    if (nextProps.children !== children) return true;
-    const { page, count, elements, loading } = this.state;
-    if (nextState.page !== page) return true;
+    const { count, elements, loading } = this.state;
+    if (nextState.loading !== loading) return true;
     if (nextState.count !== count) return true;
     if (nextState.elements !== elements) return true;
-    if (nextState.loading !== loading) return true;
+    if (nextProps.empty !== this.props.empty) return true;
+    if (nextProps.showsControls !== this.props.showsControls) return true;
+    if (nextProps.children !== this.props.children) return true;
     return false;
   }
 
@@ -259,8 +265,7 @@ class ElementView extends Component {
 
   componentDidUpdate({ collection, elementID },
                        prevState) { // eslint-disable-line no-unused-vars
-    if (collection.resource !== this.props.collection.resource ||
-        collection.urlParams !== this.props.collection.urlParams ||
+    if (collection !== this.props.collection ||
         elementID !== this.props.elementID) {
       this.reloadData();
     }

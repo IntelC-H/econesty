@@ -44,9 +44,9 @@ class UserViewSet(EconestyBaseViewset):
     me_id = request.user.id
 
     man = models.Transaction.objects
-    qs = man.filter(sender__id=me_id) | man.filter(recipient__id=me_id)
-    if user_id is not me_id:
-      qs = qs & (man.filter(sender__id=user_id) | man.filter(recipient__id=user_id))
+    qs = man.filter(sender__id=user_id) | man.filter(recipient__id=user_id)
+    if user_id != me_id:
+      qs = qs & (man.filter(sender__id=me_id) | man.filter(recipient__id=me_id))
 
     return self.paginated_response(
       qs.order_by("-created_at"),

@@ -95,7 +95,6 @@ function EditableUserRepresentation({ elementView }) {
 
 function Profile(props) {
   const userId = parseInt(props.matches.id);
-
   return (
     <Grid>
       <GridUnit size="1" sm="1-4">
