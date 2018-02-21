@@ -5,7 +5,7 @@
   Styling for forms and form elements
 */
 
-select {
+select { 
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -21,6 +21,15 @@ input[type], textarea {
 }
 
 input[type], textarea, select {
+  display: inline-block;
+  border: 1px solid #ccc; // stylelint-disable-line unit-whitelist
+  border-radius: 0.25rem;
+  vertical-align: middle;
+  box-sizing: border-box;
+
+  margin: 0;
+  width: 100%;
+
   &:not([type=checkbox]) {
     height: $element-height;
   }
@@ -30,21 +39,24 @@ input[type], textarea, select {
     color: #cad2d3;
   }
 
-  &:invalid {
-    color: #b94a48;
-    &:focus {
-      outline-color: #b94a48;
-    }
+  &:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
   }
 
-  display: inline-block;
-  border: 1px solid #ccc; // stylelint-disable-line unit-whitelist
-  border-radius: 0.25rem;
-  vertical-align: middle;
-  box-sizing: border-box;
+  &:invalid {
+    color: #b94a48;
+  }
 
-  margin: 0;
-  width: 100%;
+  &:focus {
+    outline: 0;
+    &:not(:invalid) {
+      border-color: #129FEA;
+    }
+    &:invalid {
+      border-color: #b94a48;
+    }
+  }
 }
 
 label.checkbox {

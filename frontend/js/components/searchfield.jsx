@@ -90,12 +90,11 @@ class SearchField extends FormElement {
 
   onBlur() {
     this.setState(st => ({ ...st, focused: false }));
-    return false;
   }
 
   reset() {
-    this.search = null;
-    this.value = undefined;
+    this.setState(st => ({ ...st, search: null }));
+    this.value = null;
   }
 
   setFormValue(v) {
@@ -144,6 +143,7 @@ class SearchField extends FormElement {
           <Input
             {...props}
             text ignore
+            value={focused ? search : undefined}
             ref={x => this.inputNode = x}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
@@ -151,13 +151,16 @@ class SearchField extends FormElement {
           />
         }
         { !this.showsObject && focused &&
-          <CollectionView
-            collection={api}
-            search={search}
-            showsControls={false}
-            className="searchfield-dropdown">
-            <SearchResultsView searchField={this} />
-          </CollectionView>
+          <div className="searchfield-dropdown-container">
+            <CollectionView
+              collection={api}
+              search={search}
+              showsControls={false}
+              empty={<div className="searchfield-noresults">No Results</div>}
+              className="searchfield-dropdown">
+              <SearchResultsView searchField={this} />
+            </CollectionView>
+          </div>
         }
       </div>
     );

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -43,7 +44,7 @@ class Token(BaseModel):
     token = None
     if 'HTTP_AUTHORIZATION' in request.META:
       token = read_token(request.META['HTTP_AUTHORIZATION'])
-    elif "Authorization" in request.COOKIES:
+    elif settings.DEBUG and "Authorization" in request.COOKIES:
       token = read_token(request.COOKIES["Authorization"])
 
     try:

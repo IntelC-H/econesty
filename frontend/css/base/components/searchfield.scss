@@ -12,27 +12,37 @@
   position: relative;
   display: inline-block;
 
-  .searchfield-dropdown {
-    @include shadowed-v;
-    @include raised;
-    position: fixed;
-    width: inherit;
-    //width: $input-width - $padding;
-
+  .searchfield-dropdown-container {
     margin: 0;
-    * {
+    *:not(.loading) {
       margin: 0;
     }
+    position: relative;
+    height: 0;
+    overflow: visible;
 
-    table {
-      border: none;
+    .searchfield-dropdown {
+      @include shadowed-v;
+      @include raised;
+      table {
+        border: none;
+        * {
+          cursor: pointer;
+        }
+      }
+      border: 1px solid $divider-color; // stylelint-disable-line
+      background-color: white;
     }
 
-    border: 1px solid $divider-color;  // stylelint-disable-line
-    background-color: white;
+    .searchfield-noresults {
+      display: table; // GIANT hack: Make div behave like the dropdown table
+      text-align: center;
+      margin: $padding auto;
+    }
   }
 
   .searchfield-value-link {
+    padding-left: $padding;
     height: $element-height;
     margin: 0;
     display: flex;

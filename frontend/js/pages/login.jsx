@@ -26,7 +26,7 @@ class Login extends Component {
   render() {
     return (
      <SideMargins>
-       <Form aligned onSubmit={this.login} method="POST">
+       <Form onSubmit={this.login} method="POST">
          {!!this.state.error &&
            <Error>
              <p>{this.state.error.message}</p>

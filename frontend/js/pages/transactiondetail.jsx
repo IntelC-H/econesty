@@ -35,7 +35,7 @@ function TransactionInfo({ elementView }) {
       <h3 className="secondary"><UserLink user={t.recipient} /> is sending BTC {parseFloat(t.amount)} to <UserLink user={t.sender}/></h3>
       {t.error && <p>{t.error}</p>}
 
-      {needsRecipientWallet && isRecipient && <Form aligned onSubmit={elementView.updateElement}>
+      {needsRecipientWallet && isRecipient && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
           <Labelled label="Recipient's Wallet">
@@ -49,7 +49,7 @@ function TransactionInfo({ elementView }) {
         </FormGroup>
       </Form>}
 
-      {needsSenderWallet && isSender && <Form aligned onSubmit={elementView.updateElement}>
+      {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
           <Labelled label="Sender's Wallet">

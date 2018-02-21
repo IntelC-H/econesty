@@ -32,6 +32,8 @@ import RequiredOfMe from 'app/pages/requiredofme';
       - Click the first username from the search
       - THEN: transactions aren't loaded.
     CSS
+    - Fix searchfield dropdown width
+    - Fix searchfield scrolling
     - make look purdy
     - make groups in forms look better
       - light backgrounds?

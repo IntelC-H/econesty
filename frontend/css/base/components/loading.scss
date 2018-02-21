@@ -17,5 +17,6 @@
   width: $element-height;
   height: $element-height;
   animation: spin 2s linear infinite; // make it spin
-  margin: auto; // make it centered
+  position: relative;
+  margin: 0.5rem auto;
 }

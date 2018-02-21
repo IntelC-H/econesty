@@ -1,6 +1,7 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Button, Grid, GridUnit, Loading } from 'app/components/elements';
+import { makeClassName } from 'app/components/utilities';
 
 // TODO: errors & error recovery
 class CollectionView extends Component {
@@ -118,10 +119,14 @@ class CollectionView extends Component {
            collection, search, // eslint-disable-line no-unused-vars
            ...props},
          { loading, page, count, nextPage, previousPage }) {
-    if (loading) return <Loading className={(className || "") + " collection"} />;
+    let newClassName = makeClassName("collection", className);
+
+    if (loading) return <div {...props} className={newClassName}><Loading /></div>;
+
     let childPropsDiff = { collectionView: this };
+
     return (
-      <div className={(className || "") + " collection"} {...props}>
+      <div {...props} className={newClassName}>
 	{children.map(c => cloneElement(c, childPropsDiff))}
         {count === 0 && empty}
         {showsControls && count > 0 &&

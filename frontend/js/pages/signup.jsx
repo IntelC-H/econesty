@@ -4,19 +4,19 @@ import { Form, Input } from 'app/components/forms';
 import { Router } from 'app/components/routing';
 import { API } from 'app/api';
 
+function signupAndLogin(obj) {
+  API.user.create(obj).then(() =>
+    API.token.create({username: obj.username,
+                      password: obj.password})
+             .then(tok => {
+               API.setToken(tok.key);
+               Router.push("/user/me");
+             })
+  );
+}
+
 const Signup = props => // eslint-disable-line no-unused-vars
-  <Form
-    aligned
-    onSubmit={obj => {
-      API.user.create(obj).then(() => {
-        API.token.create({username: obj.username,
-                          password: obj.password})
-                 .then(tok => {
-                   API.setToken(tok.key);
-                   Router.push("/user/me");
-                 });
-      });
-    }}>
+  <Form onSubmit={signupAndLogin}>
     <Labelled label="First Name">
       <Input text required name="first_name" />
     </Labelled>

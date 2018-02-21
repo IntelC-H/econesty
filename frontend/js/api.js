@@ -46,7 +46,6 @@ class API {
   static clearAuth() {
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
-    document.cookie = "Authorization=; Max-Age=-99999999;";
   }
 
   static get isAuthenticated() {
@@ -60,7 +59,6 @@ class API {
 
   static setToken(token) {
     localStorage.setItem("token", token || null);
-    document.cookie = "Authorization=Token " + token + "; Path=/api";
   }
 
   static getUserID() {
@@ -73,6 +71,7 @@ class API {
 
   static networking(method, path, urlparams, body) {
     let opts  = {
+      credentials: "same-origin", // enable backend to set cookies
       method: method,
       redirect: "follow",
       headers: {

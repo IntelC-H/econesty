@@ -9,7 +9,7 @@ import { Router } from 'app/components/routing';
 
 function RequirementCreationForm({ collectionView, CancelButton }) {
   return (
-    <Form aligned onSubmit={collectionView.saveElement} className="section">
+    <Form onSubmit={collectionView.saveElement} className="section">
       <FormGroup>
         <Labelled label="Terms">
           <Input text name="text" />
@@ -35,7 +35,7 @@ function RequirementCollection({ collectionView }) {
   return (
    <div>
    {rs.map(r =>
-       <Form aligned onSubmit={collectionView.saveElement}>
+       <Form onSubmit={collectionView.saveElement}>
          <DeleteButton onClick={() => collectionView.deleteElement(r.id)} />
          <FormGroup>
            {r.id !== null && r.id !== undefined && <Input hidden name="id" value={r.id} /> }
@@ -95,7 +95,7 @@ class CreateTransaction extends Component {
           <div className="section">
             <h1 className="primary">{isSender ? "Send BTC" : "Receive BTC"}</h1>
           </div>
-          <Form aligned onSubmit={this.onSubmit}>
+          <Form onSubmit={this.onSubmit}>
             <FormGroup>
             <Input hidden name="sender_id" value={sender_id} />
             <Input hidden name="recipient_id" value={recipient_id} />

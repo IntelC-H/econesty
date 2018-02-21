@@ -1,7 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Loading } from 'app/components/elements';
-import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
 
 function prependFunc(obj, fname, newf) {
   let oldf = obj[fname];
@@ -102,15 +101,8 @@ class Form extends ReferencingComponent {
     return false;
   }
 
-  render({ aligned, stacked, onSubmit, ...filteredProps }) {
+  render({ onSubmit, ...filteredProps }) {
     this.makeReferences();
-
-    // let cns = ["pure-form"];
-    // if (aligned) cns.push("pure-form-aligned");
-    // if (stacked) cns.push("pure-form-stacked");
-    // if (className) cns.push(className);
-
-   // filteredProps.className = makeClassName.apply(this, cns);
 
     if (onSubmit) {
       filteredProps.action = "javascript" + ":"; // appease JSLint
@@ -123,16 +115,12 @@ class Form extends ReferencingComponent {
 
 Form.propTypes = {
   onSubmit: PropTypes.func,
-  object: PropTypes.object,
-  aligned: PropTypes.bool,
-  stacked: PropTypes.bool
+  object: PropTypes.object
 };
 
 Form.defaultProps = {
   onSubmit: null,
-  object: null,
-  aligned: false,
-  stacked: false
+  object: null
 };
 
 class FormGroup extends Component {
@@ -290,13 +278,7 @@ Input.propTypes = {
   url: PropTypes.bool,
   type: PropTypes.oneOf(["hidden", "text", "checkbox", "password",
                          "email", "url", "number", "time", "tel",
-                         "search", "range"]),
-
-  size: sizeProp,
-  sm: sizeProp,
-  md: sizeProp,
-  lg: sizeProp,
-  xl: sizeProp
+                         "search", "range"])
 };
 
 Input.defaultProps = {

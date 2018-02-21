@@ -2,12 +2,13 @@ import { h, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
 function makeClassName() {
-  var ret = [].concat.apply([], Array.from(arguments).filter(a => !!a).map(a => a.split(' '))).filter(e => e.length > 0).join(' ');
+  let ret = Array.from(arguments).filter(Boolean).join(' ');
   return ret.length === 0 ? undefined : ret;
 }
 
 function inheritClass(comp, cname) {
-  return props => h(comp, Object.assign({}, props, { className: makeClassName(props.className, cname) }));
+  return ({className, ...props}) =>
+    h(comp, {...props, className: makeClassName(cname, className)});
 }
 
 // A Custom PropType for pure sizes

@@ -163,10 +163,23 @@ class TokenViewSet(WriteOnlyViewset):
   serializer_class = serializers.TokenSerializer
   queryset = models.Token.objects.all()
 
+  def create(self, request):
+    res = super().create(request)
+
+    if settings.DEBUG:
+      res.set_cookie("Authorization", "Token " + res.data["key"], path="/api")
+
+    return res
+
   @list_route(methods=["DELETE"])
   def clear(self, request):
+    res = None
     if request.auth:
       request.auth.delete()
-      return Response({}, status=204)
+      res = Response({}, status=204)
     else:
-      return Response({}, status=401)
+      res = Response({}, status=401)
+
+    if settings.DEBUG:
+      res.set_cookie("Authorization", max_age=-99999999)
+    return res

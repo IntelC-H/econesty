@@ -32,7 +32,7 @@ const SideMargins = ({ children, ...props }) =>
   </Grid>;
 
 const Labelled = ({ label, children, ...props }) => {
-  props.className = makeClassName(props.className, "labelled");
+  props.className = makeClassName("labelled", props.className);
   return (
     <Grid {...props}>
       <GridUnit size="1" sm="1-4">
