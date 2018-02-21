@@ -235,6 +235,8 @@ class ElementView extends Component {
     this.reloadData = this.reloadData.bind(this);
     this.updateElement = this.updateElement.bind(this);
     this.state = {
+      collection: props.collection,
+      elementID: props.elementID,
       loading: true,
       element: null
     };
@@ -245,29 +247,35 @@ class ElementView extends Component {
   }
 
   reloadData() {
-    this.setState({ element: null, loading: true });
-    this.props.collection.read(this.props.elementID)
-                         .then(element => this.setState({
+    this.setState(st => ({ ...st, element: null, loading: true }));
+    this.state.collection.read(this.state.elementID)
+                         .then(element => this.setState(st => ({
+      ...st,
       element: element,
       loading: false
-    }));
+    })));
   }
 
   updateElement(obj) {
-    this.setState({ element: null, loading: true });
-    this.props.collection.save({ id: this.props.elementID, ...obj }).then(newObj =>
-      this.setState({
+    this.setState(st => ({ ...st, element: null, loading: true }));
+    this.state.collection.save({ id: this.state.elementID, ...obj }).then(newObj =>
+      this.setState(st => ({
+        ...st,
         element: newObj,
         loading: false
-      })
+      }))
     );
   }
 
-  componentDidUpdate({ collection, elementID },
-                       prevState) { // eslint-disable-line no-unused-vars
-    if (collection !== this.props.collection ||
-        elementID !== this.props.elementID) {
-      this.reloadData();
+  componentWillReceiveProps(nextProps) {
+    let newEID = nextProps.elementID !== this.state.elementID;
+    let newCollection = nextProps.collection !== this.state.collection;
+    if (newEID || newCollection) {
+      this.setState((st, props) => ({
+        ...st,
+        elementID: (newEID ? nextProps : props).elementID,
+        collection: (newCollection ? nextProps : props).collection
+      }), this.reloadData);
     }
   }
 

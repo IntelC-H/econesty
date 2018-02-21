@@ -22,18 +22,10 @@ import RequiredOfMe from 'app/pages/requiredofme';
     Both
     - Make inputs have gridding capabilities
     JavaScript
-    - Fix SearchField not resetting after clicking a row!
-    - CollectionView empty collection - don't show empty tables etc
+    - Prettier empty CollectionView's
     - Hide profile buttons when appropriate ("Send BTC" and "Receive BTC")
     - Tooltips? (For usernames, created ats, etc)
-    - Fix bug:
-      - Click a username from the user search
-      - Click a different user from the user search
-      - Click the first username from the search
-      - THEN: transactions aren't loaded.
     CSS
-    - Fix searchfield dropdown width
-    - Fix searchfield scrolling
     - make look purdy
     - make groups in forms look better
       - light backgrounds?

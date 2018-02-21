@@ -11,16 +11,19 @@ const formatDate = x => new Date(x).toLocaleString(navigator.language, dateOpts)
 
 function BriefUserInfo({ user }) {
   return (
-    <span
-      className="secondary">
+    <span className="secondary">
       {user.first_name} {user.last_name} (@{user.username})
     </span>
   );
 }
 
 function TransactionCollectionBody({ collectionView }) {
+  let elements = collectionView.getElements();
+
+  if (elements.length === 0) return null;
+
   return (
-    <div className="collection">
+    <div>
       <Table striped selectable>
         <thead>
           <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th></tr>
