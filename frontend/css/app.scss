@@ -41,7 +41,11 @@ thead {
 }
 
 * {
-  @include open-sans(FontAwesome);
+  @include fa-font-family('Lato', sans-serif);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  //   color: $primary-text-color;
 }
 
 body {
@@ -49,10 +53,6 @@ body {
   min-width: 20rem;
   position: relative;
 }
-
-// h1, h2, h3, h4, h5, h6 {
-//   color: $primary-text-color;
-// }
 
 label {
   vertical-align: middle;
@@ -124,6 +124,7 @@ a {
   // background: $primary-color-dark;
 
   .heading {
+    @include fa-font-family('Hammersmith One');
     display: inline-block;
     margin: $padding;
     text-transform: uppercase;

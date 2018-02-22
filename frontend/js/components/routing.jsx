@@ -121,7 +121,6 @@ class Router extends Component {
 Router.propTypes = {};
 Router.defaultProps = {};
 
-// TODO: only add once
 window.addEventListener("popstate", () => updateSubscribers(Router.getPath()));
 
 // TODO: page state

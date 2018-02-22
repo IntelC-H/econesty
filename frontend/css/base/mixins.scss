@@ -30,8 +30,8 @@
   position: sticky;
 }
 
-@mixin open-sans($fonts...) {
-  font-family: append(append($fonts, 'Open Sans', comma), sans-serif, comma);
+@mixin fa-font-family($fonts...) {
+  font-family: join(FontAwesome, $fonts, comma);
 }
 
 @mixin keyframes($animationName) {
