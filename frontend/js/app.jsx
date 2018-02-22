@@ -22,10 +22,12 @@ import RequiredOfMe from 'app/pages/requiredofme';
     Both
     - Make inputs have gridding capabilities
     JavaScript
+    - Fix randomly (not really) disappearing username in editable UserDisable in profile
     - Prettier empty CollectionView's
     - Hide profile buttons when appropriate ("Send BTC" and "Receive BTC")
     - Tooltips? (For usernames, created ats, etc)
     CSS
+    - de-jank searchfield
     - make look purdy
     - make groups in forms look better
       - light backgrounds?

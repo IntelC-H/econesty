@@ -21,6 +21,7 @@ input[type], textarea {
 }
 
 input[type], textarea, select {
+  $selected-border-color: #129FEA !default !global;
   display: inline-block;
   border: 1px solid #ccc; // stylelint-disable-line unit-whitelist
   border-radius: 0.25rem;

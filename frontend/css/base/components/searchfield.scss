@@ -8,9 +8,16 @@
 .searchfield {
   $searchicon-size: 1.5em;
 
-  overflow: visible;
+  //overflow: visible;
   position: relative;
   display: inline-block;
+
+  input:focus {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+    margin-bottom: 0;
+  }
 
   .searchfield-dropdown-container {
     margin: 0;
@@ -22,22 +29,28 @@
     overflow: visible;
 
     .searchfield-dropdown {
-      @include shadowed-v;
       @include raised;
       table {
         border: none;
-        * {
+        td:not(.searchfield-noresults) {
           cursor: pointer;
         }
       }
-      border: 1px solid $divider-color; // stylelint-disable-line
-      background-color: white;
-    }
 
-    .searchfield-noresults {
-      display: table; // GIANT hack: Make div behave like the dropdown table
-      text-align: center;
-      margin: $padding auto;
+      display: table;
+      width: calc(100% - 1px); // stylelint-disable-line
+
+      border-bottom-left-radius: $border-radius;
+      border-bottom-right-radius: 0.25rem;
+      border: 1px solid $selected-border-color; // stylelint-disable-line
+      border-top: none;
+      background-color: white;
+
+      .searchfield-noresults {
+        text-align: center;
+        margin: $padding auto;
+        background-color: white;
+      }
     }
   }
 

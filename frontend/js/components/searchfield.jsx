@@ -10,11 +10,16 @@ import { DeleteButton, SearchIcon } from './elements';
 
 function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
-  if (elements.length === 0) return null;
   return (
     <Table striped selectable>
       <tbody>
-        {elements.map(element => 
+        {elements.length === 0 &&
+          <tr>
+            <td className="searchfield-noresults">
+              No Results
+            </td>
+          </tr>}
+        {elements.length > 0 && elements.map(element =>
           <tr onMouseDown={e => e.preventDefault()}
               onMouseUp={e => {
                 let onClick = searchField.getClickAction();
@@ -158,7 +163,6 @@ class SearchField extends FormElement {
               collection={api}
               search={search}
               showsControls={false}
-              empty={<div className="searchfield-noresults">No Results</div>}
               className="searchfield-dropdown">
               <SearchResultsView searchField={this} />
             </CollectionView>
