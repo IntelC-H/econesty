@@ -20,16 +20,11 @@ import RequiredOfMe from 'app/pages/requiredofme';
 /*
   TODO for MVP:
     Both
-    - Make inputs have gridding capabilities
-    JavaScript
-    - Fix randomly (not really) disappearing username in editable UserDisable in profile
     - Prettier empty CollectionView's
-    - Hide profile buttons when appropriate ("Send BTC" and "Receive BTC")
-    - Tooltips? (For usernames, created ats, etc)
+    - Make inputs have gridding capabilities
     CSS
-    - de-jank searchfield
-    - make look purdy
-    - make groups in forms look better
+    - Color scheme
+    - make FormGroups look better
       - light backgrounds?
 */
 

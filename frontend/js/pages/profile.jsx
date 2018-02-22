@@ -107,14 +107,16 @@ function Profile(props) {
       </GridUnit>
       <GridUnit size="1" sm="17-24">
         <div className="profile-button-group">
+          {userId !== API.getUserID() &&
           <Link
             component={Button}
             href={API.user.baseURL + userId + "/transaction/send"}
-          >Send BTC</Link>
+          >Send BTC</Link>}
+          {userId !== API.getUserID() &&
           <Link
             component={Button}
             href={API.user.baseURL + userId + "/transaction/receive"}
-          >Receive BTC</Link>
+          >Receive BTC</Link>}
           {userId === API.getUserID() &&
           <Link
             component={Button}
