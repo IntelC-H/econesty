@@ -169,8 +169,7 @@ class FormElement extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { name, ignore, value } = this.props;
-    if (name !== nextProps.name) return true;
+    if (this.props.name !== nextProps.name) return true;
     if (this.state.value !== nextState.value) return true;
     return false;
   }
@@ -193,11 +192,11 @@ class Input extends FormElement {
     super(props);
     this.onInput = this.onInput.bind(this);
     this.toggleCheckbox = this.toggleCheckbox.bind(this);
-    if (this.type === "checkbox" && !this.value) this.state.value = false;
+    if (this.getType() === "checkbox" && !this.value) this.state.value = false;
   }
 
   // TODO: cache this
-  get type() {
+  getType() {
     const { type, hidden, text,
             checkbox, password,
             email, url, number,
@@ -232,13 +231,13 @@ class Input extends FormElement {
 
   render({type, search, range, // eslint-disable-line no-unused-vars
           hidden, text, time, // eslint-disable-line no-unused-vars
-          password, tel, // eslint-disable-line no-unused-vars
-          email, url, number, value, ignore, // eslint-disable-line no-unused-vars
+          password, tel, email, url, // eslint-disable-line no-unused-vars
+          number, value, ignore, // eslint-disable-line no-unused-vars
           checkbox,
+          // TODO: sizing classes
           // size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
           ...props}) {
-
-    props.type = this.type;
+    props.type = this.getType();
 
     if (checkbox) props.checked = Boolean(this.value);
     else if (this.value !== undefined) {

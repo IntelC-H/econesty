@@ -148,7 +148,7 @@ class SearchField extends FormElement {
           <Input
             {...props}
             text ignore
-            value={focused ? search : undefined}
+            value={focused ? search : null}
             ref={n => this.inputNode = n}
             onKeyUp={this.onKeyUp}
             onFocus={this.onFocus}

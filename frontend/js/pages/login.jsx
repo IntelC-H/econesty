@@ -38,7 +38,9 @@ class Login extends Component {
            <Labelled label="Password">
              <Input password required name="password" />
            </Labelled>
-           <Button type="submit">LOGIN</Button>
+           <div className="centered">
+             <Button type="submit">LOGIN</Button>
+           </div>
          </FormGroup>
        </Form>
       </SideMargins>
