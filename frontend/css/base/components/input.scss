@@ -1,9 +1,9 @@
-@import "./variables";
-@import "./mixins";
-
 /*
-  Styling for forms and form elements
+  <Input /> & <Select /> component
 */
+
+@import "base/variables";
+@import "base/mixins";
 
 select { 
   -webkit-appearance: none;
@@ -76,15 +76,5 @@ label.checkbox {
     margin-left: $padding;
     height: $element-height / 2;
     width: $element-height / 2;
-  }
-}
-
-fieldset {
-  margin: $padding;
-  padding: 0;
-  border: none;
-
-  * {
-    margin: ($padding/2) 0;
   }
 }

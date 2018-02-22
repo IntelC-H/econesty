@@ -18,13 +18,13 @@ function signupAndLogin(obj) {
 const Signup = props => // eslint-disable-line no-unused-vars
   <Form onSubmit={signupAndLogin}>
     <Labelled label="First Name">
-      <Input text required name="first_name" />
+      <Input text required autocomplete="given-name" name="first_name" />
     </Labelled>
     <Labelled label="Last Name">
-      <Input text required name="last_name" />
+      <Input text required autocomplete="family-name" name="last_name" />
     </Labelled>
     <Labelled label="Email">
-      <Input email required name="email" />
+      <Input email required autocomplete="email" name="email" />
     </Labelled>
     <Labelled label="Username">
       <Input text required name="username" />

@@ -78,7 +78,9 @@ class Form extends ReferencingComponent {
   }
 
   set(obj, ref) {
-    if (ref.base && ref.base.parentNode && ref.value !== undefined) { // if (ref is mounted && has value) {
+    // If the ref is mounted, shouldn't be ignored, and has a value
+    if (ref.base && ref.base.parentNode
+     && !ref.ignore && ref.value !== undefined) {
       let kp = (ref.context.groups || []).map(g => g.keypath);
       kp.push(ref.name);
       setKeypath(obj, kp.join('.'), ref.value);
@@ -169,8 +171,6 @@ class FormElement extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { name, ignore, value } = this.props;
     if (name !== nextProps.name) return true;
-    if (ignore !== nextProps.ignore) return true;
-    if (value !== nextProps.value) return true;
     if (this.state.value !== nextState.value) return true;
     return false;
   }
@@ -219,9 +219,7 @@ class Input extends FormElement {
 
   onInput(e) {
     const inpt = e.target;
-    if (inpt.type === "checkbox")     this.value = inpt.checked || false;
-    else if (!inpt.value)             this.value = undefined;
-    else if (inpt.value.length === 0) this.value = null;
+    if (inpt.type === "checkbox")     this.value = Boolean(inpt.checked);
     else if (inpt.type === "hidden")  this.value = JSON.parse(inpt.value);
     else                              this.value = inpt.value;
   }
@@ -234,23 +232,23 @@ class Input extends FormElement {
 
   render({type, search, range, // eslint-disable-line no-unused-vars
           hidden, text, time, // eslint-disable-line no-unused-vars
-          checkbox, password, tel, // eslint-disable-line no-unused-vars
-          email, url, number, // eslint-disable-line no-unused-vars
+          password, tel, // eslint-disable-line no-unused-vars
+          email, url, number, value, ignore, // eslint-disable-line no-unused-vars
+          checkbox,
           // size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
           ...props}) {
 
     props.type = this.type;
 
-    const isCheck = this.type === "checkbox";
-
-    if (this.value !== undefined && !props.ignore) {
-      if (isCheck)         props.checked = !!this.value;
-      else if (this.value) props.value   = this.type === "hidden" ? JSON.stringify(this.value) : this.value;
+    if (checkbox) props.checked = Boolean(this.value);
+    else if (this.value !== undefined) {
+      if (hidden) props.value = JSON.stringify(this.value);
+      else        props.value = this.value;
     }
 
-    prependFunc(props, isCheck ? "onClick" : "onInput", this.onInput);
+    prependFunc(props, checkbox ? "onClick" : "onInput", this.onInput);
 
-    if (isCheck && props.placeholder && props.placeholder.length > 0) {
+    if (checkbox && props.placeholder && props.placeholder.length > 0) {
       return (
         <label className="checkbox">
           <span onClick={this.toggleCheckbox}>{props.placeholder + " "}</span>

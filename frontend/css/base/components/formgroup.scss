@@ -1,0 +1,16 @@
+/*
+  <FormGroup /> component
+*/
+
+@import "base/variables";
+@import "base/mixins";
+
+fieldset {
+  margin: $padding;
+  padding: 0;
+  border: none;
+
+  * {
+    margin: ($padding/2) 0;
+  }
+}
