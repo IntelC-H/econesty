@@ -14,10 +14,10 @@ function RequirementCreationForm({ collectionView, CancelButton }) {
         <Labelled label="Terms">
           <Input text name="text" />
         </Labelled>
-        <Labelled label="Responsible User">
+        <Labelled label="Onus upon">
           <SearchField name="user"
                        api={API.user}
-                       placeholder="find a user..."
+                       placeholder="find a user"
                        component={props => props.element.username} />
         </Labelled>
       </FormGroup>
@@ -44,11 +44,11 @@ function RequirementCollection({ collectionView }) {
            <Labelled label="Terms">
              <Input text name="text" value={r.text} />
            </Labelled>
-           <Labelled label="Responsible User">
+           <Labelled label="Onus upon">
              <SearchField name="user"
                           api={API.user}
                           value={r.user}
-                          placeholder="find a user..."
+                          placeholder="find a user"
                           component={props => props.element.username} />
            </Labelled>
          </FormGroup>
@@ -97,14 +97,18 @@ class CreateTransaction extends Component {
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
           <div className="section">
-            <h1 className="primary">{isSender ? "Send BTC" : "Receive BTC"}</h1>
+            <h1 className="primary">{isSender ? "Send" : "Receive"} Bitcoin</h1>
           </div>
           <Form onSubmit={this.onSubmit}>
             <FormGroup>
             <Input hidden name="sender_id" value={sender_id} />
             <Input hidden name="recipient_id" value={recipient_id} />
 
-            <Labelled label="Your Wallet">
+            <Labelled label="How many BTC?">
+              <Input number required name="amount" step="0.0001" min="0" cols="7" />
+            </Labelled>
+
+            <Labelled label="From wallet">
               <Select
                 options={this.makeWalletsPromise}
                 name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
@@ -112,11 +116,7 @@ class CreateTransaction extends Component {
                 faceTransform={w => w.private_key} />
             </Labelled>
 
-            <Labelled label="How much?">
-              <Input number required name="amount" step="0.0001" min="0" cols="7" />
-            </Labelled>
-
-            <h2>Requirements for Transaction:</h2>
+            <h2>With Requirements:</h2>
             <CollectionView collection={this.dummyCollection}>
               <CollectionCreation createText="+ Requirement">
                 <RequirementCreationForm />

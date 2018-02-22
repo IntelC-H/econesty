@@ -7,6 +7,12 @@
 .labelled {
   display: flex;
   flex-wrap: wrap;
+  .labelled-label-container label {
+    padding-right: $padding;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .labelled-label-container, .labelled-content {
     height: $element-height;
     display: flex;

@@ -11,7 +11,7 @@ function RequirementRow({ collectionView, element }) {
   return (
     <div className="section">
       <h3>Transaction <Link className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Link>:</h3>
-      <p>{element.text}</p>
+      { element.text && element.text.length > 0 && <p className="italic">{element.text}</p>}
       <Form key={element.id + "-ack"}
             ref={e => form = e}
             onSubmit={collectionView.saveElement}>

@@ -149,8 +149,12 @@ a {
   @include flex-vh-center;
 }
 
+.italic {
+  font-style: italic;
+}
+
 .section {
-  $_factor: 2;
+  $_factor: 1.5;
   margin-top: $padding * $_factor;
 
   h1, h2, h3, h4, h5, h6 {
