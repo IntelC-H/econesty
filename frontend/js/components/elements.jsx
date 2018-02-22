@@ -35,10 +35,10 @@ const Labelled = ({ label, children, ...props }) => {
   props.className = makeClassName("labelled", props.className);
   return (
     <Grid {...props}>
-      <GridUnit size="1" sm="1-4">
+      <GridUnit className="labelled-label-container" size="1" sm="1-4">
         <label>{label || " "}</label>
       </GridUnit>
-      <GridUnit size="1" sm="3-4">
+      <GridUnit className="labelled-content" size="1" sm="3-4">
         {children}
       </GridUnit>
     </Grid>

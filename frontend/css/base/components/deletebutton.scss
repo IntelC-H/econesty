@@ -3,21 +3,12 @@
 */
 
 @import "base/variables";
+@import "base/mixins";
 
 .delete-button {
   float: right;
   height: $element-height;
   width: $element-height;
-  overflow: visible;
   margin: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &::before {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  @include flex-vh-center;
 }

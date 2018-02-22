@@ -21,8 +21,10 @@
   z-index: 100;
 }
 
-@mixin clearfix {
-  overflow: hidden;
+@mixin flex-vh-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @mixin sticky {
@@ -32,6 +34,11 @@
 
 @mixin fa-font-family($fonts...) {
   font-family: join(FontAwesome, $fonts, comma);
+}
+
+@function toRem($size) {
+  $remSize: $size / 16px; // stylelint-disable-line unit-whitelist
+  @return $remSize * 1rem;
 }
 
 @mixin keyframes($animationName) {

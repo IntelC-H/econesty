@@ -112,14 +112,16 @@ a {
 
 .header {
   @include shadowed-v;
-  @include clearfix;
   @include sticky;
   @include raised;
 
   height: auto;
   top: 0;
   background-color: white;
-  overflow: visible;
+
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 
   // background: $primary-color-dark;
 
@@ -133,7 +135,6 @@ a {
   }
 
   ul.menu-list {
-    float: right;
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -142,6 +143,10 @@ a {
       margin: $padding
     }
   }
+}
+
+.centered {
+  @include flex-vh-center;
 }
 
 .section {

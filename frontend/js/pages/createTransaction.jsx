@@ -21,8 +21,10 @@ function RequirementCreationForm({ collectionView, CancelButton }) {
                        component={props => props.element.username} />
         </Labelled>
       </FormGroup>
-      <Button action="submit">ADD</Button>
-      <CancelButton />
+      <div className="centered">
+        <Button action="submit">ADD</Button>
+        <CancelButton />
+      </div>
     </Form>
   );
 }
@@ -50,7 +52,9 @@ function RequirementCollection({ collectionView }) {
                           component={props => props.element.username} />
            </Labelled>
          </FormGroup>
-         <Button action="submit">SAVE</Button>
+         <div className="centered">
+           <Button action="submit">SAVE</Button>
+         </div>
        </Form>)}
     </div>
   );

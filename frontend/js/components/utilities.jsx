@@ -46,7 +46,7 @@ function sizingClasses(baseClass, props) {
 // supportsSizing => Turn on/off PureCSS sizing. For example, pure-u and
 //                   pure-input support sizing.
 function cssSubclass(BaseComponent, mapping, baseClass, supportsSizing = false) {
-  const f = props => {
+  const f = ({className, ...props}) => {
     var propsCopy = {};
     var classes = [];
 
@@ -65,7 +65,7 @@ function cssSubclass(BaseComponent, mapping, baseClass, supportsSizing = false) 
         propsCopy[k] = v;
       }
     }
-
+    classes.push(className);
     propsCopy.className = makeClassName.apply(this, classes);
 
     const Comp = BaseComponent instanceof Function ? BaseComponent(propsCopy) : BaseComponent;

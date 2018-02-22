@@ -8,15 +8,16 @@
 .searchfield {
   $searchicon-size: 1.5em;
 
-  //overflow: visible;
   position: relative;
   display: inline-block;
+  width: 100%;
 
   input:focus {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     border-bottom: none;
     margin-bottom: 0;
+    padding-bottom: $padding + toRem($input-border-width);
   }
 
   .searchfield-dropdown-container {
@@ -24,25 +25,38 @@
     *:not(.loading) {
       margin: 0;
     }
+
+    // Prevent interference with page & build new coord system
     position: relative;
     height: 0;
     overflow: visible;
 
     .searchfield-dropdown {
       @include raised;
+      border-bottom-left-radius: $border-radius;
+      border-bottom-right-radius: $border-radius;
       table {
+        border-radius: inherit;
         border: none;
-        td:not(.searchfield-noresults) {
-          cursor: pointer;
+        tbody {
+          border-radius: inherit;
+          td:not(.searchfield-noresults) {
+            cursor: pointer;
+          }
+	  
+          tr:nth-last-child(1) {
+            border-radius: inherit;
+            td {
+              border-radius: inherit;
+            }
+          }
         }
       }
 
       display: table;
-      width: calc(100% - 1px); // stylelint-disable-line
+      width: calc(100% - 1px); // stylelint-disable-line unit-whitelist
 
-      border-bottom-left-radius: $border-radius;
-      border-bottom-right-radius: 0.25rem;
-      border: 1px solid $selected-border-color; // stylelint-disable-line
+      border: $input-border-width solid $input-selected-border-color;
       border-top: none;
       background-color: white;
 

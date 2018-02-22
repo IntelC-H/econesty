@@ -6,25 +6,11 @@
 
 .labelled {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  label {
-    height: 100%;
+  flex-wrap: wrap;
+  .labelled-label-container, .labelled-content {
+    height: $element-height;
     display: flex;
     align-items: center;
-    justify-content: center;
-  }
-}
-
-@media (max-width: $pure-sm) {
-  .labelled {
-    & > * {
-      display: block;
-      label {
-        margin: $padding 0;
-        position: initial;
-        width: 100%;
-      }
-    }
+    justify-content: flex-start;
   }
 }

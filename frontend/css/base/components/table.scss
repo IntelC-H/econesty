@@ -21,8 +21,9 @@ table {
     border-width: 0 0 1px 0px; // stylelint-disable-line unit-whitelist
     font-size: inherit;
     margin: 0;
-    overflow: visible; /* compat with long titles */
-    padding: 0.5em 1em; /* cell padding */
+    overflow: visible; // compat with long titles
+    overflow: hidden;
+    padding: 0.5em 1em; // cell padding
   }
 
   thead {
