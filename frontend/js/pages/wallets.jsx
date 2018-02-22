@@ -1,39 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import PropTypes from 'prop-types';
-import { Button, Grid, GridUnit, DeleteButton, Labelled } from 'app/components/elements';
+import { Button, DeleteButton, Labelled, SideMargins } from 'app/components/elements';
 import { Form, Input, FormGroup } from 'app/components/forms';
 import { API } from 'app/api';
 import { CollectionView, CollectionCreation } from 'app/components/api';
-
-class Wallet extends Component {
-  // TODO: detect changes and hide/show save button accordingly
-  render({ wallet, onSubmit }) {
-    return (
-      <div>
-        <Form onSubmit={onSubmit}>
-          <Input hidden name="user_id" value={wallet.user.id || API.getUserID()}/>
-          <FormGroup>
-            <Input text required
-                   name="private_key"
-                   value={wallet.private_key}
-                   placeholder="WIF-formatted Bitcoin private key" />
-          </FormGroup>
-          <Button action="submit">Save</Button>
-        </Form>
-      </div>
-    );
-  }
-}
-
-Wallet.propTypes = {
-  wallet: API.wallet.shape,
-  onSubmit: PropTypes.func
-};
-
-Wallet.defaultProps = {
-  wallet: {user:{}},
-  onSubmit: () => null
-};
 
 function WalletCreateForm({ collectionView, CancelButton }) {
   return (
@@ -43,10 +12,12 @@ function WalletCreateForm({ collectionView, CancelButton }) {
         <FormGroup>
           <Input text required
                  name="private_key"
-                 placeholder="WIF-formatted Bitcoin private key" />
+                 placeholder="Bitcoin wallet private key (WIF format)" />
         </FormGroup>
-        <Button action="submit">Save</Button>
-        <CancelButton />
+        <div className="centered">
+          <Button action="submit">Save</Button>
+          <CancelButton />
+        </div>
       </Form>
     </div>
   );
@@ -75,18 +46,14 @@ function WalletCollectionBody({ collectionView }) {
 
 function Wallets() {
   return (
-    <Grid>
-      <GridUnit size="1" sm="4-24"/>
-      <GridUnit size="1" sm="16-24">
-        <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID() })}>
-          <CollectionCreation>
-            <WalletCreateForm />
-          </CollectionCreation>
-          <WalletCollectionBody />
-        </CollectionView>
-      </GridUnit>
-      <GridUnit size="1" sm="4-24"/>
-    </Grid>
+    <SideMargins>
+      <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID() })}>
+        <CollectionCreation>
+          <WalletCreateForm />
+        </CollectionCreation>
+        <WalletCollectionBody />
+      </CollectionView>
+    </SideMargins>
   );
 }
 

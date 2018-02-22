@@ -2,6 +2,8 @@
   <CollectionView /> component
 */
 
+// TODO: use flexbox
+
 .collection {
   table {
     width: 100%;
@@ -19,6 +21,7 @@
       top: 25%;
       height: 50%;
       display: block;
+      line-height: 100%;
     }
   }
 }

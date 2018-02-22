@@ -1,27 +1,24 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import SearchField from 'app/components/searchfield';
-import { Link } from 'app/components/routing';
 import { API } from 'app/api';
+import { Header } from 'app/components/header';
+import { makeClassName } from 'app/components/utilities';
 
-const PageTemplate = props =>
-  <div>
-    <div className="header">
-      <Link href="/" className="heading light-text">Econe$ty</Link>
-      <ul className="menu-list">
-        <li>
-          <SearchField
-            standalone
-            api={API.user}
-            placeholder="search users"
-            component={props => props.element.username}
-          />
-        </li>
-      </ul>
-  </div>
-    <div className="content">
-      {props.children}
+function PageTemplate({ className, ...props}) {
+  return (
+    <div>
+      <Header title="Econe$ty"
+              menuElements={[
+                <SearchField
+                  standalone
+                  api={API.user}
+                  placeholder="search users"
+                  component={props => props.element.username}
+                />
+              ]}/>
+      <div className={makeClassName("content", className)} {...props} />
     </div>
-  </div>
-;
+  );
+}
 
 export default PageTemplate;

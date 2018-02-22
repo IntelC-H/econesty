@@ -16,6 +16,19 @@
   position: sticky;
 }
 
+@mixin user-select($value) {
+  -moz-user-select: -moz-#{$value};
+  -webkit-user-select: $value;
+  -ms-user-select: $value;
+  user-select: $value;;
+}
+
+@mixin appearance($value) {
+  -webkit-appearance: $value;
+  -moz-appearance: $value;
+  appearance: $value;
+}
+
 @mixin fa-font-family($fonts...) {
   font-family: join(FontAwesome, $fonts, comma);
 }

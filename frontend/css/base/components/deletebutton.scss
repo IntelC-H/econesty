@@ -6,6 +6,9 @@
 @import "base/mixins";
 
 .delete-button {
+  $delete-button-color: #000000 !default !global;
+
+  color: $delete-button-color;
   float: right;
   height: $element-height;
   width: $element-height;

@@ -1,0 +1,47 @@
+/*
+  <Header /> component
+*/
+
+@import "base/variables";
+@import "base/mixins";
+
+.header {
+  $header-color: black !default !global;
+  $header-background-color: white !default !global;
+  $header-title-font: 'Hammersmith One' !default !global;
+  $header-title-fallback-font: sans-serif;
+
+  @include sticky;
+  @include raised;
+
+  height: auto;
+  top: 0;
+  color: $header-color;
+  background-color: $header-background-color;
+
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  border-bottom: $border-width solid $divider-color; // stylelint-disable-line unit-whitelist
+
+  .heading {
+    @include user-select(none);
+    font-family: $header-title-font, $header-title-fallback-font;
+    display: inline-block;
+    margin: $padding;
+    text-transform: uppercase;
+    font-size: $element-height;
+    line-height: 100%;
+  }
+
+  ul.menu-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    li {
+      display: inline-block;
+      margin: $padding
+    }
+  }
+}

@@ -4,19 +4,26 @@
 
 @import "base/mixins";
 @import "base/variables";
-@import "base/components/input"; // for $input-border-width
+@import "base/components/input";
 
 .searchfield {
+  $searchfield-color:            #000000 !default !global;
+  $searchfield-background-color: #FFFFFF !default !global;
+
   position: relative;
   display: inline-block;
   width: 100%;
 
-  input:focus {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: $padding + toRem($input-border-width);
+  input {
+    color: $searchfield-color;
+    background-color: $searchfield-background-color;
+    &:focus {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: $padding + toRem($border-width);
+    }
   }
 
   .searchfield-dropdown-container {
@@ -34,11 +41,26 @@
       @include raised;
       border-bottom-left-radius: $border-radius;
       border-bottom-right-radius: $border-radius;
+
+      display: table;
+      width: calc(100% - 1px); // stylelint-disable-line unit-whitelist
+
+      border: $border-width solid $input-selected-border-color;
+      border-top: none;
+
+      color: $searchfield-color;
+      background-color: $searchfield-background-color;
+
       table {
         border-radius: inherit;
         border: none;
         tbody {
           border-radius: inherit;
+
+          td, th {
+            color: $searchfield-color;
+          }
+
           td:not(.searchfield-noresults) {
             cursor: pointer;
           }
@@ -52,17 +74,10 @@
         }
       }
 
-      display: table;
-      width: calc(100% - 1px); // stylelint-disable-line unit-whitelist
-
-      border: $input-border-width solid $input-selected-border-color;
-      border-top: none;
-      background-color: white;
-
       .searchfield-noresults {
         text-align: center;
         margin: $padding auto;
-        background-color: white;
+        background-color: $searchfield-background-color;
       }
     }
   }

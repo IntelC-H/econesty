@@ -1,22 +1,60 @@
-@import "base";
+//
+// Palette Colors
+//
+
+// materialpalette.com/light-green/pink
+
+// materialpalette.com/green/brown
+$primary-color-dark:   #388E3C; // UI element background
+$primary-color:        #4CAF50; // UI element background
+$primary-color-light:  #C8E6C9; // page background
+$primary-color-text:   #FFFFFF; // Text/Icons: nav bar title
+$accent-color:         #795548; // accents
+$primary-text-color:   #212121; // h1 and friends
+$secondary-text-color: #757575; // Secondary Text: p tags and detail text
+$divider-color:        #BDBDBD; // hr's
+
+// TODO: override colors here
 
 /*
-  Generic
+
+  $table-color:                   $primary-color;
+  $table-border-color:            
+  $table-header-background-color: 
+  $table-header-color:            $primary-color-text;
+  $table-body-row-stripe-color:   
+  $table-body-row-hover-color:    
+  $table-body-row-active-color:
+
+  $button-color:            
+  $button-background-color: 
+
+  $input-color:            
+  $input-background-color: 
+  $input-disabled-color:   
+  $input-border-color:          
+  $input-selected-border-color: 
+  $input-invalid-border-color:  
+
+  $delete-button-color:
+
+  $searchfield-color:           
+  $searchfield-background-color:
+
+  $loading-wheel-color:
+  $loading-wheel-width:
+
+  $header-color:
+  $header-background-color
 */
 
-// h1, h2, h3, h4, h5, h6 {
-//   font-size: 1.25em;
-// }
+@import "base";
 
 // .primary {
 //   color: $primary-text-color;
 // }
 
 // .secondary {
-//   color: $secondary-text-color;
-// }
-
-// .tertiary {
 //   color: $secondary-text-color;
 // }
 
@@ -28,30 +66,19 @@
 //   color: $primary-text-color;
 // }
 
-// input[type], textarea, select {
-//   &:focus {
-//     border-color: $accent-color;
-//   }
-// }
-
-
-thead {
-  color: $primary-color-text;
-  background-color: $primary-color;
-}
 
 * {
   @include fa-font-family('Lato', sans-serif);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  //   color: $primary-text-color;
+  //  color: $primary-text-color;
 }
 
 body {
-  // background-color: $primary-color-light;
   min-width: 20rem;
   position: relative;
+  background-color: white;
 }
 
 label {
@@ -71,7 +98,6 @@ a {
   }
 
   &:hover {
-    // color: $accent-color;
     text-decoration: underline;
   }
 
@@ -108,42 +134,6 @@ a {
 
 .userlink {
   display: inline;
-}
-
-.header {
-  @include sticky;
-  @include raised;
-
-  height: auto;
-  top: 0;
-  background-color: white;
-
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
-  border-bottom: 1px solid $divider-color; // stylelint-disable-line unit-whitelist
-
-  // background: $primary-color-dark;
-
-  .heading {
-    @include fa-font-family('Hammersmith One');
-    display: inline-block;
-    margin: $padding;
-    text-transform: uppercase;
-    font-size: $element-height;
-    line-height: 100%;
-  }
-
-  ul.menu-list {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    li {
-      display: inline-block;
-      margin: $padding
-    }
-  }
 }
 
 .centered {
