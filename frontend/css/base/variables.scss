@@ -2,18 +2,14 @@
 // Constants
 //
 
-$input-width: 13rem;
-
 $element-height: 2.5rem;
+$padding: 0.5rem !default;
+$border-radius: ($padding / 3) !default;
 
 $pure-sm: 568px !default; // stylelint-disable-line
 $pure-md: 768px !default; // stylelint-disable-line
 $pure-lg: 1024px !default; // stylelint-disable-line
 $pure-xl: 1280px !default; // stylelint-disable-line
-
-$padding: 0.5rem !default;
-
-$border-radius: ($padding / 3) !default;
 
 //
 // Palette Colors
@@ -31,10 +27,3 @@ $primary-text-color:   #212121 !default; // h1 and friends
 $secondary-text-color: #757575 !default; // Secondary Text: p tags and detail text
 $divider-color:        #BDBDBD !default; // hr's
 
-// Mixins
-$shadow-dist: ($padding / 5) !default;
-$shadow-blur: ($padding / 2) !default;
-$shadow-color: #999 !default;
-
-// SearchField
-$searchicon-size: 1.5em;

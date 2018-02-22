@@ -4,11 +4,9 @@
 
 @import "base/mixins";
 @import "base/variables";
-@import "base/components/input";
+@import "base/components/input"; // for $input-border-width
 
 .searchfield {
-  $searchicon-size: 1.5em;
-
   position: relative;
   display: inline-block;
   width: 100%;
@@ -90,7 +88,7 @@
       vertical-align: middle;
     }
 
-    font-size: $searchicon-size;
+    font-size: $element-height - ($padding * 2);
     padding: 0;
     margin: $padding/4;
 

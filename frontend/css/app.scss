@@ -111,7 +111,6 @@ a {
 }
 
 .header {
-  @include shadowed-v;
   @include sticky;
   @include raised;
 
@@ -122,6 +121,8 @@ a {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+
+  border-bottom: 1px solid $divider-color; // stylelint-disable-line unit-whitelist
 
   // background: $primary-color-dark;
 
