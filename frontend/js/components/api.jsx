@@ -1,7 +1,6 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Button, Grid, GridUnit, Loading } from 'app/components/elements';
-import { makeClassName } from 'app/components/utilities';
 
 // TODO: errors & error recovery
 class CollectionView extends Component {
@@ -125,33 +124,29 @@ class CollectionView extends Component {
     return false;
   }
 
-  render({ className, children, showsControls, empty,
+  render({ children, showsControls, empty,
            collection, search, // eslint-disable-line no-unused-vars
            ...props},
          { loading, page, count, nextPage, previousPage }) {
-    let newClassName = makeClassName("collection", className);
-
-    if (loading) return <div {...props} className={newClassName}><Loading /></div>;
+    if (loading) return <div {...props}><Loading /></div>;
 
     let childPropsDiff = { collectionView: this };
 
     return (
-      <div {...props} className={newClassName}>
+      <div {...props}>
 	{children.map(c => cloneElement(c, childPropsDiff))}
         {count === 0 && empty}
         {showsControls && count > 0 &&
         <Grid className="collection-controls">
-          <GridUnit className="center collection-control" size="1-3">
+          <GridUnit className="collection-control" size="1-3">
             <Button disabled={previousPage === null}
                     onClick={this.gotoPreviousPage}
                     >❮</Button>
           </GridUnit>
-          <GridUnit className="center collection-control" size="1-3">
-            <div className="collection-page-indicator">
-              <span>{page} of {Math.ceil(count/10) || 1}</span>
-            </div>
+          <GridUnit className="collection-control collection-page-indicator" size="1-3">
+            <span>{page} of {Math.ceil(count/10) || 1}</span>
           </GridUnit>
-          <GridUnit className="center collection-control" size="1-3">
+          <GridUnit className="collection-control" size="1-3">
             <Button disabled={nextPage === null}
                     onClick={this.gotoNextPage}
                     >❯</Button>
