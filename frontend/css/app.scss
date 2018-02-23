@@ -5,73 +5,67 @@
 // materialpalette.com/light-green/pink
 
 // materialpalette.com/green/brown
-$primary-color-dark:   #388E3C; // UI element background
-$primary-color:        #4CAF50; // UI element background
-$primary-color-light:  #C8E6C9; // page background
-$primary-color-text:   #FFFFFF; // Text/Icons: nav bar title
-$accent-color:         #795548; // accents
-$primary-text-color:   #212121; // h1 and friends
-$secondary-text-color: #757575; // Secondary Text: p tags and detail text
-$divider-color:        #BDBDBD; // hr's
+// $primary-color-dark:   #388E3C; // UI element background
+// $primary-color:        #4CAF50; // UI element background
+// $primary-color-light:  #C8E6C9; // page background
+// $primary-color-text:   #FFFFFF; // Text/Icons: nav bar title
+// $accent-color:         #795548; // accents
+// $primary-text-color:   #212121; // h1 and friends
+// $secondary-text-color: #757575; // Secondary Text: p tags and detail text
+// $divider-color:        #BDBDBD; // hr's
+
+
+/*
+  Palette
+*/
+
+$accent-color:    #DE9861;
+$highlight-color: #F6CD00;
+$primary-color:   #7FC382;
+$border-color:    #388386;
+$text-color:      #0C165C;
 
 // TODO: override colors here
 
-/*
-  $table-color:                   $primary-color;
-  $table-border-color:            
-  $table-header-background-color: 
-  $table-header-color:            $primary-color-text;
-  $table-body-row-stripe-color:   
-  $table-body-row-hover-color:    
-  $table-body-row-active-color:
+$table-text-color:              $text-color;
+$table-color:                   $primary-color;
+$table-border-color:            $border-color;
+$table-body-row-color:          white;
+$table-header-background-color: $primary-color;
+$table-header-color:            white;
+//$table-body-row-stripe-color:   
+//$table-body-row-hover-color:    
+//$table-body-row-active-color:   
 
-  $button-color:            
-  $button-background-color: 
+$button-color:                #FFFFFF;
+$button-background-color:     $accent-color; // $primary-color??
 
-  $input-color:            
-  $input-background-color: 
-  $input-disabled-color:   
-  $input-border-color:          
-  $input-selected-border-color: 
-  $input-invalid-border-color:  
+$input-color:                 $text-color;
+//$input-background-color: 
+//$input-disabled-color:   
+$input-border-color:          $border-color;
+$input-selected-border-color: $highlight-color;
+//$input-invalid-border-color:  $accent-color;
 
-  $delete-button-color:
+$delete-button-color: $text-color;
 
-  $searchfield-color:           
-  $searchfield-background-color:
+//$searchfield-color:            $text-color;
+//$searchfield-background-color: #FFFFFF;
 
-  $loading-wheel-color:
-  $loading-wheel-width:
+$loading-wheel-color: $accent-color;
 
-  $header-color:
-  $header-background-color
-*/
+$header-color: #FFFFFF;
+$header-background-color: $primary-color;
+$header-shadow-color: $border-color;
 
 @import "base";
-
-// .primary {
-//   color: $primary-text-color;
-// }
-
-// .secondary {
-//   color: $secondary-text-color;
-// }
-
-// .light-text {
-//   color: $primary-color-text;
-// }
-
-// .dark-text {
-//   color: $primary-text-color;
-// }
-
 
 * {
   @include fa-font-family('Lato', sans-serif);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  //  color: $primary-text-color;
+h1, h2, h3, h4, h5, h6, p {
+  color: text-color;
 }
 
 body {
@@ -100,9 +94,9 @@ a {
     text-decoration: underline;
   }
 
-  // &:active {
-  //   color: $accent-color;
-  // }
+  &:active {
+    color: $accent-color;
+  }
 }
 
 /*

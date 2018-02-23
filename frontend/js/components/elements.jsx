@@ -8,6 +8,7 @@ const GridUnit = cssSubclass('div', {}, 'pure-u', true);
 
 const Loading = inheritClass('div', 'loading');
 const Error = inheritClass('div', "error");
+const XOverflowable = inheritClass('div', "xoverflowable");
 
 const DeleteButton = inheritClass('a', 'delete-button fa fa-times');
 const SearchIcon = inheritClass('span', "search-icon fa fa-search");
@@ -50,7 +51,7 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Image, Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins };
+export { Image, Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable };
 
 export default {
   Image: Image,
@@ -63,5 +64,6 @@ export default {
   Labelled: Labelled,
   DeleteButton: DeleteButton,
   SearchIcon: SearchIcon,
-  SideMargins: SideMargins
+  SideMargins: SideMargins,
+  XOverflowable: XOverflowable
 };

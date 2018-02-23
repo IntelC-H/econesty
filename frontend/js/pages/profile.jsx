@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Link, Router } from 'app/components/routing';
 import { API } from 'app/api';
 
-import { Button, Grid, GridUnit, Image, Table } from 'app/components/elements';
+import { Button, Grid, GridUnit, Image, Table, XOverflowable } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
 import { Form, FormGroup, Input } from 'app/components/forms';
 
@@ -23,7 +23,7 @@ function TransactionCollectionBody({ collectionView }) {
   if (elements.length === 0) return null;
 
   return (
-    <div>
+    <XOverflowable>
       <Table striped selectable>
         <thead>
           <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th></tr>
@@ -47,7 +47,7 @@ function TransactionCollectionBody({ collectionView }) {
           )}
         </tbody>
       </Table>
-    </div>
+    </XOverflowable>
   );
 }
 

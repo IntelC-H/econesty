@@ -17,6 +17,7 @@ select {
 
 input[type], textarea, select {
   $input-color:                 #000000 !default !global;
+  $input-placeholder-color:     #777777 !default !global;
   $input-background-color:      #FFFFFF !default !global;
   $input-disabled-color:        #CAD2D3 !default !global;
   $input-border-color:          #CCCCCC !default !global;
@@ -34,6 +35,11 @@ input[type], textarea, select {
   padding: $padding;
   margin: 0;
   width: 100%;
+
+  &::placeholder, &::-ms-input-placeholder {
+    opacity: 1; // Firefox fix
+    color: $input-placeholder-color;
+  }
 
   &:not([type=checkbox]) {
     height: $element-height;

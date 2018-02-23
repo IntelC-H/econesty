@@ -2,6 +2,14 @@
   <Table /> component
 */
 
+@import "base/variables";
+
+@mixin set-table-row-color($color) {
+  tbody tr td {
+    background-color: $color;
+  }
+}
+
 @mixin set-table-stripe-color($color) {
   &.table-striped tbody {
     tr:nth-child(2n-1) td {
@@ -30,17 +38,19 @@ table {
   $table-text-color:              #000000 !default !global;
   $table-color:                   #FFFFFF !default !global;
   $table-border-color:            #CBCBCB !default !global;
+  $table-body-row-color:          $table-color !default !global;
   $table-header-background-color: darken($table-color, 12) !default !global;
   $table-header-color:            invert($table-header-background-color) !default !global;
-  $table-body-row-stripe-color:   darken($table-color, 5) !default !global;
-  $table-body-row-hover-color:    darken($table-color, 15) !default !global;
-  $table-body-row-active-color:   darken($table-color, 20) !default !global;
+  $table-body-row-stripe-color:   darken($table-body-row-color, 5) !default !global;
+  $table-body-row-hover-color:    darken($table-body-row-color, 15) !default !global;
+  $table-body-row-active-color:   darken($table-body-row-color, 20) !default !global;
 
   background-color: transparent;
   border-collapse: collapse;
   border-spacing: 0;
   empty-cells: show;
   border: $border-width solid $table-border-color; // stylelint-disable-line unit-whitelist
+  width: 100%;
 
   td, th {
     color: $table-text-color;
@@ -48,13 +58,21 @@ table {
     margin: 0;
     overflow: hidden;
     padding: $padding ($padding * 2);
+    border: none;
+  }
+
+  tr {
+    border: none;
   }
 
   thead {
     text-align: left;
     vertical-align: bottom;
-    color: $table-header-color;
-    background-color: $table-header-background-color;
+
+    th {
+      background-color: $table-header-background-color;
+      color: $table-header-color;
+    }
   }
 
   &.table-selectable tbody {
@@ -63,6 +81,7 @@ table {
     }
   }
 
+  @include set-table-row-color($table-body-row-color);
   @include set-table-stripe-color($table-body-row-stripe-color);
   @include set-table-row-hover-color($table-body-row-hover-color);
   @include set-table-row-active-color($table-body-row-active-color);

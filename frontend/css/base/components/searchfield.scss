@@ -6,15 +6,31 @@
 @import "base/variables";
 @import "base/components/input";
 
+ul {
+  -webkit-margin-before: 0;
+  -webkit-margin-after: 0;
+  -webkit-margin-start: 0;
+  -webkit-margin-end: 0;
+  -webkit-padding-start: 0;
+}
+
 .searchfield {
-  $searchfield-color:            #000000 !default !global;
-  $searchfield-background-color: #FFFFFF !default !global;
+  $searchfield-color:             #000000 !default !global;
+  $searchfield-background-color:  #FFFFFF !default !global;
 
   position: relative;
-  display: inline-block;
   width: 100%;
 
+  * {
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    -ms-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+  }
+
   input {
+    outline-offset: 0;
+    width: 100%;
     color: $searchfield-color;
     background-color: $searchfield-background-color;
     &:focus {
@@ -32,18 +48,23 @@
       margin: 0;
     }
 
+    position: static;
+
     // Prevent interference with page & build new coord system
-    position: relative;
     height: 0;
     overflow: visible;
+    width: 100%;
 
     .searchfield-dropdown {
+      display: table;
+      .loading {
+        display: table;
+      }
       @include raised;
       border-bottom-left-radius: $border-radius;
       border-bottom-right-radius: $border-radius;
 
-      display: table;
-      width: calc(100% - 1px); // stylelint-disable-line unit-whitelist
+      width: 100%;
 
       border: $border-width solid $input-selected-border-color;
       border-top: none;
@@ -52,9 +73,8 @@
       background-color: $searchfield-background-color;
 
       table {
-        width: 100%;
-        border-radius: inherit;
         border: none;
+        border-radius: inherit;
         tbody {
           border-radius: inherit;
 
@@ -93,6 +113,8 @@
   }
 
   .search-icon {
+    color: $input-placeholder-color;
+
     // Make the cursor ignore the search icon
     pointer-events: none;
     cursor: default;
