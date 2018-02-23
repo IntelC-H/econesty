@@ -1,20 +1,3 @@
-//
-// Palette Colors
-//
-
-// materialpalette.com/light-green/pink
-
-// materialpalette.com/green/brown
-// $primary-color-dark:   #388E3C; // UI element background
-// $primary-color:        #4CAF50; // UI element background
-// $primary-color-light:  #C8E6C9; // page background
-// $primary-color-text:   #FFFFFF; // Text/Icons: nav bar title
-// $accent-color:         #795548; // accents
-// $primary-text-color:   #212121; // h1 and friends
-// $secondary-text-color: #757575; // Secondary Text: p tags and detail text
-// $divider-color:        #BDBDBD; // hr's
-
-
 /*
   Palette
 */
@@ -24,8 +7,6 @@ $highlight-color: #F6CD00;
 $primary-color:   #7FC382;
 $border-color:    #388386;
 $text-color:      #0C165C;
-
-// TODO: override colors here
 
 $table-text-color:              $text-color;
 $table-color:                   $primary-color;
@@ -38,14 +19,14 @@ $table-header-color:            white;
 //$table-body-row-active-color:   
 
 $button-color:                #FFFFFF;
-$button-background-color:     $accent-color; // $primary-color??
+$button-background-color:     $accent-color;
 
 $input-color:                 $text-color;
 //$input-background-color: 
 //$input-disabled-color:   
 $input-border-color:          $border-color;
 $input-selected-border-color: $highlight-color;
-//$input-invalid-border-color:  $accent-color;
+//$input-invalid-border-color:
 
 $delete-button-color: $text-color;
 
@@ -64,8 +45,8 @@ $header-shadow-color: $border-color;
   @include fa-font-family('Lato', sans-serif);
 }
 
-h1, h2, h3, h4, h5, h6, p {
-  color: text-color;
+h1, h2, h3, h4, h5, h6, p, span {
+  color: $text-color;
 }
 
 body {
