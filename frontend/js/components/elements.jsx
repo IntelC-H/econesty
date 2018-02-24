@@ -54,10 +54,9 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Image, Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
+export { Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
 
 export default {
-  Image: Image,
   Grid: Grid,
   GridUnit: GridUnit,
   Button: Button,
