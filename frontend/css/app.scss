@@ -106,6 +106,14 @@ a {
   }
 }
 
+.no-transactions {
+  margin: $padding;
+  text-align: center;
+  .frown-icon {
+    @include flex-vh-center;
+  }
+}
+
 .userlink {
   display: inline;
 }

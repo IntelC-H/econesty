@@ -2,16 +2,20 @@ import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unus
 import PropTypes from 'prop-types';
 import { inheritClass, cssSubclass, makeClassName } from './utilities';
 
-const Image = inheritClass('img', "pure-image");
-const Grid = inheritClass('div', 'pure-g');
-const GridUnit = cssSubclass('div', {}, 'pure-u', true);
+const Image = inheritClass("img", "pure-image");
+const Grid = inheritClass("div", "pure-g");
+const GridUnit = cssSubclass("div", {}, "pure-u", true);
 
-const Loading = inheritClass('div', 'loading');
-const Error = inheritClass('div', "error");
-const XOverflowable = inheritClass('div', "xoverflowable");
+const Loading = inheritClass("div", "loading");
+const Error = inheritClass("div", "error");
+const XOverflowable = inheritClass("div", "xoverflowable");
 
-const DeleteButton = inheritClass('a', 'delete-button fa fa-times');
-const SearchIcon = inheritClass('span', "search-icon fa fa-search");
+const DeleteButton = inheritClass("a", "fa fa-times delete-button");
+const SearchIcon = inheritClass("span", "fa fa-search search-icon");
+const Frown = cssSubclass("span", {
+  large: 'frown-icon-large',
+  medium: 'frown-icon-medium'
+}, "far fa-frown frown-icon");
 
 const Button = cssSubclass(props => props.href ? 'a' : 'button', {
   primary: 'pure-button-primary',
@@ -51,7 +55,7 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Image, Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable };
+export { Image, Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
 
 export default {
   Image: Image,
@@ -65,5 +69,6 @@ export default {
   DeleteButton: DeleteButton,
   SearchIcon: SearchIcon,
   SideMargins: SideMargins,
-  XOverflowable: XOverflowable
+  XOverflowable: XOverflowable,
+  Frown: Frown
 };

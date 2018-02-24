@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Link, Router } from 'app/components/routing';
 import { API } from 'app/api';
 
-import { Button, Grid, GridUnit, Image, Table, XOverflowable } from 'app/components/elements';
+import { Button, Grid, GridUnit, Image, Table, XOverflowable, Frown } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
 import { Form, FormGroup, Input } from 'app/components/forms';
 
@@ -17,19 +17,19 @@ function BriefUserInfo({ user }) {
   );
 }
 
-function NoTransactions({ }) {
+function NoTransactions({ userId }) {
+  let isMe = userId === API.getUserID();
   return (
-    <div>
-      <span className="fas fa-frown" />
-      <p>No Transactions</p>
+    <div className="no-transactions">
+      <Frown large />
+      {isMe && <p>No transactions yet!</p>}
+      {!isMe && <p>No transactions with this user yet!</p>}
     </div>
   );
 }
 
-function TransactionCollectionBody({ collectionView }) {
-  let elements = collectionView.getElements();
-
-  if (elements.length === 0) return <NoTransactions />;
+function TransactionCollectionBody({ collectionView, userId }) {
+  let es = collectionView.getElements();
 
   return (
     <XOverflowable>
@@ -37,8 +37,8 @@ function TransactionCollectionBody({ collectionView }) {
         <thead>
           <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th></tr>
         </thead>
-        <tbody>
-          {collectionView.getElements().map(obj =>
+        {es.length > 0 && <tbody>
+          {es.map(obj =>
             <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}>
               <td>
                 {obj.id}
@@ -54,8 +54,9 @@ function TransactionCollectionBody({ collectionView }) {
               </td>
             </tr>
           )}
-        </tbody>
+        </tbody>}
       </Table>
+      {es.length === 0 && <NoTransactions userId={userId} />}
     </XOverflowable>
   );
 }
@@ -138,7 +139,7 @@ function Profile(props) {
           >Required</Link>}
         </div>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
-          <TransactionCollectionBody />
+          <TransactionCollectionBody userId={userId} />
         </CollectionView>
       </GridUnit>
       <GridUnit size="1" sm="1-24" />
