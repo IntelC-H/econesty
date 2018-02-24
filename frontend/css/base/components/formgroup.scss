@@ -10,7 +10,7 @@ fieldset {
   padding: 0;
   border: none;
 
-  * {
+  & > * {
     margin: ($padding/2) 0;
   }
 
@@ -18,9 +18,6 @@ fieldset {
     // The last input when it's not the only input
     &:last-of-type:not(:first-of-type) {
       border-radius: 0 0 $border-radius $border-radius;
-      // input:focus + & {
-      //   border-top: none;
-      // }
     }
 
     // The first input when it's not the only input
@@ -35,9 +32,6 @@ fieldset {
     &:not(:first-of-type):not(:last-of-type):not(:focus) {
       border-bottom: none;
       border-radius: 0;
-      // input:focus + & {
-      //   border-top: none;
-      // }
     }
   }
 

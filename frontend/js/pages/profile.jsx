@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Link, Router } from 'app/components/routing';
 import { API } from 'app/api';
 
-import { Button, Grid, GridUnit, Image, Table, XOverflowable, Frown } from 'app/components/elements';
+import { Button, Grid, GridUnit, Table, XOverflowable, Frown } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
 import { Form, FormGroup, Input } from 'app/components/forms';
 
@@ -20,7 +20,7 @@ function BriefUserInfo({ user }) {
 function NoTransactions({ userId }) {
   let isMe = userId === API.getUserID();
   return (
-    <div className="no-transactions">
+    <div className="frown-message">
       <Frown large />
       {isMe && <p>No transactions yet!</p>}
       {!isMe && <p>No transactions with this user yet!</p>}
@@ -70,7 +70,7 @@ function UserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <div className="user">
-      <Image src={user.avatar_url} />
+      <img src={user.avatar_url} />
       <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
       <div className="tertiary">(@{user.username})</div>
       <div className="secondary">User #{user.id}, since {formatDate(user.date_joined)}</div>
@@ -82,7 +82,7 @@ function EditableUserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <div className="user editable">
-      <Image src={user.avatar_url} />
+      <img src={user.avatar_url} />
       <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input text name="first_name" autocomplete="given-name" placeholder="First name" value={user.first_name} />

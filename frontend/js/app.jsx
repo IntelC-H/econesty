@@ -19,7 +19,6 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-  - Prettier empty CollectionView's
   - Retry failed transactions
 */
 

@@ -5,6 +5,10 @@
 @import "base/variables";
 @import "base/mixins";
 
+input[type], textarea {
+  padding: $padding;
+}
+
 select {
   $select-disclosure-icon-width: 1rem !default !global;
   $select-disclosure-icon-url: 'data:image/svg+xml;utf8,<svg aria-hidden="true" data-prefix="fas" data-icon="caret-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" class="svg-inline--fa fa-caret-down fa-w-10"><path fill="currentColor" d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z" class=""></path></svg>' !default !global;
@@ -12,6 +16,7 @@ select {
   @include appearance(none);
   background: url($select-disclosure-icon-url) right / ($select-disclosure-icon-width / 2) no-repeat white;
   background-position-x: calc(100% - #{$select-disclosure-icon-width / 2});
+  padding: $padding;
   padding-right: $padding + $select-disclosure-icon-width;
 }
 
@@ -32,7 +37,6 @@ input[type], textarea, select {
   vertical-align: middle;
   box-sizing: border-box;
 
-  padding: $padding;
   margin: 0;
   width: 100%;
 
@@ -45,6 +49,12 @@ input[type], textarea, select {
     height: $element-height;
   }
 
+  &[type=checkbox] {
+    margin: ($element-height / 2) 0;
+    height: $element-height / 2;
+    width: $element-height / 2;
+  }
+
   &[disabled] {
     background-color: #eaeded;
     color: $input-disabled-color;
@@ -53,6 +63,17 @@ input[type], textarea, select {
   &:-moz-focusring {
     color: transparent;
     text-shadow: 0 0 0 #000;
+    box-shadow: none;
+  }
+
+  &:-moz-submit-invalid {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:-moz-ui-invalid {
+    outline: none;
+    box-shadow: none;
   }
 
   &:invalid {
@@ -70,19 +91,7 @@ input[type], textarea, select {
   }
 }
 
-input[type=checkbox] {
-  margin: ($element-height / 2) 0;
-  height: $element-height / 2;
-  width: $element-height / 2;
-}
-
 label.checkbox {
   display: inline-block;
   margin: $padding;
-
-  input[type=checkbox] {
-    margin-left: $padding;
-    height: $element-height / 2;
-    width: $element-height / 2;
-  }
 }

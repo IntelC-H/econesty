@@ -89,9 +89,13 @@ a {
 }
 
 #home {
+  height: 80vh; // stylelint-disable-line unit-whitelist
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; 
+
   text-align: center;
-  position: relative;
-  transform: translateY(100%);
 }
 
 .content {
@@ -106,7 +110,19 @@ a {
   }
 }
 
-.no-transactions {
+.user-row {
+  display: flex;
+  align-items: center;
+  img {
+    margin-right: $padding;
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.frown-message {
+  opacity: 0.4;
   margin: $padding;
   text-align: center;
   .frown-icon {

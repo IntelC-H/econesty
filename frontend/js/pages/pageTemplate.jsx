@@ -1,5 +1,6 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import SearchField from 'app/components/searchfield';
+import UserRow from 'app/components/searchfielduserrow';
 import { API } from 'app/api';
 import { Header } from 'app/components/header';
 import { makeClassName } from 'app/components/utilities';
@@ -12,8 +13,8 @@ function PageTemplate({ className, ...props}) {
                 <SearchField
                   standalone
                   api={API.user}
-                  placeholder="search users"
-                  component={props => props.element.username}
+                  placeholder="Search users"
+                  component={UserRow}
                 />
               ]}/>
       <div className={makeClassName("content", className)} {...props} />

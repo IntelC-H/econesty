@@ -5,6 +5,7 @@ import { Form, FormGroup, Input, Select } from 'app/components/forms';
 import { CollectionView, CollectionCreation } from 'app/components/api';
 import { API, DummyAPICollection } from 'app/api';
 import SearchField from 'app/components/searchfield';
+import UserRow from 'app/components/searchfielduserrow';
 import { Router } from 'app/components/routing';
 
 function RequirementCreationForm({ collectionView, CancelButton }) {
@@ -18,7 +19,7 @@ function RequirementCreationForm({ collectionView, CancelButton }) {
           <SearchField name="user"
                        api={API.user}
                        placeholder="find a user"
-                       component={props => props.element.username} />
+                       component={UserRow} />
         </Labelled>
       </FormGroup>
       <div className="centered">
@@ -31,9 +32,7 @@ function RequirementCreationForm({ collectionView, CancelButton }) {
 
 function RequirementCollection({ collectionView }) {
   let rs = collectionView.getElements();
-  if (rs.length === 0) return (
-                         <h3 className="secondary">No Requirements</h3>
-                       );
+  if (rs.length === 0) return null;
   return (
    <div>
    {rs.map(r =>

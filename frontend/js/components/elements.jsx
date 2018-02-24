@@ -2,7 +2,6 @@ import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unus
 import PropTypes from 'prop-types';
 import { inheritClass, cssSubclass, makeClassName } from './utilities';
 
-const Image = inheritClass("img", "pure-image");
 const Grid = inheritClass("div", "pure-g");
 const GridUnit = cssSubclass("div", {}, "pure-u", true);
 
