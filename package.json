@@ -192,7 +192,6 @@
     }
   },
   "dependencies": {
-    "font-awesome": "^4.7.0",
     "normalize.css": "^8.0.0",
     "preact": "^8.2.5",
     "prop-types": "^15.5.10"

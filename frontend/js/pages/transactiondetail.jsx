@@ -69,6 +69,9 @@ function TransactionInfo({ elementView }) {
 
 function TransactionRequirements({ collectionView }) {
   let rs = collectionView.getElements();
+
+  if (rs.count === 0) return null;
+
   return (
     <Table striped horizontal>
       <thead>
@@ -99,8 +102,7 @@ function TransactionDetail({ matches }) {
         <ElementView collection={API.transaction} elementID={matches.id}>
           <TransactionInfo />
         </ElementView>
-        <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}
-                        empty={null}>
+        <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
           <TransactionRequirements />
         </CollectionView>
       </GridUnit>

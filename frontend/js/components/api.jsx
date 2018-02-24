@@ -8,7 +8,6 @@ class CollectionView extends Component {
     Props:
     search: A string by which to limit results
     collection: the API collection to show a view for
-    empty: Something to render in the absence of elements
     children: a representation of the collection. Rendered w/ the prop
               `collectionView` which refers to the the enclosing CollectionView.
   */
@@ -118,13 +117,12 @@ class CollectionView extends Component {
     if (nextState.loading !== loading) return true;
     if (nextState.count !== count) return true;
     if (nextState.elements !== elements) return true;
-    if (nextProps.empty !== this.props.empty) return true;
     if (nextProps.showsControls !== this.props.showsControls) return true;
     if (nextProps.children !== this.props.children) return true;
     return false;
   }
 
-  render({ children, showsControls, empty,
+  render({ children, showsControls,
            collection, search, // eslint-disable-line no-unused-vars
            ...props},
          { loading, page, count, nextPage, previousPage }) {
@@ -135,7 +133,6 @@ class CollectionView extends Component {
     return (
       <div {...props}>
 	{children.map(c => cloneElement(c, childPropsDiff))}
-        {count === 0 && empty}
         {showsControls && count > 0 &&
         <Grid className="collection-controls">
           <GridUnit className="collection-control" size="1-3">
@@ -158,13 +155,11 @@ class CollectionView extends Component {
 }
 
 CollectionView.propTypes = {
-  empty: PropTypes.node,
   showsControls: PropTypes.bool,
   search: PropTypes.string,
   collection: PropTypes.object.isRequired
 };
 CollectionView.defaultProps = {
-  empty: null,
   showsControls: true,
   search: null
 };

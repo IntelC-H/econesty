@@ -17,10 +17,19 @@ function BriefUserInfo({ user }) {
   );
 }
 
+function NoTransactions({ }) {
+  return (
+    <div>
+      <span className="fas fa-frown" />
+      <p>No Transactions</p>
+    </div>
+  );
+}
+
 function TransactionCollectionBody({ collectionView }) {
   let elements = collectionView.getElements();
 
-  if (elements.length === 0) return null;
+  if (elements.length === 0) return <NoTransactions />;
 
   return (
     <XOverflowable>
@@ -128,8 +137,7 @@ function Profile(props) {
             href="/required"
           >Required</Link>}
         </div>
-        <CollectionView collection={API.user.append("/" + userId + "/transactions")}
-                        empty={<p>No Transactions</p>}>
+        <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody />
         </CollectionView>
       </GridUnit>

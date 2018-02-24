@@ -119,12 +119,7 @@ ul {
     pointer-events: none;
     cursor: default;
 
-    // Make the icon height accurate
-    display: table;
-    &::before {
-      display: table-cell;
-      vertical-align: middle;
-    }
+    @include flex-vh-center;
 
     font-size: $element-height - ($padding * 2);
     padding: 0;

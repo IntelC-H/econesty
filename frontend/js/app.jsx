@@ -19,61 +19,47 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-    Both
-    - Prettier empty CollectionView's
-    - Make inputs have gridding capabilities
-    CSS
-    - Color scheme
-    - make FormGroups look better
-      - light backgrounds?
+  - Prettier empty CollectionView's
+  - Retry failed transactions
 */
-
-function secure(comp) {
-  return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
-}
-
-// This function exists because JS's regex
-// implementation doesn't support bidirectional lookaround.
-function replacePath(pathcomp, gen, guard = () => true) {
-  return secure(() => {
-    if (guard()) {
-      const v = gen();
-      const url = Router.getPath()
-                        .split("/")
-                        .map(u => u === pathcomp ? v : u)
-                        .join("/");
-      return Router.replace(url);
-    }
-    return Router.replace("/");
-  });
-}
 
 function makeRoute(path, Comp, wcs) {
   return <Comp path={path} wildcards={wcs} />;
 }
 
-function redirectOnAuth(path, FallbackComp) {
-  return props => {
-    if (API.isAuthenticated) return Router.replace(path);
-    return h(FallbackComp, props);
-  };
+function authBranch(auth, unauth) {
+  return props => API.isAuthenticated ? h(auth, props) : h(unauth, props);
+}
+
+function secure(comp) {
+  return authBranch(comp, () => Router.replace("/login"));
+}
+
+function containsMe(u) {
+  return u.split("/").includes("me");
+}
+
+function replaceMeInPath() {
+  const url = Router.getPath()
+                    .split("/")
+                    .map(u => u === "me" ? String(API.getUserID()) : u)
+                    .join("/");
+  return Router.replace(url);
 }
 
 export default () =>
   <PageTemplate>
     <Router notFound={NotFound}>
       {[
-        makeRoute("/", redirectOnAuth("/user/me", Home)),
-        makeRoute(u => u.split("/").indexOf("me") !== -1,
-                  replacePath("me", () => API.getUserID(),
-                                    () => API.isAuthenticated)),
+        makeRoute("/", authBranch(() => Router.replace("/user/" + API.getUserID()), Home)),
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
-        makeRoute("/user/:id", secure(Profile)), // view a profile
-        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["send", "receive"] }), // create transaction's
-        makeRoute("/wallets", secure(Wallets)), // manage payment_data's
-        makeRoute("/transaction/:id", secure(TransactionDetail)), // your transactions
-        makeRoute("/required", secure(RequiredOfMe)) // manage requirements of you
+        makeRoute("/wallets", secure(Wallets)),
+        makeRoute("/required", secure(RequiredOfMe)),
+        makeRoute("/transaction/:id", secure(TransactionDetail)),
+        makeRoute(containsMe, secure(replaceMeInPath)),
+        makeRoute("/user/:id", secure(Profile)),
+        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["send", "receive"] })
       ]}
     </Router>
   </PageTemplate>
