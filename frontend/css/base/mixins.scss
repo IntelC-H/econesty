@@ -29,10 +29,6 @@
   appearance: $value;
 }
 
-@mixin fa-font-family($fonts...) {
-  font-family: join(FontAwesome, $fonts, comma);
-}
-
 @mixin keyframes($animationName) {
   @-webkit-keyframes #{$animationName} {
     @content;
