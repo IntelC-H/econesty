@@ -19,11 +19,6 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, APIException
 
-class PaymentRequired(APIException):
-  status_code = 402
-  default_detail = 'Request was valid, but a payment was required.'
-  default_code = 'payment_required'
-
 class UserViewSet(EconestyBaseViewset):
   permission_classes = (exempt_methods(Sensitive, ["GET", "POST", "OPTIONS"]),) # Users cannot be updated nor deleted without auth.
   queryset = User.objects.all()
@@ -53,13 +48,6 @@ class UserViewSet(EconestyBaseViewset):
       serializer = serializers.TransactionSerializer
     )
 
-  @detail_route(methods=["GET"], permission_classes=[Sensitive])
-  def all_wallets(self, request, pk = None):
-    return self.unpaginated_response(
-      models.Wallet.objects.filter(user__id=pk),
-      serializer = serializers.WalletSerializer
-    )
-
 class TransactionViewSet(EconestyBaseViewset):
   serializer_class = serializers.TransactionSerializer
   queryset = models.Transaction.objects.all()
@@ -86,30 +74,20 @@ class TransactionViewSet(EconestyBaseViewset):
       raise NotFound(detail="Transaction does not exist.", code=404)
 
     if t.completed:
-      try: 
-        transaction.finalize()      
-      except Exception as e:
-        raise APIException(detail=str(e), code=402)
+      transaction.finalize()
+    # TODO: finish me
 
-  def on_create(self, request, pk):
-    transaction = self.get_queryset().get(id=pk)
+  def on_create(self, request):
+    transaction = self.get_object()
     if transaction.completed:
-      try: 
-        transaction.finalize()
-        s = serializers.TransactionSerializer(transaction)
-        return Response(s.data)
-      except Exception as e:
-        raise APIException(detail=str(e), code=402)
+      transaction.finalize()
+      return transaction
 
-  def on_update(self, request, pk, partial):
-    transaction =  self.get_queryset().get(id=pk)
+  def on_update(self, request, partial):
+    transaction = self.get_object()
     if transaction.completed:
-      try: 
-        transaction.finalize()
-        s = serializers.TransactionSerializer(transaction)
-        return Response(s.data)
-      except Exception as e:
-        raise APIException(detail=str(e), code=402)
+      transaction.finalize()
+      return transaction
 
 class WalletViewSet(EconestyBaseViewset):
   serializer_class = serializers.WalletSerializer
@@ -128,7 +106,7 @@ class WalletViewSet(EconestyBaseViewset):
       return serializers.WalletDetailSerializer
     return super().get_serializer_class()
 
-class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
+class RequirementViewSet(EconestyBaseViewset):
   serializer_class = serializers.RequirementSerializer
   queryset = models.Requirement.objects.all()
   filter_backends = (
@@ -145,19 +123,15 @@ class RequirementViewSet(AuthOwnershipMixin, EconestyBaseViewset):
 
   def on_create(self, request, pk):
     requirement = self.get_queryset().get(id=pk)
-    if requirement.transaction.completwed:
-      try: 
-        requirement.transaction.finalize()      
-      except Exception as e:
-        raise APIException(detail=str(e), code=402)
+    if requirement.transaction.completed:
+      requirement.transaction.finalize()
+      return requirement      
 
   def on_update(self, request, pk, partial):
     requirement = self.get_queryset().get(id=pk)
     if requirement.transaction.completed:
-      try: 
-        requirement.transaction.finalize()      
-      except Exception as e:
-        raise APIException(detail=str(e), code=402)
+      requirement.transaction.finalize() 
+      return requirement     
 
 class TokenViewSet(WriteOnlyViewset):
   serializer_class = serializers.TokenSerializer
@@ -182,4 +156,5 @@ class TokenViewSet(WriteOnlyViewset):
 
     if settings.DEBUG:
       res.set_cookie("Authorization", max_age=-99999999)
+
     return res

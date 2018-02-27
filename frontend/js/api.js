@@ -118,8 +118,6 @@ class DummyAPICollection {
   constructor() {
     this.elements = {};
     this.currentID = 1;
-    // when not commented, CreateTransaction setting requirements works.
-    //this.getElements = this.getElements.bind(this);
   }
 
   getElements() {
@@ -143,7 +141,7 @@ class DummyAPICollection {
     return new Promise((resolve, reject) => resolve({ // eslint-disable-line no-unused-vars
       previous: page <= 1 ? null : page - 1,
       next: page >= Math.floor(allElements.length / 10) ? null : page + 1,
-      page: page,
+//      page: page,
       count: allElements.length,
       results: allElements.slice(zeroPage, zeroPage + 10)
     }));

@@ -38,14 +38,15 @@ class CollectionView extends Component {
   reloadData() {
     const { collection, page, search } = this.state;
     this.setState(st => ({ ...st, loading: true }));
-    collection.list(page, search).then(ps =>
-      this.setState(st => ({ ...st,
-                             loading: false,
-                             elements: ps.results,
-                             nextPage: ps.next,
-                             previousPage: ps.previous,
-                             count: ps.count}))
-    );
+    collection.list(page, search).then(res => this.setState(st => this._updateStateFromAPI(res, st)));
+  }
+
+  _updateStateFromAPI(res, st) {
+    if (Array.isArray(res)) {
+      return {...st, loading: false, elements: res, nextPage: null, previousPage: null, count: res.count };
+    }
+
+    return { ...st, loading: false, elements: res.results, nextPage: res.next, previousPage: res.previous, count: res.count };
   }
 
   saveElement(object) {

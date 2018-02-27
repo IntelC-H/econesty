@@ -27,13 +27,9 @@ REST_FRAMEWORK = {
   'TEST_REQUEST_DEFAULT_FORMAT': 'json',
   'DEFAULT_AUTHENTICATION_CLASSES': [], # handled app-wide by middleware
   'DEFAULT_PERMISSION_CLASSES': [],
-  'DEFAULT_RENDERER_CLASSES': [
-    'rest_framework.renderers.JSONRenderer',
-  ],
-  'DEFAULT_PARSER_CLASSES': [
-    'rest_framework.parsers.JSONParser',
-  ],
-  'PAGE_SIZE': 10
+  'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
+  'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
+  'PAGE_SIZE': 10,
 }
 
 if DEBUG:
@@ -125,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
   {
     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     'OPTIONS': {
-        'min_length': 8,
+      'min_length': 8,
     },
   },
   {
