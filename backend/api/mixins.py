@@ -9,23 +9,11 @@ class OptionalPaginationMixin(object):
 
   def paginate_queryset(self, queryset):
     param = self.request.query_params.get(self.optional_pagination_param, True)
-    print("PARAM\n",param)
     if param in [True, 'True', 'true', '1', 't', 'y', 'yes']:
       return super().paginate_queryset(queryset)
     return None
 
-class PaginationHelperMixin(object):
-  def paginated_response(self, queryset, serializer = None):
-    serializer_p = serializer or self.get_serializer_class()
-    return self.get_paginated_response(
-      serializer_p(
-        self.paginate_queryset(queryset) or queryset,
-        many=True,
-        context=self.get_serializer_context()
-      ).data
-    )
-
-class AuthOwnershipMixin(object):
+class OwnershipMixin(object):
   """
   If a ViewSet has an `owner_field` property, whenever it creates
   objects, set the `owner_field` of that property to the authenticated
@@ -63,39 +51,32 @@ class CreateUpdateHookMixin(object):
     v = super().create(request)
     new_obj = self.on_create(request)
     if new_obj:
-      s = self.get_serializer(new_obj)
-      s.is_valid(raise_exception=True)
-      return Response(s.data)
+      return Response(self.get_serializer(new_obj).data)
     return v
 
   def update(self, request, pk = None):
     v = super().update(request, pk)
     new_obj = self.on_update(request, False)
     if new_obj:
-      s = self.get_serializer(new_obj)
-      s.is_valid(raise_exception=True)
-      return Response(s.data)
+      return Response(self.get_serializer(new_obj).data)
     return v
 
   def partial_update(self, request, pk = None):
     v = super().update(request, pk, partial=True)
     new_obj = self.on_update(request, True)
     if new_obj:
-      s = self.get_serializer(new_obj)
-      s.is_valid(raise_exception=True)
-      return Response(s.data)
+      return Response(self.get_serializer(new_obj).data)
     return v
 
-class WriteOnlyViewset(mixins.CreateModelMixin,
-                       mixins.DestroyModelMixin,
-                       viewsets.GenericViewSet):
-  pass
-
 class EconestyBaseViewset(CreateUpdateHookMixin,
-                          PaginationHelperMixin,
-                          AuthOwnershipMixin,
+                          OwnershipMixin,
                           OptionalPaginationMixin,
                           viewsets.ModelViewSet):
   pagination_class = EconestyPagination
   permission_classes = (Sensitive,)
 
+class WriteOnlyViewset(mixins.CreateModelMixin,
+                       mixins.DestroyModelMixin,
+                       OwnershipMixin,
+                       viewsets.GenericViewSet):
+  pass

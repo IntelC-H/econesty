@@ -4,7 +4,7 @@ from . import models
 from . import serializers
 from .permissions import Sensitive, exempt_methods
 from .filters import AuthOwnershipFilter
-from .mixins import EconestyPagination, WriteOnlyViewset, EconestyBaseViewset, AuthOwnershipMixin
+from .mixins import WriteOnlyViewset, EconestyBaseViewset
 
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
@@ -43,10 +43,13 @@ class UserViewSet(EconestyBaseViewset):
     if user_id != me_id:
       qs = qs & (man.filter(sender__id=me_id) | man.filter(recipient__id=me_id))
 
-    return self.paginated_response(
-      qs.order_by("-created_at"),
-      serializer = serializers.TransactionSerializer
-    )
+    qs = qs.order_by("-created_at")
+
+    paginated_qs = self.paginate_queryset(qs) or qs
+    context = self.get_serializer_context()
+    ser_class = serializers.TransactionSerializer
+    s = ser_class(paginated_qs, many=True, context=context)
+    return self.get_paginated_response(s.data)
 
 class TransactionViewSet(EconestyBaseViewset):
   serializer_class = serializers.TransactionSerializer
@@ -74,8 +77,9 @@ class TransactionViewSet(EconestyBaseViewset):
       raise NotFound(detail="Transaction does not exist.", code=404)
 
     if t.completed:
-      transaction.finalize()
-    # TODO: finish me
+      t.finalize()
+
+    return Response(self.get_serializer(t).data)
 
   def on_create(self, request):
     transaction = self.get_object()
