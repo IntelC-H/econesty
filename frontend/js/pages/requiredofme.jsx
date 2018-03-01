@@ -8,10 +8,20 @@ import { Link } from 'app/components/routing';
 
 function RequirementRow({ collectionView, element }) {
   let form = null;
+  let rejectForm = null;
   return (
     <div className="section">
       <h3>Transaction <Link className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Link>:</h3>
       { element.text && element.text.length > 0 && <p className="italic">{element.text}</p>}
+      {!element.fulfilled && !element.rejected &&
+      <Form key={element.id + "rej"}
+            ref={n => rejectForm = n}
+            onSubmit={collectionView.saveElement}
+            >
+        <Input hidden name="id" value={element.id} />
+        <Input hidden name="rejected" value={true} />
+        <Button action="submit">REJECT</Button>
+      </Form>}
       <Form key={element.id + "-ack"}
             ref={e => form = e}
             onSubmit={collectionView.saveElement}>
