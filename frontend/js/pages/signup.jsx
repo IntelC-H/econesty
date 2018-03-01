@@ -18,6 +18,7 @@ class Signup extends Component {
                         password: obj.password})
                .then(tok => {
                  API.setToken(tok.key);
+                 API.setUserID(tok.user.id);
                  Router.push("/user/" + tok.user.id);
                })
     );

@@ -1,7 +1,8 @@
-// API.js: Promise-based API access
+// API.js: Promise-based REST API access
 
 /*
   Usage:
+
   First, create your APICollections:
   
       API.person = new APICollection("person");
@@ -85,83 +86,20 @@ class API {
     let token = this.getToken();
     if (token) opts.headers.Authorization = "Token " + token;
 
-    let ups = urlparams;
-    ups.format = "json";
-
     let url = window.location.protocol + "//" + window.location.host + "/api" + path;
     if (!url.endsWith("/")) url = url + "/";
 
-    url += "?" + Object.keys(ups)
-                       .filter(k => ups[k])
-                       .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(ups[k]))
+    url += "?" + Object.entries({...urlparams, format: "json"})
+                       .map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
                        .join("&");
 
-    return fetch(url, opts)
-             .then(res =>
+    return fetch(url, opts).then(res =>
       res.text().then(text => {
         let obj = text.length === 0 ? null : JSON.parse(text);
         if (res.ok) return obj;
         throw new Error((obj ? obj.detail : null) || res.statusText);
       })
     );
-  }
-
-  static paginate(promise, collection) {
-    return promise.then(res => {
-      res.results = Array.from(res.results.map(collection.onInstance));
-      return res;
-    });
-  }
-}
-
-class DummyAPICollection {
-  constructor() {
-    this.elements = {};
-    this.currentID = 1;
-  }
-
-  getElements() {
-    return Object.values(this.elements);
-  }
-
-  create(body) {
-    let withID = { ...body, id: this.currentID };
-    this.elements[this.currentID] = withID;
-    this.currentID += 1;
-    return new Promise((resolve, reject) => resolve(withID)); // eslint-disable-line no-unused-vars
-  }
-
-  read(id) {
-    return new Promise((resolve, reject) => resolve(this.elements[id])); // eslint-disable-line no-unused-vars
-  }
-
-  list(page) {
-    let zeroPage = page - 1;
-    let allElements = this.getElements();
-    return new Promise((resolve, reject) => resolve({ // eslint-disable-line no-unused-vars
-      previous: page <= 1 ? null : page - 1,
-      next: page >= Math.floor(allElements.length / 10) ? null : page + 1,
-//      page: page,
-      count: allElements.length,
-      results: allElements.slice(zeroPage, zeroPage + 10)
-    }));
-  }
-
-  update(id, body = null) {
-    this.elements[id] = { ...this.elements[id], ...body || {} };
-    return new Promise((resolve, reject) => resolve(this.elements[id])); // eslint-disable-line no-unused-vars
-  }
-
-  delete(id) {
-    let v = this.elements[id];
-    delete this.elements[id];
-    return new Promise((resolve, reject) => resolve(v)); // eslint-disable-line no-unused-vars
-  }
-
-  save(body) {
-    const { id, ...filteredBody } = body;
-    if (id !== null && id !== undefined) return this.create(body);
-    return this.update(id, filteredBody);
   }
 }
 
@@ -170,7 +108,6 @@ class APICollection {
   constructor(resource, urlParams = {}) {
     this.resource = resource;
     this.urlParams = urlParams;
-    this.onInstance = this.onInstance.bind(this);
   }
 
   get baseURL() {
@@ -197,19 +134,23 @@ class APICollection {
   }
 
   read(id) {
-    return API.networking("GET", this.baseURL + id, this._getURLParams(), null).then(this.onInstance);
+    return API.networking("GET", this.baseURL + id, this._getURLParams(), null);
+  }
+
+  listAll(q = null) {
+    let ps = { ...this._getURLParams(), paginate: false };
+    if (q) ps.search = q;
+    return API.networking("GET", this.baseURL, ps, null);
   }
 
   list(page, q = null) {
-    var ps = q ? {page: page, search: q} : {page: page};
-    return API.paginate(API.networking("GET",
-                                       this.baseURL,
-                                       { ...this._getURLParams(), ...ps},
-                                       null), this);
+    let ps = { ...this._getURLParams(), page: page };
+    if (q) ps.search = q;
+    return API.networking("GET", this.baseURL, ps, null);
   }
 
   update(id, body = null) {
-    return API.networking("PATCH", this.baseURL + id, {}, body).then(this.onInstance);
+    return API.networking("PATCH", this.baseURL + id, {}, body);
   }
 
   delete(id, soft = false) {
@@ -223,38 +164,71 @@ class APICollection {
   }
 
   classMethod(httpmeth, method, body = null, urlparams = {}) {
-    return API.networking(httpmeth, this.baseURL + method, urlparams, body);
+    return API.networking(httpmeth,
+                          this.baseURL + method,
+                          {...this._getURLParams(), urlparams},
+                          body);
   }
 
   instanceMethod(httpmeth, method, id, body = null, urlparams = {}) {
-    return API.networking(httpmeth, this.baseURL + id + '/' + method, urlparams, body);
-  }
-
-  // called on every instance that 
-  onInstance(json) {
-    return json;
+    return API.networking(httpmeth,
+                          this.baseURL + id + '/' + method,
+                          {...this._getURLParams(), urlparams},
+                          body);
   }
 }
 
-// A collection that applies an action after receiving a JSON representation
-// of one of it's instances.
-class APIActionCollection extends APICollection {
-  constructor(resource, action) {
-    super(resource);
-    this.action = action;
+class DummyAPICollection {
+  constructor() {
+    this.elements = {};
+    this.currentID = 1;
   }
 
-  onInstance(json) {
-    var res = super.onInstance(json);
-    this.action(json);
-    return res;
+  getElements() {
+    return Object.values(this.elements);
+  }
+
+  create(body) {
+    let withID = { ...body, id: this.currentID };
+    this.elements[this.currentID++] = withID;
+    return new Promise((resolve, reject) => resolve(withID)); // eslint-disable-line no-unused-vars
+  }
+
+  read(id) {
+    return new Promise((resolve, reject) => resolve(this.elements[id])); // eslint-disable-line no-unused-vars
+  }
+
+  list(page) {
+    let zeroPage = page - 1;
+    let allElements = this.getElements();
+    return new Promise((resolve, reject) => resolve({ // eslint-disable-line no-unused-vars
+      previous: page <= 1 ? null : page - 1,
+      next: page >= Math.floor(allElements.length / 10) ? null : page + 1,
+      count: allElements.length,
+      results: allElements.slice(zeroPage, zeroPage + 10)
+    }));
+  }
+
+  update(id, body = null) {
+    if (body) this.elements[id] = { ...this.elements[id], ...body };
+    return new Promise((resolve, reject) => resolve(this.elements[id])); // eslint-disable-line no-unused-vars
+  }
+
+  delete(id) {
+    let v = this.elements[id];
+    delete this.elements[id];
+    return new Promise((resolve, reject) => resolve(v)); // eslint-disable-line no-unused-vars
+  }
+
+  save({id, ...body}) {
+    if (id !== null && id !== undefined) return this.create(body);
+    return this.update(id, body);
   }
 }
 
 export {
   API,
   APICollection,
-  DummyAPICollection,
-  APIActionCollection
+  DummyAPICollection
 }
 export default API;

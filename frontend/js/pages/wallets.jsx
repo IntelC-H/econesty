@@ -47,7 +47,7 @@ function WalletCollectionBody({ collectionView }) {
 function Wallets() {
   return (
     <SideMargins>
-      <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID(), paginate: false })}>
+      <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID() })}>
         <CollectionCreation>
           <WalletCreateForm />
         </CollectionCreation>

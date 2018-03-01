@@ -8,36 +8,34 @@ import { Link } from 'app/components/routing';
 
 function RequirementRow({ collectionView, element }) {
   let form = null;
-  let rejectForm = null;
   return (
     <div className="section">
       <h3>Transaction <Link className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Link>:</h3>
       { element.text && element.text.length > 0 && <p className="italic">{element.text}</p>}
       {!element.fulfilled && !element.rejected &&
-      <Form key={element.id + "rej"}
-            ref={n => rejectForm = n}
-            onSubmit={collectionView.saveElement}
-            >
+      <Form key={element.id + "-rej11"}
+            onSubmit={collectionView.saveElement}>
         <Input hidden name="id" value={element.id} />
         <Input hidden name="rejected" value={true} />
         <Button action="submit">REJECT</Button>
       </Form>}
+      {element.rejected && <p>REJECTED</p>}
       <Form key={element.id + "-ack"}
             ref={e => form = e}
             onSubmit={collectionView.saveElement}>
         <Input hidden name="id" value={element.id} />
         <Labelled label="Acknowledged">
           <Input checkbox
-                 disabled={element.acknowledged}
+                 disabled={element.acknowledged || element.rejected}
                  onClick={() => form.submit()}
                  name="acknowledged" value={element.acknowledged}/>
         </Labelled>
         <Labelled label="Signature">
           <Input text
-                 disabled={Boolean(element.signature)}
+                 disabled={Boolean(element.signature) || element.rejected}
                  name="signature" value={element.signature}/>
         </Labelled>
-        {!Boolean(element.signature) &&
+        {!Boolean(element.signature) && !element.rejected &&
          <div className="centered"><Button action="submit">SIGN</Button></div>}
       </Form>
     </div>

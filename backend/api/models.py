@@ -83,6 +83,10 @@ class Transaction(BaseModel):
       return False
     return Requirement.fulfilled_queryset().filter(transaction__id=self.id).exists()
 
+  @property
+  def rejected(self):
+    return Requirement.rejected_queryset().filter(transaction__id=self.id).exists()
+
   def finalize(self):
     amount = float(self.amount)
     try: 
@@ -112,3 +116,7 @@ class Requirement(BaseModel):
   @classmethod
   def fulfilled_queryset(cls):
     return cls.objects.filter(signature__isnull=False, acknowledged=True, rejected=False)
+
+  @classmethod
+  def rejected_queryset(cls):
+    return cls.objects.filter(rejected=True)

@@ -18,6 +18,7 @@ class Login extends Component {
     }).then(tok => {
       if (tok) {
         API.setToken(tok.key);
+        API.setUserID(tok.user.id);
         Router.push("/user/me");
       }
     });

@@ -1,13 +1,12 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Grid, GridUnit, Table, Labelled, Button } from 'app/components/elements';
+import { Grid, GridUnit, Table, Labelled, Button, XOverflowable } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
 import { Form, FormGroup, Select, Input } from 'app/components/forms';
 import { Link } from 'app/components/routing';
 import { API } from 'app/api';
 
 function makeWalletsPromise() {
-  return API.user.append("/" + API.getUserID() + "/all_wallets")
-                 .list(-1).then(({ results }) => results);
+  return API.wallet.withParams({ user__id: API.getUserID() }).listAll();
 }
 
 function UserLink({ user }) {
@@ -31,7 +30,10 @@ function TransactionInfo({ elementView }) {
   return (
     <div className="center">
       <h1>Transaction #{t.id}</h1>
-      <h2>{t.completed ? t.success ? "SUCCESS" : "FAILURE" : "INCOMPLETE"}</h2>
+      <h2>{t.completed ?
+             t.success ? "SUCCESS" : "FAILURE"
+             :
+             t.rejected ? "REJECTED" : "INCOMPLETE"}</h2>
       <h3 className="secondary"><UserLink user={t.recipient} /> is sending BTC {parseFloat(t.amount)} to <UserLink user={t.sender}/></h3>
       {t.error && <p>{t.error}</p>}
 
@@ -73,24 +75,26 @@ function TransactionRequirements({ collectionView }) {
   if (rs.count === 0) return null;
 
   return (
-    <Table striped horizontal>
-      <thead>
-        <tr>
-        <th>Text</th>
-        <th>User</th>
-        <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rs.map(r => {
-          return <tr key={r.id}>
-                   <td>{r.text}</td>
-                   <td><UserLink user={r.user} /></td>
-                   <td>{r.fulfilled ? "FULFILLED" : "UNFULFILLED"}</td>
-                 </tr>;
-        })}
-      </tbody>
-    </Table>
+    <XOverflowable>
+      <Table striped horizontal>
+        <thead>
+          <tr>
+          <th>Requirement</th>
+          <th>User</th>
+          <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rs.map(r => {
+            return <tr key={r.id}>
+                     <td>{r.text}</td>
+                     <td><UserLink user={r.user} /></td>
+                     <td>{r.fulfilled ? "FULFILLED" : r.rejected ? "REJECTED" : "UNFULFILLED"}</td>
+                   </tr>;
+          })}
+        </tbody>
+      </Table>
+    </XOverflowable>
   );
 }
 
