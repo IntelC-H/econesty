@@ -5,6 +5,9 @@ from .pagination import EconestyPagination
 from functools import reduce
 
 class OptionalPaginationMixin(object):
+  """
+  Allow pagination to be disabled with a URL param.
+  """
   optional_pagination_param = "paginate"
 
   def paginate_queryset(self, queryset):
@@ -13,11 +16,13 @@ class OptionalPaginationMixin(object):
       return super().paginate_queryset(queryset)
     return None
 
-class OwnershipMixin(object):
+class ImpliedOwnershipMixin(object):
   """
-  If a ViewSet has an `owner_field` property, whenever it creates
-  objects, set the `owner_field` of that property to the authenticated
-  user, if authenticated.
+  Allow the authenticated user to automatically own model objects.
+  Given a field named by the attr `owner_field` on a view set and an
+  authenticated user, whenever an object is created by the viewset,
+  set `obj.<owner_field>` to the authenticated user if `obj.<owner_field>`
+  is `None` or does not exist.
   """
   def perform_create(self, serializer):
     owner_field = getattr(type(self), 'owner_field', None)
@@ -28,8 +33,8 @@ class OwnershipMixin(object):
       save_dict = serializer.validated_data
       *init, last = owner_field.split('__')
       d = reduce(lambda d, k: d and d.get(k, None), init)
- 
-      if d is not None:
+
+      if d is not None and d.get(last, None) is None:
         d[last] = u
 
       serializer.save(**save_dict)
@@ -37,46 +42,34 @@ class OwnershipMixin(object):
 class CreateUpdateHookMixin(object):
   """
   Add hooks to create/update/partial_update that enable
-  changes to the object in question. If a hook returns an
-  object, it is ONLY rendered as the response. You are
-  responsible for saving objects in your hooks.
+  changes to the object in question. Any changes to the
+  `obj` parameter in `on_update` or `on_create` are reflected
+  in responses.
   """
-  def on_update(self, request, partial):
+  def on_update(self, obj):
     pass
 
-  def on_create(self, request):
+  def on_create(self, obj):
     pass
-  
-  def create(self, request):
-    v = super().create(request)
-    new_obj = self.on_create(request)
-    if new_obj:
-      return Response(self.get_serializer(new_obj).data)
-    return v
 
-  def update(self, request, pk = None):
-    v = super().update(request, pk)
-    new_obj = self.on_update(request, False)
-    if new_obj:
-      return Response(self.get_serializer(new_obj).data)
-    return v
+  def perform_create(self, serializer):
+    super().perform_create(serializer)
+    self.on_create(serializer.instance)
 
-  def partial_update(self, request, pk = None):
-    v = super().update(request, pk, partial=True)
-    new_obj = self.on_update(request, True)
-    if new_obj:
-      return Response(self.get_serializer(new_obj).data)
-    return v
+  def perform_update(self, serializer):
+    super().perform_update(serializer)
+    self.on_update(serializer.instance)
 
 class EconestyBaseViewset(CreateUpdateHookMixin,
-                          OwnershipMixin,
+                          ImpliedOwnershipMixin,
                           OptionalPaginationMixin,
                           viewsets.ModelViewSet):
   pagination_class = EconestyPagination
   permission_classes = (Sensitive,)
 
-class WriteOnlyViewset(mixins.CreateModelMixin,
+class WriteOnlyViewset(CreateUpdateHookMixin,
+                       mixins.CreateModelMixin,
                        mixins.DestroyModelMixin,
-                       OwnershipMixin,
+                       ImpliedOwnershipMixin,
                        viewsets.GenericViewSet):
   pass

@@ -103,11 +103,12 @@ class Requirement(BaseModel):
   transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='api_req_transaction')
   signature = models.TextField(blank=True, null=True) # just a string for now
   acknowledged = models.BooleanField(default=False)
+  rejected = models.BooleanField(default=False)
 
   @property
   def fulfilled(self):
-    return self.acknowledged and bool(self.signature)
+    return self.acknowledged and bool(self.signature) and not self.rejected
 
   @classmethod
   def fulfilled_queryset(cls):
-    return cls.objects.filter(signature__isnull=False, acknowledged=True)
+    return cls.objects.filter(signature__isnull=False, acknowledged=True, rejected=False)

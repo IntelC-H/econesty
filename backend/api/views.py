@@ -3,7 +3,7 @@ from functools import reduce
 from . import models
 from . import serializers
 from .permissions import Sensitive, exempt_methods
-from .filters import AuthOwnershipFilter
+from .filters import AuthVisibilityFilter
 from .mixins import WriteOnlyViewset, EconestyBaseViewset
 
 from django.conf import settings
@@ -57,12 +57,12 @@ class TransactionViewSet(EconestyBaseViewset):
   filter_backends = (
     filters.OrderingFilter,
     DjangoFilterBackend,
-    AuthOwnershipFilter,
+    AuthVisibilityFilter,
   )
   ordering_fields = ('created_at',)
   ordering = "created_at"
   filter_fields = ('amount','success',)
-  user_fields = ('sender','recipient',)
+  visible_to = ('sender','recipient',)
 
   def get_serializer_class(self):
     if self.action in ["create", "update", "partial_update"]:
@@ -81,17 +81,13 @@ class TransactionViewSet(EconestyBaseViewset):
 
     return Response(self.get_serializer(t).data)
 
-  def on_create(self, request):
-    transaction = self.get_object()
+  def on_create(self, transaction):
     if transaction.completed:
       transaction.finalize()
-      return transaction
 
-  def on_update(self, request, partial):
-    transaction = self.get_object()
+  def on_update(self, transaction):
     if transaction.completed:
       transaction.finalize()
-      return transaction
 
 class WalletViewSet(EconestyBaseViewset):
   serializer_class = serializers.WalletSerializer
@@ -117,37 +113,29 @@ class RequirementViewSet(EconestyBaseViewset):
     filters.SearchFilter,
     filters.OrderingFilter,
     DjangoFilterBackend,
-    AuthOwnershipFilter,
+    AuthVisibilityFilter,
   )
   filter_fields = ('text','acknowledged','transaction__id', 'user__id',)
   search_fields = ('text',)
   ordering_fields = ('created_at',)
   ordering = "-created_at"
-  user_fields = ('user','transaction__sender','transaction__recipient',)
+  visible_to = ('user','transaction__sender','transaction__recipient',)
 
-  def on_create(self, request, pk):
-    requirement = self.get_queryset().get(id=pk)
+  def on_create(self, requirement):
     if requirement.transaction.completed:
       requirement.transaction.finalize()
-      return requirement      
 
-  def on_update(self, request, pk, partial):
-    requirement = self.get_queryset().get(id=pk)
+  def on_update(self, requirement):
     if requirement.transaction.completed:
       requirement.transaction.finalize() 
-      return requirement     
 
 class TokenViewSet(WriteOnlyViewset):
   serializer_class = serializers.TokenSerializer
   queryset = models.Token.objects.all()
 
-  def create(self, request):
-    res = super().create(request)
-
+  def on_create(self, token):
     if settings.DEBUG:
-      res.set_cookie("Authorization", "Token " + res.data["key"], path="/api")
-
-    return res
+      res.set_cookie("Authorization", "Token " + token.key, path="/api")
 
   @list_route(methods=["DELETE"])
   def clear(self, request):
