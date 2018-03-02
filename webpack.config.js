@@ -59,7 +59,11 @@ module.exports = {
   entry: {
     app: [
       path.resolve(pkg.browser),
+      path.resolve("frontend/base/css/base.scss"),
       path.resolve(pkg.style)
+    ],
+    base: [
+      path.resolve("frontend/base/js/base.js")
     ],
     vendor: Object.keys(pkg.dependencies).concat(vendored)
   },
@@ -107,8 +111,10 @@ module.exports = {
   },
   resolve: {
     alias: {
-      app: path.resolve('./frontend/js/'),
-      style: path.resolve('./frontend/css/')
+      app: path.resolve('./frontend/app/js'),
+      appStyle: path.resolve('./frontend/app/css/'),
+      base: path.resolve('./frontend/base/js/'),
+      baseStyle: path.resolve('./frontend/base/css/')
     },
     extensions: [".js", ".jsx", ".json", ".scss", ".css", ".ttf", ".otf", ".eot", ".svg", ".woff", ".woff2"],
     mainFields: ["browser", "module", "main", "style"]

@@ -1,9 +1,9 @@
 {
   "name": "econesty",
   "version": "1.0.0",
-  "browser": "frontend/js/index.js",
-  "style": "frontend/css/app.scss",
-  "main": "frontend/js/app.jsx",
+  "browser": "frontend/app/js/index.js",
+  "style": "frontend/app/css/app.scss",
+  "main": "frontend/app/js/app.jsx",
   "files": "dist/",
   "scripts": {
     "build": "./node_modules/.bin/webpack"
