@@ -20,6 +20,9 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "true") == "true"
 SECRET_KEY = os.environ.get('SECRET_KEY', '#tqu#1=+6)nyncev1$_i25*od)^^o!=bbfuav!@k2u7$#!1*+n')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] if not DEBUG else ["*"]
+extra_allowed_hosts = os.environ["DJANGO_ALLOWED_HOSTS"]
+if extra_allowed_hosts is not None:
+  ALLOWED_HOSTS.extend(extra_allowed_hosts.split(','))
 
 # Application definition
 

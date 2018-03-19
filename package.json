@@ -5,8 +5,7 @@
   "style": "frontend/app/css/app.scss",
   "main": "frontend/app/js/app.jsx",
   "scripts": {
-    "build": "./node_modules/.bin/webpack-cli",
-    "postinstall": "echo POSTINSTALL && ./node_modules/.bin/webpack-cli -p"
+    "postinstall": "./node_modules/.bin/webpack-cli -p"
   },
   "vendorDirectory": "./frontend/vendor/",
   "vendorOrder": [
