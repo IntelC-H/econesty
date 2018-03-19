@@ -1,9 +1,9 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+
 const fs = require('fs');
 const pkg = require('./package.json');
 
@@ -36,6 +36,7 @@ if (pkg.vendorDirectory) {
 }
 
 module.exports = {
+  mode: "development",
   stats: {
     assets: false,
     performance: true,
@@ -59,18 +60,18 @@ module.exports = {
   entry: {
     app: [
       path.resolve(pkg.browser),
-      path.resolve("frontend/base/css/base.scss"),
       path.resolve(pkg.style)
     ],
     base: [
+      path.resolve("frontend/base/css/base.scss"),
       path.resolve("frontend/base/js/base.js")
     ],
     vendor: Object.keys(pkg.dependencies).concat(vendored)
   },
   output: {
-    path: path.resolve(pkg.files),
+    path: path.resolve("./webpack-build/"),
     filename: "code/[name].js",
-    publicPath: '/',
+    publicPath: '/static/',
     strictModuleExceptionHandling: true
   },
   devtool: 'source-map',
@@ -91,7 +92,18 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loader: extractStyle.extract({ use: ["css-loader", "sass-loader"] })
+        loader: extractStyle.extract({ use: [
+	    { loader: "css-loader" },
+	    {
+		loader: "sass-loader",
+		options: {
+		    includePaths: [
+			path.resolve("frontend/base/css/"),
+			path.resolve("frontend/app/css/")
+		    ]
+		}
+	    }
+	]})
       },
       {
         test: /\.css$/,
@@ -112,19 +124,15 @@ module.exports = {
   resolve: {
     alias: {
       app: path.resolve('./frontend/app/js'),
-      appStyle: path.resolve('./frontend/app/css/'),
-      base: path.resolve('./frontend/base/js/'),
-      baseStyle: path.resolve('./frontend/base/css/')
+      base: path.resolve('./frontend/base/js/')
     },
     extensions: [".js", ".jsx", ".json", ".scss", ".css", ".ttf", ".otf", ".eot", ".svg", ".woff", ".woff2"],
     mainFields: ["browser", "module", "main", "style"]
   },
+  optimization: {
+    noEmitOnErrors: true
+  },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor",
-      minChunks: Infinity
-    }),
     extractStyle,
     new CompressionPlugin({
       asset: "[path].gz[query]",
@@ -134,24 +142,6 @@ module.exports = {
     }),
     new StyleLintPlugin({
       syntax: 'scss'
-    }),
-    new HtmlWebpackPlugin({
-      cache: true,
-      title: "Econesty",
-      filename: "index.html",
-      xhtml: true,
-      inject: false,
-      template: require('html-webpack-template'),
-      meta: [
-        {
-          name: "viewport",
-          content: "width=320, initial-scale=1.0, maximum-scale=1.0"
-        }
-      ],
-      minify: {
-        caseSensitive: true,
-        collapseWhitespace: true
-      }
     })
   ]
 };

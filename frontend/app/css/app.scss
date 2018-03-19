@@ -39,7 +39,7 @@ $header-color: #FFFFFF;
 $header-background-color: $primary-color;
 $header-shadow-color: $border-color;
 
-@import "../../base/css/base.scss";
+@import "base.scss";
 
 * {
   font-family: 'Lato', sans-serif;

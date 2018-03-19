@@ -128,3 +128,7 @@ pip-selfcheck.json
 
 # EMACS
 .tern-port
+
+# CUSTOM
+webpack-build/
+static/

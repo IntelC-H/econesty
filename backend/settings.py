@@ -32,12 +32,27 @@ REST_FRAMEWORK = {
   'PAGE_SIZE': 10,
 }
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (
+  os.path.join(BASE_DIR, 'webpack-build'),
+)
+STATIC_URL = "/static/"
+
+WEBPACK_LOADER = {
+  'DEFAULT': {
+    'CACHE': not DEBUG,
+    'BUNDLE_DIR_NAME': 'code/',
+    'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+  }
+}
+
 if DEBUG:
   REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"].append('rest_framework.renderers.BrowsableAPIRenderer');
   REST_FRAMEWORK["DEFAULT_PARSER_CLASSES"].append('rest_framework.parsers.FormParser');
   REST_FRAMEWORK["DEFAULT_PARSER_CLASSES"].append('rest_framework.parsers.MultiPartParser');
 
 INSTALLED_APPS = [
+  'backend',
   'backend.api',
   'rest_framework',
   'safedelete',
@@ -45,7 +60,8 @@ INSTALLED_APPS = [
   'django.contrib.staticfiles',
   'django_filters',
   'django.contrib.auth',
-  'django.contrib.contenttypes'
+  'django.contrib.contenttypes',
+  'webpack_loader'
 ]
 
 MIDDLEWARE = [
@@ -163,8 +179,8 @@ API_ROOT = r'^api/'
 
 # Frontend config
 
-with open(os.path.join(BASE_DIR, 'package.json')) as file:
-  pkg = json.load(file)
+# with open(os.path.join(BASE_DIR, 'package.json')) as file:
+#   pkg = json.load(file)
 
-FRONTEND_PATH = os.path.join(BASE_DIR, pkg["files"])
-STATIC_URL = "/static/"
+# FRONTEND_PATH = os.path.join(BASE_DIR, pkg["files"])
+
