@@ -17,12 +17,16 @@ def file_exists(path):
   except os.error:
     return False
 
+def make_path(base, *exts):
+  fp = os.path.join(base, *exts)
+  if fp.endswith("/"):
+    fp = fp[:-1]
+  return fp
+
 def frontend(request, path):
-  full_path = os.path.join(settings.STATIC_ROOT, path)
-
-  if full_path.endswith("/"):
-    full_path = full_path[:-1]
-
+  full_path = make_path(settings.STATIC_ROOT, path)
+  if not file_exists(full_path):
+    full_path = make_path(settings.BASE_PATH, "webpack-build", path)
   if not file_exists(full_path):
     raise Http404
 
