@@ -24,9 +24,14 @@ def make_path(base, *exts):
   return fp
 
 def frontend(request, path):
-  full_path = make_path(settings.STATIC_ROOT, path)
-  if not file_exists(full_path):
+  print("HERE!")
+  if settings.DEBUG:
     full_path = make_path(settings.BASE_PATH, "webpack-build", path)
+  else:
+    full_path = make_path(settings.STATIC_ROOT, path)
+
+  print("FULL_PATH", full_path)
+
   if not file_exists(full_path):
     raise Http404
 

@@ -5,6 +5,9 @@ from . import serializers
 from .permissions import Sensitive, exempt_methods
 from .filters import AuthVisibilityFilter
 from .mixins import WriteOnlyViewset, EconestyBaseViewset
+from .util import truthy
+
+import bit
 
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
@@ -100,11 +103,20 @@ class WalletViewSet(EconestyBaseViewset):
   ordering = "-created_at"
   filter_fields = ('user__id',)
   user_fields = ('user',)
+  visible_to = ('user',)
 
   def get_serializer_class(self):
     if self.action == 'retrieve':
       return serializers.WalletDetailSerializer
     return super().get_serializer_class()
+
+  @list_route(methods=["POST"])
+  def generate_key(self, request):
+    testnet = truthy(request.GET.get("testnet", False))
+    k = (bit.PrivateKeyTestnet if testnet else bit.PrivateKey)()
+    w = models.Wallet(user=request.user, private_key=k)
+    w.save()
+    return Response(self.get_serializer(w).data)
 
 class RequirementViewSet(EconestyBaseViewset):
   serializer_class = serializers.RequirementSerializer

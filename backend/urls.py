@@ -21,6 +21,6 @@ from . import views
 
 urlpatterns = [
   url(settings.API_ROOT, include('backend.api.urls')),
-  url(r'^static/(?P<path>.*)\Z', views.frontend, name="frontend"),
+  url(r'^static/(?P<path>.*)\Z', views.frontend, name="frontend"), # Never used if running the dev server
   url(r'^.*$', views.index, name="index")
 ]

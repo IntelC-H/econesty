@@ -1,0 +1,29 @@
+/*
+  <Collapsible /> component
+*/
+
+@import "../mixins";
+@import "../variables";
+
+.collapsible {
+  label {
+    @include no-select;
+  }
+
+  .disclosure {
+    padding: $padding;
+  }
+
+  .content-container {
+    overflow: hidden;
+    .collapsible-content {
+      transform-origin: top;
+    }
+  }
+}
+
+.collapsible-visible {
+  .disclosure {
+    
+  }
+}

@@ -10,15 +10,13 @@ class WIFPrivateKeyField(models.TextField):
   description = "A BitCoin private key (stored in WIF format)"
 
   def from_db_value(self, value, expression, connection, context):
-    if value is None:
+    if isinstance(value, PrivateKeyTestnet) or isinstance(value, PrivateKey) or value is None:
       return value
+
     return wif_to_key(value)
 
   def to_python(self, value):
-    if isinstance(value, PrivateKeyTestnet) or isinstance(value, PrivateKey):
-      return value
-    
-    if value is None:
+    if isinstance(value, PrivateKeyTestnet) or isinstance(value, PrivateKey) or value is None:
       return value
     
     return wif_to_key(value)

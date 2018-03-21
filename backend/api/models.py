@@ -8,6 +8,8 @@ from .fields import WIFPrivateKeyField
 
 from safedelete.models import SafeDeleteModel
 
+import bit
+
 import uuid
 from hashlib import sha1
 import hmac
@@ -65,6 +67,10 @@ class Wallet(BaseModel):
   @property
   def balance(self):
     return self.private_key.get_balance('btc')
+
+  @property
+  def is_testnet(self):
+    return type(self.private_key) is bit.PrivateKeyTestnet
 
 class Transaction(BaseModel):
   sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_sender")
