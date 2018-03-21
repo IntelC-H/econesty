@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { TransitionMotion, Motion, spring, presets } from 'preact-motion';
+import { Motion, spring, presets } from 'preact-motion';
 import { makeClassName } from './utilities';
+import Drawer from './drawer';
 
 class Collapsible extends Component {
   constructor(props) {
@@ -9,19 +10,21 @@ class Collapsible extends Component {
 	contentVisible: false
     };
     this.toggle = this.toggle.bind(this);
+    this.drawer = undefined;
   }
 
   toggle() {
-    this.setState(st => ({...st, contentVisible: !st.contentVisible }));
+    this.setState(st => {
+      this.drawer.toggle();
+      return {...st, contentVisible: this.drawer.isOpen()  };
+    });
   }
 
-  render({ children, label, className, ...props }, { contentVisible }) {
+  render({ children, label, className, preset, animateClose, animateOpen, ...props }, { contentVisible }) {
     let containerProps = {
       ...props,
-      className: makeClassName(contentVisible ? "collapsible collapsible-visible" : "collapsible", className)
+      className: makeClassName("collapsible", className)
     };
-
-    let preset = presets.wobbly;
 
     return (
       <div {...containerProps}>
@@ -31,42 +34,22 @@ class Collapsible extends Component {
           </Motion>
           {label}
         </label>
-        <div className="content-container">
-        <TransitionMotion
-          willLeave={() => ({ xlate: spring(-100, preset) })}
-          willEnter={() => ({ xlate: -100 })}
-          styles={contentVisible ? [{
-            key: "content",
-            data: {},
-            style: { xlate: spring(0, preset) }
-          }] : []}>
-          {([ content ]) => {
-            if (content) {
-              let xlate = content.style.xlate;
-              let yscale = 1;
-              if (xlate > 0) {
-                yscale -= xlate / 100;
-                xlate = 0;
-              } else if (xlate < -100) {
-                yscale -= (Math.abs(xlate) - 100) / 100;
-                xlate = -100;
-              }
-              return (
-                <div key={content.key}
-                     className="collapsible-content"
-                     style={{transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")"}}>
-                  {children}
-                </div>
-              );
-            }
-            return null;
-          }}
-        </TransitionMotion>
-        </div>
+        <Drawer ref={d => this.drawer = d }
+                preset={preset}
+                animateClose={animateClose}
+                animateOpen={animateOpen}>
+          {children}
+        </Drawer>
       </div>
     );
   }
 }
+
+Collapsible.defaultProps = {
+  preset: presets.wobbly,
+  animateClose: true,
+  animateOpen: true
+};
 
 export { Collapsible };
 export default Collapsible;

@@ -8,22 +8,15 @@
 .collapsible {
   label {
     @include no-select;
+    cursor: pointer;
   }
 
   .disclosure {
     padding: $padding;
   }
 
-  .content-container {
-    overflow: hidden;
-    .collapsible-content {
-      transform-origin: top;
-    }
+  .drawer-content {
+    padding-left: 4 * $padding;
   }
 }
 
-.collapsible-visible {
-  .disclosure {
-    
-  }
-}

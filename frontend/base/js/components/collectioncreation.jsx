@@ -25,7 +25,7 @@ class CollectionCreation extends Component {
     this.setState({ visible: visible });
   }
 
-  render({ children, collectionView, createText, cancelText }) {
+  render({ children, collectionView, createText, cancelText, peers, ...props }) {
     if (this.state.visible) {
       if (children.length === 0) return null;
 
@@ -35,12 +35,17 @@ class CollectionCreation extends Component {
       };
 
       return (
-        <div>
+        <div {...props}>
           {children.map(c => cloneElement(c, childProps))}
         </div>
       );
     }
-    return <Button onClick={() => this.setVisible(true)}>{createText}</Button>;
+    return (
+      <div {...props}>
+        {peers.map(p => cloneElement(p, {collectionView: collectionView}))}
+        <Button onClick={() => this.setVisible(true)}>{createText}</Button>
+      </div>
+    );
   }
 }
 
@@ -50,7 +55,8 @@ CollectionCreation.propTypes = {
 };
 CollectionCreation.defaultProps = {
   cancelText: "Cancel",
-  createText: "+ New"
+  createText: "+ New",
+  peers: []
 };
 
 export { CollectionCreation };

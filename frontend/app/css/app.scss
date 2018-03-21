@@ -159,3 +159,57 @@ a {
   }
 }
 
+/*
+  Wallets page
+*/
+
+.wallets {
+  .primary {
+    text-align: center;
+    width: 100%;
+  }
+
+  .wallet-create-form {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    margin: $padding;
+    form.input-form {
+      width: 100%;
+      input {
+        text-align: center;
+      }
+    }
+    .generate-testnet-button {
+
+    }
+    
+    .generate-mainnet-button {
+
+    }
+  }
+
+  .testnet, .mainnet {
+    p {
+      max-width: 100%;
+      white-space: pre-wrap;      /* CSS3 */   
+      white-space: -moz-pre-wrap; /* Firefox */    
+      white-space: -pre-wrap;     /* Opera <7 */   
+      white-space: -o-pre-wrap;   /* Opera 7 */    
+      word-wrap: break-word;      /* IE */
+      word-break: break-all;
+    }
+  }
+  
+  .testnet {
+    p {
+      
+    }
+  }
+  
+  .mainnet {
+    p {
+  
+    }
+  }
+}

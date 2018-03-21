@@ -20,6 +20,7 @@ import RequiredOfMe from 'app/pages/requiredofme';
 /*
   TODO for MVP:
   - Retry failed transactions
+  - Use (p)react-mobile to fade in/out CollectionView and ElementView content (opacity)
 */
 
 function makeRoute(path, Comp, wcs) {

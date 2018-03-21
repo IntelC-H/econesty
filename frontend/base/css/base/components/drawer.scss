@@ -1,0 +1,20 @@
+/*
+  <Drawer /> component
+*/
+
+@import "../mixins";
+@import "../variables";
+
+.drawer {
+  overflow: hidden;
+  .drawer-content {
+    transform-origin: top;
+    box-sizing: border-box;
+    * {
+      margin-top: 0;
+    }
+  }
+  &.open {
+
+  }
+}
