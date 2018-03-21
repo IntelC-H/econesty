@@ -17,9 +17,6 @@ import Wallets from 'app/pages/wallets';
 import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
 
-import { Button, Table } from 'base/components/elements';
-import { Collapsible } from 'base/components/collapsible';
-
 /*
   TODO for MVP:
   - Retry failed transactions
@@ -49,39 +46,11 @@ function replaceMeInPath() {
   return Router.replace(url);
 }
 
-function testCollapsible(props) {
-  return (
-    <div>
-      <Collapsible label="How I feel..." style="width: 300px;">
-        <Table striped>
-          <tbody>
-            <tr>
-              <td>I</td>
-            </tr>
-            <tr>
-              <td>Love</td>
-            </tr>
-            <tr>
-              <td>Annalisa</td>
-            </tr>
-            <tr>
-              <td>Profoundly!!!</td>
-            </tr>
-          </tbody>
-        </Table>
-      </Collapsible>
-      <p>Lorem ipsum dolor sit amet...</p>
-    </div>
-  );
-}
-
-
 export default () =>
   <PageTemplate>
     <Router notFound={NotFound}>
       {[
         makeRoute("/", authBranch(() => Router.replace("/user/" + API.getUserID()), Home)),
-        makeRoute("/collapse", testCollapsible),
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
         makeRoute("/wallets", secure(Wallets)),

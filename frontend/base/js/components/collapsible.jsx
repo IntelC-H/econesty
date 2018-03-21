@@ -45,8 +45,11 @@ class Collapsible extends Component {
               let xlate = content.style.xlate;
               let yscale = 1;
               if (xlate > 0) {
-                yscale = 1 - (xlate / 100);
+                yscale -= xlate / 100;
                 xlate = 0;
+              } else if (xlate < -100) {
+                yscale -= (Math.abs(xlate) - 100) / 100;
+                xlate = -100;
               }
               return (
                 <div key={content.key}

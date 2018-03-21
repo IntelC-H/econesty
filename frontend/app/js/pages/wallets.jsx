@@ -4,6 +4,7 @@ import { Form, Input, FormGroup } from 'base/components/forms';
 import { API } from 'base/api';
 import { CollectionView } from 'base/components/collectionview';
 import { CollectionCreation } from 'base/components/collectioncreation';
+import { Collapsible } from 'base/components/collapsible';
 
 function WalletCreateForm({ collectionView, CancelButton }) {
   return (
@@ -35,9 +36,11 @@ function WalletCollectionBody({ collectionView }) {
                 <Labelled label="Address">
                   <Input text disabled={true} value={w.address} />
                 </Labelled>
-                <Labelled label="Private Key">
-                  <Input text disabled={true} value={w.private_key} />
-                </Labelled>
+		<Collapsible label="Sensitive Information">
+                  <Labelled label="Private Key">
+                    <Input text disabled={true} value={w.private_key} />
+                  </Labelled>
+                </Collapsible>
               </FormGroup>
             </Form>
          </div>)}
