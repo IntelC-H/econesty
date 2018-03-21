@@ -18,9 +18,10 @@ import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
-  TODO for MVP:
+  TODO for Polished:
   - Retry failed transactions
   - Use (p)react-mobile to fade in/out CollectionView and ElementView content (opacity)
+  - Animate display of searchfield dropdown
 */
 
 function makeRoute(path, Comp, wcs) {
