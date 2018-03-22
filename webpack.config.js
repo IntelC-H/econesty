@@ -1,8 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const StyleLintPlugin = require('stylelint-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const EasyStylelintPlugin = require('easy-stylelint-plugin');
 
 const fs = require('fs');
 const pkg = require('./package.json');
@@ -35,38 +35,28 @@ if (pkg.vendorDirectory) {
   });
 }
 
+let appStyleDir = path.resolve(pkg.style);
+appStyleDir = path.resolve(appStyleDir.substring(0, appStyleDir.lastIndexOf('/')));
+
+let appJSDir = path.resolve(pkg.browser);
+appJSDir = path.resolve(appJSDir.substring(0, appJSDir.lastIndexOf('/')));
+
 module.exports = {
   mode: "development",
   stats: {
-    assets: false,
     performance: true,
     children: false,
-    modulesSort: "size",
     modules: false,
-    excludeAssets: /.*/,
-    assetsSort: "ext",
-    publicPath: false,
+    excludeAssets: /\.(map|gz)$/,
+    assetsSort: "name",
     version: false,
-    hash: true,
-    timings: false
-  },
-  performance: {
-    hints: false,
-    maxAssetSize: 90000,
-    assetFilter: function(assetFilename) {
-      return assetFilename.endsWith('.js');
-    }
+    hash: false
   },
   entry: {
     app: [
-      path.resolve(pkg.browser),
-      path.resolve(pkg.style)
-    ],
-    base: [
-      path.resolve("frontend/base/css/base.scss"),
-      path.resolve("frontend/base/js/base.js")
-    ],
-    vendor: Object.keys(pkg.dependencies).concat(vendored)
+      path.resolve(pkg.browser), // app JS entry point
+      path.resolve(pkg.style), // app CSS entrypoint
+    ].concat(vendored)
   },
   output: {
     path: path.resolve("./webpack-build/"),
@@ -80,15 +70,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: "babel-loader"
-          },
-          {
-            loader: "eslint-loader",
-            options: pkg.eslint
-          }
-        ]
+        use: ["babel-loader", "eslint-loader"]
       },
       {
         test: /\.scss$/,
@@ -99,7 +81,7 @@ module.exports = {
 		options: {
 		    includePaths: [
 			path.resolve("frontend/base/css/"),
-			path.resolve("frontend/app/css/")
+			appStyleDir
 		    ]
 		}
 	    }
@@ -123,25 +105,44 @@ module.exports = {
   },
   resolve: {
     alias: {
-      app: path.resolve('./frontend/app/js'),
+      app: appJSDir,
       base: path.resolve('./frontend/base/js/')
     },
     extensions: [".js", ".jsx", ".json", ".scss", ".css", ".ttf", ".otf", ".eot", ".svg", ".woff", ".woff2"],
     mainFields: ["browser", "module", "main", "style"]
   },
   optimization: {
-    noEmitOnErrors: true
+    noEmitOnErrors: true,
+    runtimeChunk: {
+      name: "runtime"
+    },
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: 'initial',
+          name: 'vendor',
+          test: /([\\/]node_modules[\\/]|[\\/]frontend[\\/]vendor[\\/])/,
+          enforce: true
+        },
+        base: {
+          chunks: 'initial',
+          name: 'base',
+          test: /[\\/]frontend[\\/]base[\\/]/,
+          enforce: true
+        }
+      }
+    }
   },
   plugins: [
     extractStyle,
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",
-      threshold: 10240,
+      threshold: 10240, // 10KiB
       minRatio: 0.8
     }),
-    /*new StyleLintPlugin({
+    new EasyStylelintPlugin({
       syntax: 'scss'
-    })*/
+    })
   ]
 };

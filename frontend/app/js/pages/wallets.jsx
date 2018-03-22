@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Button, DeleteButton, Labelled, SideMargins } from 'base/components/elements';
+import { Table, Button, DeleteButton, SideMargins } from 'base/components/elements';
 import { Form, Input, FormGroup } from 'base/components/forms';
 import { API } from 'base/api';
 import { CollectionView } from 'base/components/collectionview';

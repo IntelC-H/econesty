@@ -188,4 +188,5 @@ SearchField.defaultProps = {
   onClick: () => undefined
 };
 
+export { SearchField };
 export default SearchField;
