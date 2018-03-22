@@ -5,7 +5,11 @@ import { inheritClass, cssSubclass, makeClassName } from './utilities';
 const Grid = inheritClass("div", "pure-g");
 const GridUnit = cssSubclass("div", {}, "pure-u", true);
 
-const Loading = inheritClass("div", "loading");
+function Loading(props) {
+  let LoadingContainer = inheritClass("div", "loading-container");
+  return <LoadingContainer {...props}><div className="loading" /></LoadingContainer>;
+};
+
 const Error = inheritClass("div", "error");
 const XOverflowable = inheritClass("div", "xoverflowable");
 

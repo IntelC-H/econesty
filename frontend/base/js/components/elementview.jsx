@@ -1,6 +1,7 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Loading } from './elements';
+import { FadeTransition } from './fadetransition';
 
 // Loads a specific element in a collection.
 class ElementView extends Component {
@@ -77,11 +78,11 @@ class ElementView extends Component {
   }
 
   render({ children, collection, elementID, ...props }, { loading }) {  // eslint-disable-line no-unused-vars
-    if (loading) return <Loading />;
     return (
-      <div {...props}>
-        {children.map(c => cloneElement(c, { elementView: this }))}
-      </div>
+      <FadeTransition {...props}>
+        {loading && <Loading key="loading" />}
+        {!loading && <div key="content">{children.map(c => cloneElement(c, { elementView: this }))}</div>}
+      </FadeTransition>
     );
   }
 }

@@ -17,9 +17,17 @@
   border: $loading-wheel-width solid mix(rgba(255, 255, 255, 0), $loading-wheel-color, 50%); // Pale background for whole circle
   border-top: $loading-wheel-width solid $loading-wheel-color; // highlight a part of the circle in a bolder color.
   border-radius: 50%; // make it a circle
-  width: $element-height;
-  height: $element-height;
+  width: $element-height * 1.5;
+  height: $element-height * 1.5;
   animation: spin 2s linear infinite; // make it spin
-  position: relative;
-  margin: $padding auto;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.loading-container[transparent] {
+  height: 0;
+  overflow: visible;
+  .loading {
+    height: $element-height * 1.5;
+  }
 }
