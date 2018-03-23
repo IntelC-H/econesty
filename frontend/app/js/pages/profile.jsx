@@ -1,11 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Link, Router } from 'base/components/routing';
-import { API } from 'base/api';
 
-import { Button, Grid, GridUnit, Table, XOverflowable, Frown } from 'base/components/elements';
-import { CollectionView } from 'base/components/collectionview';
-import { ElementView } from 'base/components/elementview';
-import { Form, FormGroup, Input } from 'base/components/forms';
+import { BTC, RedX, GreenCheck, Warning, Button, Grid, GridUnit, Table, XOverflowable, Frown } from 'base/components/elements';
+import { Link, Router, API, CollectionView, ElementView, Form,
+         FormGroup, Input, FlexContainer, FlexItem } from 'base/base';
 
 const dateOpts = { year: 'numeric', month: 'long', day: 'numeric' };
 const formatDate = x => new Date(x).toLocaleString(navigator.language, dateOpts);
@@ -36,7 +33,7 @@ function TransactionCollectionBody({ collectionView, userId }) {
     <XOverflowable>
       <Table striped selectable>
         <thead>
-          <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th></tr>
+          <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th><th></th></tr>
         </thead>
         {es.length > 0 && <tbody>
           {es.map(obj =>
@@ -45,13 +42,19 @@ function TransactionCollectionBody({ collectionView, userId }) {
                 {obj.id}
               </td>
               <td>
-                <span>BTC {parseFloat(obj.amount)}</span>
+                <span><BTC/> {parseFloat(obj.amount)}</span>
               </td>
               <td>
                 <BriefUserInfo user={obj.sender} />
               </td>
               <td>
                 <BriefUserInfo user={obj.recipient} />
+              </td>
+              <td>
+                {obj.completed ? 
+                   obj.success ? <GreenCheck /> : <Warning />
+                   :
+                   obj.rejected ? <RedX /> : null}
               </td>
             </tr>
           )}
@@ -63,9 +66,7 @@ function TransactionCollectionBody({ collectionView, userId }) {
 }
 
 function User({ elementView }) {
-  let el = elementView.getElement();
-  //if (!el) return null;
-  if (el.is_me) return <EditableUserRepresentation elementView={elementView} />;
+  if (elementView.getElement().is_me) return <EditableUserRepresentation elementView={elementView} />;
   return <UserRepresentation elementView={elementView} />;
 }
 
@@ -119,8 +120,9 @@ function Profile(props) {
         </ElementView>
       </GridUnit>
       <GridUnit size="1" sm="17-24">
-        <div className="profile-button-group">
-          {userId !== API.getUserID() &&
+        <FlexContainer className="profile-button-group"
+                       justifyContent="flex-start" direction="row" wrap="wrap">
+        {userId !== API.getUserID() &&
           <Link
             component={Button}
             href={API.user.baseURL + userId + "/transaction/send"}
@@ -140,7 +142,7 @@ function Profile(props) {
             component={Button}
             href="/required"
           >Required</Link>}
-        </div>
+        </FlexContainer>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody userId={userId} />
         </CollectionView>

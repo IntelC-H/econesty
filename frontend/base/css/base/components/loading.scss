@@ -18,6 +18,7 @@
   box-sizing: border-box;
 }
 
+// For FadeTransition
 div[transparent="true"] .loading-container {
   height: 0;
   overflow: visible;

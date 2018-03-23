@@ -141,7 +141,7 @@ class CollectionView extends Component {
           <GridUnit className="collection-control" size="1-3">
             <Button disabled={previousPage === null}
                     onClick={this.gotoPreviousPage}
-                    >❮</Button>
+                    ><i className="fas fa-arrow-left" /></Button>
           </GridUnit>
           <GridUnit className="collection-control collection-page-indicator" size="1-3">
             <span>{page} of {Math.ceil(count/10) || 1}</span>
@@ -149,7 +149,7 @@ class CollectionView extends Component {
           <GridUnit className="collection-control" size="1-3">
             <Button disabled={nextPage === null}
                     onClick={this.gotoNextPage}
-                    >❯</Button>
+                    ><i className="fas fa-arrow-right" /></Button>
           </GridUnit>
         </Grid>}
       </FadeTransition>

@@ -14,7 +14,7 @@ function FadeTransition({ children, preset, ...props }) {
       }))}>
       {xs =>
         <div {...props}>{xs.map(({data, ...newprops}) =>
-          <div {...newprops} transparent={newprops.style.opacity < 1}>
+          <div {...newprops} className="fade-element" transparent={newprops.style.opacity < 1}>
             <ShouldNotUpdate component='div'>
               {data.child}
             </ShouldNotUpdate>

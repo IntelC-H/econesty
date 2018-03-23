@@ -41,6 +41,8 @@ $header-shadow-color: $border-color;
 
 @import "base.scss";
 
+@import url("https://fonts.googleapis.com/css?family=Inconsolata");
+
 * {
   font-family: 'Lato', sans-serif;
 }
@@ -188,9 +190,11 @@ a {
 
     }
   }
-
-  .testnet, .mainnet {
-    p {
+  
+  .wallet-row {
+    p.crypto-text {
+      font-family: 'Inconsolata', monospace;
+      letter-spacing: 1px; // stylelint-disable-line unit-whitelist
       max-width: 100%;
       white-space: pre-wrap;      /* CSS3 */   
       white-space: -moz-pre-wrap; /* Firefox */    
@@ -200,16 +204,10 @@ a {
       word-break: break-all;
     }
   }
-  
-  .testnet {
+
+  .wallet-row .testnet {
     p {
-      
-    }
-  }
-  
-  .mainnet {
-    p {
-  
+
     }
   }
 }

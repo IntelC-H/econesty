@@ -14,8 +14,12 @@ import Utilities from './components/utilities';
 import ShouldNotUpdate from './components/shouldnotupdate';
 import AnimationLoop from './components/animationloop';
 import Loading from './components/loading';
+import Flex from './components/flex';
+import { FlexContainer, FlexItem } from './components/flex';
+import Elements from './components/elements';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, CollectionCreation, CollectionView, ElementView,
-         Router, Link, Utilities, ShouldNotUpdate, AnimationLoop };
+         Router, Link, Utilities, ShouldNotUpdate, AnimationLoop, Flex,
+         FlexContainer, FlexItem, Elements, Loading };

@@ -8,6 +8,10 @@ const GridUnit = cssSubclass("div", {}, "pure-u", true);
 const Error = inheritClass("div", "error");
 const XOverflowable = inheritClass("div", "xoverflowable");
 
+const BTC = inheritClass("span", "fab fa-btc");
+const RedX = () => <span style={{color: "red"}} className="fas fa-times" />;
+const GreenCheck = () => <span style={{color: "green"}} className="fas fa-check" />;
+const Warning = () => <span style={{color: "yellow"}} className="fas fa-exclamation-triangle" />;
 const DeleteButton = inheritClass("a", "fa fa-times delete-button");
 const SearchIcon = inheritClass("span", "fa fa-search search-icon");
 const Frown = cssSubclass("span", {
@@ -53,9 +57,13 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Grid, GridUnit, Button, Table, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
+export { BTC, RedX, GreenCheck, Warning, Grid, GridUnit, Button, Table, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
 
 export default {
+  BTC: BTC,
+  RedX: RedX,
+  GreenCheck: GreenCheck,
+  Warning: Warning,
   Grid: Grid,
   GridUnit: GridUnit,
   Button: Button,

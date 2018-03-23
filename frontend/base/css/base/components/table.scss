@@ -80,6 +80,9 @@ table {
     * {
       @include user-select(none);
     }
+    tr:hover td {
+      cursor: pointer;
+    }
   }
 
   @include set-table-row-color($table-body-row-color);

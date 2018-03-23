@@ -21,7 +21,7 @@ import RequiredOfMe from 'app/pages/requiredofme';
   TODO for Polished:
   - Retry failed transactions
   - JS animation for loaders
-  - Fix lack of wallets in the all_wallets page
+  - Fix content jump in Wallets page
 */
 
 function makeRoute(path, Comp, wcs = {}) {
