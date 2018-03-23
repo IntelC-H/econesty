@@ -11,8 +11,11 @@ import CollectionView from './components/collectionview';
 import ElementView from './components/elementview';
 import { Router, Link } from './components/routing';
 import Utilities from './components/utilities';
+import ShouldNotUpdate from './components/shouldnotupdate';
+import AnimationLoop from './components/animationloop';
+import Loading from './components/loading';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, CollectionCreation, CollectionView, ElementView,
-         Router, Link, Utilities };
+         Router, Link, Utilities, ShouldNotUpdate, AnimationLoop };

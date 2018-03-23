@@ -293,41 +293,50 @@ Input.defaultProps = {
   url: false
 };
 
+const isFunc = x => typeof x === "function";
+
 class Select extends FormElement {
   constructor(props) {
     super(props);
     this.state = this.applyPropsToState({ ...this.state, loading: false }, props);
+    this.reloadData();
   }
 
   get isAsync() {
-    return this.state.loadOptions !== undefined;
+    return this.state.loadOptions !== undefined && isFunc(this.state.loadOptions);
   }
 
   applyPropsToState(state, { value, options, transform }) {
-    let async = typeof options === "function";
+    let optsOrEmpty = options || [];
+    let additions = {transform: transform};
+    if (!isFunc(options)) {
+      additions.options = options;
+      additions.loadOptions = null;
+      if (!additions.value && optsOrEmpty.length > 0) {
+        additions.value = transform(optsOrEmpty[0]);
+      }
+    } else {
+      additions.loadOptions = options;
+      additions.value = value;
+    }
+
     return {
       ...state,
-      value: value || (!async && options.length > 0 ? transform(options[0]) : null),
-      options: async ? [] : options,
-      loadOptions: async ? options : undefined
+      ...additions
     };
   }
 
   reloadData() {
-    this.setState(st => ({ ...st, loading: true }));
-    this.state.loadOptions().then(es =>
-      this.setState(st => ({
-        ...st,
-        loading: false,
-        value: st.value || (es.length > 0 ? this.props.transform(es[0]) : null),
-        options: es
-      }))
-    );
-  }
-
-  componentWillMount() {
     if (this.isAsync) {
-      this.reloadData();
+      this.setState(st => ({ ...st, loading: true }));
+      this.state.loadOptions().then(es =>
+        this.setState(st => ({
+          ...st,
+          loading: false,
+          value: st.value || (es.length > 0 ? this.props.transform(es[0]) : null),
+          options: es
+        }))
+      );
     }
   }
 
@@ -335,7 +344,6 @@ class Select extends FormElement {
     if (super.shouldComponentUpdate(nextProps, nextState)) return true;
     if (this.state.options !== nextState.options) return true;
     if (this.state.loading !== nextState.loading) return true;
-  //  if (this.state.value !== nextState.value) return true; // Is this necessary?
     return false;
   }
 
@@ -364,7 +372,7 @@ class Select extends FormElement {
         let isSame = (sprime ? sprime.toString() : null) === (this.value ? this.value.toString() : null);
         return <option
                  selected={isSame}
-                 key={filteredProps.name + '-' + s}
+                 key={filteredProps.name + '-' + sprime}
                  value={sprime}>{faceTransform(s)}</option>;
       });
     }
@@ -382,7 +390,8 @@ Select.propTypes = {
 Select.defaultProps = {
   ...FormElement.defaultProps,
   transform: x => x,
-  faceTransform: x => x
+  faceTransform: x => x,
+  options: []
 };
 
 export { Form, FormGroup, FormElement, Select, Input };

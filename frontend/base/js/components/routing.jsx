@@ -3,15 +3,8 @@ import { h, Component, cloneElement } from 'preact';
 
 /*
   Router checks each of its children with a path
-  attribute: if it matches the current URL, it renders it.
+  attribute; if it matches the current URL, it renders it.
 */
-
-// TODO: specific values for given wildcards. EG: /user/:id/transaction/:action,
-// :action should only be "send" or "receive"
-
-// TODO: move these out of the global namespace. It's a code smell.
-const subscribers = [];
-const updateSubscribers = url => subscribers.forEach(s => s(url));
 
 class Router extends Component {
   constructor(props) {
@@ -21,15 +14,19 @@ class Router extends Component {
     this.setState = this.setState.bind(this);
   }
 
+  static updateSubscribers(url) {
+    Router.subscribers.forEach(s => s(url));
+  }
+
   static push(url) {
     history.pushState(null, null, url);
-    updateSubscribers(url);
+    Router.updateSubscribers(url);
     return null;
   }
 
   static replace(url) {
     history.replaceState(null, null, url);
-    updateSubscribers(url);
+    Router.updateSubscribers(url);
     return null;
   }
 
@@ -47,40 +44,37 @@ class Router extends Component {
   }
 
   componentDidMount() {
-    subscribers.push(this.update);
+    Router.subscribers.push(this.update);
     this.update(document.location.pathname);
   }
 
   componentWillUnmount() {
-    subscribers.splice(subscribers.indexOf(this.update)>>>0, 1);
+    Router.subscribers.splice(Router.subscribers.indexOf(this.update)>>>0, 1);
   }
 
-  render() {
-    var routes = this.props.children;
-    for (var i = 0; i < routes.length; i++) {
-      var c = routes[i];
-      if (c.attributes && c.attributes.path) {
-        var matches = this.test(c.attributes.path, this.state.url, c.attributes.wildcards);
+  render({ children, notFound }) {
+    for (let c of children) { // the children should all be routes
+      if (c.attributes && "path" in c.attributes) {
+        let matches = this.test(c.attributes.path, this.state.url, c.attributes.wildcards);
         if (matches) {
           return cloneElement(c, {
             matches: matches,
             url: this.state.url,
-            path: c.attributes.path,
             ...matches
           });
         }
       }
     }
 
-    if (this.props.notFound) {
-      return h(this.props.notFound, { url: this.state.url });
+    if (notFound) {
+      return h(notFound, { url: this.state.url });
     }
 
     return null;
   }
 
   test(path, url, wildcards = null) {
-    url = url.replace(/\?.+$/, '');
+    url = url.replace(/\?.+$/, ''); // remove query
 
     if (path instanceof RegExp) {
       let res = path.exec(url);
@@ -95,20 +89,20 @@ class Router extends Component {
       return {};
     }
 
-    var urlpath_comps = url.split('/').filter(e => e.length > 0);
-    var path_comps = path.split('/').filter(e => e.length > 0);
+    var urlpath_comps = url.split('/').filter(Boolean);
+    var path_comps = path.split('/').filter(Boolean);
 
     if (path_comps.length !== urlpath_comps.length) return false;
 
-    var matches = {};
+    let matches = {};
 
     const iterlen = path_comps.length; // path_comps.length should === urlpath_comps.length
-    for (var i = 0; i < iterlen; i++) {
-      var upc = urlpath_comps[i];
-      var pc = path_comps[i];
+    for (let i = 0; i < iterlen; i++) {
+      let upc = urlpath_comps[i];
+      let pc = path_comps[i];
 
-      if (pc.startsWith(':')) {
-        var wildcard = pc.slice(1);
+      if (pc[0] === ':') {
+        let wildcard = pc.slice(1);
         if (wildcards && wildcard in wildcards && !wildcards[wildcard].includes(upc)) return false;
         matches[wildcard] = upc;
       } else if (pc !== upc) return false;
@@ -118,10 +112,12 @@ class Router extends Component {
   }
 }
 
+Router.subscribers = [];
+
 Router.propTypes = {};
 Router.defaultProps = {};
 
-window.addEventListener("popstate", () => updateSubscribers(Router.getPath()));
+window.addEventListener("popstate", () => Router.updateSubscribers(Router.getPath()));
 
 // TODO: page state
 

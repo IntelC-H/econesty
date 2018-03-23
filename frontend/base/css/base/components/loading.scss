@@ -5,11 +5,6 @@
 @import "../mixins";
 @import "../variables";
 
-@include keyframes(spin) {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .loading {
   $loading-wheel-color: #555555 !default !global;
   $loading-wheel-width: 0.5rem !default !global;
@@ -19,12 +14,11 @@
   border-radius: 50%; // make it a circle
   width: $element-height * 1.5;
   height: $element-height * 1.5;
-  animation: spin 2s linear infinite; // make it spin
   margin: 0 auto;
   box-sizing: border-box;
 }
 
-.loading-container[transparent] {
+div[transparent="true"] .loading-container {
   height: 0;
   overflow: visible;
   .loading {

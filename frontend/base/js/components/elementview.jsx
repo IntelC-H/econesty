@@ -13,6 +13,7 @@ class ElementView extends Component {
               which refers to the the enclosing ElementView.
   */
   constructor(props) {
+    props.children = props.children.map(c => cloneElement(c, { elementView: this }));
     super(props);
     this.reloadData = this.reloadData.bind(this);
     this.updateElement = this.updateElement.bind(this);
@@ -22,6 +23,15 @@ class ElementView extends Component {
       loading: true,
       element: null
     };
+    this.reloadData();
+  }
+
+  componentWillUpdate(newProps) {
+    newProps.children = newProps.children.map(c => cloneElement(c, { elementView: this }));
+  }
+
+  isLoading() {
+    return this.state.loading;
   }
 
   getElement() {
@@ -61,27 +71,22 @@ class ElementView extends Component {
     }
   }
 
-  componentWillMount() {
-    this.reloadData();
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     const { elementID, collection, children } = this.props;
-    if (nextProps.elementID !== elementID) return true;
-    if (nextProps.collection.resource !== collection.resource) return true;
-    if (nextProps.collection.urlParams !== collection.urlParams) return true;
-    if (nextProps.children !== children) return true;
     const { element, loading } = this.state;
+    if (nextProps.elementID !== elementID) return true;
+    if (nextProps.children !== children) return true;
+    if (nextProps.collection !== collection) return true;
     if (nextState.element !== element) return true;
     if (nextState.loading !== loading) return true;
     return false;
   }
 
-  render({ children, collection, elementID, ...props }, { loading }) {  // eslint-disable-line no-unused-vars
+  render({ children, collection, elementID, ...props }, { loading, element }) {  // eslint-disable-line no-unused-vars
     return (
       <FadeTransition {...props}>
-        {loading && <Loading key="loading" />}
-        {!loading && <div key="content">{children.map(c => cloneElement(c, { elementView: this }))}</div>}
+        {loading && <Loading fadeOut fadeIn key="loading" />}
+        {!loading && <div fadeIn key="content">{children}</div>}
       </FadeTransition>
     );
   }

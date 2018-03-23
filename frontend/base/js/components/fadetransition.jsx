@@ -1,23 +1,25 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
-import { Motion, TransitionMotion, spring, presets } from 'preact-motion';
+import { TransitionMotion, spring } from 'preact-motion';
+import ShouldNotUpdate from './shouldnotupdate';
 
 function FadeTransition({ children, preset, ...props }) {
   return (
     <TransitionMotion
-      willLeave={() => ({ opacity: spring(0, preset)})}
+      willLeave={({ data }) => data.child.attributes.fadeOut ? { opacity: spring(0, preset)} : null}
       willEnter={() => ({ opacity: 0 })}
-      styles={children.map((c, idx) => ({
+      styles={children.filter(Boolean).map((c, idx) => ({
         key: (c ? c.attributes.key : null) || `child-${idx}`,
         data: { child: c },
-        style: { opacity: spring(1, preset) }
+        style: { opacity: c.attributes.fadeIn ? spring(1, preset) : 1 }
       }))}>
-      {xs => 
-        <div {...props}>
-          {xs.map(({data, ...newprops}) => {
-            let flag = newprops.style.opacity < 1;
-            return data.child ? cloneElement(data.child, {...newprops, transparent: flag, opaque: !flag}) : null;
-          })}
-        </div>}
+      {xs =>
+        <div {...props}>{xs.map(({data, ...newprops}) =>
+          <div {...newprops} transparent={newprops.style.opacity < 1}>
+            <ShouldNotUpdate component='div'>
+              {data.child}
+            </ShouldNotUpdate>
+          </div>
+        )}</div>}
     </TransitionMotion>
   );
 }

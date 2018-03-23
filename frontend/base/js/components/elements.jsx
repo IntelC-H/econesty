@@ -5,11 +5,6 @@ import { inheritClass, cssSubclass, makeClassName } from './utilities';
 const Grid = inheritClass("div", "pure-g");
 const GridUnit = cssSubclass("div", {}, "pure-u", true);
 
-function Loading(props) {
-  let LoadingContainer = inheritClass("div", "loading-container");
-  return <LoadingContainer {...props}><div className="loading" /></LoadingContainer>;
-};
-
 const Error = inheritClass("div", "error");
 const XOverflowable = inheritClass("div", "xoverflowable");
 
@@ -58,14 +53,13 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { Grid, GridUnit, Button, Table, Loading, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
+export { Grid, GridUnit, Button, Table, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
 
 export default {
   Grid: Grid,
   GridUnit: GridUnit,
   Button: Button,
   Table: Table,
-  Loading: Loading,
   Error: Error,
   Labelled: Labelled,
   DeleteButton: DeleteButton,

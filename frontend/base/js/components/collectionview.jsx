@@ -1,6 +1,7 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Button, Grid, GridUnit, Loading } from './elements';
+import { Button, Grid, GridUnit } from './elements';
+import Loading from './loading';
 import { FadeTransition } from './fadetransition';
 
 // TODO: errors & error recovery
@@ -133,10 +134,10 @@ class CollectionView extends Component {
 
     return (
       <FadeTransition {...props}>
-        {loading && <Loading key="loading" />}
-	{!loading && <div key="content" className="collection-content">{children.map(c => cloneElement(c, childPropsDiff))}</div>}
+        {loading && <Loading fadeOut fadeIn key="loading" />}
+	{!loading && <div fadeIn key="content" className="collection-content">{children.map(c => cloneElement(c, childPropsDiff))}</div>}
         {!loading && showsControls && count > 0 &&
-        <Grid key="controls" className="collection-controls">
+        <Grid fadeIn key="controls" className="collection-controls">
           <GridUnit className="collection-control" size="1-3">
             <Button disabled={previousPage === null}
                     onClick={this.gotoPreviousPage}

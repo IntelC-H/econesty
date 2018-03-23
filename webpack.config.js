@@ -101,7 +101,7 @@ module.exports = {
     ]
   },
   watchOptions: {
-    ignored: /^((?!frontend).)*$/ // only watch code in ./frontend/
+    ignored: /^((?![\\/]frontend[\\/]).)*$/ // only watch code in ./frontend/
   },
   resolve: {
     alias: {

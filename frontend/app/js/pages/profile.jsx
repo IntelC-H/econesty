@@ -63,7 +63,9 @@ function TransactionCollectionBody({ collectionView, userId }) {
 }
 
 function User({ elementView }) {
-  if (elementView.getElement().is_me) return <EditableUserRepresentation elementView={elementView} />;
+  let el = elementView.getElement();
+  //if (!el) return null;
+  if (el.is_me) return <EditableUserRepresentation elementView={elementView} />;
   return <UserRepresentation elementView={elementView} />;
 }
 

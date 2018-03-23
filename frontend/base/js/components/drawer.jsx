@@ -1,5 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { TransitionMotion, spring, presets } from 'preact-motion';
+import ShouldNotUpdate from './shouldnotupdate';
 
 class Drawer extends Component {
   constructor(props) {
@@ -51,7 +52,9 @@ class Drawer extends Component {
                 <div key={content.key}
                      className="drawer-content"
                      style={{transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")"}}>
-                  {children}
+                  <ShouldNotUpdate>
+                    {children}
+                  </ShouldNotUpdate>
                 </div>
               );
             }

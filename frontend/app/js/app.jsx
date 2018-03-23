@@ -20,11 +20,11 @@ import RequiredOfMe from 'app/pages/requiredofme';
 /*
   TODO for Polished:
   - Retry failed transactions
-  - Use (p)react-mobile to fade in/out CollectionView and ElementView content (opacity)
-  - Animate display of searchfield dropdown
+  - JS animation for loaders
+  - Fix lack of wallets in the all_wallets page
 */
 
-function makeRoute(path, Comp, wcs) {
+function makeRoute(path, Comp, wcs = {}) {
   return <Comp path={path} wildcards={wcs} />;
 }
 
