@@ -98,14 +98,6 @@ function EditableUserRepresentation({ elementView }) {
         </FormGroup>
         <Button action="submit">Save</Button>
       </Form>
-      <Button
-        onClick={() => {
-          API.networking("DELETE", "/token/clear", {}, {}).then(() => {
-            API.clearAuth();
-            Router.push("/");
-          });
-        }}
-      >LOG OUT</Button>
     </div>
   );
 }
@@ -113,13 +105,13 @@ function EditableUserRepresentation({ elementView }) {
 function Profile(props) {
   const userId = parseInt(props.matches.id);
   return (
-    <FlexContainer justifyContent="center" wrap="wrap" style={{width:"100%"}}>
-      <FlexItem shrink="5" style={{maxWidth:"100%"}}>
+    <FlexContainer direction="column" alignItems="center" style={{width:"100%"}}>
+      <FlexItem style={{maxWidth:"100%"}}>
         <ElementView collection={API.user} elementID={userId}>
           <User />
         </ElementView>
       </FlexItem>
-      <FlexItem grow="5" style={{maxWidth:"100%"}}>
+      <FlexItem style={{maxWidth:"100%", width: "100%"}}>
         <FlexContainer className="profile-button-group"
                        justifyContent="flex-start" direction="row" wrap="wrap">
         {userId !== API.getUserID() &&
@@ -142,6 +134,15 @@ function Profile(props) {
             component={Button}
             href="/required"
           >Required</Link>}
+          {userId === API.getUserID() &&
+           <Button
+             onClick={() => {
+               API.networking("DELETE", "/token/clear", {}, {}).then(() => {
+                 API.clearAuth();
+                 Router.push("/");
+               });
+             }}
+           >Log Out</Button>}
         </FlexContainer>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody userId={userId} />

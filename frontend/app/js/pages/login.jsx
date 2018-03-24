@@ -1,8 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Error, Labelled, Button, SideMargins } from 'base/components/elements';
-import { Form, Input, FormGroup } from 'base/components/forms';
-import { API } from 'base/api';
-import { Router } from 'base/components/routing';
+import { Error, Button } from 'base/components/elements';
+import { Router, API, Form, Input, FormGroup, FlexContainer } from 'base/base';
 
 class Login extends Component {
   constructor(props) {
@@ -26,25 +24,28 @@ class Login extends Component {
 
   render() {
     return (
-     <SideMargins>
+       <FlexContainer direction="column" alignItems="center">
+       <h1>Welcome Back!</h1>
        <Form onSubmit={this.login} method="POST">
          {!!this.state.error &&
            <Error>
              <p>{this.state.error.message}</p>
            </Error>}
          <FormGroup>
-           <Labelled label="Username">
+           <FlexContainer alignItems="center">
+             <label style={{minWidth: "6em"}}>Username</label>
              <Input text required name="username" />
-           </Labelled>
-           <Labelled label="Password">
+           </FlexContainer>
+           <FlexContainer alignItems="center">
+             <label style={{minWidth: "6em"}}>Password</label>
              <Input password required name="password" />
-           </Labelled>
+           </FlexContainer>
            <div className="centered">
              <Button type="submit">LOGIN</Button>
            </div>
          </FormGroup>
        </Form>
-      </SideMargins>
+       </FlexContainer>
     );
   }
 }
