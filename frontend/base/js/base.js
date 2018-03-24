@@ -6,6 +6,7 @@ import Drawer from './components/drawer';
 import FadeTransition from './components/fadetransition';
 import { Form, FormGroup, FormElement, Select, Input } from './components/forms'; // OR as Form.* through default export/import
 import SearchField from './components/searchfield';
+import UserRow from './components/searchfielduserrow';
 import CollectionCreation from './components/collectioncreation';
 import CollectionView from './components/collectionview';
 import ElementView from './components/elementview';
@@ -20,6 +21,6 @@ import Elements from './components/elements';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
-         SearchField, CollectionCreation, CollectionView, ElementView,
+         SearchField, UserRow, CollectionCreation, CollectionView, ElementView,
          Router, Link, Utilities, ShouldNotUpdate, AnimationLoop, Flex,
          FlexContainer, FlexItem, Elements, Loading };

@@ -24,10 +24,10 @@ class AnimationLoop extends Component {
     }), {});
     return (
       <Motion
+        {...props}
         defaultStyle={defaultStyle}
         onRest={this.onRest}
-        style={flag ? styleTo : styleFrom}
-        {...props} />
+        style={flag ? styleTo : styleFrom} />
     );
   }
 }

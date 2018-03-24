@@ -80,7 +80,7 @@ FlexItem.propTypes = {
   order: PropTypes.number,
   grow: PropTypes.number,
   shrink: PropTypes.number,
-  basis: AutoOr(PropTypes.number),
+  basis: PropTypes.oneOfType([AutoOr(PropTypes.number), PropTypes.string]),
   align: PropTypes.oneOf([
     "auto",
     "flex-start",

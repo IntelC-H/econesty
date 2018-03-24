@@ -56,6 +56,7 @@ module.exports = {
     app: [
       path.resolve(pkg.browser), // app JS entry point
       path.resolve(pkg.style), // app CSS entrypoint
+      path.resolve("./frontend/base/css/base.scss")
     ].concat(vendored)
   },
   output: {
@@ -127,7 +128,7 @@ module.exports = {
         base: {
           chunks: 'initial',
           name: 'base',
-          test: /[\\/]frontend[\\/]base[\\/]/,
+          test: /[\\/]frontend[\\/](base[\\/]|config.scss)/,
           enforce: true
         }
       }

@@ -1,14 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Button, Grid, GridUnit, Labelled, DeleteButton } from 'base/components/elements';
-import { Form, FormGroup, Input, Select } from 'base/components/forms';
-
-import { CollectionView } from 'base/components/collectionview';
-import { CollectionCreation } from 'base/components/collectioncreation';
-import { API } from 'base/api';
-import { DummyAPICollection } from 'base/dummyapicollection';
-import SearchField from 'base/components/searchfield';
-import UserRow from 'base/components/searchfielduserrow';
-import { Router } from 'base/components/routing';
+import { Button, Labelled, DeleteButton, SideMargins } from 'base/components/elements';
+import { Router, SearchField, UserRow, DummyAPICollection, API,
+         CollectionView, CollectionCreation, Form, FormGroup,
+         Input, Select } from 'base/base';
 
 function Requirement({ collectionView, CancelButton, element }) {
   let r = element;
@@ -78,42 +72,38 @@ class CreateTransaction extends Component {
     let recipient_id = isSender ? parseInt(matches.id) : API.getUserID();
 
     return (
-      <Grid>
-        <GridUnit size="1" sm="4-24"/>
-        <GridUnit size="1" sm="16-24">
-          <div className="section">
-            <h1 className="primary">{isSender ? "Send" : "Receive"} Bitcoin</h1>
-          </div>
-          <Form onSubmit={this.onSubmit}>
-            <FormGroup>
-              <Input hidden name="sender_id" value={sender_id} />
-              <Input hidden name="recipient_id" value={recipient_id} />
+      <SideMargins>
+        <div className="section">
+          <h1 className="primary">{isSender ? "Send" : "Receive"} Bitcoin</h1>
+        </div>
+        <Form onSubmit={this.onSubmit}>
+          <FormGroup>
+            <Input hidden name="sender_id" value={sender_id} />
+            <Input hidden name="recipient_id" value={recipient_id} />
 
-              <Labelled label="How many BTC?">
-                <Input number required name="amount" step="0.0001" min="0" cols="7" />
-              </Labelled>
+            <Labelled label="How many BTC?">
+              <Input number required name="amount" step="0.0001" min="0" cols="7" />
+            </Labelled>
 
-              <Labelled label="From wallet">
-                <Select
-                  options={this.makeWalletsPromise}
-                  name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
-                  transform={w => w.id}
-                  faceTransform={w => w.private_key} />
-              </Labelled>
+            <Labelled label="From wallet">
+              <Select
+                options={this.makeWalletsPromise}
+                name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
+                transform={w => w.id}
+                faceTransform={w => w.private_key} />
+            </Labelled>
 
-              <h2>With Requirements:</h2>
-              <CollectionView collection={this.dummyCollection}>
-                <CollectionCreation createText="+ Requirement">
-                  <Requirement />
-                </CollectionCreation>
-                <RequirementCollection />
-              </CollectionView>
-              <Button action="submit">CREATE</Button>
-            </FormGroup>
-          </Form>
-        </GridUnit>
-        <GridUnit size="1" sm="4-24"/>
-      </Grid>
+            <h2>With Requirements:</h2>
+            <CollectionView collection={this.dummyCollection}>
+              <CollectionCreation createText="+ Requirement">
+                <Requirement />
+              </CollectionCreation>
+              <RequirementCollection />
+            </CollectionView>
+            <Button action="submit">CREATE</Button>
+          </FormGroup>
+        </Form>
+      </SideMargins>
     );
   }
 }

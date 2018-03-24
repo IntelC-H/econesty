@@ -1,0 +1,32 @@
+@import "../../palette.scss";
+
+$table-text-color:              $text-color;
+$table-color:                   $primary-color;
+$table-border-color:            $border-color;
+$table-body-row-color:          white;
+$table-header-background-color: $primary-color;
+$table-header-color:            white;
+//$table-body-row-stripe-color:   
+//$table-body-row-hover-color:    
+//$table-body-row-active-color:   
+
+$button-color:                #FFFFFF;
+$button-background-color:     $accent-color;
+
+$input-color:                 $text-color;
+//$input-background-color: 
+//$input-disabled-color:   
+$input-border-color:          $border-color;
+$input-selected-border-color: $highlight-color;
+//$input-invalid-border-color:
+
+$delete-button-color: $text-color;
+
+//$searchfield-color:            $text-color;
+//$searchfield-background-color: #FFFFFF;
+
+$loading-wheel-color: $accent-color;
+
+$header-color: #FFFFFF;
+$header-background-color: $primary-color;
+$header-shadow-color: $border-color;

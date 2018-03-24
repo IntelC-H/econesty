@@ -11,7 +11,7 @@ const XOverflowable = inheritClass("div", "xoverflowable");
 const BTC = inheritClass("span", "fab fa-btc");
 const RedX = () => <span style={{color: "red"}} className="fas fa-times" />;
 const GreenCheck = () => <span style={{color: "green"}} className="fas fa-check" />;
-const Warning = () => <span style={{color: "yellow"}} className="fas fa-exclamation-triangle" />;
+const Warning = () => <span style={{color: "orange"}} className="fas fa-exclamation-triangle" />;
 const DeleteButton = inheritClass("a", "fa fa-times delete-button");
 const SearchIcon = inheritClass("span", "fa fa-search search-icon");
 const Frown = cssSubclass("span", {
@@ -29,12 +29,10 @@ const Table = cssSubclass('table', {
   striped: 'table-striped'
 }, null);
 
-const SideMargins = ({ children, ...props }) =>
+const SideMargins = (props) =>
   <Grid>
     <GridUnit size="1" sm="4-24" />
-    <GridUnit {...props} size="1" sm="16-24">
-      {children}
-    </GridUnit>
+    <GridUnit {...props} size="1" sm="16-24" />
     <GridUnit size="1" sm="4-24" />
   </Grid>;
 

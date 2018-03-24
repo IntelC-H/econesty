@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Grid, GridUnit, Table, Labelled, Button, XOverflowable } from 'base/components/elements';
+import { Table, Labelled, Button, XOverflowable, SideMargins } from 'base/components/elements';
 import { CollectionView } from 'base/components/collectionview';
 import { ElementView } from 'base/components/elementview';
 import { Form, FormGroup, Select, Input } from 'base/components/forms';
@@ -101,19 +101,14 @@ function TransactionRequirements({ collectionView }) {
 
 function TransactionDetail({ matches }) {
   return (
-    <Grid>
-      <GridUnit size="1" sm="4-24" />
-      <GridUnit size="1" sm="16-24">
-        <ElementView collection={API.transaction} elementID={matches.id}>
-          <TransactionInfo />
-        </ElementView>
-        <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
-          <TransactionRequirements />
-        </CollectionView>
-      </GridUnit>
-      <GridUnit size="1" sm="4-24" />
-    </Grid>
-
+    <SideMargins>
+      <ElementView collection={API.transaction} elementID={matches.id}>
+        <TransactionInfo />
+      </ElementView>
+      <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
+        <TransactionRequirements />
+      </CollectionView>
+    </SideMargins>
   );
 }
 

@@ -78,7 +78,7 @@ class SearchField extends FormElement {
   }
 
   onBlur() {
-    this.setState(st => ({ ...st, focused: false }));
+    //this.setState(st => ({ ...st, focused: false }));
   }
 
   onKeyUp(e) {

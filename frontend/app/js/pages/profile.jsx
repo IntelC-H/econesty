@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 
-import { BTC, RedX, GreenCheck, Warning, Button, Grid, GridUnit, Table, XOverflowable, Frown } from 'base/components/elements';
+import { BTC, RedX, GreenCheck, Warning, Button, Table, XOverflowable, Frown } from 'base/components/elements';
 import { Link, Router, API, CollectionView, ElementView, Form,
          FormGroup, Input, FlexContainer, FlexItem } from 'base/base';
 
@@ -51,7 +51,7 @@ function TransactionCollectionBody({ collectionView, userId }) {
                 <BriefUserInfo user={obj.recipient} />
               </td>
               <td>
-                {obj.completed ? 
+                {obj.completed ?
                    obj.success ? <GreenCheck /> : <Warning />
                    :
                    obj.rejected ? <RedX /> : null}
@@ -113,13 +113,13 @@ function EditableUserRepresentation({ elementView }) {
 function Profile(props) {
   const userId = parseInt(props.matches.id);
   return (
-    <Grid>
-      <GridUnit size="1" sm="1-4">
+    <FlexContainer wrap="wrap" direction="row" style={{width:"100%"}}>
+      <FlexItem grow="0" style={{maxWidth:"100%"}}>
         <ElementView collection={API.user} elementID={userId}>
           <User />
         </ElementView>
-      </GridUnit>
-      <GridUnit size="1" sm="17-24">
+      </FlexItem>
+      <FlexItem grow="5" style={{maxWidth:"100%"}}>
         <FlexContainer className="profile-button-group"
                        justifyContent="flex-start" direction="row" wrap="wrap">
         {userId !== API.getUserID() &&
@@ -146,9 +146,9 @@ function Profile(props) {
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody userId={userId} />
         </CollectionView>
-      </GridUnit>
-      <GridUnit size="1" sm="1-24" />
-    </Grid>
+      </FlexItem>
+      <FlexItem grow="2"/>
+    </FlexContainer>
   );
 }
 

@@ -14,15 +14,14 @@
   border-radius: 50%; // make it a circle
   width: $element-height * 1.5;
   height: $element-height * 1.5;
-  margin: 0 auto;
+  left: 50%;
+  right: 50%;
   box-sizing: border-box;
+  position: absolute;
 }
 
 // For FadeTransition
 div[transparent="true"] .loading-container {
   height: 0;
   overflow: visible;
-  .loading {
-    height: $element-height * 1.5;
-  }
 }

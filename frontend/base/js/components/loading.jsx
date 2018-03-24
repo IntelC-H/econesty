@@ -18,11 +18,14 @@ class Loading extends Component {
     }
   }
 
+  componentDidMouse() {
+  }
+
   render({ delay, className, ...props}, { shouldShow }) { // eslint-disable-line no-unused-vars
+    if (!shouldShow) return null;
     return (
       <div className={makeClassName('loading-container', className)} {...props}>
-        {shouldShow &&
-        <AnimationLoop
+        {<AnimationLoop
           styleFrom={{angle: spring(0)}}
           styleTo={{angle: spring(360)}}>
           {({angle}) => <div style={{transform: `rotate(${angle}deg)` }} className="loading" />}

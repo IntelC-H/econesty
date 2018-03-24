@@ -1,8 +1,9 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Button, Grid, GridUnit } from './elements';
+import { Button } from './elements';
 import Loading from './loading';
 import { FadeTransition } from './fadetransition';
+import { FlexContainer, FlexItem } from './flex';
 
 // TODO: errors & error recovery
 class CollectionView extends Component {
@@ -125,7 +126,7 @@ class CollectionView extends Component {
     return false;
   }
 
-  render({ children, showsControls,
+  render({ children, showsControls, loadingDelay,
            collection, search, // eslint-disable-line no-unused-vars
            ...props},
          { loading, page, count, nextPage, previousPage }) {
@@ -134,24 +135,25 @@ class CollectionView extends Component {
 
     return (
       <FadeTransition {...props}>
-        {loading && <Loading fadeOut fadeIn key="loading" />}
+        {loading && <Loading fadeOut fadeIn key="loading" delay={loadingDelay} />}
 	{!loading && <div fadeIn key="content" className="collection-content">{children.map(c => cloneElement(c, childPropsDiff))}</div>}
         {!loading && showsControls && count > 0 &&
-        <Grid fadeIn key="controls" className="collection-controls">
-          <GridUnit className="collection-control" size="1-3">
+        <FlexContainer fadeIn key="controls" direction="row" justifyContent="space-around" alignItems="center">
+
+          <FlexItem className="collection-control">
             <Button disabled={previousPage === null}
                     onClick={this.gotoPreviousPage}
                     ><i className="fas fa-arrow-left" /></Button>
-          </GridUnit>
-          <GridUnit className="collection-control collection-page-indicator" size="1-3">
+          </FlexItem>
+          <FlexItem className="collection-control collection-page-indicator">
             <span>{page} of {Math.ceil(count/10) || 1}</span>
-          </GridUnit>
-          <GridUnit className="collection-control" size="1-3">
-            <Button disabled={nextPage === null}
-                    onClick={this.gotoNextPage}
-                    ><i className="fas fa-arrow-right" /></Button>
-          </GridUnit>
-        </Grid>}
+          </FlexItem>
+          <FlexItem className="collection-control">
+              <Button disabled={nextPage === null}
+                      onClick={this.gotoNextPage}
+                      ><i className="fas fa-arrow-right" /></Button>
+          </FlexItem>
+        </FlexContainer>}
       </FadeTransition>
     );
   }
@@ -160,7 +162,8 @@ class CollectionView extends Component {
 CollectionView.propTypes = {
   showsControls: PropTypes.bool,
   search: PropTypes.string,
-  collection: PropTypes.object.isRequired
+  collection: PropTypes.object.isRequired,
+  loadingDelay: PropTypes.bool
 };
 CollectionView.defaultProps = {
   showsControls: true,
