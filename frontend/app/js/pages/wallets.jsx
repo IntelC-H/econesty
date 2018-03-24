@@ -7,7 +7,7 @@ function WalletGenerateButton({ collectionView, testnet }) {
   return (
     <Form onSubmit={o => collectionView.getCollection().classMethod("POST", "generate_key", o).then(collectionView.saveElement)}>
       <Input hidden name="testnet" value={testnet ? "true" : "false"} />
-      <Button className={"generate-" + (testnet ? "main" : "test") + "net-button"} action="submit">Generate{testnet ? " (Test)" : ""} Wallet</Button>
+      <Button action="submit">Generate{testnet ? " (Testnet)" : ""}</Button>
     </Form>
   );
 }
@@ -24,7 +24,7 @@ function WalletCreateForm({ collectionView, CancelButton }) {
           <FormGroup>
             <Input text required
                    name="private_key"
-                   placeholder="Bitcoin wallet private key (WIF format)" />
+                   placeholder="Wallet private key (WIF format)" />
           </FormGroup>
         </FlexItem>
         <div className="centered">
@@ -43,11 +43,20 @@ function WalletCollectionBody({ collectionView }) {
       {collectionView.getElements().map(w =>
          <tr className={w.is_testnet ? "wallet-row testnet" : "wallet-row"}>
            <td>
-             <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
-             <p className="secondary crypto-text">{w.address}</p>
-             <Collapsible label="Private Key" animateClose={false}>
-               <p className="teritary crypto-text">{w.private_key}</p>
-             </Collapsible>
+             <FlexContainer>
+               <FlexItem align="center">
+                 {w.is_testnet && <p className="testnet-label">TESTNET</p>}
+               </FlexItem>
+               <FlexItem grow="2">
+                 <p className="secondary crypto-text">{w.address}</p>
+                 <Collapsible label="Private Key" animateClose={false}>
+                   <p className="teritary crypto-text">{w.private_key}</p>
+                 </Collapsible>
+               </FlexItem>
+               <FlexItem>
+                 <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
+               </FlexItem>
+             </FlexContainer>
            </td>
          </tr>)}
       </tbody>

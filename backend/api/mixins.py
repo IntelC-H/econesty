@@ -54,6 +54,7 @@ class CreateUpdateHookMixin(object):
 
   def perform_create(self, serializer):
     super().perform_create(serializer)
+    setattr(serializer.context["request"], "_instance", serializer.instance)
     self.on_create(serializer.instance)
 
   def perform_update(self, serializer):
@@ -68,8 +69,8 @@ class EconestyBaseViewset(CreateUpdateHookMixin,
   permission_classes = (Sensitive,)
 
 class WriteOnlyViewset(CreateUpdateHookMixin,
+                       ImpliedOwnershipMixin,
                        mixins.CreateModelMixin,
                        mixins.DestroyModelMixin,
-                       ImpliedOwnershipMixin,
                        viewsets.GenericViewSet):
   pass

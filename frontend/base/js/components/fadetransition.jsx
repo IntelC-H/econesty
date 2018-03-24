@@ -5,7 +5,7 @@ import ShouldNotUpdate from './shouldnotupdate';
 function FadeTransition({ children, preset, ...props }) {
   return (
     <TransitionMotion
-      willLeave={({ data }) => data.child.attributes.fadeOut ? { opacity: spring(0, preset)} : null}
+      willLeave={({ data }) => (data.child.attributes.style || {}).opacity < 1 ? null : data.child.attributes.fadeOut ? { opacity: spring(0, preset)} : null}
       willEnter={() => ({ opacity: 0 })}
       styles={children.filter(Boolean).map((c, idx) => ({
         key: (c ? c.attributes.key : null) || `child-${idx}`,
@@ -14,7 +14,7 @@ function FadeTransition({ children, preset, ...props }) {
       }))}>
       {xs =>
         <div {...props}>{xs.map(({data, ...newprops}) =>
-          <div {...newprops} className="fade-element" transparent={true/*newprops.style.opacity < 1*/}>
+          <div {...newprops} className="fade-element" transparent={newprops.style.opacity < 1}>
             <ShouldNotUpdate component='div'>
               {data.child}
             </ShouldNotUpdate>

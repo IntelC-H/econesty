@@ -51,16 +51,6 @@ a {
   text-align: center;
 }
 
-#home {
-  height: 80vh; // stylelint-disable-line unit-whitelist
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center; 
-
-  text-align: center;
-}
-
 .content {
   margin: $padding;
 }
@@ -143,13 +133,6 @@ a {
         text-align: center;
       }
     }
-    .generate-testnet-button {
-
-    }
-    
-    .generate-mainnet-button {
-
-    }
   }
   
   .wallet-row {
@@ -164,11 +147,17 @@ a {
       word-wrap: break-word;      /* IE */
       word-break: break-all;
     }
-  }
-
-  .wallet-row .testnet {
-    p {
-
+    &.testnet {
+      p.testnet-label {
+        transform: rotate(180deg);
+        margin: 0;
+        margin-right: $padding;
+        text-align: center;
+        color: $accent-color;
+        writing-mode: vertical-lr;
+      }
     }
   }
 }
+
+

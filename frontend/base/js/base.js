@@ -13,7 +13,7 @@ import ElementView from './components/elementview';
 import { Router, Link } from './components/routing';
 import Utilities from './components/utilities';
 import ShouldNotUpdate from './components/shouldnotupdate';
-import AnimationLoop from './components/animationloop';
+import Animations from './components/animations';
 import Loading from './components/loading';
 import Flex from './components/flex';
 import { FlexContainer, FlexItem } from './components/flex';
@@ -22,5 +22,5 @@ import Elements from './components/elements';
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, UserRow, CollectionCreation, CollectionView, ElementView,
-         Router, Link, Utilities, ShouldNotUpdate, AnimationLoop, Flex,
+         Router, Link, Utilities, ShouldNotUpdate, Animations, Flex,
          FlexContainer, FlexItem, Elements, Loading };

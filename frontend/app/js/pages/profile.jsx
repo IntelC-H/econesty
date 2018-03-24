@@ -113,8 +113,8 @@ function EditableUserRepresentation({ elementView }) {
 function Profile(props) {
   const userId = parseInt(props.matches.id);
   return (
-    <FlexContainer wrap="wrap" direction="row" style={{width:"100%"}}>
-      <FlexItem grow="0" style={{maxWidth:"100%"}}>
+    <FlexContainer justifyContent="center" wrap="wrap" style={{width:"100%"}}>
+      <FlexItem shrink="5" style={{maxWidth:"100%"}}>
         <ElementView collection={API.user} elementID={userId}>
           <User />
         </ElementView>
@@ -147,7 +147,6 @@ function Profile(props) {
           <TransactionCollectionBody userId={userId} />
         </CollectionView>
       </FlexItem>
-      <FlexItem grow="2"/>
     </FlexContainer>
   );
 }

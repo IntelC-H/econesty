@@ -56,7 +56,6 @@ ul {
       display: table;
       .loading {
         display: table;
-        margin-bottom: $padding;
       }
       @include raised;
       border-bottom-left-radius: $border-radius;

@@ -5,23 +5,39 @@
 @import "../mixins";
 @import "../variables";
 
-.loading {
-  $loading-wheel-color: #555555 !default !global;
-  $loading-wheel-width: 0.5rem !default !global;
+.container {
+  position: relative;
+  .loading-container {
+    $loading-color: #555555 !default !global;
+    $loading-width: 0.5rem !default !global;
 
-  border: $loading-wheel-width solid mix(rgba(255, 255, 255, 0), $loading-wheel-color, 50%); // Pale background for whole circle
-  border-top: $loading-wheel-width solid $loading-wheel-color; // highlight a part of the circle in a bolder color.
-  border-radius: 50%; // make it a circle
-  width: $element-height * 1.5;
-  height: $element-height * 1.5;
-  left: 50%;
-  right: 50%;
-  box-sizing: border-box;
-  position: absolute;
+    .loading-bar {
+      width: 4 * $element-height;
+      height: $loading-width;
+      position: relative;
+      margin: $padding;
+      .background, .foreground {
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        position: absolute;
+      }
+      .background {
+        background-color: mix(rgba(255, 255, 255, 0), $loading-wheel-color, 50%);
+      }
+      .foreground {
+        background-color: $loading-wheel-color;
+      }
+    }
+  
+    // For FadeTransition
+    div[transparent="true"] & {
+      height: 0;
+      overflow: visible;
+      position: absolute;
+      width: 100%;
+    }
+  }
 }
 
-// For FadeTransition
-div[transparent="true"] .loading-container {
-  height: 0;
-  overflow: visible;
-}
