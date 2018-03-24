@@ -1,11 +1,11 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Motion, spring } from 'preact-motion';
+import { Motion } from 'preact-motion';
 
 class Animations extends Component {
   constructor(props) {
     super(props);
-    this.state = { index: 0, animations: props.animations, repeat: props.repeat };
+    this.state = { index: 0 };
     this.onRest = this.onRest.bind(this);
   }
 
@@ -15,10 +15,16 @@ class Animations extends Component {
   }
 
   onRest() {
-    this.raf = requestAnimationFrame(() => this.setState(st => ({...st, index: st.repeat ? (st.index >= (st.animations.length - 1) ? 0 : st.index + 1) : st.index })));
+    this.raf = requestAnimationFrame(() =>
+       this.setState({index: this.props.repeat
+                              ? this.state.index >= this.props.animations.length - 1
+                                  ? 0
+                                  : this.state.index + 1
+                              : this.state.index }));
   }
 
-  render({ styleFrom, styleTo, ...props }, { animations, index }) {
+  render({ repeat, // eslint-disable-line no-unused-vars
+           animations, ...props }, { index }) {
     return (
       <Motion
         {...props}

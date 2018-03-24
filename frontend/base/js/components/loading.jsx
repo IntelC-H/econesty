@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { makeClassName } from './utilities';
 import Animations from './animations';
-import { Motion, spring, presets } from 'preact-motion';
+import { spring } from 'preact-motion';
 import { FlexContainer } from './flex';
 
 class Loading extends Component {
