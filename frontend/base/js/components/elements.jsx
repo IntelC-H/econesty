@@ -9,9 +9,9 @@ const Error = inheritClass("div", "error");
 const XOverflowable = inheritClass("div", "xoverflowable");
 
 const BTC = inheritClass("span", "fab fa-btc");
-const RedX = () => <span style={{color: "red"}} className="fas fa-times" />;
-const GreenCheck = () => <span style={{color: "green"}} className="fas fa-check" />;
-const Warning = () => <span style={{color: "orange"}} className="fas fa-exclamation-triangle" />;
+const RedX = ({ component }) => h(component || 'span', { style: {color: "red"}, className:"fas fa-times icon" });
+const GreenCheck = ({ component }) => h(component || 'span', { style: {color: "green"}, className:"fas fa-check icon" });
+const Warning = ({ component }) => h(component || 'span', { style: {color: "orange"}, className:"fas fa-exclamation-triangle icon" });
 const DeleteButton = inheritClass("a", "fa fa-times delete-button");
 const SearchIcon = inheritClass("span", "fa fa-search search-icon");
 const Frown = cssSubclass("span", {

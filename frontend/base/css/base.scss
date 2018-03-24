@@ -7,6 +7,11 @@
 @import "base/fonts";
 @import "base/mixins";
 
+.icon {
+  margin-left: $padding;
+  margin-right: $padding;
+}
+
 @import "base/components/table";
 @import "base/components/button";
 @import "base/components/input";

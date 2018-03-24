@@ -1,10 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Labelled, Button, XOverflowable, SideMargins } from 'base/components/elements';
-import { CollectionView } from 'base/components/collectionview';
-import { ElementView } from 'base/components/elementview';
-import { Form, FormGroup, Select, Input } from 'base/components/forms';
-import { Link } from 'base/components/routing';
-import { API } from 'base/api';
+import { GreenCheck, Warning, RedX, BTC, Table, Button, XOverflowable, SideMargins } from 'base/components/elements';
+import { API, FlexContainer, Link, CollectionView, ElementView,
+         Form, FormGroup, Select, Input, FlexItem } from 'base/base';
 
 function makeWalletsPromise() {
   return API.wallet.withParams({ user__id: API.getUserID() }).listAll();
@@ -29,40 +26,66 @@ function TransactionInfo({ elementView }) {
   let isRecipient = t.recipient.id === API.getUserID();
 
   return (
-    <div className="center">
-      <h1>Transaction #{t.id}</h1>
-      <h2>{t.completed ?
-             t.success ? "SUCCESS" : "FAILURE"
-             :
-             t.rejected ? "REJECTED" : "INCOMPLETE"}</h2>
-      <h3 className="secondary"><UserLink user={t.recipient} /> is sending BTC {parseFloat(t.amount)} to <UserLink user={t.sender}/></h3>
-      {t.error && <p>{t.error}</p>}
+    <div>
+      <FlexContainer alignItems="center" direction="column">
+        <FlexContainer alignItems="center" justifyContent="space-between">
+          {t.completed
+           ? t.success ? <GreenCheck component={'h1'} /> : <Warning component={'h1'} />
+           : t.rejected ? <RedX component={'h1'} /> : null}
+          <h1>Transaction #{t.id}</h1>
+        </FlexContainer>
+        {t.completed && !t.success &&
+        <FlexContainer alignItems="center">
+          <p>{t.error ? "Blockchain Error: " + t.error : ""}</p>
+          <Button onClick={null}>Retry</Button>
+        </FlexContainer>}
+        <h3><BTC /> {parseFloat(t.amount)}</h3>
+      </FlexContainer>
+      <FlexContainer justifyContent="space-evenly">
+        <h3 className="secondary"><UserLink user={t.recipient} /></h3>
+        <h3 className="secondary"><i className="fas fa-arrow-right"/></h3>
+        <h3 className="secondary"><UserLink user={t.sender}/></h3>
+      </FlexContainer>
 
       {needsRecipientWallet && isRecipient && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <Labelled label="Recipient's Wallet">
-            <Select
-              options={makeWalletsPromise}
-              name="recipient_wallet_id"
-              transform={w => w.id}
-              faceTransform={w => w.private_key} />
-          </Labelled>
-          <Button action="submit">SAVE WALLET</Button>
+          <FlexContainer alignItems="center">
+            <FlexItem grow="1">
+              <label>Recipient's Wallet</label>
+            </FlexItem>
+            <FlexItem grow="2">
+              <FlexContainer alignItems="center">
+                <Select
+                    options={makeWalletsPromise}
+                    name="recipient_wallet_id"
+                    transform={w => w.id}
+                    faceTransform={w => w.private_key} />
+                <Button action="submit"><i className="fa fa-save" /></Button>
+              </FlexContainer>
+            </FlexItem>
+          </FlexContainer>
         </FormGroup>
       </Form>}
 
       {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <Labelled label="Sender's Wallet">
-            <Select
-              options={makeWalletsPromise}
-              name="sender_wallet_id"
-              transform={w => w.id}
-              faceTransform={w => w.private_key} />
-          </Labelled>
-          <Button action="submit">SAVE WALLET</Button>
+          <FlexContainer alignItems="center">
+            <FlexItem grow="1">
+              <label>Sender's Wallet</label>
+            </FlexItem>
+            <FlexItem grow="2">
+              <FlexContainer alignItems="center">
+                <Select
+                    options={makeWalletsPromise}
+                    name="sender_wallet_id"
+                    transform={w => w.id}
+                    faceTransform={w => w.private_key} />
+                <Button action="submit"><i className="fa fa-save" /></Button>
+              </FlexContainer>
+            </FlexItem>
+          </FlexContainer>
         </FormGroup>
       </Form>}
 
@@ -82,7 +105,7 @@ function TransactionRequirements({ collectionView }) {
           <tr>
           <th>Requirement</th>
           <th>User</th>
-          <th>Status</th>
+          <th />
           </tr>
         </thead>
         <tbody>
@@ -90,7 +113,7 @@ function TransactionRequirements({ collectionView }) {
             return <tr key={r.id}>
                      <td>{r.text}</td>
                      <td><UserLink user={r.user} /></td>
-                     <td>{r.fulfilled ? "FULFILLED" : r.rejected ? "REJECTED" : "UNFULFILLED"}</td>
+                     <td>{r.fulfilled ? <GreenCheck /> : r.rejected ? <RedX /> : null}</td>
                    </tr>;
           })}
         </tbody>
