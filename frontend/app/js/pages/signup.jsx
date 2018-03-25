@@ -1,7 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Button, SideMargins, Loading } from 'base/components/elements';
-import { API, Router, FlexContainer, Form, FormGroup, Input,
-         FadeTransition } from 'base/base';
+import { Button, SideMargins } from 'base/components/elements';
+import { API, Router, Flex, Form, FormGroup, Input, FadeTransition, Loading } from 'base/base';
 
 class Signup extends Component {
   constructor(props) {
@@ -28,38 +27,37 @@ class Signup extends Component {
       <FadeTransition>
         {loading && <Loading fadeIn fadeOut key="loading" />}
         {!loading && <SideMargins fadeIn fadeOut key="content">
-        <FlexContainer direction="column" wrap="wrap" alignItems="center">
+        <Flex container direction="column" wrap="wrap" alignItems="center">
           <h1>New Account</h1>
           <p>Signing up gives you the benefit of a community dedicated to protecting your bitcoin wallet!<br /><br />Econesty will never ask you to verify your email address, nor send you email. That's annoying!</p>
           <Form onSubmit={this.signupAndLogin}>
             <FormGroup>
-
-                <FlexContainer alignItems="center">
+                <Flex container alignItems="center">
                   <label style={{minWidth: "7.5em"}}>First Name</label>
                   <Input text required autocomplete="given-name" name="first_name" />
-                </FlexContainer>
-                <FlexContainer alignItems="center">
+                </Flex>
+                <Flex container alignItems="center">
                   <label style={{minWidth: "7.5em"}}>Last Name</label>
                   <Input text required autocomplete="family-name" name="last_name" />
-                </FlexContainer>
-                <FlexContainer alignItems="center">
+                </Flex>
+                <Flex container alignItems="center">
                   <label style={{minWidth: "7.5em"}}>Email</label>
                   <Input email required autocomplete="email" name="email" />
-                </FlexContainer>
-                <FlexContainer alignItems="center">
+                </Flex>
+                <Flex container alignItems="center">
                   <label style={{minWidth: "7.5em"}}>Username</label>
                   <Input text required name="username" />
-                </FlexContainer>
-                <FlexContainer alignItems="center">
+                </Flex>
+                <Flex container alignItems="center">
                   <label style={{minWidth: "7.5em"}}>Password</label>
                   <Input password required name="password" />
-                </FlexContainer>
-                <FlexContainer justifyContent="center">
+                </Flex>
+                <Flex container justifyContent="center">
                   <Button action="submit">SIGN UP</Button>
-                </FlexContainer>
+                </Flex>
             </FormGroup>
           </Form>
-              </FlexContainer>
+              </Flex>
         </SideMargins>}
       </FadeTransition>
     );

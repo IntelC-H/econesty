@@ -1,9 +1,7 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { inheritClass, cssSubclass, makeClassName } from './utilities';
-
-const Grid = inheritClass("div", "pure-g");
-const GridUnit = cssSubclass("div", {}, "pure-u", true);
+import Flex from './flex';
 
 const Error = inheritClass("div", "error");
 const XOverflowable = inheritClass("div", "xoverflowable");
@@ -20,8 +18,7 @@ const Frown = cssSubclass("span", {
 }, "far fa-frown frown-icon");
 
 const Button = cssSubclass(props => props.href ? 'a' : 'button', {
-  primary: 'pure-button-primary',
-  active: 'pure-button-active'
+  primary: 'button-primary'
 }, 'button');
 
 const Table = cssSubclass('table', {
@@ -30,23 +27,21 @@ const Table = cssSubclass('table', {
 }, null);
 
 const SideMargins = (props) =>
-  <Grid>
-    <GridUnit size="1" sm="4-24" />
-    <GridUnit {...props} size="1" sm="16-24" />
-    <GridUnit size="1" sm="4-24" />
-  </Grid>;
+  <Flex container justifyContent="center">
+    <Flex basis={`${100 * (2/3)}%`} {...props}/>
+  </Flex>;
 
 const Labelled = ({ label, children, ...props }) => {
   props.className = makeClassName("labelled", props.className);
   return (
-    <Grid {...props}>
-      <GridUnit className="labelled-label-container" size="1" sm="1-4">
+    <Flex {...props} container wrap="wrap" alignItems="center">
+      <Flex className="labelled-label-container" container justifyContent="flex-start" alignItems="center" basis="25%">
         <label>{label || " "}</label>
-      </GridUnit>
-      <GridUnit className="labelled-content" size="1" sm="3-4">
+      </Flex>
+      <Flex className="labelled-content" container justifyContent="flex-start" alignItems="center" basis="75%">
         {children}
-      </GridUnit>
-    </Grid>
+      </Flex>
+    </Flex>
   );
 };
 
@@ -55,15 +50,13 @@ Labelled.propTypes = {
 };
 Labelled.defaultProps = {};
 
-export { BTC, RedX, GreenCheck, Warning, Grid, GridUnit, Button, Table, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
+export { BTC, RedX, GreenCheck, Warning, Button, Table, Error, Labelled, DeleteButton, SearchIcon, SideMargins, XOverflowable, Frown };
 
 export default {
   BTC: BTC,
   RedX: RedX,
   GreenCheck: GreenCheck,
   Warning: Warning,
-  Grid: Grid,
-  GridUnit: GridUnit,
   Button: Button,
   Table: Table,
   Error: Error,

@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Error, Button } from 'base/components/elements';
-import { Router, API, Form, Input, FormGroup, FlexContainer } from 'base/base';
+import { Router, API, Form, Input, FormGroup, Flex } from 'base/base';
 
 class Login extends Component {
   constructor(props) {
@@ -24,28 +24,28 @@ class Login extends Component {
 
   render() {
     return (
-       <FlexContainer direction="column" alignItems="center">
-       <h1>Welcome Back!</h1>
-       <Form onSubmit={this.login} method="POST">
-         {!!this.state.error &&
-           <Error>
-             <p>{this.state.error.message}</p>
-           </Error>}
-         <FormGroup>
-           <FlexContainer alignItems="center">
-             <label style={{minWidth: "6em"}}>Username</label>
-             <Input text required name="username" />
-           </FlexContainer>
-           <FlexContainer alignItems="center">
-             <label style={{minWidth: "6em"}}>Password</label>
-             <Input password required name="password" />
-           </FlexContainer>
-           <div className="centered">
-             <Button type="submit">LOGIN</Button>
-           </div>
-         </FormGroup>
-       </Form>
-       </FlexContainer>
+       <Flex container direction="column" alignItems="center">
+         <h1>Welcome Back!</h1>
+         <Form onSubmit={this.login} method="POST">
+           {!!this.state.error &&
+             <Error>
+               <p>{this.state.error.message}</p>
+             </Error>}
+           <FormGroup>
+             <Flex container alignItems="center">
+               <label style={{minWidth: "6em"}}>Username</label>
+               <Input text required name="username" />
+             </Flex>
+             <Flex container alignItems="center">
+               <label style={{minWidth: "6em"}}>Password</label>
+               <Input password required name="password" />
+             </Flex>
+             <div className="centered">
+               <Button type="submit">LOGIN</Button>
+             </div>
+           </FormGroup>
+         </Form>
+       </Flex>
     );
   }
 }

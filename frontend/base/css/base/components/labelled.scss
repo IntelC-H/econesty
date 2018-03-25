@@ -5,8 +5,8 @@
 @import "../variables";
 
 .labelled {
-  display: flex;
-  flex-wrap: wrap;
+  // display: flex;
+  // flex-wrap: wrap;
   .labelled-label-container label {
     padding-right: $padding;
     white-space: nowrap;
@@ -15,8 +15,8 @@
   }
   .labelled-label-container, .labelled-content {
     height: $element-height;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    // display: flex;
+    // align-items: center;
+    // justify-content: flex-start;
   }
 }

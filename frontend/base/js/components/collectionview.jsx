@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button } from './elements';
 import Loading from './loading';
 import { FadeTransition } from './fadetransition';
-import { FlexContainer, FlexItem } from './flex';
+import Flex from './flex';
 
 // TODO: errors & error recovery
 class CollectionView extends Component {
@@ -138,22 +138,22 @@ class CollectionView extends Component {
         {loading && <Loading fadeOut fadeIn key="loading" delay={loadingDelay} />}
 	{!loading && <div fadeIn key="content" className="collection-content">{children.map(c => cloneElement(c, childPropsDiff))}</div>}
         {!loading && showsControls && count > 0 &&
-        <FlexContainer fadeIn key="controls" direction="row" justifyContent="space-around" alignItems="center">
+        <Flex container fadeIn key="controls" direction="row" justifyContent="space-around" alignItems="center">
 
-          <FlexItem className="collection-control">
+          <Flex className="collection-control">
             <Button disabled={previousPage === null}
                     onClick={this.gotoPreviousPage}
                     ><i className="fas fa-arrow-left" /></Button>
-          </FlexItem>
-          <FlexItem className="collection-control collection-page-indicator">
+          </Flex>
+          <Flex className="collection-control collection-page-indicator">
             <span>{page} of {Math.ceil(count/10) || 1}</span>
-          </FlexItem>
-          <FlexItem className="collection-control">
+          </Flex>
+          <Flex className="collection-control">
               <Button disabled={nextPage === null}
                       onClick={this.gotoNextPage}
                       ><i className="fas fa-arrow-right" /></Button>
-          </FlexItem>
-        </FlexContainer>}
+          </Flex>
+        </Flex>}
       </FadeTransition>
     );
   }

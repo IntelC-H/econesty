@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table, Button, DeleteButton, SideMargins } from 'base/components/elements';
-import { FlexContainer, FlexItem, Collapsible, CollectionCreation,
+import { Flex, Collapsible, CollectionCreation,
          CollectionView, API, Form, Input, FormGroup } from 'base/base';
 
 function WalletGenerateButton({ collectionView, testnet }) {
@@ -15,23 +15,23 @@ function WalletGenerateButton({ collectionView, testnet }) {
 function WalletCreateForm({ collectionView, CancelButton }) {
   return (
     <Form className="input-form" onSubmit={collectionView.saveElement}>
-      <FlexContainer justifyContent="center"
+      <Flex container justifyContent="center"
                      direction="row"
                      wrap="wrap"
                      alignItems="stretch">
         <Input hidden name="user_id" value={API.getUserID()}/>
-        <FlexItem grow="2">
+        <Flex grow="2">
           <FormGroup>
             <Input text required
                    name="private_key"
                    placeholder="Wallet private key (WIF format)" />
           </FormGroup>
-        </FlexItem>
+        </Flex>
         <div className="centered">
           <Button action="submit"><i className="fa fa-save" /></Button>
           <CancelButton />
         </div>
-      </FlexContainer>
+      </Flex>
     </Form>
   );
 }
@@ -43,20 +43,20 @@ function WalletCollectionBody({ collectionView }) {
       {collectionView.getElements().map(w =>
          <tr className={w.is_testnet ? "wallet-row testnet" : "wallet-row"}>
            <td>
-             <FlexContainer>
-               <FlexItem align="center">
+             <Flex container>
+               <Flex align="center">
                  {w.is_testnet && <p className="testnet-label">TESTNET</p>}
-               </FlexItem>
-               <FlexItem grow="2">
+               </Flex>
+               <Flex grow="2">
                  <p className="secondary crypto-text">{w.address}</p>
                  <Collapsible label="Private Key" animateClose={false}>
                    <p className="teritary crypto-text">{w.private_key}</p>
                  </Collapsible>
-               </FlexItem>
-               <FlexItem>
+               </Flex>
+               <Flex>
                  <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
-               </FlexItem>
-             </FlexContainer>
+               </Flex>
+             </Flex>
            </td>
          </tr>)}
       </tbody>

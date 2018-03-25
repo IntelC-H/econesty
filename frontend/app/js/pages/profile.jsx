@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 
 import { BTC, RedX, GreenCheck, Warning, Button, Table, XOverflowable, Frown } from 'base/components/elements';
 import { Link, Router, API, CollectionView, ElementView, Form,
-         FormGroup, Input, FlexContainer, FlexItem } from 'base/base';
+         FormGroup, Input, Flex } from 'base/base';
 
 const dateOpts = { year: 'numeric', month: 'long', day: 'numeric' };
 const formatDate = x => new Date(x).toLocaleString(navigator.language, dateOpts);
@@ -105,50 +105,50 @@ function EditableUserRepresentation({ elementView }) {
 function Profile(props) {
   const userId = parseInt(props.matches.id);
   return (
-    <FlexContainer direction="column" alignItems="center" style={{width:"100%"}}>
-      <FlexItem style={{maxWidth:"100%"}}>
+    <Flex container direction="column" alignItems="center">
+      <Flex basis="50%">
         <ElementView collection={API.user} elementID={userId}>
           <User />
         </ElementView>
-      </FlexItem>
-      <FlexItem style={{maxWidth:"100%", width: "100%"}}>
-        <FlexContainer className="profile-button-group"
-                       justifyContent="flex-start" direction="row" wrap="wrap">
-        {userId !== API.getUserID() &&
-          <Link
-            component={Button}
-            href={API.user.baseURL + userId + "/transaction/send"}
-          >Send BTC</Link>}
+      </Flex>
+      <Flex container direction="column" grow="1" basis="100%"> {/* style={{maxWidth:"100%", width: "100%"}}>*/}
+        <Flex container className="profile-button-group"
+                        justifyContent="flex-start" direction="row" wrap="wrap">
           {userId !== API.getUserID() &&
-          <Link
-            component={Button}
-            href={API.user.baseURL + userId + "/transaction/receive"}
-          >Receive BTC</Link>}
-          {userId === API.getUserID() &&
-          <Link
-            component={Button}
-            href="/wallets"
-          >Wallets</Link>}
-          {userId === API.getUserID() &&
-          <Link
-            component={Button}
-            href="/required"
-          >Required</Link>}
-          {userId === API.getUserID() &&
-           <Button
-             onClick={() => {
-               API.networking("DELETE", "/token/clear", {}, {}).then(() => {
-                 API.clearAuth();
-                 Router.push("/");
-               });
-             }}
-           >Log Out</Button>}
-        </FlexContainer>
+            <Link
+              component={Button}
+              href={API.user.baseURL + userId + "/transaction/send"}
+            >Send BTC</Link>}
+            {userId !== API.getUserID() &&
+            <Link
+              component={Button}
+              href={API.user.baseURL + userId + "/transaction/receive"}
+            >Receive BTC</Link>}
+            {userId === API.getUserID() &&
+            <Link
+              component={Button}
+              href="/wallets"
+            >Wallets</Link>}
+            {userId === API.getUserID() &&
+            <Link
+              component={Button}
+              href="/required"
+            >Required</Link>}
+            {userId === API.getUserID() &&
+             <Button
+               onClick={() => {
+                 API.networking("DELETE", "/token/clear", {}, {}).then(() => {
+                   API.clearAuth();
+                   Router.push("/");
+                 });
+               }}
+             >Log Out</Button>}
+        </Flex>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody userId={userId} />
         </CollectionView>
-      </FlexItem>
-    </FlexContainer>
+      </Flex>
+    </Flex>
   );
 }
 

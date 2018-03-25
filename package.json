@@ -9,9 +9,7 @@
   },
   "vendorDirectory": "./frontend/vendor/",
   "vendorOrder": [
-    "normalize.css",
-    "./frontend/vendor/purecss-grids.css",
-    "./frontend/vendor/purecss-grids-responsive.css"
+    "normalize.css"
   ],
   "private": true,
   "dependencies": {

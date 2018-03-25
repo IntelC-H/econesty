@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { GreenCheck, Warning, RedX, BTC, Table, Button, XOverflowable, SideMargins } from 'base/components/elements';
-import { API, FlexContainer, Link, CollectionView, ElementView,
-         Form, FormGroup, Select, Input, FlexItem } from 'base/base';
+import { API, Flex, Link, CollectionView, ElementView,
+         Form, FormGroup, Select, Input } from 'base/base';
 
 function makeWalletsPromise() {
   return API.wallet.withParams({ user__id: API.getUserID() }).listAll();
@@ -27,65 +27,77 @@ function TransactionInfo({ elementView }) {
 
   return (
     <div>
-      <FlexContainer alignItems="center" direction="column">
-        <FlexContainer alignItems="center" justifyContent="space-between">
+      <Flex container alignItems="center" direction="column">
+        <Flex container alignItems="center" justifyContent="space-between">
           {t.completed
            ? t.success ? <GreenCheck component={'h1'} /> : <Warning component={'h1'} />
            : t.rejected ? <RedX component={'h1'} /> : null}
           <h1>Transaction #{t.id}</h1>
-        </FlexContainer>
+        </Flex>
         {t.completed && !t.success &&
-        <FlexContainer alignItems="center">
+        <Flex container alignItems="center">
           <p>{t.error ? "Blockchain Error: " + t.error : ""}</p>
           <Button onClick={null}>Retry</Button>
-        </FlexContainer>}
+        </Flex>}
         <h3><BTC /> {parseFloat(t.amount)}</h3>
-      </FlexContainer>
-      <FlexContainer justifyContent="space-evenly">
-        <h3 className="secondary"><UserLink user={t.recipient} /></h3>
-        <h3 className="secondary"><i className="fas fa-arrow-right"/></h3>
-        <h3 className="secondary"><UserLink user={t.sender}/></h3>
-      </FlexContainer>
+      </Flex>
+      <Flex container direction="row" alignItems="center" justifyContent="center">
+        <Flex basis={`${100/3}%`}>
+          <Flex container justifyContent="flex-begin">
+            <h3 className="secondary"><UserLink user={t.recipient} /></h3>
+          </Flex>
+        </Flex>
+        <Flex basis={`${100/3}%`}>
+          <Flex container justifyContent="center">
+            <h3 className="secondary"><i className="fas fa-arrow-right"/></h3>
+          </Flex>
+        </Flex>
+        <Flex basis={`${100/3}%`}>
+          <Flex container justifyContent="flex-end">
+            <h3 className="secondary"><UserLink user={t.sender}/></h3>
+          </Flex>
+        </Flex>
+      </Flex>
 
       {needsRecipientWallet && isRecipient && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <FlexContainer alignItems="center">
-            <FlexItem grow="1">
+          <Flex container alignItems="center">
+            <Flex grow="1">
               <label>Recipient's Wallet</label>
-            </FlexItem>
-            <FlexItem grow="2">
-              <FlexContainer alignItems="center">
+            </Flex>
+            <Flex grow="2">
+              <Flex container alignItems="center">
                 <Select
                     options={makeWalletsPromise}
                     name="recipient_wallet_id"
                     transform={w => w.id}
                     faceTransform={w => w.private_key} />
                 <Button action="submit"><i className="fa fa-save" /></Button>
-              </FlexContainer>
-            </FlexItem>
-          </FlexContainer>
+              </Flex>
+            </Flex>
+          </Flex>
         </FormGroup>
       </Form>}
 
       {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <FlexContainer alignItems="center">
-            <FlexItem grow="1">
+          <Flex container alignItems="center">
+            <Flex grow="1">
               <label>Sender's Wallet</label>
-            </FlexItem>
-            <FlexItem grow="2">
-              <FlexContainer alignItems="center">
+            </Flex>
+            <Flex grow="2">
+              <Flex container alignItems="center">
                 <Select
                     options={makeWalletsPromise}
                     name="sender_wallet_id"
                     transform={w => w.id}
                     faceTransform={w => w.private_key} />
                 <Button action="submit"><i className="fa fa-save" /></Button>
-              </FlexContainer>
-            </FlexItem>
-          </FlexContainer>
+              </Flex>
+            </Flex>
+          </Flex>
         </FormGroup>
       </Form>}
 

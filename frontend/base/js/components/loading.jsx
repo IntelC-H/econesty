@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { makeClassName } from './utilities';
 import Animations from './animations';
 import { spring } from 'preact-motion';
-import { FlexContainer } from './flex';
+import { Flex } from './flex';
 
 class Loading extends Component {
   constructor(props) {
@@ -46,7 +46,7 @@ class Loading extends Component {
     let newClassName = makeClassName('loading-container', className);
     return (
       <div className="container">
-        <FlexContainer justifyContent="center" className={newClassName} {...props}>
+        <Flex container justifyContent="center" className={newClassName} {...props}>
           <Animations
             animations={this.animations}
             repeat>
@@ -57,7 +57,7 @@ class Loading extends Component {
                </div>;
               }}
           </Animations>
-        </FlexContainer>
+        </Flex>
       </div>
     );
   }
