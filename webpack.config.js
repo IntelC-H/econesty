@@ -44,6 +44,7 @@ appJSDir = path.resolve(appJSDir.substring(0, appJSDir.lastIndexOf('/')));
 module.exports = {
   mode: "development",
   stats: {
+    entrypoints: false,
     performance: true,
     children: false,
     modules: false,
