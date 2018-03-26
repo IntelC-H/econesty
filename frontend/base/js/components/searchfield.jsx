@@ -7,6 +7,7 @@ import { CollectionView } from './collectionview';
 import { makeClassName } from './utilities';
 import { Link, Router } from './routing';
 import { DeleteButton, SearchIcon } from './elements';
+import { Flex } from './flex';
 
 function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
@@ -136,13 +137,16 @@ class SearchField extends FormElement {
            api, component, className, ...props }, { focused, search }) {
     return (
       <div className={makeClassName("searchfield", className)}>
-        { this.showsObject && <DeleteButton onClick={this.reset} /> }
         { this.showsObject &&
-          <Link href={api.baseURL + this.value.id}
-                className="searchfield-value-link">
+          <Flex container>
+            <Link href={api.baseURL + this.value.id}
+                 className="searchfield-value-link">
             {h(component, { element: this.value })}
-          </Link>
-        }
+            </Link>
+            <Flex container alignItems="center" justifyContent="center">
+              <DeleteButton onClick={this.reset} />
+            </Flex>
+          </Flex>}
         { !this.showsObject && <SearchIcon /> }
         { !this.showsObject &&
           <Input

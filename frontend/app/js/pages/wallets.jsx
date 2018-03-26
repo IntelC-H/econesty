@@ -27,10 +27,10 @@ function WalletCreateForm({ collectionView, CancelButton }) {
                    placeholder="Wallet private key (WIF format)" />
           </FormGroup>
         </Flex>
-        <div className="centered">
+        <Flex container justifyContent="center" alignItems="center">
           <Button action="submit"><i className="fa fa-save" /></Button>
           <CancelButton />
-        </div>
+        </Flex>
       </Flex>
     </Form>
   );

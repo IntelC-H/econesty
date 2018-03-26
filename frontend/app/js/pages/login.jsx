@@ -40,9 +40,9 @@ class Login extends Component {
                <label style={{minWidth: "6em"}}>Password</label>
                <Input password required name="password" />
              </Flex>
-             <div className="centered">
+             <Flex container alignItems="center" justifyContent="center">
                <Button type="submit">LOGIN</Button>
-             </div>
+             </Flex>
            </FormGroup>
          </Form>
        </Flex>

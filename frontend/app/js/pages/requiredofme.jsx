@@ -1,10 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-
-import { API } from 'base/api';
-import { CollectionView } from 'base/components/collectionview';
 import { Button, SideMargins, Labelled, Frown } from 'base/components/elements';
-import { Form, Input } from 'base/components/forms';
-import { Link } from 'base/components/routing';
+import { Link, Flex, Form, Input, CollectionView, API } from 'base/base';
 
 function RequirementRow({ collectionView, element }) {
   let form = null;
@@ -36,7 +32,9 @@ function RequirementRow({ collectionView, element }) {
                  name="signature" value={element.signature}/>
         </Labelled>
         {!Boolean(element.signature) && !element.rejected &&
-         <div className="centered"><Button action="submit">SIGN</Button></div>}
+         <Flex container justifyContent="center" alignItems="center">
+           <Button action="submit">SIGN</Button>
+         </Flex>}
       </Form>
     </div>
   );

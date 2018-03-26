@@ -78,17 +78,10 @@ a {
   opacity: 0.4;
   margin: $padding;
   text-align: center;
-  .frown-icon {
-    @include flex-vh-center;
-  }
 }
 
 .userlink {
   display: inline;
-}
-
-.centered {
-  @include flex-vh-center;
 }
 
 .italic {

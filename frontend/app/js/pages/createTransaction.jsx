@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Button, Labelled, DeleteButton, SideMargins } from 'base/components/elements';
 import { Router, SearchField, UserRow, DummyAPICollection, API,
          CollectionView, CollectionCreation, Form, FormGroup,
-         Input, Select } from 'base/base';
+         Input, Select, Flex } from 'base/base';
 
 function Requirement({ collectionView, CancelButton, element }) {
   let r = element;
@@ -22,10 +22,10 @@ function Requirement({ collectionView, CancelButton, element }) {
                        component={UserRow} />
         </Labelled>
       </FormGroup>
-      <div className="centered">
+      <Flex container justifyContent="center" alignItems="center">
         <Button action="submit">{r ? "SAVE" : "ADD"}</Button>
         {CancelButton && <CancelButton />}
-      </div>
+      </Flex>
     </Form>
   );
 }
@@ -85,7 +85,7 @@ class CreateTransaction extends Component {
               <Input number required name="amount" step="0.0001" min="0" cols="7" />
             </Labelled>
 
-            <Labelled label="From wallet">
+            <Labelled label={isSender ? "To Wallet" : "From Wallet"}>
               <Select
                 options={this.makeWalletsPromise}
                 name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}

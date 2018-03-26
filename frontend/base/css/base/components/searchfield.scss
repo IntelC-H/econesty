@@ -115,8 +115,6 @@ ul {
     pointer-events: none;
     cursor: default;
 
-    @include flex-vh-center;
-
     font-size: $element-height - ($padding * 2);
     padding: 0;
     margin: $padding/4;
