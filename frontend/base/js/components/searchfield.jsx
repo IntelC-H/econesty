@@ -23,12 +23,14 @@ function SearchResultsView({ searchField, collectionView }) {
         {elements.length > 0 && elements.map(element =>
           <tr onMouseDown={e => e.preventDefault()}
               onMouseUp={e => {
-                let onClick = searchField.getClickAction();
-                if (onClick) onClick(e);
-                searchField.selectElement(element);
-                if (searchField.isStandalone()) {
-                  searchField.reset();
-                  searchField.blur();
+                if (e.which !== 3) {
+                  let onClick = searchField.getClickAction();
+                  if (onClick) onClick(e);
+                  searchField.selectElement(element);
+                  if (searchField.isStandalone()) {
+                    searchField.reset();
+                    searchField.blur();
+                  }
                 }
               }}>
             <td>

@@ -2,7 +2,7 @@
 @import "base/variables";
 @import "base/mixins";
 
-@import url("https://fonts.googleapis.com/css?family=Inconsolata");
+@import url('https://fonts.googleapis.com/css?family=Hammersmith+One|Lato|Inconsolata|Oleo+Script');
 
 * {
   font-family: 'Lato', sans-serif;
@@ -10,6 +10,16 @@
 
 h1, h2, h3, h4, h5, h6, p, span {
   color: $text-color;
+}
+
+.script {
+  font-family: 'Oleo Script', sans-serif;
+}
+
+.ellipsis-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 body {

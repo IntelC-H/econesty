@@ -1,5 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
+import { makeClassName } from './utilities';
 
 function IsString(str) {
   return (props, propName, componentName) => {
@@ -10,9 +11,12 @@ function IsString(str) {
   };
 }
 
-function Flex({ children, style,
+function Flex({ children, style, className,
                 container, justifyContent, direction, wrap, alignContent, alignItems, // container props
                 order, grow, shrink, basis, align,                                    // item props
+                height, width,                                                        // sizing props
+                paddingLeft, paddingRight, paddingTop, paddingBottom,                 // padding
+                marginLeft, marginRight, marginTop, marginBottom,                     // margin
                  ...props}) {
   let stylep = {...style};
   if (container) {
@@ -36,13 +40,34 @@ function Flex({ children, style,
     if (hasBasis) stylep.flexBasis = basis;
   //}
   if (align !== null && align !== undefined) stylep.alignSelf = align;
+  if (height !== null && height !== undefined) stylep.height = height;
+  if (width !== null && width !== undefined) stylep.width = width;
 
-  return <div {...props} style={stylep}>{children}</div>;
+  let clses = [className];
+  if (paddingLeft) clses.push("flex-padding-left");
+  if (paddingRight) clses.push("flex-padding-right");
+  if (paddingTop) clses.push("flex-padding-top");
+  if (paddingBottom) clses.push("flex-padding-bottom");
+  if (marginLeft) clses.push("flex-margin-left");
+  if (marginRight) clses.push("flex-margin-right");
+  if (marginTop) clses.push("flex-margin-top");
+  if (marginBottom) clses.push("flex-margin-bottom");
+  let newClassName = makeClassName.apply(this, clses);
+
+  return <div {...props} className={newClassName} style={stylep}>{children}</div>;
 }
 
 Flex.defaultProps = {
   style: {},
-  container: false
+  container: false,
+  paddingTop: false,
+  paddingBottom: false,
+  paddingRight: false,
+  paddingLeft: false,
+  marginTop: false,
+  marginBottom: false,
+  marginLeft: false,
+  marginRight: false
 };
 
 Flex.propTypes = {
@@ -96,7 +121,17 @@ Flex.propTypes = {
     "center",
     "stretch",
     "baseline"
-  ])
+  ]),
+  width: PropTypes.string,
+  height: PropTypes.string,
+  paddingTop: PropTypes.bool,
+  paddingBottom: PropTypes.bool,
+  paddingLeft: PropTypes.bool,
+  paddingRight: PropTypes.bool,
+  marginRight: PropTypes.bool,
+  marginLeft: PropTypes.bool,
+  marginTop: PropTypes.bool,
+  marginBottom: PropTypes.bool
 };
 
 export { Flex };

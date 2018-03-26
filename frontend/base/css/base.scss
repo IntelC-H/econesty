@@ -3,9 +3,7 @@
 */
 
 @import "config.scss";
-
-@import "base/fonts";
-@import "base/mixins";
+@import "base/variables";
 
 .icon {
   margin-left: $padding;
@@ -19,11 +17,9 @@
 @import "base/components/deletebutton";
 @import "base/components/searchfield";
 @import "base/components/loading";
-@import "base/components/labelled";
 @import "base/components/header";
 @import "base/components/xoverflowable";
 @import "base/components/frown";
 @import "base/components/drawer";
 @import "base/components/collapsible";
-
-@import "base/variables";
+@import "base/components/flex";

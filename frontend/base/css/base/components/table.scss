@@ -2,35 +2,30 @@
   <Table /> component
 */
 
+@import "../mixins";
 @import "../variables";
 
 @mixin set-table-row-color($color) {
-  tbody tr td {
+  tr {
     background-color: $color;
   }
 }
 
 @mixin set-table-stripe-color($color) {
-  &.table-striped tbody {
-    tr:nth-child(2n-1) td {
-      background-color: $color;
-    }
+  &.table-striped tr:nth-child(2n-1) {
+    background-color: $color;
   }
 }
 
 @mixin set-table-row-hover-color($color) {
-  &.table-selectable tbody {
-    tr:hover td {
-      background-color: $color;
-    }
+  &.table-selectable tr:hover {
+    background-color: $color;
   }
 }
 
 @mixin set-table-row-active-color($color) {
-  &.table-selectable tbody {
-    tr:active td {
-      background-color: $color;
-    }
+  &.table-selectable tr:active {
+    background-color: $color;
   }
 }
 
@@ -48,17 +43,18 @@ table {
   background-color: transparent;
   border-collapse: collapse;
   border-spacing: 0;
-  empty-cells: show;
   border: $border-width solid $table-border-color; // stylelint-disable-line unit-whitelist
   width: 100%;
 
   td, th {
-    color: $table-text-color;
     font-size: inherit;
     margin: 0;
-    overflow: hidden;
     padding: $padding ($padding * 2);
     border: none;
+  }
+
+  td {
+    color: $table-text-color;
   }
 
   tr {
@@ -66,21 +62,21 @@ table {
     border: none;
   }
 
+  th {
+    background-color: $table-header-background-color;
+    color: $table-header-color;
+  }
+
   thead {
     text-align: left;
     vertical-align: bottom;
-
-    th {
-      background-color: $table-header-background-color;
-      color: $table-header-color;
-    }
   }
 
   &.table-selectable tbody {
     * {
       @include user-select(none);
     }
-    tr:hover td {
+    tr:hover {
       cursor: pointer;
     }
   }

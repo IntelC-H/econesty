@@ -36,9 +36,10 @@ REST_FRAMEWORK = {
 }
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = (
-  os.path.join(BASE_DIR, 'webpack-build'),
-)
+STATICFILES_DIRS = [
+  os.path.join(BASE_DIR, 'webpack-build')
+]
+
 STATIC_URL = "/static/"
 
 if DEBUG:

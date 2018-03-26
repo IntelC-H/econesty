@@ -9,7 +9,7 @@
   $header-color: black !default !global;
   $header-background-color: white !default !global;
   $header-shadow-color: #222222 !default !global;
-  $header-title-font: 'Hammersmith One' !default !global;
+  $header-title-font: 'sans-serif' !default !global;
   $header-title-fallback-font: sans-serif !default !global;
 
   @include sticky;

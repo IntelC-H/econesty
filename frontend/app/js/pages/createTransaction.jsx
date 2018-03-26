@@ -1,32 +1,42 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Button, Labelled, DeleteButton, SideMargins } from 'base/components/elements';
+import { Table, Button, DeleteButton, SideMargins } from 'base/components/elements';
 import { Router, SearchField, UserRow, DummyAPICollection, API,
          CollectionView, CollectionCreation, Form, FormGroup,
-         Input, Select, Flex } from 'base/base';
+         Input, Select, Flex, Collapsible } from 'base/base';
 
 function Requirement({ collectionView, CancelButton, element }) {
   let r = element;
   return (
-    <Form onSubmit={collectionView.saveElement} className="section">
-      { r && <DeleteButton onClick={() => collectionView.deleteElement(r.id)} /> }
-      { r && <Input hidden name="id" value={r.id} /> }
-      <FormGroup>
-        <Labelled label="Terms">
-          <Input text name="text" {...(r && {value: r.text})} />
-        </Labelled>
-        <Labelled label="Onus upon">
-          <SearchField name="user"
-                       api={API.user}
-                       {...(r && {value: r.user})}
-                       placeholder="find a user"
-                       component={UserRow} />
-        </Labelled>
-      </FormGroup>
-      <Flex container justifyContent="center" alignItems="center">
-        <Button action="submit">{r ? "SAVE" : "ADD"}</Button>
-        {CancelButton && <CancelButton />}
-      </Flex>
-    </Form>
+    <tr>
+      <td>
+        <Form onSubmit={collectionView.saveElement} className="section">
+          { r && <Input hidden name="id" value={r.id} /> }
+          <Flex container direction="row" justifyContent="space-between">
+            <Flex container direction="column" style={{width: "100%"}} basis="97%">
+              <Flex container direction="row" justifyContent="space-between">
+                <Flex container alignItems="center" className="ellipsis-text" paddingRight>Terms</Flex>
+                <Flex height="100%"><Input text name="text" {...(r && {value: r.text})} /></Flex>
+              </Flex>
+              <Flex container direction="row" justifyContent="space-between">
+                <Flex container alignItems="center" className="ellipsis-text" paddingRight>Onus Upon</Flex>
+                <Flex height="100%">
+                  <SearchField name="user"
+                               api={API.user}
+                               {...(r && {value: r.user})}
+                               placeholder="find a user"
+                               component={UserRow} />
+                </Flex>
+              </Flex>
+              <Flex container direction="row" justifyContent="center">
+                <Button action="submit"><i className="fa fa-save" /></Button>
+                {CancelButton && <CancelButton />}
+              </Flex>
+            </Flex>
+            { r && <DeleteButton onClick={() => collectionView.deleteElement(r.id)} /> }
+          </Flex>
+        </Form>
+      </td>
+    </tr>
   );
 }
 
@@ -37,7 +47,7 @@ function RequirementCollection({ collectionView }) {
                                collectionView: collectionView,
                                element: r
                              }));
-  return h('div', {}, children);
+  return <Table striped>{children}</Table>;
 }
 
 class CreateTransaction extends Component {
@@ -73,29 +83,34 @@ class CreateTransaction extends Component {
 
     return (
       <SideMargins>
-        <div className="section">
+        <Flex container justifyContent="center">
           <h1 className="primary">{isSender ? "Send" : "Receive"} Bitcoin</h1>
-        </div>
+        </Flex>
         <Form onSubmit={this.onSubmit}>
           <FormGroup>
             <Input hidden name="sender_id" value={sender_id} />
             <Input hidden name="recipient_id" value={recipient_id} />
 
-            <Labelled label="How many BTC?">
-              <Input number required name="amount" step="0.0001" min="0" cols="7" />
-            </Labelled>
+            <Flex container wrap="wrap" alignItems="center" direction="row">
+              <Flex container justifyContent="flex-start" alignItems="center" basis="25%" paddingRight marginTop marginBottom>How many BTC?</Flex>
+              <Flex container justifyContent="flex-start" alignItems="center" basis="75%">
+                <Input number required name="amount" step="0.0001" min="0" cols="7" />
+              </Flex>
+            </Flex>
 
-            <Labelled label={isSender ? "To Wallet" : "From Wallet"}>
-              <Select
-                options={this.makeWalletsPromise}
-                name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
-                transform={w => w.id}
-                faceTransform={w => w.private_key} />
-            </Labelled>
+            <Flex container wrap="wrap" alignItems="center" direction="row">
+              <Flex container justifyContent="flex-start" alignItems="center" basis="25%" paddingRight marginTop marginBottom>{isSender ? "To Wallet" : "From Wallet"}</Flex>
+              <Flex container justifyContent="flex-start" alignItems="center" basis="75%">
+                <Select
+                  options={this.makeWalletsPromise}
+                  name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
+                  transform={w => w.id}
+                  faceTransform={w => w.private_key} />
+              </Flex>
+            </Flex>
 
-            <h2>With Requirements:</h2>
             <CollectionView collection={this.dummyCollection}>
-              <CollectionCreation createText="+ Requirement">
+              <CollectionCreation createText={<div><i className="fas fa-plus" /> Requirement</div>}>
                 <Requirement />
               </CollectionCreation>
               <RequirementCollection />

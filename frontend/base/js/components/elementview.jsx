@@ -1,6 +1,6 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Loading } from './elements';
+import { Loading } from './loading';
 import { FadeTransition } from './fadetransition';
 
 // Loads a specific element in a collection.

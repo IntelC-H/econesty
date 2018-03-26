@@ -1,60 +1,68 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Button, SideMargins, Labelled, Frown } from 'base/components/elements';
-import { Link, Flex, Form, Input, CollectionView, API } from 'base/base';
+import { Table, Button, SideMargins, Frown, RedX, GreenCheck } from 'base/components/elements';
+import { Link, Flex, Form, Input, CollectionView, API, Collapsible } from 'base/base';
 
 function RequirementRow({ collectionView, element }) {
-  let form = null;
   return (
-    <div className="section">
-      <h3>Transaction <Link className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Link>:</h3>
-      { element.text && element.text.length > 0 && <p className="italic">{element.text}</p>}
-      {!element.fulfilled && !element.rejected &&
-      <Form key={element.id + "-rej11"}
-            onSubmit={collectionView.saveElement}>
-        <Input hidden name="id" value={element.id} />
-        <Input hidden name="rejected" value={true} />
-        <Button action="submit">REJECT</Button>
-      </Form>}
-      {element.rejected && <p>REJECTED</p>}
-      <Form key={element.id + "-ack"}
-            ref={e => form = e}
-            onSubmit={collectionView.saveElement}>
-        <Input hidden name="id" value={element.id} />
-        <Labelled label="Acknowledged">
-          <Input checkbox
-                 disabled={element.acknowledged || element.rejected}
-                 onClick={() => form.submit()}
-                 name="acknowledged" value={element.acknowledged}/>
-        </Labelled>
-        <Labelled label="Signature">
-          <Input text
-                 disabled={Boolean(element.signature) || element.rejected}
-                 name="signature" value={element.signature}/>
-        </Labelled>
-        {!Boolean(element.signature) && !element.rejected &&
-         <Flex container justifyContent="center" alignItems="center">
-           <Button action="submit">SIGN</Button>
+    <tr>
+      <td>
+        <Flex container alignItems="center" direction="row">
+          {element.rejected && <RedX />}
+          {element.fulfilled && <GreenCheck />}
+          <h3>Transaction <Link className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Link></h3>
+        </Flex>
+        {element.text && element.text.length > 0 && <p className="italic">{element.text}</p>}
+        {!element.acknowledged && <Form key={element.id + "-ack"}
+              onSubmit={collectionView.saveElement}>
+          <Input hidden name="id" value={element.id} />
+          <Input hidden name="acknowledged" value={true} />
+          <Button action="submit">Acknowledge</Button>
+        </Form>}
+        {element.acknowledged && !element.rejected &&
+          <Flex container alignItems="flex-start" justifyContent="center" direction="column">
+              {!element.fulfilled && <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>}
+          <Form key={element.id + "-sign"}             
+                  onSubmit={collectionView.saveElement}>
+            <Flex container alignItems="center" direction="row">
+              {Boolean(element.signature) &&
+               <p className="script">{element.signature}</p>}
+              {!Boolean(element.signature) && <Input hidden name="id" value={element.id} />}
+              {!Boolean(element.signature) && <Input text
+                     placeholder="Sign/type your name"
+                     name="signature" value={element.signature} />}
+              {!Boolean(element.signature) && !element.rejected && <Button action="submit">SIGN</Button>}
+           </Flex>
+         </Form>
          </Flex>}
-      </Form>
-    </div>
+      </td>
+    </tr>
   );
 }
 
 function RequirementsCollection({ collectionView }) {
-  if (collectionView.getElements().length === 0) return (
-    <div className="frown-message">
-      <Frown large />
-      <p>You don't have any requirements!</p>
-    </div>
+  if (collectionView.getElements().length === 0) {
+    return (
+      <div className="frown-message">
+        <Frown large />
+        <p>You don't have any requirements!</p>
+      </div>
+    );
+  }
+  return (
+    <Table striped>
+      {collectionView.getElements().map(e =>
+        <RequirementRow collectionView={collectionView} element={e} />)}
+    </Table>
   );
-  return <div>{collectionView.getElements().map(e =>
-            <RequirementRow collectionView={collectionView} element={e} />)}</div>;
 }
 
 function RequiredOfMe(props) { // eslint-disable-line no-unused-vars
   return (
     <SideMargins>
-      <h1 className="center">Requirements of Me</h1>
+      <Flex container alignItems="center" direction="column">
+        <h1>My Requirements</h1>
+        <p>Each time onus is put upon you in a transaction, the details of your responsibility will appear here.</p>
+      </Flex>
       <CollectionView collection={API.requirement.withParams({ user__id: API.getUserID() })}>
         <RequirementsCollection />
       </CollectionView>

@@ -1,0 +1,16 @@
+/*
+  <Flex /> component
+*/
+
+@import "../variables";
+
+$properties: margin, padding;
+$directions: top, bottom, left, right;
+
+@each $p in $properties {
+  @each $d in $directions {
+    .flex-#{$p}-#{$d} {
+      #{$p}-#{$d}: $padding;
+    }
+  } 
+}

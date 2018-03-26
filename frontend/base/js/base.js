@@ -17,9 +17,10 @@ import Animations from './components/animations';
 import Loading from './components/loading';
 import Flex from './components/flex';
 import Elements from './components/elements';
+import Responsive from './components/responsive';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, UserRow, CollectionCreation, CollectionView, ElementView,
          Router, Link, Utilities, ShouldNotUpdate, Animations,
-         Flex, Elements, Loading };
+         Flex, Elements, Loading, Responsive };

@@ -111,7 +111,7 @@ function Profile(props) {
           <User />
         </ElementView>
       </Flex>
-      <Flex container direction="column" grow="1" basis="100%"> {/* style={{maxWidth:"100%", width: "100%"}}>*/}
+      <Flex container direction="column" grow="1" basis="100%" style={{maxWidth:"100%", width: "100%"}}>
         <Flex container className="profile-button-group"
                         justifyContent="flex-start" direction="row" wrap="wrap">
           {userId !== API.getUserID() &&

@@ -1,16 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Loading } from 'base/components/elements';
-
-function prependFunc(obj, fname, newf) {
-  let oldf = obj[fname];
-  if (!oldf) obj[fname] = newf;
-  else obj[fname] = function() {
-    newf.apply(obj, arguments);
-    oldf.apply(obj, arguments);
-  };
-  return obj;
-}
+import { Loading } from './elements';
+import { prependFunc } from './utilities';
 
 function setKeypath(obj, kp, value) {
   let [key, ...keys] = kp.split('.').filter(e => e && e.length > 0);
