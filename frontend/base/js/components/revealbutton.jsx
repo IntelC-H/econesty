@@ -2,10 +2,6 @@ import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-u
 import PropTypes from 'prop-types';
 import { Button } from './elements';
 
-function sequence() {
-  return arguments.length ? arguments[arguments.length - 1] : undefined;
-}
-
 class RevealButton extends Component {
   constructor(props) {
     super(props);
@@ -22,22 +18,20 @@ class RevealButton extends Component {
     this.setState(st => ({ ...st, open: true }));
   }
 
-  render({ children, label, onClick, ...props }, { open }) {
-    if (children.count === 0) return null;
-    if (open && children.count === 1) return <div {...props}>{cloneElement(children[0], { revealButton: this})}</div>;
-    else if (open && children.count > 1) return <div {...props}>{children.map(c => cloneElement(c, { revealButton: this}))}</div>;
-    return <Button onClick={e => sequence(this.open())}>{label}</Button>;
+  render({ children, label, ...props }, { open }) {
+    if (children.length === 0) return null;
+    if (open && children.length === 1) return <div {...props}>{cloneElement(children[0], { revealButton: this})}</div>;
+    else if (open && children.length > 1) return <div {...props}>{children.map(c => cloneElement(c, { revealButton: this}))}</div>;
+    return <Button onClick={this.open}>{label}</Button>;
   }
 }
 
 RevealButton.propTypes = {
-  label: PropTypes.oneOf([PropTypes.string, PropTypes.node]),
-  onClick: PropTypes.func
+  label: PropTypes.oneOf([PropTypes.string, PropTypes.node])
 };
 
 RevealButton.defaultProps = {
-  label: null,
-  onClick: e => e
+  label: null
 };
 
 export { RevealButton };

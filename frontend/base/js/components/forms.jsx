@@ -8,30 +8,32 @@ import { prependFunc } from './utilities';
 class ReferencingComponent extends Component {
   constructor(props) {
     super(props);
-    this.refreshReferences = this.refreshReferences.bind(this);
     this.recursiveRef = this.recursiveRef.bind(this);
     this.reference = this.reference.bind(this);
     this.shouldReference = this.shouldReference.bind(this);
+    this.refreshReferences();
   }
 
   shouldReference(cmp) { // eslint-disable-line no-unused-vars
     return true;
   }
 
+  // TODO: how to handle null refs (that signify the non-existence of an element)?
   reference(cmp) {
-    if (cmp && this.shouldReference(cmp)) this.refs.push(cmp);
-    console.log("reference: ", cmp);
+    if (cmp && this.shouldReference(cmp)) {
+      this.refs.push(cmp);
+    }
   }
 
   /*
    * recursiveRef(c)
    * Prepend a call to setRef on the ref prop of all descendants of a {VNode} c.
    *  @param {VNode} c  A (JSX) Node whose ref will be modified.
-   */
+1   */
   recursiveRef(c) {
     if (c && c instanceof Object) {
-      console.log("Adding ref to", c);
-      c.attributes = prependFunc(c.attributes || {}, "ref", this.reference);
+      c.attributes = c.attributes || {};
+      prependFunc(c.attributes, "ref", this.reference);
       if (c.children) c.children.forEach(this.recursiveRef);
     }
     return c;
@@ -40,6 +42,12 @@ class ReferencingComponent extends Component {
   refreshReferences(children = this.props.children) {
     this.refs = [];
     children.forEach(this.recursiveRef);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.children !== this.props.children) {
+      this.refreshReferences(nextProps.children);
+    }
   }
 }
 
@@ -60,7 +68,7 @@ class Form extends ReferencingComponent {
     return super.shouldReference(cmp) && FormElement.isValid(cmp);
   }
 
-  // Actions
+  // PUBLIC API
   submit() {
     this.base.dispatchEvent(new Event("submit"));
   }
@@ -76,29 +84,16 @@ class Form extends ReferencingComponent {
   }
 
   domOnSubmit(e) {
-    console.log("WOOHOO", this.refs);
     e.stopPropagation(); // enable submitting subforms without affecting parent forms.
-    e.preventDefault(); // prevent form POST (messes up SPA)
+    e.preventDefault(); // prevent form POST
     if (this.props.onSubmit) {
       this.props.onSubmit(this.getObject());
     }
     return false;
   }
 
-  componentWillUpdate() {
-    this.refreshReferences();
-  }
-
-  componentWillMount() {
-    this.refreshReferences();
-  }
-
-  componentWillUnmount() {
-    this.refs = [];
-  }
-
   render(props) {
-    return h('form', { ...props, action: "javascript" + ":", onSubmit: this.domOnSubmit  });
+    return <form { ...props } action={"javascript" + ":"} onSubmit={this.domOnSubmit} />;
   }
 }
 

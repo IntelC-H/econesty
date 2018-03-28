@@ -2,7 +2,7 @@ import { h, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
 function prependFunc(obj, fname, newf) {
-  if (!(fname in obj)) obj[fname] = newf;
+  if (!obj[fname]) obj[fname] = newf;
   else {
     let oldf = obj[fname];
     obj[fname] = function() {
@@ -27,7 +27,8 @@ function cssSubclass(BaseComponent, // React component (functions, Component sub
                      mapping // Object {prop => className}, if prop is present, className is appended to the element's className
                      ) {
   const f = ({className, ...props}) => {
-    let classes = [className];
+    let classes = [];
+    if (className) classes.push(className);
 
     for (let k in props) {
       if (k in mapping) {
@@ -38,7 +39,9 @@ function cssSubclass(BaseComponent, // React component (functions, Component sub
       }
     }
 
-    props.className = makeClassName.apply(this, classes);
+    if (classes.length > 0) {
+      props.className = makeClassName.apply(null, classes);
+    }
 
     const Comp = BaseComponent instanceof Function ? BaseComponent(props) : BaseComponent;
     return h(Comp, props);

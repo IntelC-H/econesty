@@ -22,7 +22,7 @@ function Requirement({ collectionView, revealButton, element }) {
   return (
     <tr style={{width: "100%"}}>
       <td>
-        <Form onSubmit={console.log/*collectionView.saveElement*/} className="section">
+        <Form onSubmit={collectionView.saveElement} className="section">
           { r && <Input hidden name="id" value={r.id} /> }
           <FormGroup>
             <Flex container wrap="wrap">
