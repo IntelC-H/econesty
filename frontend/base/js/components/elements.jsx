@@ -1,6 +1,5 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
-import PropTypes from 'prop-types';
-import { inheritClass, cssSubclass, makeClassName } from './utilities';
+import { inheritClass, cssSubclass } from './utilities';
 import Flex from './flex';
 import Responsive from './responsive';
 
@@ -29,8 +28,8 @@ const Table = cssSubclass('table', {
 
 const SideMargins = ({ children, ...props }) =>
   <Responsive>
-    { rprops => {
-      if (!rprops.sm) return <div {...props}>{children}</div>;
+    { ({ sm }) => {
+      if (!sm) return <div {...props}>{children}</div>;
       return (
         <Flex container justifyContent="center">
           <Flex basis={`${100 * (2/3)}%`} {...props}>

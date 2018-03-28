@@ -34,7 +34,7 @@ class RedactableField(serializers.Field):
 
   def should_redact(self, instance, context = None):
     if self.user_field and self.parent:
-      request = (context or self.context).get("request")
+      request = (context or self.context).get("request", None)
       if request and hasattr(request, "user"):
         user = get_attribute(instance, self.user_field.split("."))
         return not request.user.id is user.id
@@ -69,6 +69,7 @@ class WIFPrivateKeySerializerField(RedactableField):
     except (ValueError):
       self.fail('invalid', data=data)
 
+# TODO: this is a vuln
 class BitcoinBalanceField(RedactableField):
   def to_internal_value(self, data):
     try:

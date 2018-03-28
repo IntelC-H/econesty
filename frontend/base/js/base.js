@@ -18,9 +18,10 @@ import Loading from './components/loading';
 import Flex from './components/flex';
 import Elements from './components/elements';
 import Responsive from './components/responsive';
+import RevealButton from './components/revealbutton';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
-         SearchField, UserRow, CollectionCreation, CollectionView, ElementView,
+         SearchField, UserRow, CollectionCreation, RevealButton, CollectionView, ElementView,
          Router, Link, Utilities, ShouldNotUpdate, Animations,
          Flex, Elements, Loading, Responsive };

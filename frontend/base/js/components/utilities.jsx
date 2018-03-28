@@ -2,12 +2,14 @@ import { h, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
 function prependFunc(obj, fname, newf) {
-  let oldf = obj[fname];
-  if (!oldf) obj[fname] = newf;
-  else obj[fname] = function() {
-    newf.apply(obj, arguments);
-    oldf.apply(obj, arguments);
-  };
+  if (!(fname in obj)) obj[fname] = newf;
+  else {
+    let oldf = obj[fname];
+    obj[fname] = function() {
+      newf.apply(obj, arguments);
+      oldf.apply(obj, arguments);
+    };
+  }
   return obj;
 }
 

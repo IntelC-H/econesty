@@ -1,19 +1,14 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Loading } from './elements';
+import { Loading } from './loading';
 import { prependFunc } from './utilities';
-
-function setKeypath(obj, kp, value) {
-  let [key, ...keys] = kp.split('.').filter(e => e && e.length > 0);
-  keys.reduce((o, k) => o[k] ? o[k] : o[k] = {}, obj)[key] = value;
-}
 
 // Provides a mechanism for referencing children
 // that are valid form elements.
 class ReferencingComponent extends Component {
   constructor(props) {
     super(props);
-    this.makeReferences = this.makeReferences.bind(this);
+    this.refreshReferences = this.refreshReferences.bind(this);
     this.recursiveRef = this.recursiveRef.bind(this);
     this.reference = this.reference.bind(this);
     this.shouldReference = this.shouldReference.bind(this);
@@ -24,13 +19,8 @@ class ReferencingComponent extends Component {
   }
 
   reference(cmp) {
-    if (!this.refs) this.refs = [];
-    if (cmp) {
-      if (this.shouldReference(cmp)) {
-        if (!this.refs) this.refs = [cmp];
-        else            this.refs.push(cmp);
-      }
-    }
+    if (cmp && this.shouldReference(cmp)) this.refs.push(cmp);
+    console.log("reference: ", cmp);
   }
 
   /*
@@ -40,69 +30,75 @@ class ReferencingComponent extends Component {
    */
   recursiveRef(c) {
     if (c && c instanceof Object) {
-      if (!c.attributes) c.attributes = {};
-      prependFunc(c.attributes, "ref", this.reference);
+      console.log("Adding ref to", c);
+      c.attributes = prependFunc(c.attributes || {}, "ref", this.reference);
       if (c.children) c.children.forEach(this.recursiveRef);
     }
     return c;
   }
 
-  makeReferences(children = this.props.children) {
+  refreshReferences(children = this.props.children) {
+    this.refs = [];
     children.forEach(this.recursiveRef);
   }
+}
+
+function setKeypath(obj, kp, value) {
+  let [key, ...keys] = kp.split('.').filter(Boolean);
+  keys.reduce((o, k) => o[k] = o[k] || {}, obj)[key] = value;
+  return obj;
 }
 
 class Form extends ReferencingComponent {
   constructor(props) {
     super(props);
-    this.set = this.set.bind(this);
-    this.getObject = this.getObject.bind(this);
     this.domOnSubmit = this.domOnSubmit.bind(this);
   }
 
-  submit() {
-    this.base.dispatchEvent(new Event("submit"));
-  }
-
+  // Subclass Override
   shouldReference(cmp) {
     return super.shouldReference(cmp) && FormElement.isValid(cmp);
   }
 
-  set(obj, ref) {
-    // If the ref is mounted, shouldn't be ignored, and has a value
-    if (ref.base && ref.base.parentNode
-     && !ref.ignore && ref.value !== undefined) {
-      let kp = (ref.context.groups || []).map(g => g.keypath);
-      kp.push(ref.name);
-      setKeypath(obj, kp.join('.'), ref.value);
-    }
-    return obj;
+  // Actions
+  submit() {
+    this.base.dispatchEvent(new Event("submit"));
   }
 
-  /*
-   * getObject()
-   * returns an object built by aggregating the values of
-   * the components in this.refs.
-   */
+  // Returns an object built by aggregating the values of
+  // the components in this.refs.
   getObject() {
-    return (this.refs || []).reduce(this.set, {});
+    return (this.refs || [])
+      // First, ensure all refs are mounted, shouldn't be ignored, and have a value.
+      .filter(r => r.base && r.base.parentNode && !r.ignore && r.name && r.value !== undefined)
+      // Then set each ref's keypath on a new object.
+      .reduce((o, r) => setKeypath(o, (r.context.groups || []).map(g => g.keypath).concat([r.name]).join('.'), r.value), {});
   }
 
   domOnSubmit(e) {
+    console.log("WOOHOO", this.refs);
+    e.stopPropagation(); // enable submitting subforms without affecting parent forms.
     e.preventDefault(); // prevent form POST (messes up SPA)
-    this.props.onSubmit(this.getObject());
+    if (this.props.onSubmit) {
+      this.props.onSubmit(this.getObject());
+    }
     return false;
   }
 
-  render({ onSubmit, ...filteredProps }) {
-    this.makeReferences();
+  componentWillUpdate() {
+    this.refreshReferences();
+  }
 
-    if (onSubmit) {
-      filteredProps.action = "javascript" + ":"; // appease JSLint
-      filteredProps.onSubmit = this.domOnSubmit;
-    }
+  componentWillMount() {
+    this.refreshReferences();
+  }
 
-    return h('form', filteredProps);
+  componentWillUnmount() {
+    this.refs = [];
+  }
+
+  render(props) {
+    return h('form', { ...props, action: "javascript" + ":", onSubmit: this.domOnSubmit  });
   }
 }
 

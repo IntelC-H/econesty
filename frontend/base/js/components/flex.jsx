@@ -43,7 +43,8 @@ function Flex({ children, style, className,
   if (height !== null && height !== undefined) stylep.height = height;
   if (width !== null && width !== undefined) stylep.width = width;
 
-  let clses = [className];
+  let clses = [];
+  if (className && className.length !== 0) clses.push(className);
   if (paddingLeft) clses.push("flex-padding-left");
   if (paddingRight) clses.push("flex-padding-right");
   if (paddingTop) clses.push("flex-padding-top");

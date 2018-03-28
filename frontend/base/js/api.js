@@ -1,9 +1,13 @@
 // API.js: Promise-based REST API access
 
 class API {
+  static get storage() {
+    return window.localStorage;
+  }
+
   static clearAuth() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_id");
+    this.storage.removeItem("token");
+    this.storage.removeItem("user_id");
   }
 
   static get isAuthenticated() {
@@ -12,19 +16,19 @@ class API {
   }
 
   static getToken() {
-    return localStorage.getItem("token");
+    return this.storage.getItem("token");
   }
 
   static setToken(token) {
-    localStorage.setItem("token", token || null);
+    this.storage.setItem("token", token || null);
   }
 
   static getUserID() {
-    return parseInt(localStorage.getItem("user_id"));
+    return parseInt(this.storage.getItem("user_id"));
   }
 
   static setUserID(user_id) {
-    localStorage.setItem("user_id", user_id || null);
+    this.storage.setItem("user_id", user_id || null);
   }
 
   static networking(method, path, urlparams, body) {
@@ -49,12 +53,16 @@ class API {
     url += "?" + Object.entries({...urlparams, format: "json"})
                        .map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
                        .join("&");
-
+    console.log("NETWORKING", url, opts);
     return fetch(url, opts).then(res =>
       res.text().then(text => {
         let obj = text.length === 0 ? null : JSON.parse(text);
         if (res.ok) return obj;
-        throw new Error((obj ? obj.detail : null) || res.statusText);
+        let err = new Error((obj ? obj.detail : null) || res.statusText);
+        err.responseBody = obj;
+        err.responseCode = res.status;
+        err.frontendPath = window.location.pathname;
+        throw err;
       })
     );
   }

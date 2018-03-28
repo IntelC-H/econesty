@@ -2,7 +2,8 @@
 @import "base/variables";
 @import "base/mixins";
 
-@import url('https://fonts.googleapis.com/css?family=Hammersmith+One|Lato|Inconsolata|Oleo+Script');
+@import url('//fonts.googleapis.com/css?family=Hammersmith+One|Inconsolata|Lato|Sacramento');
+@import url('//use.fontawesome.com/releases/v5.0.8/css/all.css');
 
 * {
   font-family: 'Lato', sans-serif;
@@ -13,7 +14,9 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 .script {
-  font-family: 'Oleo Script', sans-serif;
+  font-family: 'Sacramento', cursive;
+  font-style: normal;
+  font-weight: 400;
 }
 
 .ellipsis-text {

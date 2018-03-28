@@ -102,7 +102,7 @@ class WalletViewSet(EconestyBaseViewset):
   ordering_fields = ('created_at',)
   ordering = "-created_at"
   filter_fields = ('user__id',)
-  user_fields = ('user',)
+  owner_field = 'user'
   visible_to = ('user',)
 
   def get_serializer_class(self):
@@ -111,7 +111,7 @@ class WalletViewSet(EconestyBaseViewset):
     return super().get_serializer_class()
 
   @list_route(methods=["POST"])
-  def generate_key(self, request):
+  def generate(self, request):
     testnet = truthy(request.GET.get("testnet", False))
     k = (bit.PrivateKeyTestnet if testnet else bit.PrivateKey)()
     w = models.Wallet(user=request.user, private_key=k)

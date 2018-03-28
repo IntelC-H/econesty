@@ -32,7 +32,7 @@ class ImpliedOwnershipMixin(object):
     else:
       save_dict = serializer.validated_data
       *init, last = owner_field.split('__')
-      d = reduce(lambda d, k: d and d.get(k, None), init)
+      d = reduce(lambda d, k: d and d.get(k, None), init, save_dict)
 
       if d is not None and d.get(last, None) is None:
         d[last] = u

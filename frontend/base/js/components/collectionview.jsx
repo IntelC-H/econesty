@@ -25,6 +25,7 @@ class CollectionView extends Component {
     this.updateElement = this.updateElement.bind(this);
     this.saveElement = this.saveElement.bind(this);
     this.getElements = this.getElements.bind(this);
+    this._handleError = this._handleError.bind(this);
     this.state = {
       search: props.search, // the current search string
       collection: props.collection, // the collection to load elements from
@@ -33,7 +34,8 @@ class CollectionView extends Component {
       nextPage: null, // the next page number or null if no next page
       previousPage: null, // the previous page number or null if no previous page
       elements: [], // elements in the current page
-      loading: true // whether or not the collection is loading
+      loading: true, // whether or not the collection is loading
+      error: null // potential error
     };
   }
 
@@ -41,7 +43,12 @@ class CollectionView extends Component {
   reloadData() {
     const { collection, page, search } = this.state;
     this.setState(st => ({ ...st, loading: true }));
-    collection.list(page, search).then(res => this.setState(st => this._updateStateFromAPI(res, st)));
+    collection.list(page, search).catch(this._handleError).then(res => this.setState(st => this._updateStateFromAPI(res, st)));
+  }
+
+  _handleError(err) {
+    console.log("CollectionView ERROR @ ", err.frontendPath, ": ", err.responseCode, err.message, "(", err.responseBody, ")");
+    this.setState(st => ({ ...st, error: err, loading: false, elements: [], nextPage: null, previousPage: null, count: 0 }));
   }
 
   _updateStateFromAPI(res, st) {
@@ -60,20 +67,33 @@ class CollectionView extends Component {
 
   createElement(object) {
     this.setState(st => ({ ...st, loading: true, page: 1 }));
-    this.state.collection.create(object)
-                         .then(this.reloadData);
+    this.getCollection().create(object)
+                        .catch(this._handleError)
+                        .then(this.reloadData);
   }
 
   updateElement(id, object) {
     this.setState(st => ({ ...st, loading: true }));
-    this.state.collection.update(id, object)
-                         .then(this.reloadData);
+    this.getCollection().update(id, object)
+                        .catch(this._handleError)
+                        .then(this.reloadData);
   }
 
   deleteElement(id, soft = false) {
     this.setState(st => ({ ...st, loading: true }));
-    this.state.collection.delete(id, soft)
-                         .then(this.reloadData);
+    this.getCollection().delete(id, soft)
+                        .catch(this._handleError)
+                        .then(this.reloadData);
+  }
+
+  listMethod(httpMethod, method, body = null, urlparams = {}) {
+    this.getCollection().classMethod(httpMethod, method, body, urlparams)
+                        .catch(this._handleError).then(this.reloadData);
+  }
+
+  instanceMethod(httpmeth, method, id, body = null, urlparams = {}) {
+    this.getCollection().instanceMethod(httpmeth, method, id, body, urlparams)
+                        .catch(this._handleError).then(this.reloadData);
   }
 
   isLoaded() {

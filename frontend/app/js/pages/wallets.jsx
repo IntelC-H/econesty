@@ -5,7 +5,7 @@ import { Flex, Collapsible, CollectionCreation,
 
 function WalletGenerateButton({ collectionView, testnet }) {
   return (
-    <Form onSubmit={o => collectionView.getCollection().classMethod("POST", "generate_key", o).then(collectionView.saveElement)}>
+    <Form onSubmit={o => collectionView.listMethod("POST", "generate", o)}>
       <Input hidden name="testnet" value={testnet ? "true" : "false"} />
       <Button action="submit">Generate{testnet ? " (Testnet)" : ""}</Button>
     </Form>

@@ -71,24 +71,22 @@
       background-color: $searchfield-background-color;
 
       table {
-        border: none;
+        border: inherit;
+        border-top: inherit;
         border-radius: inherit;
-        tbody {
+
+        td, th {
+          color: $searchfield-color;
+        }
+
+        td:not(.searchfield-noresults) {
+          cursor: pointer;
+        }
+	
+        tr:nth-last-child(1) {
           border-radius: inherit;
-
-          td, th {
-            color: $searchfield-color;
-          }
-
-          td:not(.searchfield-noresults) {
-            cursor: pointer;
-          }
-	  
-          tr:nth-last-child(1) {
+          td {
             border-radius: inherit;
-            td {
-              border-radius: inherit;
-            }
           }
         }
       }

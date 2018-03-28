@@ -14,29 +14,33 @@ class Router extends Component {
     this.setState = this.setState.bind(this);
   }
 
+  static get history() {
+    return window.history;
+  }
+
   static updateSubscribers(url) {
     Router.subscribers.forEach(s => s(url));
   }
 
   static push(url) {
-    history.pushState(null, null, url);
+    this.history.pushState(null, null, url);
     Router.updateSubscribers(url);
     return null;
   }
 
   static replace(url) {
-    history.replaceState(null, null, url);
+    this.history.replaceState(null, null, url);
     Router.updateSubscribers(url);
     return null;
   }
 
   static setURL(url) {
-    history.replaceState(null, null, url);
+    this.history.replaceState(null, null, url);
     return null;
   }
 
   static getPath() {
-    return document.location.pathname;
+    return window.location.pathname;
   }
 
   update(url) {

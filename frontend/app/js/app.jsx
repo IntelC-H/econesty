@@ -15,6 +15,11 @@ import Wallets from 'app/pages/wallets';
 import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
 
+require('preact/debug');
+
+// BUGS: - frontend forms don't work correctly (missing user_id-type things)
+//       - backend automatic ownership isn't working
+
 /*
   TODO for Polished:
   - Retry failed transactions

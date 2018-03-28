@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table, Button, SideMargins, Frown, RedX, GreenCheck } from 'base/components/elements';
-import { Link, Flex, Form, Input, CollectionView, API, Collapsible } from 'base/base';
+import { Link, Flex, Form, Input, CollectionView, API } from 'base/base';
 
 function RequirementRow({ collectionView, element }) {
   return (
@@ -21,7 +21,7 @@ function RequirementRow({ collectionView, element }) {
         {element.acknowledged && !element.rejected &&
           <Flex container alignItems="flex-start" justifyContent="center" direction="column">
               {!element.fulfilled && <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>}
-          <Form key={element.id + "-sign"}             
+          <Form key={element.id + "-sign"}
                   onSubmit={collectionView.saveElement}>
             <Flex container alignItems="center" direction="row">
               {Boolean(element.signature) &&
