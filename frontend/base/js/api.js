@@ -53,7 +53,6 @@ class API {
     url += "?" + Object.entries({...urlparams, format: "json"})
                        .map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
                        .join("&");
-    console.log("NETWORKING", url, opts);
     return fetch(url, opts).then(res =>
       res.text().then(text => {
         let obj = text.length === 0 ? null : JSON.parse(text);

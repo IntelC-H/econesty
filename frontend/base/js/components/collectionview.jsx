@@ -14,7 +14,6 @@ class CollectionView extends Component {
     children: a representation of the collection. Rendered w/ the prop
               `collectionView` which refers to the the enclosing CollectionView.
   */
-
   constructor(props) {
     super(props);
     this.reloadData = this.reloadData.bind(this);
@@ -46,8 +45,8 @@ class CollectionView extends Component {
     collection.list(page, search).catch(this._handleError).then(res => this.setState(st => this._updateStateFromAPI(res, st)));
   }
 
+  // TODO: Error Handling!!!
   _handleError(err) {
-    console.log("CollectionView ERROR @ ", err.frontendPath, ": ", err.responseCode, err.message, "(", err.responseBody, ")");
     this.setState(st => ({ ...st, error: err, loading: false, elements: [], nextPage: null, previousPage: null, count: 0 }));
   }
 

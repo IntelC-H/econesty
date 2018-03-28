@@ -1,21 +1,9 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Button, DeleteButton, SideMargins } from 'base/components/elements';
+import { Table, Button, DeleteButton } from 'base/components/elements';
 import { Router, SearchField, UserRow, DummyAPICollection, API,
-         CollectionView, CollectionCreation, Form, FormGroup,
-         Input, Select, Flex, Collapsible, RevealButton } from 'base/base';
-
-function FlexControlBlock({ label, children }) {
-  return (
-    <Flex container direction="row" wrap="wrap" alignItems="center" grow="1">
-      <Flex container className="ellipsis-text" justifyContent="flex-start" alignItems="center" basis="100%">
-        {label}
-      </Flex>
-      <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
-        {children}
-      </Flex>
-    </Flex>
-  );
-}
+         CollectionView, Form, FormGroup, Input, Select, Flex,
+         RevealButton } from 'base/base';
+import { FlexControlBlock, SideMargins } from 'app/common';
 
 function Requirement({ collectionView, revealButton, element }) {
   let r = element;
@@ -58,14 +46,17 @@ function RequirementCollection({ collectionView }) {
                                element: r
                              }));
   return (
-    <div>
-       <Table striped>
-         <RevealButton label={<div><i className="fas fa-plus" /> Requirement</div>}>
-           <Requirement collectionView={collectionView}/>
-         </RevealButton>
-         {children}
-       </Table>
-    </div>
+    <Flex container wrap="wrap">
+      <Flex grow="1" basis="100%" marginTop marginBottom>Requirements</Flex>
+      <Flex grow="1" basis="100%">
+      <Table striped>
+        <RevealButton label={<i className="fas fa-plus" />}>
+          <Requirement collectionView={collectionView}/>
+        </RevealButton>
+        {children}
+      </Table>
+      </Flex>
+    </Flex>
   );
 }
 
@@ -83,7 +74,6 @@ class CreateTransaction extends Component {
   }
 
   onSubmit(obj) {
-    console.log("OBJ TWO", obj);
     obj.requirements = this.dummyCollection.getElements().map(r => {
       r.user_id = (r.user || {}).id || null;
       delete r.user;
@@ -119,7 +109,7 @@ class CreateTransaction extends Component {
                 </Flex>
               </Flex>
               <Flex container wrap="wrap" alignItems="center" grow="1" marginLeft marginRight>
-                <Flex container justifyContent="flex-start" alignItems="center" basis="100%" marginTop marginBottom>{isSender ? "To Wallet" : "From Wallet"}</Flex>
+                <Flex container justifyContent="flex-start" alignItems="center" basis="100%" marginTop marginBottom>{isSender ? "From Wallet" : "Into Wallet"}</Flex>
                 <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
                   <Select
                     options={this.makeWalletsPromise}

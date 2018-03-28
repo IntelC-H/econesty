@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Button, SideMargins, Frown, RedX, GreenCheck } from 'base/components/elements';
+import { Table, Button, Frown } from 'base/components/elements';
 import { Link, Flex, Form, Input, CollectionView, API } from 'base/base';
+import { RedX, GreenCheck, SideMargins } from 'app/common';
 
 function RequirementRow({ collectionView, element }) {
   return (

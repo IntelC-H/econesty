@@ -1,5 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Button, SideMargins } from 'base/components/elements';
+import { Button } from 'base/components/elements';
+import { SideMargins } from 'app/common';
 import { API, Router, Flex, Form, FormGroup, Input, FadeTransition, Loading } from 'base/base';
 
 class Signup extends Component {

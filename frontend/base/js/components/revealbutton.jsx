@@ -18,10 +18,10 @@ class RevealButton extends Component {
     this.setState(st => ({ ...st, open: true }));
   }
 
-  render({ children, label, ...props }, { open }) {
+  render({ children, label }, { open }) {
     if (children.length === 0) return null;
-    if (open && children.length === 1) return <div {...props}>{cloneElement(children[0], { revealButton: this})}</div>;
-    else if (open && children.length > 1) return <div {...props}>{children.map(c => cloneElement(c, { revealButton: this}))}</div>;
+    if (open && children.length === 1) return cloneElement(children[0], { revealButton: this});
+    else if (open && children.length > 1) return <div>{children.map(c => cloneElement(c, { revealButton: this}))}</div>;
     return <Button onClick={this.open}>{label}</Button>;
   }
 }

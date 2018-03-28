@@ -19,9 +19,10 @@ import Flex from './components/flex';
 import Elements from './components/elements';
 import Responsive from './components/responsive';
 import RevealButton from './components/revealbutton';
+import { prependFunc, makeClassName, inheritClass, cssSubclass } from './components/utilities';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, UserRow, CollectionCreation, RevealButton, CollectionView, ElementView,
          Router, Link, Utilities, ShouldNotUpdate, Animations,
-         Flex, Elements, Loading, Responsive };
+         Flex, Elements, Loading, Responsive, prependFunc, makeClassName, inheritClass, cssSubclass };
