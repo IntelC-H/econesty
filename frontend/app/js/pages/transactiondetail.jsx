@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import {  Table, Button, XOverflowable } from 'base/components/elements';
+import { Table, Button, XOverflowable } from 'base/components/elements';
 import { GreenCheck, Warning, RedX, BTC, SideMargins} from 'app/common';
 import { API, Flex, Link, CollectionView, ElementView,
          Form, FormGroup, Select, Input } from 'base/base';
@@ -80,19 +80,15 @@ function TransactionInfo({ elementView }) {
       {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <Flex container alignItems="center">
-            <Flex grow="1">
-              <label>Sender's Wallet</label>
-            </Flex>
-            <Flex grow="2">
-              <Flex container alignItems="center">
-                <Select
-                    options={makeWalletsPromise}
-                    name="sender_wallet_id"
-                    transform={w => w.id}
-                    faceTransform={w => w.private_key} />
-                <Button action="submit"><i className="fa fa-save" /></Button>
-              </Flex>
+          <Flex container wrap="wrap" alignItems="center">
+            <Flex grow="1" basis="100%">Sender's Wallet</Flex>
+            <Flex container grow="1" basis="100%" alignItems="center">
+              <Select
+                  options={makeWalletsPromise}
+                  name="sender_wallet_id"
+                  transform={w => w.id}
+                  faceTransform={w => w.private_key} />
+              <Button action="submit"><i className="fa fa-save" /></Button>
             </Flex>
           </Flex>
         </FormGroup>

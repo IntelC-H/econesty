@@ -1,7 +1,8 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { APICollection } from '../api';
-import { Input, FormElement } from './forms';
+import Input from './form/formelements/input';
+import FormElement from './form/formelement';
 import { Table } from './elements';
 import { CollectionView } from './collectionview';
 import { makeClassName } from './utilities';

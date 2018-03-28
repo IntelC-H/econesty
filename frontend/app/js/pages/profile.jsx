@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-
-import { BTC, RedX, GreenCheck, Warning, Button, Table, XOverflowable, Frown } from 'base/components/elements';
+import { BTC, RedX, GreenCheck, Warning } from 'app/common';
+import { Button, Table, XOverflowable, Frown } from 'base/components/elements';
 import { Link, Router, API, CollectionView, ElementView, Form,
          FormGroup, Input, Flex } from 'base/base';
 

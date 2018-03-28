@@ -17,8 +17,13 @@ select {
   @include appearance(none);
   background: url($select-disclosure-icon-url) right / ($select-disclosure-icon-width / 2) no-repeat white;
   background-position-x: calc(100% - #{$select-disclosure-icon-width / 2});
-  padding: $padding;
+  padding: 0;
+  padding-left: $padding;
   padding-right: $padding + $select-disclosure-icon-width;
+  option {
+    padding: 0;
+    margin: 0;
+  }
 }
 
 input[type], textarea, select {
@@ -36,7 +41,7 @@ input[type], textarea, select {
   border: $border-width solid $input-border-color;
   border-radius: $border-radius;
   vertical-align: middle;
-  box-sizing: border-box;
+  //box-sizing: border-box;
 
   margin: 0;
   width: 100%;
@@ -92,7 +97,3 @@ input[type], textarea, select {
   }
 }
 
-label.checkbox {
-  display: inline-block;
-  margin: $padding;
-}
