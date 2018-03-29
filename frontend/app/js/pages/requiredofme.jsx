@@ -60,8 +60,8 @@ function RequiredOfMe(props) { // eslint-disable-line no-unused-vars
   return (
     <SideMargins>
       <Flex container column alignItems="center">
-        <h1>My Requirements</h1>
-        <p>Each time onus is put upon you in a transaction, the details of your responsibility will appear here.</p>
+        <h1 className="no-select">My Requirements</h1>
+        <p className="no-select">Each time onus is put upon you in a transaction, the details of your responsibility will appear here.</p>
       </Flex>
       <CollectionView collection={API.requirement.withParams({ user__id: API.getUserID() })}>
         <RequirementsCollection />

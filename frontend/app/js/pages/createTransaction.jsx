@@ -111,7 +111,7 @@ class CreateTransaction extends Component {
     return (
       <SideMargins>
         <Flex container justifyContent="center">
-          <h1 className="primary">{isSender ? "Send" : "Receive"} Bitcoin</h1>
+          <h1 className="primary no-select">{isSender ? "Send" : "Receive"} Bitcoin</h1>
         </Flex>
         <Form onSubmit={this.onSubmit}>
           <FormGroup>
