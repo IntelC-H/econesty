@@ -20,20 +20,20 @@ function RequirementRow({ collectionView, element }) {
           <button action="submit">Acknowledge</button>
         </Form>}
         {element.acknowledged && !element.rejected &&
-          <Flex container alignItems="flex-start" justifyContent="center" direction="column">
-              {!element.fulfilled && <button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</button>}
-          <Form key={element.id + "-sign"}
-                  onSubmit={collectionView.saveElement}>
-            <Flex container alignItems="center" direction="row">
-              {Boolean(element.signature) &&
-               <p className="script">{element.signature}</p>}
-              {!Boolean(element.signature) && <Input hidden name="id" value={element.id} />}
-              {!Boolean(element.signature) && <Input text
-                     placeholder="Sign/type your name"
-                     name="signature" value={element.signature} />}
-              {!Boolean(element.signature) && !element.rejected && <button action="submit">SIGN</button>}
-           </Flex>
-         </Form>
+         <Flex container alignItems="flex-start" justifyContent="center" direction="column">
+           <Form key={element.id + "-sign"}
+                   onSubmit={collectionView.saveElement}>
+             <Flex container alignItems="center" direction="row">
+               {Boolean(element.signature) &&
+                <p className="script">{element.signature}</p>}
+               {!Boolean(element.signature) && <Input hidden name="id" value={element.id} />}
+               {!Boolean(element.signature) && <Input text
+                      placeholder="Sign/type your name"
+                      name="signature" value={element.signature} />}
+               {!Boolean(element.signature) && !element.rejected && <button action="submit">SIGN</button>}
+               {!element.fulfilled && <button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</button>}
+             </Flex>
+           </Form>
          </Flex>}
       </td>
     </tr>
