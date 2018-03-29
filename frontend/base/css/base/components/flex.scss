@@ -12,5 +12,8 @@ $directions: top, bottom, left, right;
     .flex-#{$p}-#{$d} {
       #{$p}-#{$d}: $padding;
     }
-  } 
+  }
+  .flex-#{$p} {
+    #{$p}: $padding;
+  }
 }

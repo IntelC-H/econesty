@@ -1,10 +1,10 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table, DeleteButton } from 'base/components/elements';
 import { Router, SearchField, UserRow, DummyAPICollection, API,
-         CollectionView, Form, FormGroup, Input, Select, Flex, inheritClass } from 'base/base';
+         CollectionView, Form, FormGroup, Input, Select, Flex } from 'base/base';
 import { FlexControlBlock, SideMargins } from 'app/common';
 
-function Requirement({ collectionView, closeAction, element, key }) {
+function Requirement({ collectionView, closeAction, element }) {
   let r = element;
   return (
     <tr style={{width: "100%"}}>

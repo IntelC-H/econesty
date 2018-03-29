@@ -66,7 +66,7 @@ function Wallets({}) {
       </Flex>
       <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID() })}>
         <WalletCreationControls />
-        {collectionView => 
+        {collectionView =>
         <Table striped>
           {collectionView.getElements().map(w =>
           <tr>

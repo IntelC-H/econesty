@@ -15,8 +15,8 @@ function Flex({ children, style, className,
                 container, justifyContent, direction, wrap, alignContent, alignItems, // container props
                 order, grow, shrink, basis, align,                                    // item props
                 height, width,                                                        // sizing props
-                paddingLeft, paddingRight, paddingTop, paddingBottom,                 // padding
-                marginLeft, marginRight, marginTop, marginBottom,                     // margin
+                paddingLeft, paddingRight, paddingTop, paddingBottom, padding,        // padding
+                marginLeft, marginRight, marginTop, marginBottom, margin,             // margin
                  ...props}) {
   let stylep = {...style};
   if (container) {
@@ -29,30 +29,36 @@ function Flex({ children, style, className,
   }
 
   let hasGrow = grow !== null && grow !== undefined;
-  let hasShrink = shrink !== null && basis !== undefined;
+  let hasShrink = shrink !== null && shrink !== undefined;
   let hasBasis = basis !== null && basis !== undefined;
   if (order !== null && order !== undefined) stylep.order = order;
-  //if (hasGrow && hasShrink && hasBasis) {
-  //  stylep.flex = `${grow} ${shrink} ${basis}`;
-  //} else {
+  if (hasGrow && hasShrink && hasBasis) {
+    stylep.flex = `${grow} ${shrink} ${basis}`;
+  } else {
     if (hasGrow) stylep.flexGrow = grow;
     if (hasShrink) stylep.flexShrink = shrink;
     if (hasBasis) stylep.flexBasis = basis;
-  //}
+  }
   if (align !== null && align !== undefined) stylep.alignSelf = align;
   if (height !== null && height !== undefined) stylep.height = height;
   if (width !== null && width !== undefined) stylep.width = width;
 
   let clses = [];
   if (className && className.length !== 0) clses.push(className);
-  if (paddingLeft) clses.push("flex-padding-left");
-  if (paddingRight) clses.push("flex-padding-right");
-  if (paddingTop) clses.push("flex-padding-top");
-  if (paddingBottom) clses.push("flex-padding-bottom");
-  if (marginLeft) clses.push("flex-margin-left");
-  if (marginRight) clses.push("flex-margin-right");
-  if (marginTop) clses.push("flex-margin-top");
-  if (marginBottom) clses.push("flex-margin-bottom");
+  if (padding) clses.push("flex-padding");
+  else {
+    if (paddingLeft) clses.push("flex-padding-left");
+    if (paddingRight) clses.push("flex-padding-right");
+    if (paddingTop) clses.push("flex-padding-top");
+    if (paddingBottom) clses.push("flex-padding-bottom");
+  }
+  if (margin) clses.push("flex-margin");
+  else {
+    if (marginLeft) clses.push("flex-margin-left");
+    if (marginRight) clses.push("flex-margin-right");
+    if (marginTop) clses.push("flex-margin-top");
+    if (marginBottom) clses.push("flex-margin-bottom");
+  }
   let newClassName = makeClassName.apply(this, clses);
   if (Boolean(newClassName)) props.className = newClassName;
 

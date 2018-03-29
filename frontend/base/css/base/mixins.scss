@@ -1,33 +1,18 @@
 @import "./variables";
 @import "./fonts";
 
-@mixin no-select {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 @mixin raised {
   z-index: 100;
 }
 
-@mixin flex-vh-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@mixin sticky {
-  position: -webkit-sticky; /* Safari */
-  position: sticky;
-}
-
 @mixin user-select($value) {
+  @if $value == none {
+    -webkit-touch-callout: none;
+  }
   -moz-user-select: -moz-#{$value};
   -webkit-user-select: $value;
+  -khtml-user-select: $value;
+  -moz-user-select: $value;
   -ms-user-select: $value;
   user-select: $value;;
 }
@@ -47,7 +32,7 @@
   }
 }
 
-@function toRem($size) {
-  $remSize: $size / 16px; // stylelint-disable-line unit-whitelist
+@function toRem($size, $lineHeight: 16px) { // stylelint-disable-line unit-whitelist
+  $remSize: $size / $lineHeight;
   @return $remSize * 1rem;
 }
