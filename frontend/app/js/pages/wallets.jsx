@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table, DeleteButton } from 'base/components/elements';
 import { SideMargins } from 'app/common';
-import { Flex, Collapsible, CollectionCreation, RevealButton,
+import { Flex, Collapsible,
          CollectionView, API, Form, Input, FormGroup } from 'base/base';
 
 class WalletCreationControls extends Component {
@@ -58,7 +58,7 @@ class WalletCreationControls extends Component {
   }
 }
 
-function Wallets({}, { creationOpen }) {
+function Wallets({}) {
   return (
     <SideMargins>
       <Flex container justifyContent="center">

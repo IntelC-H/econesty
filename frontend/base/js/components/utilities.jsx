@@ -45,9 +45,9 @@ function cssSubclass(BaseComponent, // React component (functions, Component sub
       }
     }
     let newProps = {...props,
-                    ...(classes.length > 0
+                    ...classes.length > 0
                          ? {className: makeClassName.apply(null, classes)}
-                         : {})};
+                         : {}};
     return h(BaseComponent, newProps);
   };
 

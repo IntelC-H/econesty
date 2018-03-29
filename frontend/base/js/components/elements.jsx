@@ -1,5 +1,5 @@
 import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
-import { inheritClass, cssSubclass, choiceComponent, makeClassName } from './utilities';
+import { inheritClass, cssSubclass } from './utilities';
 
 const Error = inheritClass("div", "error");
 const XOverflowable = inheritClass("div", "xoverflowable");
