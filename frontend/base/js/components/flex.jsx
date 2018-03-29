@@ -12,18 +12,21 @@ function IsString(str) {
 }
 
 function Flex({ children, style, className,
-                container, justifyContent, direction, wrap, alignContent, alignItems, // container props
-                order, grow, shrink, basis, align,                                    // item props
-                height, width,                                                        // sizing props
-                paddingLeft, paddingRight, paddingTop, paddingBottom, padding,        // padding
-                marginLeft, marginRight, marginTop, marginBottom, margin,             // margin
+                container, justifyContent, row, rowReverse, column, columnReverse, // container props
+                wrap, nowrap, wrapReverse, alignContent, alignItems,               // more container props
+                order, grow, shrink, basis, align,                                 // item props
+                height, width,                                                     // sizing props
+                paddingLeft, paddingRight, paddingTop, paddingBottom, padding,     // padding
+                marginLeft, marginRight, marginTop, marginBottom, margin,          // margin
                  ...props}) {
   let stylep = {...style};
   if (container) {
     stylep.display = "flex";
+    let direction = row ? "row" : rowReverse ? "row-reverse" : column ? "column" : columnReverse ? "column-reverse" : undefined;
+    let wrapV = wrap ? "wrap" : wrapReverse ? "wrap-reverse" : nowrap ? "nowrap" : undefined;
     if (justifyContent) stylep.justifyContent = justifyContent;
     if (direction) stylep.flexDirection = direction;
-    if (wrap) stylep.flexWrap = wrap;
+    if (wrapV) stylep.flexWrap = wrapV;
     if (alignContent) stylep.alignContent = alignContent;
     if (alignItems) stylep.alignItems = alignItems;
   }
@@ -89,17 +92,18 @@ Flex.propTypes = {
     "space-around",
     "space-evenly"
   ]),
-  direction: PropTypes.oneOf([
-    "row",
-    "row-reverse",
-    "column",
-    "column-reverse"
-  ]),
-  wrap: PropTypes.oneOf([
+  row: PropTypes.bool,
+  rowReverse: PropTypes.bool,
+  column: PropTypes.bool,
+  columnReverse: PropTypes.bool,
+  wrap: PropTypes.bool,
+  wrapReverse: PropTypes.bool,
+  nowrap: PropTypes.bool,
+/*  wrap: PropTypes.oneOf([
     "nowrap",
     "wrap",
     "wrap-reverse"
-  ]),
+  ]),*/
   alignContent: PropTypes.oneOf([
     "flex-start",
     "flex-end",

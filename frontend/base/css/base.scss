@@ -4,6 +4,11 @@
 
 @import "config.scss";
 @import "base/variables";
+@import "base/mixins";
+
+.no-select {
+  @include user-select(none);
+}
 
 .icon {
   margin-left: $padding;

@@ -20,8 +20,8 @@ function NoTransactions({ userId }) {
   return (
     <div className="frown-message">
       <Frown large />
-      {isMe && <p>No transactions yet!</p>}
-      {!isMe && <p>No transactions with this user yet!</p>}
+      {isMe && <p className="no-select">No transactions yet!</p>}
+      {!isMe && <p className="no-select">No transactions with this user yet!</p>}
     </div>
   );
 }
@@ -32,7 +32,7 @@ function TransactionCollectionBody({ collectionView, userId }) {
   return (
     <XOverflowable>
       <Table striped selectable>
-        <thead>
+        <thead className="no-select">
           <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th><th></th></tr>
         </thead>
         {es.length > 0 && <tbody>
@@ -105,15 +105,14 @@ function EditableUserRepresentation({ elementView }) {
 function Profile(props) {
   const userId = parseInt(props.matches.id);
   return (
-    <Flex container direction="column" alignItems="center">
+    <Flex container column alignItems="center">
       <Flex basis="50%">
         <ElementView collection={API.user} elementID={userId}>
           <User />
         </ElementView>
       </Flex>
-      <Flex container direction="column" grow="1" basis="100%" style={{maxWidth:"100%", width: "100%"}}>
-        <Flex container className="profile-button-group"
-                        justifyContent="flex-start" direction="row" wrap="wrap">
+      <Flex container column grow="1" basis="100%" style={{maxWidth:"100%", width: "100%"}}>
+        <Flex container row className="profile-button-group" justifyContent="flex-start" wrap>
           {userId !== API.getUserID() &&
             <Link
               component={'button'}

@@ -23,7 +23,7 @@ class Login extends Component {
 
   render() {
     return (
-       <Flex container direction="column" alignItems="center">
+       <Flex container column alignItems="center">
          <h1>Welcome Back!</h1>
          <Form onSubmit={this.login} method="POST">
            {!!this.state.error && <p>{this.state.error.message}</p>}

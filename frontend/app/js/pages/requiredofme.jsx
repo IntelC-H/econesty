@@ -7,7 +7,7 @@ function RequirementRow({ collectionView, element }) {
   return (
     <tr>
       <td>
-        <Flex container alignItems="center" direction="row">
+        <Flex container row alignItems="center">
           {element.rejected && <RedX />}
           {element.fulfilled && <GreenCheck />}
           <h3>Transaction <Link className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Link></h3>
@@ -20,12 +20,11 @@ function RequirementRow({ collectionView, element }) {
           <button action="submit">Acknowledge</button>
         </Form>}
         {element.acknowledged && !element.rejected &&
-         <Flex container alignItems="flex-start" justifyContent="center" direction="column">
+         <Flex container column alignItems="flex-start" justifyContent="center">
            <Form key={element.id + "-sign"}
                    onSubmit={collectionView.saveElement}>
-             <Flex container alignItems="center" direction="row">
-               {Boolean(element.signature) &&
-                <p className="script">{element.signature}</p>}
+             <Flex container row alignItems="center">
+               {Boolean(element.signature) && <p className="script">{element.signature}</p>}
                {!Boolean(element.signature) && <Input hidden name="id" value={element.id} />}
                {!Boolean(element.signature) && <Input text
                       placeholder="Sign/type your name"
@@ -45,7 +44,7 @@ function RequirementsCollection({ collectionView }) {
     return (
       <div className="frown-message">
         <Frown large />
-        <p>You don't have any requirements!</p>
+        <p className="no-select">You don't have any requirements!</p>
       </div>
     );
   }
@@ -60,7 +59,7 @@ function RequirementsCollection({ collectionView }) {
 function RequiredOfMe(props) { // eslint-disable-line no-unused-vars
   return (
     <SideMargins>
-      <Flex container alignItems="center" direction="column">
+      <Flex container column alignItems="center">
         <h1>My Requirements</h1>
         <p>Each time onus is put upon you in a transaction, the details of your responsibility will appear here.</p>
       </Flex>

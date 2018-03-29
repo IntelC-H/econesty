@@ -12,8 +12,8 @@ function Requirement({ collectionView, closeAction, element }) {
         <Form onSubmit={collectionView.saveElement}>
           { r && <Input hidden name="id" value={r.id} /> }
           <FormGroup>
-            <Flex container wrap="wrap">
-              <Flex container direction="column" grow="1">
+            <Flex container wrap>
+              <Flex container column grow="1">
                 <FlexControlBlock label="Terms">
                   <Input text name="text" {...(r && {value: r.text})} />
                 </FlexControlBlock>
@@ -24,7 +24,7 @@ function Requirement({ collectionView, closeAction, element }) {
                                placeholder="find a user"
                                component={UserRow} />
                 </FlexControlBlock>
-                <Flex container direction="row" justifyContent="center">
+                <Flex container row justifyContent="center">
                   <button type="submit"><i className="fa fa-save" /></button>
                   {closeAction && <button type="button" onClick={closeAction}><i className="fa fa-times" /></button>}
                 </Flex>
@@ -61,7 +61,7 @@ class RequirementCollection extends Component {
                                  element: r
                                }));
     return (
-      <Flex container wrap="wrap">
+      <Flex container wrap>
         <Flex container justifyContent="space-between" alignItems="center" grow="1" basis="100%" marginTop marginBottom>
           Requirements
           {!showingCreate && <button onClick={this.showCreate}><i className="fas fa-plus"/></button>}
@@ -118,14 +118,14 @@ class CreateTransaction extends Component {
             <Input hidden name="sender_id" value={sender_id} />
             <Input hidden name="recipient_id" value={recipient_id} />
 
-            <Flex container wrap="wrap" justifyContent="center">
-              <Flex container wrap="wrap" alignItems="center" grow="1" marginLeft marginRight>
+            <Flex container wrap justifyContent="center">
+              <Flex container wrap alignItems="center" grow="1" marginLeft marginRight>
                 <Flex container justifyContent="flex-start" alignItems="center" basis="100%" marginTop marginBottom>How many BTC?</Flex>
                 <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
                   <Input number required name="amount" step="0.0001" min="0" cols="7" />
                 </Flex>
               </Flex>
-              <Flex container wrap="wrap" alignItems="center" grow="1" marginLeft marginRight>
+              <Flex container wrap alignItems="center" grow="1" marginLeft marginRight>
                 <Flex container justifyContent="flex-start" alignItems="center" basis="100%" marginTop marginBottom>{isSender ? "From Wallet" : "Into Wallet"}</Flex>
                 <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
                   <Select

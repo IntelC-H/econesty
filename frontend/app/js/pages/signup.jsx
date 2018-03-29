@@ -27,9 +27,9 @@ class Signup extends Component {
       <FadeTransition>
         {loading && <Loading fadeIn fadeOut key="loading" />}
         {!loading && <SideMargins fadeIn fadeOut key="content">
-        <Flex container direction="column" wrap="wrap" alignItems="center">
-          <h1>New Account</h1>
-          <p>Signing up gives you the benefit of a community dedicated to protecting your bitcoin wallet!<br /><br />Econesty will never ask you to verify your email address, nor send you email. That's annoying!</p>
+        <Flex container column wrap alignItems="center">
+          <h1 className="no-select">New Account</h1>
+          <p className="no-select">Signing up gives you the benefit of a community dedicated to protecting your bitcoin wallet!<br /><br />Econesty will never ask you to verify your email address, nor send you email. That's annoying!</p>
           <Form onSubmit={this.signupAndLogin}>
             <FormGroup>
                 <Flex container alignItems="center">

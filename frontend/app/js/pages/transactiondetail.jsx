@@ -28,7 +28,7 @@ function TransactionInfo({ elementView }) {
 
   return (
     <div>
-      <Flex container alignItems="center" direction="column">
+      <Flex container column alignItems="center">
         <Flex container alignItems="center" justifyContent="space-between">
           {t.completed
            ? t.success ? <GreenCheck component={'h1'} /> : <Warning component={'h1'} />
@@ -42,7 +42,7 @@ function TransactionInfo({ elementView }) {
         </Flex>}
         <h3><BTC /> {parseFloat(t.amount)}</h3>
       </Flex>
-      <Flex container direction="row" alignItems="center" justifyContent="center">
+      <Flex container row alignItems="center" justifyContent="center">
         <Flex basis={`${100/3}%`}>
           <Flex container justifyContent="flex-begin">
             <h3 className="secondary"><UserLink user={t.recipient} /></h3>
@@ -63,7 +63,7 @@ function TransactionInfo({ elementView }) {
       {needsRecipientWallet && isRecipient && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <Flex container wrap="wrap" alignItems="center">
+          <Flex container wrap alignItems="center">
             <Flex grow="1" basis="100%">Recipient's Wallet</Flex>
             <Flex container grow="1" basis="100%" alignItems="center">
               <Select
@@ -80,7 +80,7 @@ function TransactionInfo({ elementView }) {
       {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
-          <Flex container wrap="wrap" alignItems="center">
+          <Flex container wrap alignItems="center">
             <Flex grow="1" basis="100%">Sender's Wallet</Flex>
             <Flex container grow="1" basis="100%" alignItems="center">
               <Select

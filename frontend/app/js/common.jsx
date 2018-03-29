@@ -3,7 +3,7 @@ import { Flex, Responsive, inheritClass } from 'base/base';
 
 function FlexControlBlock({ label, children }) {
   return (
-    <Flex container direction="row" wrap="wrap" alignItems="center" grow="1" marginTop marginBottom>
+    <Flex container row wrap alignItems="center" grow="1" marginTop marginBottom>
       <Flex container className="ellipsis-text" justifyContent="flex-start" alignItems="center" basis="100%" marginBottom>
         {label}
       </Flex>

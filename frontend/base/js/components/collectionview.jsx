@@ -148,31 +148,22 @@ class CollectionView extends Component {
            collection, search, // eslint-disable-line no-unused-vars
            ...props},
          { loading, page, count, nextPage, previousPage }) {
-
-    let childPropsDiff = { collectionView: this };
-
     return (
       <FadeTransition {...props}>
         {loading && <Loading fadeOut fadeIn key="loading" delay={loadingDelay} />}
-	{!loading && <div fadeIn key="content" className="collection-content">{children.filter(Boolean).map(c =>
-          c instanceof Function ? c(this) : cloneElement(c, childPropsDiff)
-        )}</div>}
+	{!loading && <div fadeIn key="content" className="collection-content">
+                       {children.filter(Boolean).map(c =>
+                         c instanceof Function ? c(this) : cloneElement(c, { collectionView: this }))}
+                     </div>}
         {!loading && showsControls && count > 0 &&
-        <Flex container fadeIn key="controls" direction="row" justifyContent="space-around" alignItems="center">
-
-          <Flex className="collection-control">
-            <button disabled={previousPage === null}
-                    onClick={this.gotoPreviousPage}
-                    ><i className="fas fa-arrow-left" /></button>
-          </Flex>
-          <Flex className="collection-control collection-page-indicator">
-            <span>{page} of {Math.ceil(count/10) || 1}</span>
-          </Flex>
-          <Flex className="collection-control">
-              <button disabled={nextPage === null}
-                      onClick={this.gotoNextPage}
-                      ><i className="fas fa-arrow-right" /></button>
-          </Flex>
+        <Flex fadeIn key="controls" container row justifyContent="space-around" alignItems="center">
+          <button disabled={previousPage === null}
+                  onClick={this.gotoPreviousPage}
+                  ><i className="fas fa-arrow-left" /></button>
+          <span className="no-select">{page} of {Math.ceil(count/10) || 1}</span>
+          <button disabled={nextPage === null}
+                  onClick={this.gotoNextPage}
+                  ><i className="fas fa-arrow-right" /></button>
         </Flex>}
       </FadeTransition>
     );

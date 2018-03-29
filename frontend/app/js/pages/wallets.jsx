@@ -62,7 +62,7 @@ function Wallets({}) {
   return (
     <SideMargins>
       <Flex container justifyContent="center">
-        <h1 className="primary">Your Wallets</h1>
+        <h1 className="primary no-select">Your Wallets</h1>
       </Flex>
       <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID() })}>
         <WalletCreationControls />
