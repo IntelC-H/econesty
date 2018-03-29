@@ -45,7 +45,7 @@
   .searchfield-dropdown-container {
     margin: 0;
 
-    position: static;
+    position: relative;
 
     // Prevent interference with page & build new coord system
     height: 0;
@@ -54,26 +54,21 @@
 
     .searchfield-dropdown {
       overflow: hidden;
-      display: table;
-      .loading {
-        display: table;
-      }
       @include raised;
-      border-bottom-left-radius: $border-radius;
-      border-bottom-right-radius: $border-radius;
+      position: absolute;
 
       width: 100%;
 
       border: $border-width solid $input-selected-border-color;
       border-top: none;
+      border-bottom-left-radius: $border-radius;
+      border-bottom-right-radius: $border-radius;
 
       color: $searchfield-color;
       background-color: $searchfield-background-color;
 
       table {
-        border: inherit;
-        border-top: inherit;
-        border-radius: inherit;
+        border: none;
 
         td, th {
           color: $searchfield-color;
@@ -81,13 +76,6 @@
 
         td:not(.searchfield-noresults) {
           cursor: pointer;
-        }
-	
-        tr:nth-last-child(1) {
-          border-radius: inherit;
-          td {
-            border-radius: inherit;
-          }
         }
       }
 
