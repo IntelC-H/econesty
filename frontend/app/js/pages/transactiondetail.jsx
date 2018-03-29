@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Button, XOverflowable } from 'base/components/elements';
+import { Table, XOverflowable } from 'base/components/elements';
 import { GreenCheck, Warning, RedX, BTC, SideMargins} from 'app/common';
 import { API, Flex, Link, CollectionView, ElementView,
          Form, FormGroup, Select, Input } from 'base/base';
@@ -38,7 +38,7 @@ function TransactionInfo({ elementView }) {
         {t.completed && !t.success &&
         <Flex container alignItems="center">
           <p>{t.error ? "Blockchain Error: " + t.error : ""}</p>
-          <Button onClick={null}>Retry</Button>
+          <button onClick={null}>Retry</button>
         </Flex>}
         <h3><BTC /> {parseFloat(t.amount)}</h3>
       </Flex>
@@ -71,7 +71,7 @@ function TransactionInfo({ elementView }) {
                   name="recipient_wallet_id"
                   transform={w => w.id}
                   faceTransform={w => w.private_key} />
-              <Button action="submit"><i className="fa fa-save" /></Button>
+              <button action="submit"><i className="fa fa-save" /></button>
             </Flex>
           </Flex>
         </FormGroup>
@@ -88,7 +88,7 @@ function TransactionInfo({ elementView }) {
                   name="sender_wallet_id"
                   transform={w => w.id}
                   faceTransform={w => w.private_key} />
-              <Button action="submit"><i className="fa fa-save" /></Button>
+              <button action="submit"><i className="fa fa-save" /></button>
             </Flex>
           </Flex>
         </FormGroup>

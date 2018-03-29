@@ -1,16 +1,15 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Button, DeleteButton } from 'base/components/elements';
+import { Table, DeleteButton } from 'base/components/elements';
 import { Router, SearchField, UserRow, DummyAPICollection, API,
-         CollectionView, Form, FormGroup, Input, Select, Flex,
-         RevealButton } from 'base/base';
+         CollectionView, Form, FormGroup, Input, Select, Flex, inheritClass } from 'base/base';
 import { FlexControlBlock, SideMargins } from 'app/common';
 
-function Requirement({ collectionView, revealButton, element }) {
+function Requirement({ collectionView, closeAction, element, key }) {
   let r = element;
   return (
     <tr style={{width: "100%"}}>
       <td>
-        <Form onSubmit={collectionView.saveElement} className="section">
+        <Form onSubmit={collectionView.saveElement}>
           { r && <Input hidden name="id" value={r.id} /> }
           <FormGroup>
             <Flex container wrap="wrap">
@@ -26,8 +25,8 @@ function Requirement({ collectionView, revealButton, element }) {
                                component={UserRow} />
                 </FlexControlBlock>
                 <Flex container direction="row" justifyContent="center">
-                  <Button action="submit"><i className="fa fa-save" /></Button>
-                  {revealButton && <Button onClick={revealButton.close}><i className="fa fa-times" /></Button>}
+                  <button type="submit"><i className="fa fa-save" /></button>
+                  {closeAction && <button type="button" onClick={closeAction}><i className="fa fa-times" /></button>}
                 </Flex>
               </Flex>
               { r && <DeleteButton onClick={() => collectionView.deleteElement(r.id)} /> }
@@ -39,25 +38,43 @@ function Requirement({ collectionView, revealButton, element }) {
   );
 }
 
-function RequirementCollection({ collectionView }) {
-  let rs = collectionView.getElements();
-  let children = rs.map(r => h(Requirement, {
-                               collectionView: collectionView,
-                               element: r
-                             }));
-  return (
-    <Flex container wrap="wrap">
-      <Flex grow="1" basis="100%" marginTop marginBottom>Requirements</Flex>
-      <Flex grow="1" basis="100%">
-      <Table striped>
-        <RevealButton label={<i className="fas fa-plus" />}>
-          <Requirement collectionView={collectionView}/>
-        </RevealButton>
-        {children}
-      </Table>
+class RequirementCollection extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { showingCreate: false };
+    this.hideCreate = this.hideCreate.bind(this);
+    this.showCreate = this.showCreate.bind(this);
+  }
+
+  hideCreate() {
+    this.setState(st => ({ ...st, showingCreate: false }));
+  }
+
+  showCreate() {
+    this.setState(st => ({ ...st, showingCreate: true }));
+  }
+
+  render({ collectionView }, { showingCreate }) {
+    let rs = collectionView.getElements();
+    let children = rs.map(r => h(Requirement, {
+                                 collectionView: collectionView,
+                                 element: r
+                               }));
+    return (
+      <Flex container wrap="wrap">
+        <Flex container justifyContent="space-between" alignItems="center" grow="1" basis="100%" marginTop marginBottom>
+          Requirements
+          {!showingCreate && <button onClick={this.showCreate}><i className="fas fa-plus"/></button>}
+        </Flex>
+        <Flex grow="1" basis="100%">
+          <Table striped>
+            {showingCreate && <Requirement key="non_collection" collectionView={collectionView} closeAction={this.hideCreate}/>}
+            {children}
+          </Table>
+        </Flex>
       </Flex>
-    </Flex>
-  );
+    );
+  }
 }
 
 class CreateTransaction extends Component {
@@ -122,7 +139,7 @@ class CreateTransaction extends Component {
             <CollectionView collection={this.dummyCollection}>
               <RequirementCollection />
             </CollectionView>
-            <Button action="submit" type="submit">CREATE</Button>
+            <button action="submit" type="submit">CREATE</button>
           </FormGroup>
         </Form>
       </SideMargins>

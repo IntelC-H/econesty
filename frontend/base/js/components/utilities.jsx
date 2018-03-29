@@ -18,9 +18,14 @@ function makeClassName() {
   return ret.length === 0 ? undefined : ret;
 }
 
-function inheritClass(comp, cname) {
-  return ({className, ...props}) =>
-    h(comp, {...props, className: makeClassName(cname, className)});
+function inheritClass(NodeName, cname) {
+  return ({className, ...props}) => {
+    return <NodeName className={makeClassName(cname, className)} {...props} />;
+  };
+}
+
+function choiceComponent(f) {
+  return props => h(f(props), props);
 }
 
 function cssSubclass(BaseComponent, // React component (functions, Component subclasses, "div" et al)
@@ -33,18 +38,17 @@ function cssSubclass(BaseComponent, // React component (functions, Component sub
     for (let k in props) {
       if (k in mapping) {
         let v = props[k];
-        if (Boolean(v) && v !== false && v !== "false") {
+        if (Boolean(v) && v !== "false") {
           classes.push(mapping[k]);
         }
+        delete props[k];
       }
     }
-
-    if (classes.length > 0) {
-      props.className = makeClassName.apply(null, classes);
-    }
-
-    const Comp = BaseComponent instanceof Function ? BaseComponent(props) : BaseComponent;
-    return h(Comp, props);
+    let newProps = {...props,
+                    ...(classes.length > 0
+                         ? {className: makeClassName.apply(null, classes)}
+                         : {})};
+    return h(BaseComponent, newProps);
   };
 
   f.propTypes = {};
@@ -58,11 +62,12 @@ function cssSubclass(BaseComponent, // React component (functions, Component sub
   return f;
 }
 
-export { prependFunc, makeClassName, inheritClass, cssSubclass };
+export { prependFunc, makeClassName, inheritClass, cssSubclass, choiceComponent };
 
 export default {
   prependFunc: prependFunc,
   makeClassName: makeClassName,
   inheritClass: inheritClass,
-  cssSubclass: cssSubclass
+  cssSubclass: cssSubclass,
+  choiceComponent: choiceComponent
 };

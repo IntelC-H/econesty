@@ -122,48 +122,22 @@ a {
   Wallets page
 */
 
-.wallets {
-  .primary {
-    text-align: center;
-    width: 100%;
-  }
-
-  .wallet-create-form {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    margin: $padding;
-    form.input-form {
-      width: 100%;
-      input {
-        text-align: center;
-      }
-    }
-  }
-  
-  .wallet-row {
-    p.crypto-text {
-      font-family: 'Inconsolata', monospace;
-      letter-spacing: 1px; // stylelint-disable-line unit-whitelist
-      max-width: 100%;
-      white-space: pre-wrap;      /* CSS3 */   
-      white-space: -moz-pre-wrap; /* Firefox */    
-      white-space: -pre-wrap;     /* Opera <7 */   
-      white-space: -o-pre-wrap;   /* Opera 7 */    
-      word-wrap: break-word;      /* IE */
-      word-break: break-all;
-    }
-    &.testnet {
-      p.testnet-label {
-        transform: rotate(180deg);
-        margin: 0;
-        margin-right: $padding;
-        text-align: center;
-        color: $accent-color;
-        writing-mode: vertical-lr;
-      }
-    }
-  }
+p.vertical-text {
+  transform: rotate(180deg);
+  margin: 0;
+  text-align: center;
+  color: $accent-color;
+  writing-mode: vertical-lr;
 }
 
-
+p.crypto-text {
+  font-family: 'Inconsolata', monospace;
+  letter-spacing: 1px; // stylelint-disable-line unit-whitelist
+  max-width: 100%;
+  white-space: pre-wrap;      /* CSS3 */   
+  white-space: -moz-pre-wrap; /* Firefox */    
+  white-space: -pre-wrap;     /* Opera <7 */   
+  white-space: -o-pre-wrap;   /* Opera 7 */    
+  word-wrap: break-word;      /* IE */
+  word-break: break-all;
+}

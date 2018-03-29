@@ -1,5 +1,4 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Button } from 'base/components/elements';
 import { SideMargins } from 'app/common';
 import { API, Router, Flex, Form, FormGroup, Input, FadeTransition, Loading } from 'base/base';
 
@@ -54,7 +53,7 @@ class Signup extends Component {
                   <Input password required name="password" />
                 </Flex>
                 <Flex container justifyContent="center">
-                  <Button action="submit">SIGN UP</Button>
+                  <button action="submit">SIGN UP</button>
                 </Flex>
             </FormGroup>
           </Form>

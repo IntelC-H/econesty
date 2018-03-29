@@ -128,7 +128,7 @@ window.addEventListener("popstate", () => Router.updateSubscribers(Router.getPat
 function Link({ href, component, onMouseUp, ...props}) {
   return h(component || 'a', { ...props, onMouseUp: e => {
     if (onMouseUp) onMouseUp(e);
-    if (href) Router.push(href);
+    if (parseInt(e.which) === 1 && href) Router.push(href);
   }});
 }
 

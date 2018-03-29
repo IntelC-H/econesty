@@ -20,11 +20,6 @@ class Form extends Referencing {
     return super.shouldReference(cmp) && FormElement.isValid(cmp);
   }
 
-  // PUBLIC API
-  submit() {
-    this.base.dispatchEvent(new Event("submit"));
-  }
-
   // Returns an object built by aggregating the values of
   // the components in this.refs.
   getObject() {
@@ -36,27 +31,25 @@ class Form extends Referencing {
   }
 
   domOnSubmit(e) {
-    e.stopPropagation(); // enable submitting subforms without affecting parent forms.
     e.preventDefault(); // prevent form POST
+    e.stopPropagation(); // enable submitting subforms without affecting parent forms.
     if (this.props.onSubmit) {
       this.props.onSubmit(this.getObject());
     }
-    return false;
+    return false; // prevent bubbling of the event
   }
 
   render(props) {
-    return <form { ...props } action={"javascript" + ":"} onSubmit={this.domOnSubmit} />;
+    return <form { ...props } onSubmit={this.domOnSubmit} />;
   }
 }
 
 Form.propTypes = {
-  onSubmit: PropTypes.func,
-  object: PropTypes.object
+  onSubmit: PropTypes.func
 };
 
 Form.defaultProps = {
-  onSubmit: null,
-  object: null
+  onSubmit: null
 };
 
 export { Form };

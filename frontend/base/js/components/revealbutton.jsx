@@ -1,6 +1,6 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Button } from './elements';
+import { Flex } from './flex';
 
 class RevealButton extends Component {
   constructor(props) {
@@ -18,20 +18,22 @@ class RevealButton extends Component {
     this.setState(st => ({ ...st, open: true }));
   }
 
-  render({ children, label }, { open }) {
-    if (children.length === 0) return null;
+  render({ children, peers, label, ...props }, { open }) {
+    /*if (children.length === 0) return null;
     if (open && children.length === 1) return cloneElement(children[0], { revealButton: this});
-    else if (open && children.length > 1) return <div>{children.map(c => cloneElement(c, { revealButton: this}))}</div>;
-    return <Button onClick={this.open}>{label}</Button>;
+    else if (open && children.length > 1)*/ if (open) return <Flex {...props}>{children.map(c => cloneElement(c, { revealButton: this}))}</Flex>;
+    return <Flex {...props}>{peers}<button onClick={this.open}>{label}</button></Flex>;
   }
 }
 
 RevealButton.propTypes = {
-  label: PropTypes.oneOf([PropTypes.string, PropTypes.node])
+  label: PropTypes.oneOf([PropTypes.string, PropTypes.node]),
+  peers: PropTypes.arrayOf(PropTypes.node)
 };
 
 RevealButton.defaultProps = {
-  label: null
+  label: null,
+  peers: []
 };
 
 export { RevealButton };

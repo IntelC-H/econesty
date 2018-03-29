@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { BTC, RedX, GreenCheck, Warning } from 'app/common';
-import { Button, Table, XOverflowable, Frown } from 'base/components/elements';
+import { Table, XOverflowable, Frown } from 'base/components/elements';
 import { Link, Router, API, CollectionView, ElementView, Form,
          FormGroup, Input, Flex } from 'base/base';
 
@@ -96,7 +96,7 @@ function EditableUserRepresentation({ elementView }) {
           <Input text name="username" placeholder="Username" value={user.username} />
           <Input text name="email" autocomplete="email" placeholder="email" value={user.email} />
         </FormGroup>
-        <Button action="submit">Save</Button>
+        <button action="submit">Save</button>
       </Form>
     </div>
   );
@@ -116,33 +116,33 @@ function Profile(props) {
                         justifyContent="flex-start" direction="row" wrap="wrap">
           {userId !== API.getUserID() &&
             <Link
-              component={Button}
+              component={'button'}
               href={API.user.baseURL + userId + "/transaction/send"}
             >Send BTC</Link>}
             {userId !== API.getUserID() &&
             <Link
-              component={Button}
+              component={'button'}
               href={API.user.baseURL + userId + "/transaction/receive"}
             >Receive BTC</Link>}
             {userId === API.getUserID() &&
             <Link
-              component={Button}
+              component={'button'}
               href="/wallets"
             >Wallets</Link>}
             {userId === API.getUserID() &&
             <Link
-              component={Button}
+              component={'button'}
               href="/required"
             >Required</Link>}
             {userId === API.getUserID() &&
-             <Button
+             <button
                onClick={() => {
                  API.networking("DELETE", "/token/clear", {}, {}).then(() => {
                    API.clearAuth();
                    Router.push("/");
                  });
                }}
-             >Log Out</Button>}
+             >Log Out</button>}
         </Flex>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
           <TransactionCollectionBody userId={userId} />

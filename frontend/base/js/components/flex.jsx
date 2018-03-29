@@ -54,8 +54,9 @@ function Flex({ children, style, className,
   if (marginTop) clses.push("flex-margin-top");
   if (marginBottom) clses.push("flex-margin-bottom");
   let newClassName = makeClassName.apply(this, clses);
+  if (Boolean(newClassName)) props.className = newClassName;
 
-  return <div {...props} className={newClassName} style={stylep}>{children}</div>;
+  return <div {...props} style={stylep}>{children}</div>;
 }
 
 Flex.defaultProps = {

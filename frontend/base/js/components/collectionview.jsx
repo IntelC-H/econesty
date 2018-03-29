@@ -1,6 +1,5 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { Button } from './elements';
 import Loading from './loading';
 import { FadeTransition } from './fadetransition';
 import Flex from './flex';
@@ -155,22 +154,24 @@ class CollectionView extends Component {
     return (
       <FadeTransition {...props}>
         {loading && <Loading fadeOut fadeIn key="loading" delay={loadingDelay} />}
-	{!loading && <div fadeIn key="content" className="collection-content">{children.map(c => cloneElement(c, childPropsDiff))}</div>}
+	{!loading && <div fadeIn key="content" className="collection-content">{children.filter(Boolean).map(c =>
+          c instanceof Function ? c(this) : cloneElement(c, childPropsDiff)
+        )}</div>}
         {!loading && showsControls && count > 0 &&
         <Flex container fadeIn key="controls" direction="row" justifyContent="space-around" alignItems="center">
 
           <Flex className="collection-control">
-            <Button disabled={previousPage === null}
+            <button disabled={previousPage === null}
                     onClick={this.gotoPreviousPage}
-                    ><i className="fas fa-arrow-left" /></Button>
+                    ><i className="fas fa-arrow-left" /></button>
           </Flex>
           <Flex className="collection-control collection-page-indicator">
             <span>{page} of {Math.ceil(count/10) || 1}</span>
           </Flex>
           <Flex className="collection-control">
-              <Button disabled={nextPage === null}
+              <button disabled={nextPage === null}
                       onClick={this.gotoNextPage}
-                      ><i className="fas fa-arrow-right" /></Button>
+                      ><i className="fas fa-arrow-right" /></button>
           </Flex>
         </Flex>}
       </FadeTransition>

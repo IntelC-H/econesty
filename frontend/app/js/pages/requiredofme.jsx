@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Button, Frown } from 'base/components/elements';
+import { Table, Frown } from 'base/components/elements';
 import { Link, Flex, Form, Input, CollectionView, API } from 'base/base';
 import { RedX, GreenCheck, SideMargins } from 'app/common';
 
@@ -17,11 +17,11 @@ function RequirementRow({ collectionView, element }) {
               onSubmit={collectionView.saveElement}>
           <Input hidden name="id" value={element.id} />
           <Input hidden name="acknowledged" value={true} />
-          <Button action="submit">Acknowledge</Button>
+          <button action="submit">Acknowledge</button>
         </Form>}
         {element.acknowledged && !element.rejected &&
           <Flex container alignItems="flex-start" justifyContent="center" direction="column">
-              {!element.fulfilled && <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>}
+              {!element.fulfilled && <button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</button>}
           <Form key={element.id + "-sign"}
                   onSubmit={collectionView.saveElement}>
             <Flex container alignItems="center" direction="row">
@@ -31,7 +31,7 @@ function RequirementRow({ collectionView, element }) {
               {!Boolean(element.signature) && <Input text
                      placeholder="Sign/type your name"
                      name="signature" value={element.signature} />}
-              {!Boolean(element.signature) && !element.rejected && <Button action="submit">SIGN</Button>}
+              {!Boolean(element.signature) && !element.rejected && <button action="submit">SIGN</button>}
            </Flex>
          </Form>
          </Flex>}
