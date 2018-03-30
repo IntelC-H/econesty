@@ -23,4 +23,4 @@ Header.propTypes = {
 };
 
 export { Header };
-export default { Header: Header };
+export default Header;

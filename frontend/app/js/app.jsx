@@ -22,7 +22,12 @@ require('preact/debug');
   - Retry failed transactions
     - test this functionality
   - ensure that all non-content text has no-select class
-  - make sure forms have labels above input
+  - Better responsive tables!
+  - Finish hiding searchfield on menu bar when unauthenticated
+  - Show 3 blocks below signup (responsive Flex grid)
+    - Total BTC sent
+    - Number of transactions
+    - Number of requirements made
 */
 
 function makeRoute(path, Comp, wcs = {}) {

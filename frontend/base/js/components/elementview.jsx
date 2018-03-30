@@ -17,6 +17,7 @@ class ElementView extends Component {
     super(props);
     this.reloadData = this.reloadData.bind(this);
     this.updateElement = this.updateElement.bind(this);
+    this.setElement = this.setElement.bind(this);
     this.state = {
       collection: props.collection,
       elementID: props.elementID,
@@ -24,7 +25,6 @@ class ElementView extends Component {
       element: null
     };
     this.reloadData();
-    this.setElement();
   }
 
   componentWillUpdate(newProps) {
@@ -49,8 +49,7 @@ class ElementView extends Component {
 
   reloadData() {
     this.setState(st => ({ ...st, element: null, loading: true }));
-    this.state.collection.read(this.state.elementID)
-                         .then(this.setElement);
+    this.state.collection.read(this.state.elementID).then(this.setElement);
   }
 
   updateElement(obj) {

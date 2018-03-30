@@ -13,32 +13,16 @@ h1, h2, h3, h4, h5, h6, p, span {
   color: $text-color;
 }
 
-.script {
-  font-family: 'Sacramento', cursive;
-  font-style: normal;
-  font-weight: 400;
-}
-
-.ellipsis-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 body {
   min-width: 20rem;
   position: relative;
   background-color: white;
 }
 
-label {
-  vertical-align: middle;
-}
-
 a {
   text-decoration: none;
   cursor: pointer;
-  label {
+  * {
     cursor: pointer;
   }
   display: inline;
@@ -56,49 +40,28 @@ a {
   }
 }
 
+.italic {
+  font-style: italic;
+}
+
+.ellipsis-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.circular {
+  border-radius: 50%;
+}
+
 /*
   Page layout
 */
-
-.center {
-  text-align: center;
-}
-
-.content {
-  margin: $padding;
-}
-
-.user {
-  margin: $padding;
-  text-align: center;
-  img {
-    border-radius: 50%;
-  }
-}
-
-.user-row {
-  display: flex;
-  align-items: center;
-  img {
-    margin-right: $padding;
-    border-radius: 50%;
-    width: 1rem;
-    height: 1rem;
-  }
-}
 
 .frown-message {
   opacity: 0.4;
   margin: $padding;
   text-align: center;
-}
-
-.userlink {
-  display: inline;
-}
-
-.italic {
-  font-style: italic;
 }
 
 .section {
@@ -116,6 +79,16 @@ a {
   p:last-of-type { // stylelint-disable-line declaration-colon-space-after
     margin-bottom: $padding / $_factor;
   }
+}
+
+/*
+  Required of Me page
+*/
+
+p.script {
+  font-family: 'Sacramento', cursive;
+  font-style: normal;
+  font-weight: 400;
 }
 
 /*

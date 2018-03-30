@@ -11,7 +11,7 @@ function IsString(str) {
   };
 }
 
-function Flex({ children, style, className,
+function Flex({ style, className, component,
                 container, justifyContent, row, rowReverse, column, columnReverse, // container props
                 wrap, nowrap, wrapReverse, alignContent, alignItems,               // more container props
                 order, grow, shrink, basis, align,                                 // item props
@@ -43,6 +43,7 @@ function Flex({ children, style, className,
     if (hasBasis) stylep.flexBasis = basis;
   }
   if (align !== null && align !== undefined) stylep.alignSelf = align;
+
   if (height !== null && height !== undefined) stylep.height = height;
   if (width !== null && width !== undefined) stylep.width = width;
 
@@ -65,10 +66,11 @@ function Flex({ children, style, className,
   let newClassName = makeClassName.apply(this, clses);
   if (Boolean(newClassName)) props.className = newClassName;
 
-  return <div {...props} style={stylep}>{children}</div>;
+  return h(component, { ...props, style: stylep});
 }
 
 Flex.defaultProps = {
+  component: 'div',
   style: {},
   container: false,
   paddingTop: false,
@@ -82,6 +84,7 @@ Flex.defaultProps = {
 };
 
 Flex.propTypes = {
+  component: PropTypes.func, // A react component
   style: PropTypes.object,
   container: PropTypes.bool,
   justifyContent: PropTypes.oneOf([
@@ -99,11 +102,6 @@ Flex.propTypes = {
   wrap: PropTypes.bool,
   wrapReverse: PropTypes.bool,
   nowrap: PropTypes.bool,
-/*  wrap: PropTypes.oneOf([
-    "nowrap",
-    "wrap",
-    "wrap-reverse"
-  ]),*/
   alignContent: PropTypes.oneOf([
     "flex-start",
     "flex-end",

@@ -1,25 +1,24 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
-import SearchField from 'base/components/searchfield';
-import UserRow from 'base/components/searchfielduserrow';
-import { API } from 'base/api';
-import { Header } from 'base/components/header';
-import { makeClassName } from 'base/components/utilities';
+import { Flex, Header, API, SearchField, UserRow } from 'base/base';
 
-function PageTemplate({ className, ...props}) {
+function PageTemplate/*Unwrapped*/(props) {
+  console.log("PROPS", props);
   return (
     <div>
       <Header title="Econe$ty"
-              menuElements={[
+              menuElements={API.isAuthenticated ? [
                 <SearchField
                   standalone
                   api={API.user}
                   placeholder="Search users"
                   component={UserRow}
                 />
-              ]}/>
-      <div className={makeClassName("content", className)} {...props} />
+              ] : []}/>
+      <Flex margin {...props} />
     </div>
   );
 }
+
+//const PageTemplate = API.wrapComponent(PageTemplateUnwrapped);
 
 export default PageTemplate;

@@ -23,37 +23,27 @@ class WalletCreationControls extends Component {
   render({ collectionView }, { formVisible }) {
     if (!formVisible) {
       return (
-        <Flex container
-                wrap="wrap"
-                direction="row"
-                justifyContent="center"
-                marginTop marginLeft marginRight marginBottom>
+        <Flex container row wrap margin justifyContent="center">
           <button onClick={() => collectionView.listMethod("POST", "generate", {})}>Generate</button>
           <button onClick={this.openForm}><i className="fas fa-plus" /></button>
         </Flex>
       );
     }
     return (
-      <Form className="input-form" onSubmit={collectionView.saveElement}>
-        <Flex container justifyContent="center"
-                       direction="row"
-                       wrap="wrap"
-                       alignItems="stretch">
-          <Input hidden name="user_id" value={API.getUserID()}/>
-          <Flex grow="2">
-            <FormGroup>
-              <Input text required
-                     style={{ textAlign: "center" }}
-                     name="private_key"
-                     placeholder="Wallet private key (WIF format)" />
-            </FormGroup>
-          </Flex>
-          <Flex container justifyContent="center" alignItems="center">
-            <button action="submit"><i className="fa fa-save" /></button>
-            <button onClick={this.closeForm}><i className="fas fa-times" /></button>
-          </Flex>
+      <Flex component={Form} onSubmit={collectionView.saveElement}
+            container row wrap margin justifyContent="center" alignItems="stretch">
+        <Input hidden name="user_id" value={API.getUserID()}/>
+        <Flex component={FormGroup} grow="2">
+          <Input text required
+                 style={{ textAlign: "center" }}
+                 name="private_key"
+                 placeholder="Wallet private key (WIF format)" />
         </Flex>
-      </Form>
+        <Flex container justifyContent="center" alignItems="center">
+          <button action="submit"><i className="fa fa-save" /></button>
+          <button onClick={this.closeForm}><i className="fas fa-times" /></button>
+        </Flex>
+      </Flex>
     );
   }
 }
@@ -61,8 +51,9 @@ class WalletCreationControls extends Component {
 function Wallets({}) {
   return (
     <SideMargins>
-      <Flex container justifyContent="center">
-        <h1 className="primary no-select">Your Wallets</h1>
+      <Flex component="h1" className="primary no-select"
+            container justifyContent="center">
+        Your Wallets
       </Flex>
       <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID() })}>
         <WalletCreationControls />
@@ -70,22 +61,18 @@ function Wallets({}) {
         <Table striped>
           {collectionView.getElements().map(w =>
           <tr>
-            <td>
-              <Flex container>
-                <Flex align="center" marginRight>
-                  {w.is_testnet && <p className="vertical-text">TESTNET</p>}
-                </Flex>
-                <Flex grow="2">
-                  <p className="secondary crypto-text">{w.address}</p>
-                  <Collapsible label="Private Key" animateClose={false}>
-                    <p className="teritary crypto-text">{w.private_key}</p>
-                  </Collapsible>
-                </Flex>
-                <Flex>
-                  <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
-                </Flex>
+            <Flex container component="td">
+              {w.is_testnet && 
+                <Flex component="p" className="vertical-text no-select"
+                      align="center" marginRight>TESTNET</Flex>}
+              <Flex grow="2">
+                <p className="secondary crypto-text">{w.address}</p>
+                <Collapsible label="Private Key" animateClose={false}>
+                  <p className="teritary crypto-text">{w.private_key}</p>
+                </Collapsible>
               </Flex>
-            </td>
+              <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
+            </Flex>
           </tr>)}
         </Table>}
       </CollectionView>

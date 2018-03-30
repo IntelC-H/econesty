@@ -11,7 +11,7 @@ function makeWalletsPromise() {
 function UserLink({ user }) {
   return (
     <Link
-      className="userlink secondary"
+      className="secondary"
       href={"/user/" + user.id}>
       {user.first_name} {user.last_name} (@{user.username})
     </Link>

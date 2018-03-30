@@ -26,16 +26,55 @@ function NoTransactions({ userId }) {
   );
 }
 
+function User({ elementView }) {
+  if (elementView.getElement().is_me) return <EditableUserRepresentation elementView={elementView} />;
+  return <UserRepresentation elementView={elementView} />;
+}
+
+function UserRepresentation({ elementView }) {
+  let user = elementView.getElement();
+  return (
+    <Flex container column alignItems="center">
+      <img src={user.avatar_url} className="circular" />
+      <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
+      <div className="tertiary">(@{user.username})</div>
+      <div className="secondary">User #{user.id}, since {formatDate(user.date_joined)}</div>
+    </Flex>
+  );
+}
+
+function EditableUserRepresentation({ elementView }) {
+  let user = elementView.getElement();
+  return (
+    <Flex container column alignItems="center">
+      <img src={user.avatar_url} className="circular" />
+      <Flex container column alignItems="center" component={Form} onSubmit={elementView.updateElement}>
+        <FormGroup>
+          <Input text name="first_name" autocomplete="given-name" placeholder="First name" value={user.first_name} />
+          <Input text name="last_name" autocomplete="family-name" placeholder="Last name" value={user.last_name} />
+        </FormGroup>
+        <FormGroup>
+          <Input text name="username" placeholder="Username" value={user.username} />
+          <Input text name="email" autocomplete="email" placeholder="email" value={user.email} />
+        </FormGroup>
+        <button action="submit">Save</button>
+      </Flex>
+    </Flex>
+  );
+}
+
 function TransactionCollectionBody({ collectionView, userId }) {
   let es = collectionView.getElements();
+
+  if (es.length === 0) return <NoTransactions userId={userId} />;
 
   return (
     <XOverflowable>
       <Table striped selectable>
         <thead className="no-select">
-          <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th><th></th></tr>
+          <tr><th>#</th><th/><th>Sender</th><th>Recipient</th><th></th></tr>
         </thead>
-        {es.length > 0 && <tbody>
+        <tbody>
           {es.map(obj =>
             <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}>
               <td>
@@ -58,52 +97,15 @@ function TransactionCollectionBody({ collectionView, userId }) {
               </td>
             </tr>
           )}
-        </tbody>}
+        </tbody>
       </Table>
-      {es.length === 0 && <NoTransactions userId={userId} />}
     </XOverflowable>
   );
 }
 
-function User({ elementView }) {
-  if (elementView.getElement().is_me) return <EditableUserRepresentation elementView={elementView} />;
-  return <UserRepresentation elementView={elementView} />;
-}
-
-function UserRepresentation({ elementView }) {
-  let user = elementView.getElement();
-  return (
-    <div className="user">
-      <img src={user.avatar_url} />
-      <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
-      <div className="tertiary">(@{user.username})</div>
-      <div className="secondary">User #{user.id}, since {formatDate(user.date_joined)}</div>
-    </div>
-  );
-}
-
-function EditableUserRepresentation({ elementView }) {
-  let user = elementView.getElement();
-  return (
-    <div className="user editable">
-      <img src={user.avatar_url} />
-      <Form onSubmit={elementView.updateElement}>
-        <FormGroup>
-          <Input text name="first_name" autocomplete="given-name" placeholder="First name" value={user.first_name} />
-          <Input text name="last_name" autocomplete="family-name" placeholder="Last name" value={user.last_name} />
-        </FormGroup>
-        <FormGroup>
-          <Input text name="username" placeholder="Username" value={user.username} />
-          <Input text name="email" autocomplete="email" placeholder="email" value={user.email} />
-        </FormGroup>
-        <button action="submit">Save</button>
-      </Form>
-    </div>
-  );
-}
-
-function Profile(props) {
-  const userId = parseInt(props.matches.id);
+function Profile({ matches }) {
+  const userId = parseInt(matches.id);
+  const isAuthenticatedUser = userId === API.getUserID();
   return (
     <Flex container column alignItems="center">
       <Flex basis="50%">
@@ -113,27 +115,27 @@ function Profile(props) {
       </Flex>
       <Flex container column grow="1" basis="100%" style={{maxWidth:"100%", width: "100%"}}>
         <Flex container row className="profile-button-group" justifyContent="flex-start" wrap>
-          {userId !== API.getUserID() &&
+          {!isAuthenticatedUser &&
             <Link
-              component={'button'}
+              component='button'
               href={API.user.baseURL + userId + "/transaction/send"}
             >Send BTC</Link>}
-            {userId !== API.getUserID() &&
+            {!isAuthenticatedUser &&
             <Link
-              component={'button'}
+              component='button'
               href={API.user.baseURL + userId + "/transaction/receive"}
             >Receive BTC</Link>}
-            {userId === API.getUserID() &&
+            {isAuthenticatedUser &&
             <Link
-              component={'button'}
+              component='button'
               href="/wallets"
             >Wallets</Link>}
-            {userId === API.getUserID() &&
+            {isAuthenticatedUser &&
             <Link
-              component={'button'}
+              component='button'
               href="/required"
             >Required</Link>}
-            {userId === API.getUserID() &&
+            {isAuthenticatedUser &&
              <button
                onClick={() => {
                  API.networking("DELETE", "/token/clear", {}, {}).then(() => {
