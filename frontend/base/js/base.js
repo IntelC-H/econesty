@@ -10,7 +10,6 @@ import FormElement from './components/form/formelement';
 import Select from './components/form/formelements/select';
 import Input from './components/form/formelements/input';
 import SearchField from './components/searchfield';
-import UserRow from './components/searchfielduserrow';
 import CollectionView from './components/collectionview';
 import ElementView from './components/elementview';
 import { Router, Link } from './components/routing';
@@ -26,6 +25,6 @@ import { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass } fr
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
-         SearchField, UserRow, CollectionView, ElementView, Header,
-         Router, Link, Utilities, doNotUpdate, Animations, Referencing,
-         Flex, Elements, Loading, Responsive, prependFunc, makeClassName, inheritClass, cssSubclass };
+         SearchField, CollectionView, ElementView, Header, Router, Link,
+         Utilities, doNotUpdate, Animations, Referencing, Flex, Elements,
+         Loading, Responsive, prependFunc, makeClassName, inheritClass, cssSubclass };

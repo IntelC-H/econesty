@@ -14,7 +14,6 @@ import Home from 'app/pages/home';
 import Wallets from 'app/pages/wallets';
 import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
-import { Loading, FadeTransition } from 'base/base';
 
 /*
   TODO for UX redo:
@@ -22,7 +21,6 @@ import { Loading, FadeTransition } from 'base/base';
     - test this functionality
   - ensure that all non-content text has no-select class
   - Better responsive tables!
-  - Finish hiding searchfield on menu bar when unauthenticated
   - Show 3 blocks below signup (responsive Flex grid)
     - Total BTC sent
     - Number of transactions

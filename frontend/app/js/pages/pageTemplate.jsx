@@ -1,5 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Flex, Header, API, SearchField, UserRow } from 'base/base';
+import { Flex, Header, API, SearchField } from 'base/base';
+import { UserRow } from 'app/common';
 
 class PageTemplate extends Component {
   constructor(props) {

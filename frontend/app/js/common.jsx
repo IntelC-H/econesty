@@ -33,4 +33,14 @@ const RedX = ({ component }) => h(component || 'span', { style: {color: "red"}, 
 const GreenCheck = ({ component }) => h(component || 'span', { style: {color: "green"}, className:"fas fa-check icon" });
 const Warning = ({ component }) => h(component || 'span', { style: {color: "orange"}, className:"fas fa-exclamation-triangle icon" });
 
-export { FlexControlBlock, SideMargins, BTC, RedX, GreenCheck, Warning };
+function UserRow({ element }) {
+  return (
+    <Flex container alignItems="center">
+      <Flex component='img' src={element.avatar_url} className="circular"
+            marginRight width="1rem" height="1rem" />
+      <div>{element.username}</div>
+    </Flex>
+  );
+}
+
+export { FlexControlBlock, SideMargins, BTC, RedX, GreenCheck, Warning, UserRow };
