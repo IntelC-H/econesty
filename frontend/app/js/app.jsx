@@ -17,14 +17,12 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 require('preact/debug');
 
-// BUGS: - frontend forms don't work correctly (missing user_id-type things)
-//       - backend automatic ownership isn't working
-
 /*
-  TODO for Polished:
+  TODO for UX redo:
   - Retry failed transactions
-  - JS animation for loaders
-  - Fix content jump in Wallets page
+    - already stubbed out, need to fill in onClick
+  - ensure that all non-content text has no-select class
+  - make sure forms have labels above input
 */
 
 function makeRoute(path, Comp, wcs = {}) {

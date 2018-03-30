@@ -105,11 +105,11 @@ function TransactionRequirements({ collectionView }) {
   return (
     <XOverflowable>
       <Table striped horizontal>
-        <thead>
+        <thead className="no-select">
           <tr>
-          <th>Requirement</th>
-          <th>User</th>
-          <th />
+            <th>Requirement</th>
+            <th>User</th>
+            <th />
           </tr>
         </thead>
         <tbody>

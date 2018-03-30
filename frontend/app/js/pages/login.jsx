@@ -1,5 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Router, API, Form, Input, FormGroup, Flex } from 'base/base';
+import { FlexControlBlock } from 'app/common';
 
 class Login extends Component {
   constructor(props) {
@@ -24,20 +25,18 @@ class Login extends Component {
   render() {
     return (
        <Flex container column alignItems="center">
-         <h1>Welcome Back!</h1>
+         <h1 className="no-select">Welcome Back!</h1>
          <Form onSubmit={this.login} method="POST">
            {!!this.state.error && <p>{this.state.error.message}</p>}
            <FormGroup>
-             <Flex container alignItems="center">
-               <label style={{minWidth: "6em"}}>Username</label>
+             <FlexControlBlock label="Username">
                <Input text required name="username" />
-             </Flex>
-             <Flex container alignItems="center">
-               <label style={{minWidth: "6em"}}>Password</label>
+             </FlexControlBlock>
+             <FlexControlBlock label="Password">
                <Input password required name="password" />
-             </Flex>
+             </FlexControlBlock>
              <Flex container alignItems="center" justifyContent="center">
-               <button type="submit">LOGIN</button>
+               <button type="submit">Login</button>
              </Flex>
            </FormGroup>
          </Form>
