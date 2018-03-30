@@ -18,6 +18,10 @@ function UserLink({ user }) {
   );
 }
 
+function attemptFinalize(transaction, elementView) {
+  API.transaction.instanceMethod("POST", "finalize", transaction.id).then(elementView.setElement);
+}
+
 function TransactionInfo({ elementView }) {
   let t = elementView.getElement();
 
@@ -38,7 +42,7 @@ function TransactionInfo({ elementView }) {
         {t.completed && !t.success &&
         <Flex container alignItems="center">
           <p>{t.error ? "Blockchain Error: " + t.error : ""}</p>
-          <button onClick={null}>Retry</button>
+          <button onClick={() => attemptFinalize(t, elementView)}>Retry</button>
         </Flex>}
         <h3><BTC /> {parseFloat(t.amount)}</h3>
       </Flex>

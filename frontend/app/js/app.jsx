@@ -20,7 +20,7 @@ require('preact/debug');
 /*
   TODO for UX redo:
   - Retry failed transactions
-    - already stubbed out, need to fill in onClick
+    - test this functionality
   - ensure that all non-content text has no-select class
   - make sure forms have labels above input
 */
