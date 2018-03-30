@@ -21,6 +21,7 @@ import RequiredOfMe from 'app/pages/requiredofme';
     - test this functionality
   - ensure that all non-content text has no-select class
   - Better responsive tables!
+  - Loading bar for images (avoid DOM shifts)
   - Show 3 blocks below signup (responsive Flex grid)
     - Total BTC sent
     - Number of transactions
