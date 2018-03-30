@@ -4,10 +4,17 @@ import { prependFunc } from './utilities';
 class Responsive extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      width: window.outerWidth
-    };
+    this.state = this.widthToSizes(window.innerWidth);
     this.onResize = this.onResize.bind(this);
+  }
+
+  widthToSizes(w) {
+    return {
+      sm: w >= 568,
+      md: w >= 768,
+      lg: w >= 1024,
+      xl: w >= 1280
+    };
   }
 
   componentWillMount() {
@@ -18,25 +25,24 @@ class Responsive extends Component {
     window.removeEventListener("resize", this.onResize);
   }
 
-  onResize(event) {
-    this.setState(st => ({ ...st, width: event.target.outerWidth }));
+  onResize() {
+    this.setState(st => ({ ...st,
+                           ...this.widthToSizes(window.innerWidth)}));
   }
 
-  getSizingProps() {
-    return {
-      sm: this.state.width >= 568,
-      md: this.state.width >= 768,
-      lg: this.state.width >= 1024,
-      xl: this.state.width >= 1280
-    };
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.sm !== this.state.sm
+        || nextState.md !== this.state.md
+        || nextState.lg !== this.state.lg
+        || nextState.xl !== this.state.xl;
   }
 
   render({ children, ...props }) {
     prependFunc(props, "onResize", this.onResize);
     return (
-      <div {...props}>
+      <div key="responsive_wrapper" {...props}>
         {children.map(c => {
-          return typeof c === "function" ? c(this.getSizingProps()) : cloneElement(c, this.getSizingProps());
+          return typeof c === "function" ? c(this.state) : cloneElement(c, this.state);
         })}
       </div>
     );

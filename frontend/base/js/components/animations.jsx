@@ -10,17 +10,20 @@ class Animations extends Component {
   }
 
   componentWillUnmount() {
-    cancelAnimationFrame(this.raf);
     this.setState({ index: 0 });
   }
 
   onRest() {
-    this.raf = requestAnimationFrame(() =>
-       this.setState({index: this.props.repeat
-                              ? this.state.index >= this.props.animations.length - 1
-                                  ? 0
-                                  : this.state.index + 1
-                              : this.state.index }));
+    this.setState(st => ({...st,
+                          index: this.props.repeat
+                           ? st.index >= this.props.animations.length - 1
+                               ? 0
+                               : st.index + 1
+                           : st.index }));
+  }
+
+  componentShouldUpdate(nextProps, nextState) {
+    return nextState.index !== this.state.index;
   }
 
   render({ repeat, // eslint-disable-line no-unused-vars

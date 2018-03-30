@@ -15,7 +15,6 @@ import CollectionView from './components/collectionview';
 import ElementView from './components/elementview';
 import { Router, Link } from './components/routing';
 import Utilities from './components/utilities';
-import ShouldNotUpdate from './components/shouldnotupdate';
 import Animations from './components/animations';
 import Loading from './components/loading';
 import Flex from './components/flex';
@@ -23,10 +22,10 @@ import Elements from './components/elements';
 import Responsive from './components/responsive';
 import Referencing from './components/referencing';
 import Header from './components/header';
-import { prependFunc, makeClassName, inheritClass, cssSubclass } from './components/utilities';
+import { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass } from './components/utilities';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, UserRow, CollectionView, ElementView, Header,
-         Router, Link, Utilities, ShouldNotUpdate, Animations, Referencing,
+         Router, Link, Utilities, doNotUpdate, Animations, Referencing,
          Flex, Elements, Loading, Responsive, prependFunc, makeClassName, inheritClass, cssSubclass };

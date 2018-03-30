@@ -5,38 +5,29 @@
 @import "../mixins";
 @import "../variables";
 
-.container {
-  position: relative;
-  .loading-container {
-    $loading-color: #555555 !default !global;
-    $loading-width: 0.5rem !default !global;
+.loading-container {
+  $loading-color: #555555 !default !global;
+  $loading-width: 0.5rem !default !global;
 
-    .loading-bar {
-      width: 4 * $element-height;
-      height: $loading-width;
-      position: relative;
-      margin: $padding;
-      .background, .foreground {
-        height: 100%;
-        width: 100%;
-        top: 0;
-        left: 0;
-        position: absolute;
-      }
-      .background {
-        background-color: mix(rgba(255, 255, 255, 0), $loading-wheel-color, 50%);
-      }
-      .foreground {
-        background-color: $loading-wheel-color;
-      }
-    }
-  
-    // For FadeTransition
-    div[transparent="true"] & {
-      height: 0;
-      overflow: visible;
-      position: absolute;
+  width: 100%;
+
+  .loading-bar {
+    width: 4 * $element-height;
+    height: $loading-width;
+    position: relative;
+    margin: $padding;
+    .background, .foreground {
+      height: 100%;
       width: 100%;
+      top: 0;
+      left: 0;
+      position: absolute;
+    }
+    .background {
+      background-color: mix(rgba(255, 255, 255, 0), $loading-color, 50%);
+    }
+    .foreground {
+      background-color: $loading-color;
     }
   }
 }

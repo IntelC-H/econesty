@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { TransitionMotion, spring, presets } from 'preact-motion';
-import ShouldNotUpdate from './shouldnotupdate';
+import { doNotUpdate } from './utilities';
 
 class Drawer extends Component {
   constructor(props) {
@@ -26,7 +26,12 @@ class Drawer extends Component {
     this.setState(st => ({...st, open: false}));
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.open !== this.state.open || nextProps.children !== this.props.children;
+  }
+
   render({children, preset, animateClose, animateOpen}, {open}) {
+    let noUpdateChildren = children.map(doNotUpdate);
     return (
       <div className="drawer">
         <TransitionMotion
@@ -52,9 +57,7 @@ class Drawer extends Component {
                 <div key={content.key}
                      className="drawer-content"
                      style={{transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")"}}>
-                  <ShouldNotUpdate>
-                    {children}
-                  </ShouldNotUpdate>
+                  {noUpdateChildren}
                 </div>
               );
             }

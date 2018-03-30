@@ -16,7 +16,8 @@
     "normalize.css": "^8.0.0",
     "preact": "^8.2.5",
     "preact-motion": "^1.1.0",
-    "prop-types": "^15.5.10"
+    "prop-types": "^15.5.10",
+    "why-did-you-update": "^0.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

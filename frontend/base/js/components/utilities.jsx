@@ -1,4 +1,4 @@
-import { h, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
+import { h, cloneElement, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
 function prependFunc(obj, fname, newf) {
@@ -11,6 +11,19 @@ function prependFunc(obj, fname, newf) {
     };
   }
   return obj;
+}
+
+// Wraps a React element. prevents updates to the element from the parent.
+function doNotUpdate(element) {
+  return h(class doNotUpdate extends Component {
+    shouldComponentUpdate() {
+      return false;
+    }
+
+    render() {
+      return element;
+    }
+  }, {});
 }
 
 function makeClassName() {
@@ -62,10 +75,11 @@ function cssSubclass(BaseComponent, // React component (functions, Component sub
   return f;
 }
 
-export { prependFunc, makeClassName, inheritClass, cssSubclass, choiceComponent };
+export { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass, choiceComponent };
 
 export default {
   prependFunc: prependFunc,
+  doNotUpdate: doNotUpdate,
   makeClassName: makeClassName,
   inheritClass: inheritClass,
   cssSubclass: cssSubclass,

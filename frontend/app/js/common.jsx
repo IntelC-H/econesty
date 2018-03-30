@@ -17,10 +17,10 @@ function FlexControlBlock({ label, children }) {
 const SideMargins = ({ children, ...props }) =>
   <Responsive>
     { ({ sm }) => {
-      if (!sm) return <div {...props}>{children}</div>;
+      props.basis = sm ? `${100 * (2/3)}%` : undefined;
       return (
         <Flex container justifyContent="center">
-          <Flex basis={`${100 * (2/3)}%`} {...props}>
+          <Flex {...props}>
             {children}
           </Flex>
         </Flex>

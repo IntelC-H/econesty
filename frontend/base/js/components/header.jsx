@@ -1,15 +1,13 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
-import { Link } from 'base/components/routing';
+import { Link, Flex } from 'base/base';
 import PropTypes from 'prop-types';
 
 function Header({ menuElements, title }) {
   return (
-    <div className="header">
-      <Link href="/" className="heading">{title}</Link>
-      <ul className="menu-list">
-        {menuElements.map(me => <li>{me}</li>)}
-      </ul>
-    </div>
+    <Flex container wrap justifyContent="space-between" alignItems="center" className="header">
+      <Flex margin component={Link} href="/" className="heading">{title}</Flex>
+      <Flex container wrap row alignItems="center" margin>{menuElements}</Flex>
+    </Flex>
   );
 }
 

@@ -2,13 +2,12 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { makeClassName } from './utilities';
 
-function IsString(str) {
-  return (props, propName, componentName) => {
-    if (props[propName] !== str) {
-      return new Error(`Invalid prop \`${propName}\` supplied to \`${componentName}\`. Validation failed.`);
-    }
-    return undefined;
-  };
+function measurement(props, propName, componentName) {
+  let typ = typeof props[propName];
+  if (typ !== 'string' && typ !== 'number') {
+    return new Error(`Invalid prop \`${propName}\` supplied to \`${componentName}\`. Validation failed.`);
+  }
+  return undefined;
 }
 
 function Flex({ style, className, component,
@@ -43,7 +42,6 @@ function Flex({ style, className, component,
     if (hasBasis) stylep.flexBasis = basis;
   }
   if (align !== null && align !== undefined) stylep.alignSelf = align;
-
   if (height !== null && height !== undefined) stylep.height = height;
   if (width !== null && width !== undefined) stylep.width = width;
 
@@ -65,8 +63,9 @@ function Flex({ style, className, component,
   }
   let newClassName = makeClassName.apply(this, clses);
   if (Boolean(newClassName)) props.className = newClassName;
+  if (Object.keys(stylep).length > 0) props.style = stylep;
 
-  return h(component, { ...props, style: stylep});
+  return h(component, props);
 }
 
 Flex.defaultProps = {
@@ -121,9 +120,17 @@ Flex.propTypes = {
   order: PropTypes.number,
   grow: PropTypes.number,
   shrink: PropTypes.number,
-  basis: PropTypes.oneOfType([IsString("auto"), IsString("content"), IsString("fill"),
-                              IsString("max-content"), IsString("min-content"), IsString("fit-content"),
-                              PropTypes.number, PropTypes.string]),
+  basis: PropTypes.oneOfType([
+    measurement,
+    PropTypes.oneOf([
+      "auto",
+      "content",
+      "fill",
+      "max-content",
+      "min-content",
+      "fit-content"
+    ])
+  ]),
   align: PropTypes.oneOf([
     "auto",
     "flex-start",

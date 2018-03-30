@@ -20,6 +20,10 @@ class Collapsible extends Component {
     });
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.contentVisible !== this.state.contentVisible || nextProps.children !== this.props.children;
+  }
+
   render({ children, label, className, preset, animateClose, animateOpen, ...props }, { contentVisible }) {
     let containerProps = {
       ...props,

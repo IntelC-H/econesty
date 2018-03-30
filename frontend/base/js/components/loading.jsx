@@ -45,20 +45,18 @@ class Loading extends Component {
     if (!shouldShow) return null;
     let newClassName = makeClassName('loading-container', className);
     return (
-      <div className="container">
-        <Flex container justifyContent="center" className={newClassName} {...props}>
-          <Animations
-            animations={this.animations}
-            repeat>
-            {({width, x}) => {
-               return <div className="loading-bar">
-                  <div style={{width: `${width}%`, left: `${x}%` }} className="foreground" />
-                  <div style={{}} className="background" />
-               </div>;
-              }}
-          </Animations>
-        </Flex>
-      </div>
+      <Flex container justifyContent="center" className={newClassName} {...props}>
+        <Animations
+          animations={this.animations}
+          repeat>
+          {({width, x}) => {
+             return <div className="loading-bar">
+                <div style={{width: `${width}%`, left: `${x}%` }} className="foreground" />
+                <div style={{}} className="background" />
+             </div>;
+            }}
+        </Animations>
+      </Flex>
     );
   }
 }

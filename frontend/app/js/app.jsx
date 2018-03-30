@@ -14,8 +14,7 @@ import Home from 'app/pages/home';
 import Wallets from 'app/pages/wallets';
 import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
-
-require('preact/debug');
+import { Loading, FadeTransition } from 'base/base';
 
 /*
   TODO for UX redo:

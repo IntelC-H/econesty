@@ -51,7 +51,8 @@ class WalletCreationControls extends Component {
 function Wallets({}) {
   return (
     <SideMargins>
-      <Flex component="h1" className="primary no-select"
+      <Flex key="your_wallets"
+            component="h1" className="primary no-select"
             container justifyContent="center">
         Your Wallets
       </Flex>
@@ -62,7 +63,7 @@ function Wallets({}) {
           {collectionView.getElements().map(w =>
           <tr>
             <Flex container component="td">
-              {w.is_testnet && 
+              {w.is_testnet &&
                 <Flex component="p" className="vertical-text no-select"
                       align="center" marginRight>TESTNET</Flex>}
               <Flex grow="2">

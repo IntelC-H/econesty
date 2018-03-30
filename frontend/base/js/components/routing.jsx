@@ -56,6 +56,10 @@ class Router extends Component {
     Router.subscribers.splice(Router.subscribers.indexOf(this.update)>>>0, 1);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.url !== this.state.url || nextProps.children !== this.props.children;
+  }
+
   render({ children, notFound }) {
     for (let c of children) { // the children should all be routes
       if (c.attributes && "path" in c.attributes) {

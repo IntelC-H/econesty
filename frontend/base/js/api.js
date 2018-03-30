@@ -1,7 +1,5 @@
 // API.js: Promise-based REST API access
 
-import { h, Component } from 'preact';
-
 class API {
   static get storage() {
     return window.localStorage;
@@ -32,32 +30,6 @@ class API {
 
   static setUserID(user_id) {
     this.storage.setItem("user_id", user_id || null);
-  }
-
-  static wrapComponent(Comp) {
-    return class extends Component {
-      constructor(props) {
-        super(props);
-        this.state = { authenticated: API.isAuthenticated }; 
-        this.handleAuthChange = this.handleAuthChange.bind(this);
-      }
-      handleAuthChange(e) {
-        if (this.state.authenticated !== API.isAuthenticated) {
-          this.setState(st => ({ ...st, authenticated: API.isAuthenticated }));
-        }
-      }
-      componentWillMount() {
-        window.addEventListener("authchange", this.handleAuthChange);
-        window.addEventListener("storage", this.handleAuthChange);
-      }
-      componentWillUnmount() {
-        window.removeEventListener("authchange", this.handleAuthChange);
-        window.removeEventListener("storage", this.handleAuthChange);
-      }
-      render(props) {
-        return h(Comp, props);
-      }
-    };
   }
 
   static networking(method, path, urlparams, body) {
