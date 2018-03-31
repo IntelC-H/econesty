@@ -2,6 +2,16 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { TransitionMotion, spring, presets } from 'preact-motion';
 import { doNotUpdate } from './utilities';
 
+const styles = {
+  drawer: {
+    overflow: "hidden"
+  },
+  drawerContent: {
+    transformOrigin: "top",
+    boxSizing: "border-box"
+  }
+};
+
 class Drawer extends Component {
   constructor(props) {
     super(props);
@@ -33,7 +43,7 @@ class Drawer extends Component {
   render({children, preset, animateClose, animateOpen}, {open}) {
     let noUpdateChildren = children.map(doNotUpdate);
     return (
-      <div className="drawer">
+      <div className="drawer" style={styles.drawer}>
         <TransitionMotion
           willLeave={() => ({ xlate: animateClose ? spring(-100, preset) : -100 })}
           willEnter={() => ({ xlate: -100 })}
@@ -56,7 +66,7 @@ class Drawer extends Component {
               return (
                 <div key={content.key}
                      className="drawer-content"
-                     style={{transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")"}}>
+                     style={{transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")", ...styles.drawerContent}}>
                   {noUpdateChildren}
                 </div>
               );

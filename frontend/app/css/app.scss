@@ -11,6 +11,7 @@
 
 h1, h2, h3, h4, h5, h6, p, span {
   color: $text-color;
+  margin: $padding 0;
 }
 
 body {
@@ -94,6 +95,10 @@ p.script {
 /*
   Wallets page
 */
+
+p.private-key {
+  margin-top: 0; // for the Collapsible
+}
 
 p.vertical-text {
   transform: rotate(180deg);

@@ -6,15 +6,7 @@
 @import "base/variables";
 @import "base/mixins";
 
-.no-select {
-  @include user-select(none);
-}
-
-.icon {
-  margin-left: $padding;
-  margin-right: $padding;
-}
-
+@import "base/components";
 @import "base/components/table";
 @import "base/components/button";
 @import "base/components/input";
@@ -25,6 +17,5 @@
 @import "base/components/header";
 @import "base/components/xoverflowable";
 @import "base/components/frown";
-@import "base/components/drawer";
 @import "base/components/collapsible";
 @import "base/components/flex";

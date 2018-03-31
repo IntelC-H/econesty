@@ -5,6 +5,24 @@ import Animations from './animations';
 import { spring } from 'preact-motion';
 import { Flex } from './flex';
 
+const styles = {
+  loadingContainer: {
+    width: "100%"
+  },
+  loadingBar: {
+    position: "relative",
+    width: "10rem",
+    height: "0.5rem"
+  },
+  progress: {
+    height: "100%",
+    width: "100%",
+    top: 0,
+    left: 0,
+    position: "absolute"
+  }
+};
+
 class Loading extends Component {
   constructor(props) {
     super(props);
@@ -41,19 +59,18 @@ class Loading extends Component {
     clearTimeout(this.timeout);
   }
 
-  render({ delay, className, ...props}, { shouldShow }) { // eslint-disable-line no-unused-vars
+  render({ delay, style, ...props}, { shouldShow }) { // eslint-disable-line no-unused-vars
     if (!shouldShow) return null;
-    let newClassName = makeClassName('loading-container', className);
+    let containerStyle = { ...styles.loadingContainer, ...style };
     return (
-      <Flex container justifyContent="center" className={newClassName} {...props}>
+      <Flex {...props} container justifyContent="center" style={containerStyle}>
         <Animations
           animations={this.animations}
           repeat>
           {({width, x}) => {
-             return <div className="loading-bar">
-                <div style={{width: `${width}%`, left: `${x}%` }} className="foreground" />
-                <div style={{}} className="background" />
-             </div>;
+             return <Flex margin className="loading-bar" style={styles.loadingBar}>
+                <div style={{width: `${width}%`, left: `${x}%`, ...styles.progress }} className="progress" />
+             </Flex>;
             }}
         </Animations>
       </Flex>

@@ -29,6 +29,7 @@ const SideMargins = ({ children, ...props }) =>
   </Responsive>;
 
 const BTC = inheritClass("span", "fab fa-btc");
+
 const RedX = ({ component }) => h(component || 'span', { style: {color: "red"}, className:"fas fa-times icon" });
 const GreenCheck = ({ component }) => h(component || 'span', { style: {color: "green"}, className:"fas fa-check icon" });
 const Warning = ({ component }) => h(component || 'span', { style: {color: "orange"}, className:"fas fa-exclamation-triangle icon" });

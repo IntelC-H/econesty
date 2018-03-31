@@ -2,8 +2,7 @@ import { h, render, cloneElement } from 'preact'; // eslint-disable-line no-unus
 import { inheritClass, cssSubclass } from './utilities';
 
 const Error = inheritClass("div", "error");
-//const XOverflowable = inheritClass("div", "xoverflowable");
-const XOverflowable = 'div';
+const XOverflowable = inheritClass("div", "xoverflowable");
 
 const DeleteButton = inheritClass("a", "fa fa-times delete-button");
 const SearchIcon = inheritClass("span", "fa fa-search search-icon");

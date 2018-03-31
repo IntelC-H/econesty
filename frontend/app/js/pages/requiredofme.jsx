@@ -21,18 +21,19 @@ function RequirementRow({ collectionView, element }) {
         </Form>}
         {element.acknowledged && !element.rejected &&
          <Flex container column alignItems="flex-start" justifyContent="center">
-           <Form key={element.id + "-sign"}
+           {element.fulfilled && <p className="script">{element.signature}</p>}
+           {!element.fulfilled && <Form key={element.id + "-sign"}
                    onSubmit={collectionView.saveElement}>
              <Flex container row alignItems="center">
-               {Boolean(element.signature) && <p className="script">{element.signature}</p>}
-               {!Boolean(element.signature) && <Input hidden name="id" value={element.id} />}
-               {!Boolean(element.signature) && <Input text
-                      placeholder="Sign/type your name"
-                      name="signature" value={element.signature} />}
-               {!Boolean(element.signature) && !element.rejected && <button action="submit">SIGN</button>}
-               {!element.fulfilled && <button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</button>}
+               <Input hidden name="id" value={element.id} />
+               <Flex component={Input} margin
+                     text
+                     placeholder="Sign/type your name"
+                     name="signature" value={element.signature} />
+               <button action="submit">SIGN</button>
+               <button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</button>
              </Flex>
-           </Form>
+           </Form>}
          </Flex>}
       </td>
     </tr>
@@ -59,9 +60,8 @@ function RequirementsCollection({ collectionView }) {
 function RequiredOfMe(props) { // eslint-disable-line no-unused-vars
   return (
     <SideMargins>
-      <Flex container column alignItems="center">
+      <Flex container column alignItems="center" margin>
         <h1 className="no-select">My Requirements</h1>
-        <p className="no-select">Each time onus is put upon you in a transaction, the details of your responsibility will appear here.</p>
       </Flex>
       <CollectionView collection={API.requirement.withParams({ user__id: API.getUserID() })}>
         <RequirementsCollection />

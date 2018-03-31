@@ -69,7 +69,7 @@ function Wallets({}) {
               <Flex grow="2">
                 <p className="secondary crypto-text">{w.address}</p>
                 <Collapsible label="Private Key" animateClose={false}>
-                  <p className="teritary crypto-text">{w.private_key}</p>
+                  <p className="private-key teritary crypto-text">{w.private_key}</p>
                 </Collapsible>
               </Flex>
               <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />

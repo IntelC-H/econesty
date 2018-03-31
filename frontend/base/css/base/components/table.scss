@@ -51,6 +51,7 @@ table {
     margin: 0;
     padding: $padding ($padding * 2);
     border: none;
+    min-height: $element-height;
   }
 
   td {

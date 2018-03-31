@@ -1,11 +1,8 @@
-.icon {
-  padding: $padding;
+.no-select {
+  @include user-select(none);
 }
 
-.delete-button {
-  float: right;
-  height: 0;
-  overflow: visible;
-  padding: $padding;
-  padding-right: $padding + $border-radius;
+.icon {
+  margin-left: $padding;
+  margin-right: $padding;
 }

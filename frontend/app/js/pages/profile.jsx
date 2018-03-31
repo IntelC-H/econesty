@@ -4,9 +4,6 @@ import { Table, XOverflowable, Frown } from 'base/components/elements';
 import { Link, Router, API, CollectionView, ElementView, Form,
          FormGroup, Input, Flex } from 'base/base';
 
-const dateOpts = { year: 'numeric', month: 'long', day: 'numeric' };
-const formatDate = x => new Date(x).toLocaleString(navigator.language, dateOpts);
-
 function BriefUserInfo({ user }) {
   return (
     <span className="secondary">
@@ -35,10 +32,11 @@ function UserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <Flex container column alignItems="center">
-      <img src={user.avatar_url} className="circular" />
-      <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
-      <div className="tertiary">(@{user.username})</div>
-      <div className="secondary">User #{user.id}, since {formatDate(user.date_joined)}</div>
+      <Flex margin component='img' src={user.avatar_url} className="circular" />
+      <Flex margin>
+        <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
+        <div className="secondary">@{user.username}</div>
+      </Flex>
     </Flex>
   );
 }
