@@ -39,6 +39,7 @@ const style = {
       textAlign: "center"
     },
     page: {
+      // color: $text-color;
       backgroundColor: "white",
       fontFamily: "'Lato', sans-serif"
     },

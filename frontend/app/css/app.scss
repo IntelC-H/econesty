@@ -3,22 +3,3 @@
 
 @import url('//fonts.googleapis.com/css?family=Hammersmith+One|Inconsolata|Lato|Sacramento');
 @import url('//use.fontawesome.com/releases/v5.0.8/css/all.css');
-
-h1, h2, h3, h4, h5, h6, p, span {
-  color: $text-color;
-  margin: $padding 0;
-}
-
-// a {
-//   &:active {
-//     color: $accent-color;
-//   }
-// }
-
-/*
-  Wallets page
-*/
-
-p.vertical-text {
-  color: $accent-color;
-}
