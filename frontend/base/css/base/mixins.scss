@@ -1,9 +1,5 @@
 @import "./variables";
 
-@mixin raised {
-  z-index: 100;
-}
-
 @mixin user-select($value) {
   @if $value == none {
     -webkit-touch-callout: none;
@@ -13,25 +9,11 @@
   -khtml-user-select: $value;
   -moz-user-select: $value;
   -ms-user-select: $value;
-  user-select: $value;;
+  user-select: $value;
 }
 
 @mixin appearance($value) {
   -webkit-appearance: $value;
   -moz-appearance: $value;
   appearance: $value;
-}
-
-@mixin keyframes($animationName) {
-  @-webkit-keyframes #{$animationName} {
-    @content;
-  }
-  @keyframes #{$animationName} {
-    @content;
-  }
-}
-
-@function toRem($size, $lineHeight: 16px) { // stylelint-disable-line unit-whitelist
-  $remSize: $size / $lineHeight;
-  @return $remSize * 1rem;
 }

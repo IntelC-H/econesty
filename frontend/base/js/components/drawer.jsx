@@ -40,7 +40,7 @@ class Drawer extends Component {
     return nextState.open !== this.state.open || nextProps.children !== this.props.children;
   }
 
-  render({children, preset, animateClose, animateOpen}, {open}) {
+  render({children, contentStyle, preset, animateClose, animateOpen}, {open}) {
     let noUpdateChildren = children.map(doNotUpdate);
     return (
       <div className="drawer" style={styles.drawer}>
@@ -66,7 +66,7 @@ class Drawer extends Component {
               return (
                 <div key={content.key}
                      className="drawer-content"
-                     style={{transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")", ...styles.drawerContent}}>
+                     style={{...contentStyle, ...styles.drawerContent, transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")"}}>
                   {noUpdateChildren}
                 </div>
               );

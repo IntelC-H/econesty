@@ -2,6 +2,22 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Motion, spring, presets } from 'preact-motion';
 import { makeClassName } from './utilities';
 import Drawer from './drawer';
+import { noSelect } from '../style/mixins';
+import { parseSize, renderSize, fmapSize } from '../style/sizing';
+import BaseStyles from '../style';
+
+const styles = {
+  label: {
+    cursor: "pointer",
+    ...noSelect()
+  },
+  disclosure: {
+    padding: BaseStyles.padding
+  },
+  content: {
+    paddingLeft: renderSize(fmapSize(s => s * 4, parseSize(BaseStyles.padding)))
+  }
+};
 
 class Collapsible extends Component {
   constructor(props) {
@@ -25,20 +41,16 @@ class Collapsible extends Component {
   }
 
   render({ children, label, className, preset, animateClose, animateOpen, ...props }, { contentVisible }) {
-    let containerProps = {
-      ...props,
-      className: makeClassName("collapsible", className)
-    };
-
     return (
-      <div {...containerProps}>
-        <label onClick={this.toggle}>
+      <div {...props}>
+        <label onClick={this.toggle} style={styles.label}>
           <Motion style={{angle: spring(contentVisible ? 90 : 0, presets.wobbly)}}>
-            {({ angle }) => <span className="fa fa-caret-right disclosure" style={{transform: "rotate(" + angle + 'deg)'}}/> }
+            {({ angle }) => <span className="fa fa-caret-right" style={{...styles.disclosure, transform: "rotate(" + angle + 'deg)'}}/> }
           </Motion>
           {label}
         </label>
         <Drawer ref={d => this.drawer = d }
+                contentStyle={styles.content /* TODO factor this prop out!!!! */}
                 preset={preset}
                 animateClose={animateClose}
                 animateOpen={animateOpen}>
