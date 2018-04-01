@@ -23,16 +23,15 @@ import RequiredOfMe from 'app/pages/requiredofme';
   - Retry failed transactions
     - test this functionality; hook it into ElementView's <Loading />
   - Better responsive tables!
-  - Loading bar for images (avoid DOM shifts)
-  - Show 3 blocks below signup (responsive Flex grid)
-    - Total BTC sent
-    - Number of transactions
-    - Number of requirements made
+  - Image placeholders/Loading's to prevent abrupt page shifts
+  - home.jsx
+    - Show 3 blocks below signup (responsive Flex grid)
+      - Total BTC sent
+      - Number of transactions
+      - Number of requirements made
   - requiredofme.jsx
     - Place signing and acknowledging controls on the right half (bottom on mobile - flex)
     - Terms content can be to the left half
-  - profile.jsx
-    - Loading the profile image causes the page to abruptly shift after it's loaded. Placehold it.
 */
 
 function makeRoute(path, Comp, wcs = {}) {
@@ -52,7 +51,7 @@ function containsMe(u) {
 }
 
 function replaceMeInPath() {
-  const url = Router.getPath()
+  const url = Router.path
                     .split("/")
                     .map(u => u === "me" ? String(API.getUserID()) : u)
                     .join("/");

@@ -3,6 +3,7 @@ import { Table, DeleteButton } from 'base/components/elements';
 import { SideMargins } from 'app/common';
 import { Flex, Collapsible,
          CollectionView, API, Form, Input, FormGroup } from 'base/base';
+import style from 'app/style';
 
 class WalletCreationControls extends Component {
   constructor(props) {
@@ -64,12 +65,13 @@ function Wallets({}) {
           <tr>
             <Flex container component="td">
               {w.is_testnet &&
-                <Flex component="p" className="vertical-text no-select"
+                <Flex component="p" className="no-select" style={style.text.vertical}
                       align="center" marginRight>TESTNET</Flex>}
               <Flex grow="2">
-                <p className="secondary crypto-text">{w.address}</p>
+                <p className="secondary" style={style.text.crypto}>{w.address}</p>
                 <Collapsible label="Private Key" animateClose={false}>
-                  <p className="private-key teritary crypto-text">{w.private_key}</p>
+                  <p className="teritary"
+                     style={{...style.text.crypto, ...style.element.privateKey}}>{w.private_key}</p>
                 </Collapsible>
               </Flex>
               <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />

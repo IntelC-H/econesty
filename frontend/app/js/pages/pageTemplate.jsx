@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Flex, Header, API, SearchField } from 'base/base';
 import { UserRow } from 'app/common';
+import style from 'app/style';
 
 class PageTemplate extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class PageTemplate extends Component {
 
   render(props, { authenticated }) {
     return (
-      <div>
+      <div style={style.element.page}>
         <Header title="Econe$ty"
                 menuElements={authenticated ? [
                   <SearchField

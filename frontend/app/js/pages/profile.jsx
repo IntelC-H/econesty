@@ -1,8 +1,10 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { BTC, RedX, GreenCheck, Warning } from 'app/common';
-import { Table, XOverflowable, Frown } from 'base/components/elements';
-import { Link, Router, API, CollectionView, ElementView, Form,
+import { XOverflowable, Frown, BTC, RedX, GreenCheck, Warning } from 'app/common';
+import { Table } from 'base/components/elements';
+import { Anchor, Router, API, CollectionView, ElementView, Form,
          FormGroup, Input, Flex } from 'base/base';
+
+import style from 'app/style';
 
 function BriefUserInfo({ user }) {
   return (
@@ -15,11 +17,11 @@ function BriefUserInfo({ user }) {
 function NoTransactions({ userId }) {
   let isMe = userId === API.getUserID();
   return (
-    <div className="frown-message">
+    <Flex margin style={style.element.frownMessage}>
       <Frown large />
       {isMe && <p className="no-select">No transactions yet!</p>}
       {!isMe && <p className="no-select">No transactions with this user yet!</p>}
-    </div>
+    </Flex>
   );
 }
 
@@ -32,7 +34,7 @@ function UserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <Flex container column alignItems="center">
-      <Flex margin component='img' src={user.avatar_url} className="circular" />
+      <Flex margin component='img' src={user.avatar_url} style={style.shape.circular} />
       <Flex margin>
         <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
         <div className="secondary">@{user.username}</div>
@@ -45,7 +47,7 @@ function EditableUserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <Flex container column alignItems="center">
-      <img src={user.avatar_url} className="circular" />
+      <img src={user.avatar_url} style={style.shape.circular} />
       <Flex container column alignItems="center" component={Form} onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input text name="first_name" autocomplete="given-name" placeholder="First name" value={user.first_name} />
@@ -114,25 +116,25 @@ function Profile({ matches }) {
       <Flex container column grow="1" basis="100%" style={{maxWidth:"100%", width: "100%"}}>
         <Flex container row className="profile-button-group" justifyContent="flex-start" wrap>
           {!isAuthenticatedUser &&
-            <Link
+            <Anchor
               component='button'
               href={API.user.baseURL + userId + "/transaction/send"}
-            >Send BTC</Link>}
+            >Send BTC</Anchor>}
             {!isAuthenticatedUser &&
-            <Link
+            <Anchor
               component='button'
               href={API.user.baseURL + userId + "/transaction/receive"}
-            >Receive BTC</Link>}
+            >Receive BTC</Anchor>}
             {isAuthenticatedUser &&
-            <Link
+            <Anchor
               component='button'
               href="/wallets"
-            >Wallets</Link>}
+            >Wallets</Anchor>}
             {isAuthenticatedUser &&
-            <Link
+            <Anchor
               component='button'
               href="/required"
-            >Required</Link>}
+            >Required</Anchor>}
             {isAuthenticatedUser &&
              <button
                onClick={() => {

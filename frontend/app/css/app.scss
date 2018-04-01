@@ -1,121 +1,24 @@
 @import "../../palette.scss";
 @import "base/variables";
-@import "base/mixins";
 
 @import url('//fonts.googleapis.com/css?family=Hammersmith+One|Inconsolata|Lato|Sacramento');
 @import url('//use.fontawesome.com/releases/v5.0.8/css/all.css');
-
-* {
-  font-family: 'Lato', sans-serif;
-}
 
 h1, h2, h3, h4, h5, h6, p, span {
   color: $text-color;
   margin: $padding 0;
 }
 
-body {
-  min-width: 20rem;
-  position: relative;
-  background-color: white;
-}
-
-a {
-  text-decoration: none;
-  cursor: pointer;
-  * {
-    cursor: pointer;
-  }
-  display: inline;
-
-  &:visited, &:link {
-    color: inherit;
-  }
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:active {
-    color: $accent-color;
-  }
-}
-
-.italic {
-  font-style: italic;
-}
-
-.ellipsis-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.circular {
-  border-radius: 50%;
-}
-
-/*
-  Page layout
-*/
-
-.frown-message {
-  opacity: 0.4;
-  margin: $padding;
-  text-align: center;
-}
-
-.section {
-  $_factor: 1.5;
-  margin-top: $padding * $_factor;
-
-  h1, h2, h3, h4, h5, h6 {
-    margin-bottom: $padding / $_factor;
-  }
-
-  p:first-of-type { // stylelint-disable-line declaration-colon-space-after
-    margin-top: $padding / $_factor;
-  }
-
-  p:last-of-type { // stylelint-disable-line declaration-colon-space-after
-    margin-bottom: $padding / $_factor;
-  }
-}
-
-/*
-  Required of Me page
-*/
-
-p.script {
-  font-family: 'Sacramento', cursive;
-  font-style: normal;
-  font-weight: 400;
-}
+// a {
+//   &:active {
+//     color: $accent-color;
+//   }
+// }
 
 /*
   Wallets page
 */
 
-p.private-key {
-  margin-top: 0; // for the Collapsible
-}
-
 p.vertical-text {
-  transform: rotate(180deg);
-  margin: 0;
-  text-align: center;
   color: $accent-color;
-  writing-mode: vertical-lr;
-}
-
-p.crypto-text {
-  font-family: 'Inconsolata', monospace;
-  letter-spacing: 1px; // stylelint-disable-line unit-whitelist
-  max-width: 100%;
-  white-space: pre-wrap;      /* CSS3 */   
-  white-space: -moz-pre-wrap; /* Firefox */    
-  white-space: -pre-wrap;     /* Opera <7 */   
-  white-space: -o-pre-wrap;   /* Opera 7 */    
-  word-wrap: break-word;      /* IE */
-  word-break: break-all;
 }

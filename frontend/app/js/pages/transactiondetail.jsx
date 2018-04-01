@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, XOverflowable } from 'base/components/elements';
-import { GreenCheck, Warning, RedX, BTC, SideMargins} from 'app/common';
-import { API, Flex, Link, CollectionView, ElementView,
+import { Table } from 'base/components/elements';
+import { GreenCheck, Warning, RedX, BTC, SideMargins, XOverflowable } from 'app/common';
+import { API, Flex, Anchor, CollectionView, ElementView,
          Form, FormGroup, Select, Input } from 'base/base';
 
 function makeWalletsPromise() {
@@ -10,11 +10,11 @@ function makeWalletsPromise() {
 
 function UserLink({ user }) {
   return (
-    <Link
+    <Anchor
       className="secondary"
       href={"/user/" + user.id}>
       {user.first_name} {user.last_name} (@{user.username})
-    </Link>
+    </Anchor>
   );
 }
 

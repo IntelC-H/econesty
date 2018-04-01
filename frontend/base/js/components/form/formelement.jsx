@@ -28,6 +28,7 @@ class FormElement extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.name !== nextProps.name) return true;
     if (this.state.value !== nextState.value) return true;
+    if (this.props.style !== nextProps.style) return true;
     return false;
   }
 }

@@ -12,12 +12,6 @@
   $header-title-font: sans-serif !default !global;
   $header-title-fallback-font: sans-serif !default !global;
 
-  @include raised;
-  position: -webkit-sticky; /* Safari */
-  position: sticky;
-  height: auto;
-  top: 0;
-
   color: $header-color;
   background-color: $header-background-color;
   border-bottom: $border-width solid $header-shadow-color; // stylelint-disable-line unit-whitelist
@@ -25,8 +19,6 @@
   .heading {
     @include user-select(none);
     font-family: $header-title-font, $header-title-fallback-font;
-    text-transform: uppercase;
     font-size: $element-height;
-    line-height: 100%;
   }
 }

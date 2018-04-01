@@ -1,10 +1,12 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Flex, Responsive, inheritClass } from 'base/base';
+import { Flex, Responsive, inheritClass, cssSubclass } from 'base/base';
+import style from 'app/style';
 
 function FlexControlBlock({ label, children }) {
   return (
     <Flex container row wrap alignItems="center" grow="1" marginTop marginBottom>
-      <Flex container className="ellipsis-text no-select" justifyContent="flex-start" alignItems="center" basis="100%" marginBottom>
+      <Flex className="no-select" style={style.text.ellipsis}
+            container justifyContent="flex-start" alignItems="center" basis="100%" marginBottom>
         {label}
       </Flex>
       <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
@@ -34,14 +36,24 @@ const RedX = ({ component }) => h(component || 'span', { style: {color: "red"}, 
 const GreenCheck = ({ component }) => h(component || 'span', { style: {color: "green"}, className:"fas fa-check icon" });
 const Warning = ({ component }) => h(component || 'span', { style: {color: "orange"}, className:"fas fa-exclamation-triangle icon" });
 
+function Frown({ medium, large, style, ...props }) {
+  return <span {...props}
+               className="far fa-frown"
+               style={{ ...style, opacity: "0.4", fontSize: (large ? "10rem" : "1rem")}} />;
+}
+
 function UserRow({ element }) {
   return (
     <Flex container alignItems="center">
-      <Flex component='img' src={element.avatar_url} className="circular"
+      <Flex component='img' src={element.avatar_url} style={style.shape.circular}
             marginRight width="1rem" height="1rem" />
       <div>{element.username}</div>
     </Flex>
   );
 }
 
-export { FlexControlBlock, SideMargins, BTC, RedX, GreenCheck, Warning, UserRow };
+function XOverflowable({ style, ...props }) {
+  return <div {...props} style={{ ...style, overflowX: "auto" }}/>;
+}
+
+export { FlexControlBlock, SideMargins, BTC, RedX, GreenCheck, Warning, UserRow, XOverflowable, Frown };

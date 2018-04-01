@@ -1,6 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { makeClassName } from './utilities';
 import Animations from './animations';
 import { spring } from 'preact-motion';
 import { Flex } from './flex';

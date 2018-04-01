@@ -10,103 +10,40 @@
   $searchfield-color:             #000000 !default !global;
   $searchfield-background-color:  #FFFFFF !default !global;
 
-  position: relative;
-  width: 100%;
-
-  * {
-    -webkit-box-sizing: border-box !important;
-    -moz-box-sizing: border-box !important;
-    -ms-box-sizing: border-box !important;
-    box-sizing: border-box !important;
-  }
-
   input {
-    outline-offset: 0;
-    width: 100%;
     color: $searchfield-color;
     background-color: $searchfield-background-color;
-    &:focus {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: $padding + toRem($border-width);
-    }
+    padding-right: $element-height - ($padding/2);
   }
 
-  .searchfield-dropdown-container {
-    margin: 0;
+  .searchfield-dropdown {
+    border: $border-width solid $input-selected-border-color;
+    border-bottom-left-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
 
-    position: relative;
+    color: $searchfield-color;
+    background-color: $searchfield-background-color;
 
-    // Prevent interference with page & build new coord system
-    height: 0;
-    overflow: visible;
-    width: 100%;
-
-    .searchfield-dropdown {
-      overflow: hidden;
-      @include raised;
-      position: absolute;
-
-      width: 100%;
-
-      border: $border-width solid $input-selected-border-color;
-      border-top: none;
-      border-bottom-left-radius: $border-radius;
-      border-bottom-right-radius: $border-radius;
-
-      color: $searchfield-color;
-      background-color: $searchfield-background-color;
-
-      table {
-        border: none;
-
-        td, th {
-          color: $searchfield-color;
-        }
-
-        td:not(.searchfield-noresults) {
-          cursor: pointer;
-        }
-      }
-
-      .searchfield-noresults {
-        text-align: center;
-        margin: $padding auto;
-        background-color: $searchfield-background-color;
+    table {
+      td, th {
+        color: $searchfield-color;
       }
     }
   }
-
+  
   .searchfield-value-link {
     height: $element-height;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   .search-icon {
-    color: $input-placeholder-color;
+    top: $padding;
+    bottom: $padding;
+    right: $padding;
 
-    // Make the cursor ignore the search icon
-    pointer-events: none;
-    cursor: default;
+    path {
+      fill: $input-placeholder-color;
+    }
 
-    font-size: $element-height - ($padding * 2);
-    padding: 0;
-    margin: $padding/4;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    position: absolute;
-    top: ($padding / 2);
-    bottom: ($padding / 2);
-    right: ($padding / 2);
-    left: auto;
-    height: auto;
+    height: $element-height - ($padding * 2);
   }
 }

@@ -1,7 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, Frown } from 'base/components/elements';
-import { Link, Flex, Form, Input, CollectionView, API } from 'base/base';
-import { RedX, GreenCheck, SideMargins } from 'app/common';
+import { Table } from 'base/components/elements';
+import { Anchor, Flex, Form, Input, CollectionView, API } from 'base/base';
+import { RedX, GreenCheck, SideMargins, Frown } from 'app/common';
+import style from 'app/style';
 
 function RequirementRow({ collectionView, element }) {
   return (
@@ -10,9 +11,9 @@ function RequirementRow({ collectionView, element }) {
         <Flex container row alignItems="center">
           {element.rejected && <RedX />}
           {element.fulfilled && <GreenCheck />}
-          <h3>Transaction <Link className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Link></h3>
+          <h3>Transaction <Anchor className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Anchor></h3>
         </Flex>
-        {element.text && element.text.length > 0 && <p className="italic">{element.text}</p>}
+        {element.text && element.text.length > 0 && <p style={style.text.italic}>{element.text}</p>}
         {!element.acknowledged && <Form key={element.id + "-ack"}
               onSubmit={collectionView.saveElement}>
           <Input hidden name="id" value={element.id} />
@@ -21,7 +22,7 @@ function RequirementRow({ collectionView, element }) {
         </Form>}
         {element.acknowledged && !element.rejected &&
          <Flex container column alignItems="flex-start" justifyContent="center">
-           {element.fulfilled && <p className="script">{element.signature}</p>}
+           {element.fulfilled && <p style={style.text.script}>{element.signature}</p>}
            {!element.fulfilled && <Form key={element.id + "-sign"}
                    onSubmit={collectionView.saveElement}>
              <Flex container row alignItems="center">
@@ -43,10 +44,10 @@ function RequirementRow({ collectionView, element }) {
 function RequirementsCollection({ collectionView }) {
   if (collectionView.getElements().length === 0) {
     return (
-      <div className="frown-message">
+      <Flex margin style={style.element.frownMessage}>
         <Frown large />
         <p className="no-select">You don't have any requirements!</p>
-      </div>
+      </Flex>
     );
   }
   return (

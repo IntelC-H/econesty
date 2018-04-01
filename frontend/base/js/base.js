@@ -12,19 +12,20 @@ import Input from './components/form/formelements/input';
 import SearchField from './components/searchfield';
 import CollectionView from './components/collectionview';
 import ElementView from './components/elementview';
-import { Router, Link } from './components/routing';
-import Utilities from './components/utilities';
+import Router from './components/routing';
 import Animations from './components/animations';
 import Loading from './components/loading';
 import Flex from './components/flex';
-import Elements from './components/elements';
 import Responsive from './components/responsive';
 import Referencing from './components/referencing';
 import Header from './components/header';
+import Anchor from './components/anchor';
+import { Table, DeleteButton, Error } from './components/elements';
 import { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass } from './components/utilities';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
-         SearchField, CollectionView, ElementView, Header, Router, Link,
-         Utilities, doNotUpdate, Animations, Referencing, Flex, Elements,
-         Loading, Responsive, prependFunc, makeClassName, inheritClass, cssSubclass };
+         SearchField, CollectionView, ElementView, Header, Router, Anchor,
+         doNotUpdate, Animations, Referencing, Flex, Elements, Loading,
+         Responsive, prependFunc, makeClassName, inheritClass, cssSubclass,
+         Table, DeleteButton, Error };
