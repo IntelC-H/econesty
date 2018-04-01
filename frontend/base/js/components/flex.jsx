@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { makeClassName } from './utilities';
+import BaseStyles from '../style.js';
 
 function measurement(props, propName, componentName) {
   let typ = typeof props[propName];
@@ -10,7 +11,7 @@ function measurement(props, propName, componentName) {
   return undefined;
 }
 
-function Flex({ style, className, component,
+function Flex({ style, component,
                 container, justifyContent, row, rowReverse, column, columnReverse, // container props
                 wrap, nowrap, wrapReverse, alignContent, alignItems,               // more container props
                 order, grow, shrink, basis, align,                                 // item props
@@ -45,24 +46,21 @@ function Flex({ style, className, component,
   if (height !== null && height !== undefined) stylep.height = height;
   if (width !== null && width !== undefined) stylep.width = width;
 
-  let clses = [];
-  if (className && className.length !== 0) clses.push(className);
-  if (padding) clses.push("flex-padding");
+  if (padding) stylep.padding = BaseStyles.padding;
   else {
-    if (paddingLeft) clses.push("flex-padding-left");
-    if (paddingRight) clses.push("flex-padding-right");
-    if (paddingTop) clses.push("flex-padding-top");
-    if (paddingBottom) clses.push("flex-padding-bottom");
+    if (paddingLeft) stylep.paddingLeft = BaseStyles.padding;
+    if (paddingRight) stylep.paddingRight = BaseStyles.padding;
+    if (paddingTop) stylep.paddingTop = BaseStyles.padding;
+    if (paddingBottom) stylep.paddingBottom = BaseStyles.padding;
   }
-  if (margin) clses.push("flex-margin");
+  if (margin) stylep.margin = BaseStyles.padding;
   else {
-    if (marginLeft) clses.push("flex-margin-left");
-    if (marginRight) clses.push("flex-margin-right");
-    if (marginTop) clses.push("flex-margin-top");
-    if (marginBottom) clses.push("flex-margin-bottom");
+    if (marginLeft) stylep.marginLeft = BaseStyles.padding;
+    if (marginRight) stylep.marginRight = BaseStyles.padding;
+    if (marginTop) stylep.marginTop = BaseStyles.padding;
+    if (marginBottom) stylep.marginBottom = BaseStyles.padding;
   }
-  let newClassName = makeClassName.apply(this, clses);
-  if (Boolean(newClassName)) props.className = newClassName;
+
   if (Object.keys(stylep).length > 0) props.style = stylep;
 
   return h(component, props);

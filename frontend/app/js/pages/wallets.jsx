@@ -66,7 +66,7 @@ function Wallets({}) {
             <Flex container component="td">
               {w.is_testnet &&
                 <Flex component="p" className="no-select" style={style.text.vertical}
-                      align="center" marginRight>TESTNET</Flex>}
+                      align="center" marginRight marginLeft>TESTNET</Flex>}
               <Flex grow="2">
                 <p className="secondary" style={style.text.crypto}>{w.address}</p>
                 <Collapsible label="Private Key" animateClose={false}>

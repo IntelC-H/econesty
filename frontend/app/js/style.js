@@ -1,3 +1,12 @@
+/*
+
+style.js
+Provides styles for Econesty.
+
+*/
+
+import palette from 'app/palette';
+
 const style = {
   text: {
     script: {
@@ -15,7 +24,7 @@ const style = {
     vertical: {
       transform: "rotate(180deg)",
       textAlign: "center",
-      //color: $accent-color,
+      color: palette.accentColor,
       writingMode: "vertical-lr",
       width: "1em"
     },
@@ -39,7 +48,7 @@ const style = {
       textAlign: "center"
     },
     page: {
-      // color: $text-color;
+      color: palette.textColor,
       backgroundColor: "white",
       fontFamily: "'Lato', sans-serif"
     },
