@@ -25,6 +25,8 @@ import RequiredOfMe from 'app/pages/requiredofme';
     - test this functionality; hook it into ElementView's <Loading />
   - Better responsive tables!
   - Image placeholders/Loading's to prevent abrupt page shifts
+  - wallets.jsx
+    - make sure testnet label doesn't move with Collapsible
   - home.jsx
     - Show 3 blocks below signup (responsive Flex grid)
       - Total BTC sent
