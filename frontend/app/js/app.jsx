@@ -2,6 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 
 import { Router, API } from 'base/base';
 import 'app/apiCollections';
+import 'app/basestyleoverrides';
 
 // Pages
 import NotFound from 'app/pages/notFound';

@@ -26,6 +26,6 @@ import { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass } fr
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, CollectionView, ElementView, Header, Router, Anchor,
-         doNotUpdate, Animations, Referencing, Flex, Elements, Loading,
+         doNotUpdate, Animations, Referencing, Flex, Loading,
          Responsive, prependFunc, makeClassName, inheritClass, cssSubclass,
          Table, DeleteButton, Error };

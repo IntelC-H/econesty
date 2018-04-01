@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import Animations from './animations';
 import { spring } from 'preact-motion';
 import { Flex } from './flex';
+import { parseColor, renderColor, mixColors } from '../style/colors.js';
+import BaseStyles from '../style.js';
 
 const styles = {
   loadingContainer: {
@@ -11,14 +13,14 @@ const styles = {
   loadingBar: {
     position: "relative",
     width: "10rem",
-    height: "0.5rem"
+    height: BaseStyles.loading.thickness,
+    margin: BaseStyles.padding,
+    backgroundColor: renderColor(mixColors(parseColor(BaseStyles.loading.color), parseColor("#FFFFFF"), 0.5))
   },
   progress: {
     height: "100%",
-    width: "100%",
-    top: 0,
-    left: 0,
-    position: "absolute"
+    position: "absolute",
+    backgroundColor: BaseStyles.loading.color
   }
 };
 
@@ -28,20 +30,20 @@ class Loading extends Component {
     this.state = { shouldShow: props.delay === 0 };
     this.animations = [
       {
-        from: { width: 0, x: 0 },
-        to: { width: spring(100), x: spring(0) }
+        from: { width: 0,           left: 0 },
+        to:   { width: spring(100), left: 0 }
       },
       {
-        from: { width: 100, x: 0 },
-        to: { width: spring(0), x: spring(100) }
+        from: { width: 100,       left: 0 },
+        to:   { width: spring(0), left: spring(100) }
       },
       {
-        from: { width: 0, x: 100 },
-        to: { width: spring(100), x: spring(0) }
+        from: { width: 0,           left: 100 },
+        to:   { width: spring(100), left: spring(0) }
       },
       {
-        from: { width: 100, x: 0 },
-        to: { width: spring(0), x: spring(0) }
+        from: { width: 100,       left: 0 },
+        to:   { width: spring(0), left: 0 }
       }
     ];
   }
@@ -66,11 +68,11 @@ class Loading extends Component {
         <Animations
           animations={this.animations}
           repeat>
-          {({width, x}) => {
-             return <Flex margin className="loading-bar" style={styles.loadingBar}>
-                <div style={{width: `${width}%`, left: `${x}%`, ...styles.progress }} className="progress" />
-             </Flex>;
-            }}
+          {({width, left}) =>
+            <div style={styles.loadingBar}>
+               <div style={{ ...styles.progress, width: `${width}%`, left: `${left}%` }} />
+            </div>
+          }
         </Animations>
       </Flex>
     );
