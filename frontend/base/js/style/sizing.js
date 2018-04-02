@@ -42,4 +42,15 @@ function fmapSize(f, { v, ...xs }) {
   return { v: f(v), ...xs };
 }
 
-export { parseSize, renderSize, fmapSize };
+function reduceSizes(f, sz) {
+  let unit = undefined;
+  let values = [];
+  for (let { v, u } of sz) {
+    if (unit === undefined) unit = u;
+    if (u !== unit) throw "fmapSizes(): mismatching units: " + unit + ", " + u;
+    values.push(v);
+  }
+  return { v: values.reduce(f), u: unit };
+}
+
+export { parseSize, renderSize, fmapSize, reduceSizes };

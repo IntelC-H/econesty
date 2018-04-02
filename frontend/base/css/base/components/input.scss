@@ -7,6 +7,7 @@
 
 input[type], textarea {
   padding: $padding;
+  box-sizing: border-box;
 }
 
 select {
@@ -19,15 +20,7 @@ select {
   padding: 0;
   padding-left: $padding;
   padding-right: $padding + $select-disclosure-icon-width;
-  option {
-    padding: 0;
-    margin: 0;
-  }
-  line-height: $element-height;
-}
-
-input, textarea {
-  box-sizing: border-box;
+  line-height: 100%;
 }
 
 input[type], textarea, select {
@@ -41,7 +34,6 @@ input[type], textarea, select {
 
   color: $input-color;
   background-color: $input-background-color;
-  display: inline-block;
   border: $border-width solid $input-border-color;
   border-radius: $border-radius;
   vertical-align: middle;
@@ -49,8 +41,7 @@ input[type], textarea, select {
   margin: 0;
   width: 100%;
 
-  &::placeholder, &::-ms-input-placeholder {
-    opacity: 1; // Firefox fix
+  &::placeholder {
     color: $input-placeholder-color;
   }
 
@@ -58,31 +49,9 @@ input[type], textarea, select {
     height: $element-height;
   }
 
-  &[type=checkbox] {
-    margin: ($element-height / 2) 0;
-    height: $element-height / 2;
-    width: $element-height / 2;
-  }
-
   &[disabled] {
     background-color: #eaeded;
     color: $input-disabled-color;
-  }
-
-  &:-moz-focusring {
-    color: transparent;
-    text-shadow: 0 0 0 #000;
-    box-shadow: none;
-  }
-
-  &:-moz-submit-invalid {
-    outline: none;
-    box-shadow: none;
-  }
-
-  &:-moz-ui-invalid {
-    outline: none;
-    box-shadow: none;
   }
 
   &:invalid {

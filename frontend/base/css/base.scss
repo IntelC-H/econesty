@@ -2,6 +2,8 @@
   Base styles in Econesty.
 */
 
+@import "reset.scss";
+
 @import "config.scss";
 @import "base/variables";
 @import "base/mixins";
@@ -12,5 +14,4 @@
 @import "base/components/input";
 @import "base/components/formgroup";
 @import "base/components/deletebutton";
-@import "base/components/searchfield";
 @import "base/components/header";

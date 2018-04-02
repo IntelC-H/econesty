@@ -12,7 +12,7 @@ const styles = {
     ...noSelect()
   },
   disclosure: {
-    padding: BaseStyles.padding
+    padding: "0 " + BaseStyles.padding
   },
   content: {
     paddingLeft: renderSize(fmapSize(s => s * 4, parseSize(BaseStyles.padding)))

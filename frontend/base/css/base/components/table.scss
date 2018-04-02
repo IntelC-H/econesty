@@ -41,14 +41,11 @@ table {
   $table-body-row-active-color:   darken($table-body-row-color, 20) !default !global;
 
   background-color: transparent;
-  border-collapse: collapse;
-  border-spacing: 0;
   border: $border-width solid $table-border-color; // stylelint-disable-line unit-whitelist
   width: 100%;
 
   td, th {
-    font-size: inherit;
-    margin: 0;
+    //font-size: inherit;
     padding: $padding ($padding * 2);
     border: none;
     min-height: $element-height;
@@ -70,7 +67,7 @@ table {
 
   thead {
     text-align: left;
-    vertical-align: bottom;
+    //vertical-align: bottom;
   }
 
   &.table-selectable tbody {

@@ -2,18 +2,13 @@
   "name": "econesty",
   "version": "1.0.0",
   "browser": "frontend/app/js/index.js",
-  "style": "frontend/app/css/app.scss",
-  "main": "frontend/app/js/app.jsx",
   "scripts": {
     "postinstall": "./node_modules/.bin/webpack-cli -p"
   },
   "vendorDirectory": "./frontend/vendor/",
-  "vendorOrder": [
-    "normalize.css"
-  ],
+  "vendorOrder": [],
   "private": true,
   "dependencies": {
-    "normalize.css": "^8.0.0",
     "preact": "^8.2.5",
     "preact-motion": "^1.1.0",
     "prop-types": "^15.5.10",

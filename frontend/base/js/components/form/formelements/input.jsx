@@ -2,6 +2,21 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import FormElement from '../formelement';
 import { prependFunc } from '../../utilities';
+import BaseStyles from 'base/style';
+import { parseSize, renderSize, fmapSize, reduceSizes } from '../../../style/sizing';
+
+const halfHeight = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.elementHeight)));
+const styles = {
+  all: {
+    color: BaseStyles.input.color,
+    backgroundColor: BaseStyles.backgroundColor
+  },
+  checkbox: {
+    margin: halfHeight + " 0",
+    height: halfHeight,
+    width: halfHeight
+  }
+};
 
 const inputTypes = [
   "hidden", "text", "checkbox", "password", "email",
@@ -34,14 +49,17 @@ class Input extends FormElement {
   render({type, search, range, // eslint-disable-line no-unused-vars
           hidden, text, time, // eslint-disable-line no-unused-vars
           password, tel, email, url, // eslint-disable-line no-unused-vars
-          number, value, ignore, // eslint-disable-line no-unused-vars
-          checkbox, ...props}) {
+          number, value, ignore, ref, // eslint-disable-line no-unused-vars
+          checkbox, style, ...props}) {
     props.type = this.getType();
 
     if (checkbox) props.checked = Boolean(this.value);
     else if (this.value !== undefined) props.value = hidden ? JSON.stringify(this.value) : this.value;
 
-    if (checkbox) prependFunc(props, "onClick", this.onClick);
+    if (checkbox) {
+      props.style = { ...style, ...styles.checkbox };
+      prependFunc(props, "onClick", this.onClick);
+    }
     else if (!hidden) prependFunc(props, "onInput", this.onInput);
 
     return h('input', props);

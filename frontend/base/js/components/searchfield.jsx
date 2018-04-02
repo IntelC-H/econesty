@@ -5,12 +5,15 @@ import Input from './form/formelements/input';
 import FormElement from './form/formelement';
 import { Table } from './elements';
 import { CollectionView } from './collectionview';
-import { makeClassName } from './utilities';
 import { Router } from './routing';
 import { DeleteButton } from './elements';
 import { Flex } from './flex';
 import { Anchor } from './anchor';
+import BaseStyles from '../style.js';
+import { parseSize, renderSize, fmapSize, reduceSizes } from '../style/sizing';
 
+const searchIconDimension = renderSize(reduceSizes((a, b) => a - b,
+                             [parseSize(BaseStyles.elementHeight), fmapSize(s => s * 2, parseSize(BaseStyles.padding))]));
 const styles = {
   searchfield: {
     position: "relative",
@@ -19,8 +22,7 @@ const styles = {
   table: {
     border: "none"
   },
-  dropdownContainer: { // A zero-height container designed to take the dropdown out of the HTML flow
-    // Prevent interference with page & build new coord system
+  dropdownContainer: { // A zero-height container designed to prevent the dropdown from taking up space in the HTML document
     padding: 0,
     margin: 0,
     position: "relative",
@@ -29,14 +31,17 @@ const styles = {
     width: "100%"
   },
   input: {
+    paddingRight: searchIconDimension,
     outlineOffset: 0,
-    width: "100%"
+    width: "100%",
+    boxSizing: "border-box"
   },
   inputFocused: {
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     borderBottom: "none",
-    marginBottom: 0
+    marginBottom: 0,
+    paddingBottom: renderSize(reduceSizes((acc, s) => acc + s, [parseSize(BaseStyles.border.width), parseSize(BaseStyles.padding)]))
   },
   dropdown: { // The dropdown in which search results are displayed
     boxSizing: "border-box",
@@ -44,16 +49,28 @@ const styles = {
     zIndex: "100",
     position: "absolute",
     width: "100%",
-    borderTop: "none"
+    borderWidth: BaseStyles.border.width,
+    borderStyle: "solid",
+    borderColor: BaseStyles.input.selectedBorderColor,
+    borderBottomLeftRadius: BaseStyles.border.radius,
+    borderBottomRightRadius: BaseStyles.border.radius,
+    borderTop: "none",
+    backgroundColor: BaseStyles.input.backgroundColor
   },
   searchIcon: {
     pointerEvents: "none",
     cursor: "default",
     position: "absolute",
-    left: "auto"
+    left: "auto",
+    top: BaseStyles.padding,
+    bottom: BaseStyles.padding,
+    right: BaseStyles.padding,
+    height: searchIconDimension,
+    color: BaseStyles.input.placeholderColor
   },
   valueLink: {
-    margin: 0
+    margin: 0,
+    height: BaseStyles.elementHeight
   }
 };
 
@@ -184,7 +201,7 @@ class SearchField extends FormElement {
   render({ value, standalone, // eslint-disable-line no-unused-vars
            api, component, className, ...props }, { focused, search }) {
     return (
-      <div className={makeClassName("searchfield", className)} style={styles.searchfield}>
+      <div className={className} style={styles.searchfield}>
         { this.showsObject &&
           <Flex container row alignItems="center">
             <Flex container alignItems="center" justifyContent="center"
@@ -196,9 +213,9 @@ class SearchField extends FormElement {
             </Flex>
             <DeleteButton onClick={this.reset} />
           </Flex>}
-        { !this.showsObject && 
-         <svg className="search-icon" style={styles.searchIcon} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-           <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/>
+        { !this.showsObject &&
+         <svg style={styles.searchIcon} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+           <path style={{fill: "currentColor"}} d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/>
          </svg>}
         { !this.showsObject &&
           <Input
@@ -220,8 +237,7 @@ class SearchField extends FormElement {
               collection={api}
               search={search}
               showsControls={false}
-              style={styles.dropdown}
-              className="searchfield-dropdown">
+              style={styles.dropdown}>
               <SearchResultsView searchField={this} />
             </CollectionView>
           </div>

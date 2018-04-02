@@ -1,10 +1,10 @@
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const EasyStylelintPlugin = require('easy-stylelint-plugin');
 
-const fs = require('fs');
 const pkg = require('./package.json');
 
 const extractStyle = new ExtractTextPlugin({
@@ -24,22 +24,19 @@ function filesIn(dir, acc = []) {
   return acc;
 }
 
-let vendored = pkg.vendorOrder ? pkg.vendorOrder : []; // first load the files that need to be bundled in order.
+// first load the files that need to be bundled in order.
+let vendored = pkg.vendorOrder ? pkg.vendorOrder : []; 
 
 // Then load everything else
 if (pkg.vendorDirectory) {
-  filesIn(pkg.vendorDirectory).forEach(file => {
+  filesIn(path.resolve(pkg.vendorDirectory)).forEach(file => {
     if (!vendored.includes(file)) {
       vendored.push(file);
     }
   });
 }
 
-let appStyleDir = path.resolve(pkg.style);
-appStyleDir = path.resolve(appStyleDir.substring(0, appStyleDir.lastIndexOf('/')));
-
-let appJSDir = path.resolve(pkg.browser);
-appJSDir = path.resolve(appJSDir.substring(0, appJSDir.lastIndexOf('/')));
+let appJSDir =  path.resolve(pkg.browser.substring(0, pkg.browser.lastIndexOf('/')));
 
 module.exports = {
   mode: "development",
@@ -56,7 +53,6 @@ module.exports = {
   entry: {
     app: [
       path.resolve(pkg.browser), // app JS entry point
-      path.resolve(pkg.style), // app CSS entrypoint
       path.resolve("./frontend/base/css/base.scss")
     ].concat(vendored)
   },
@@ -76,18 +72,7 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loader: extractStyle.extract({ use: [
-	    { loader: "css-loader" },
-	    {
-		loader: "sass-loader",
-		options: {
-		    includePaths: [
-			path.resolve("frontend/base/css/"),
-			appStyleDir
-		    ]
-		}
-	    }
-	]})
+        loader: extractStyle.extract({ use: [ "css-loader", "sass-loader" ]})
       },
       {
         test: /\.css$/,
