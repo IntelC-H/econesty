@@ -4,6 +4,7 @@ import { Table } from 'base/components/elements';
 import { Anchor, Router, API, CollectionView, ElementView, Form,
          FormGroup, Input, Flex } from 'base/base';
 
+import BaseStyles from 'base/style';
 import style from 'app/style';
 
 function BriefUserInfo({ user }) {

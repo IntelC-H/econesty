@@ -6,7 +6,7 @@
 @import "../mixins";
 
 fieldset {
-  //margin: $padding;
+  margin: $padding;
 
   & > input:not([type="hidden"]) {
     // The last input when it's not the only input
@@ -30,6 +30,6 @@ fieldset {
   }
 
   & > input:focus + input:not([type="hidden"]):not(:focus) { // stylelint-disable-line no-descending-specificity
-    border-top-color: transparent;
+    border-top: none;
   }
 }

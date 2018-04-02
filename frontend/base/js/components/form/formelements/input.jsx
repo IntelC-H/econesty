@@ -29,7 +29,15 @@ class Input extends FormElement {
     super(props);
     this.onInput = this.onInput.bind(this);
     this.onClick = this.onClick.bind(this);
+    this.onBlur = this.onBlur.bind(this);
+    this.onFocus = this.onFocus.bind(this);
+    this.state = { ...this.state, focused: false };
     if (this.getType() === "checkbox" && !this.value) this.state.value = false;
+        
+  }
+
+  get focused() {
+    return this.state.focused;
   }
 
   getType() {
@@ -46,21 +54,39 @@ class Input extends FormElement {
     this.value = e.target.value;
   }
 
+  onBlur() {
+    this.setState(st => ({ ...st, focused: false }));
+  }
+
+  onFocus() {
+    this.setState(st => ({ ...st, focused: true }));
+  }
+
   render({type, search, range, // eslint-disable-line no-unused-vars
           hidden, text, time, // eslint-disable-line no-unused-vars
           password, tel, email, url, // eslint-disable-line no-unused-vars
           number, value, ignore, ref, // eslint-disable-line no-unused-vars
-          checkbox, style, ...props}) {
+          checkbox, focusStyle, unfocusedStyle, ...props}) {
     props.type = this.getType();
 
     if (checkbox) props.checked = Boolean(this.value);
     else if (this.value !== undefined) props.value = hidden ? JSON.stringify(this.value) : this.value;
 
     if (checkbox) {
-      props.style = { ...style, ...styles.checkbox };
+      props.style = { ...props.style, ...styles.checkbox };
       prependFunc(props, "onClick", this.onClick);
     }
-    else if (!hidden) prependFunc(props, "onInput", this.onInput);
+    else if (!hidden) {
+      prependFunc(props, "onInput", this.onInput);
+      prependFunc(props, "onFocus", this.onFocus);
+      prependFunc(props, "onBlur", this.onBlur);
+    }
+
+    if (this.isFocused) {
+      props.style = { ...props.style, ...focusStyle };
+    } else {
+      props.style = { ...props.style, ...unfocusedStyle };
+    }
 
     return h('input', props);
   }
@@ -68,6 +94,8 @@ class Input extends FormElement {
 
 Input.propTypes = {
   ...FormElement.propTypes,
+  focusStyle: PropTypes.object,
+  unfocusedStyle: PropTypes.object,
   hidden: PropTypes.bool,
   text: PropTypes.bool,
   checkbox: PropTypes.bool,
@@ -84,6 +112,8 @@ Input.propTypes = {
 
 Input.defaultProps = {
   ...FormElement.defaultProps,
+  focusStyle: {},
+  unfocusedStyle: {},
   hidden: false,
   text: false,
   checkbox: false,
