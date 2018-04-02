@@ -62,8 +62,8 @@ function Wallets({}) {
         {collectionView =>
         <Table striped>
           {collectionView.getElements().map(w =>
-          <tr>
-            <Flex container component="td">
+          <tr style={style.table.tr}>
+            <Flex container component="td" style={style.table.td}>
               {w.is_testnet &&
                 <Flex component="p" className="no-select" style={style.text.vertical}
                       align="center" marginRight marginLeft>TESTNET</Flex>}

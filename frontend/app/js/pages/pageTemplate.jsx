@@ -1,7 +1,30 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Flex, Header, API, SearchField } from 'base/base';
+import { Flex, Anchor, Header, API, SearchField } from 'base/base';
 import { UserRow } from 'app/common';
 import style from 'app/style';
+import palette from 'app/palette';
+import BaseStyles from 'base/style';
+import { noSelect } from 'base/style/mixins';
+
+const styles = {
+  header: {
+    zIndex: "100",
+    position: "sticky",
+    height: "auto",
+    top: 0,
+    backgroundColor: palette.primaryColor,
+    borderBottom: `${BaseStyles.border.width} solid ${palette.borderColor}`
+  },
+  heading: {
+    lineHeight: "100%",
+    textTransform: "uppercase",
+    color: "#FFFFFF",
+    fontFamily: "'Hammersmith One', sans-serif",
+    fontSize: BaseStyles.elementHeight,
+    margin: BaseStyles.padding,
+    ...noSelect()
+  }
+};
 
 class PageTemplate extends Component {
   constructor(props) {
@@ -31,15 +54,17 @@ class PageTemplate extends Component {
   render(props, { authenticated }) {
     return (
       <div style={style.element.page}>
-        <Header title="Econe$ty"
-                menuElements={authenticated ? [
-                  <SearchField
+        <Flex container wrap justifyContent="space-between" alignItems="center" style={styles.header}>
+          <Anchor href="/" style={styles.heading}>Econe$ty</Anchor>
+          <Flex container wrap row alignItems="center" margin>
+           {authenticated && <SearchField
                     standalone
                     api={API.user}
                     placeholder="Search users"
                     component={UserRow}
-                  />
-                ] : []}/>
+                  />}
+          </Flex>
+        </Flex>
         <Flex margin {...props} />
       </div>
     );

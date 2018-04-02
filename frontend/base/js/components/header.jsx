@@ -2,20 +2,6 @@ import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import { Flex, Anchor } from 'base/base';
 import PropTypes from 'prop-types';
 
-const styles = {
-  header: { // the whole component
-    zIndex: "100",
-    position: "sticky",
-    height: "auto",
-    top: 0
-  },
-  heading: { // just the Anchor that leads to /
-    lineHeight: "100%",
-    textTransform: "uppercase",
-    color: "inherit"
-  }
-};
-
 function Header({ menuElements, title }) {
   return (
     <Flex container wrap justifyContent="space-between" alignItems="center" className="header" style={styles.header}>

@@ -4,13 +4,13 @@ import { Router } from './routing';
 const anchorDefaultStyle = {
   display: "inline",
   cursor: "pointer",
-  textDecoration: "none",
-  //color: "inherit",
   hover: {
     textDecoration: "underline"
   },
   mouseDown: {}
 };
+
+const localPathRegex = /^\/([^\/]|$)/;
 
 class Anchor extends Component {
   constructor(props) {
@@ -66,7 +66,7 @@ class Anchor extends Component {
       ...st,
       onClick: onClick,
       href: href,
-      useRouter: Boolean(href.match(/^\/([^\/]|$)/)),
+      useRouter: Boolean(href ? href.match(localPathRegex) : false),
       style: xsStyle,
       hoverStyle: { ...anchorDefaultStyle.hover, ...hover || {} },
       mouseDownStyle: { ...anchorDefaultStyle.mouseDown, ...mouseDown || {} },

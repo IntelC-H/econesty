@@ -6,6 +6,10 @@ Provides styles for Econesty.
 */
 
 import palette from 'app/palette';
+import BaseStyle from 'base/style';
+import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
+
+const halfPadding = renderSize(fmapSize(a => a / 2, parseSize(BaseStyle.padding)));
 
 const style = {
   text: {
@@ -40,6 +44,14 @@ const style = {
   shape: {
     circular: {
       borderRadius: "50%"
+    }
+  },
+  table: {
+    tr: {
+
+    },
+    td: {
+      padding: `${halfPadding} ${BaseStyle.padding}`
     }
   },
   element: {

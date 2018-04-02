@@ -12,7 +12,7 @@ function Requirement({ collectionView, closeAction, element }) {
         <Form onSubmit={collectionView.saveElement}>
           { r && <Input hidden name="id" value={r.id} /> }
           <FormGroup>
-            <Flex container wrap>
+            <Flex container>
               <Flex container column grow="1">
                 <FlexControlBlock label="Terms">
                   <Input text name="text" {...(r && {value: r.text})} />

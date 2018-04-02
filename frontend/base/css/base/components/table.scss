@@ -2,32 +2,7 @@
   <Table /> component
 */
 
-@import "../mixins";
 @import "../variables";
-
-@mixin set-table-row-color($color) {
-  tr {
-    background-color: $color;
-  }
-}
-
-@mixin set-table-stripe-color($color) {
-  &.table-striped tr:nth-child(2n-1) {
-    background-color: $color;
-  }
-}
-
-@mixin set-table-row-hover-color($color) {
-  &.table-selectable tr:hover {
-    background-color: $color;
-  }
-}
-
-@mixin set-table-row-active-color($color) {
-  &.table-selectable tr:active {
-    background-color: $color;
-  }
-}
 
 table {
   $table-text-color:              #000000 !default !global;
@@ -40,24 +15,12 @@ table {
   $table-body-row-hover-color:    darken($table-body-row-color, 15) !default !global;
   $table-body-row-active-color:   darken($table-body-row-color, 20) !default !global;
 
-  background-color: transparent;
-  border: $border-width solid $table-border-color; // stylelint-disable-line unit-whitelist
   width: 100%;
+  border: $border-width solid $table-border-color;
+  background-color: $table-body-row-color;
 
   td, th {
-    //font-size: inherit;
-    padding: $padding ($padding * 2);
-    border: none;
-    min-height: $element-height;
-  }
-
-  td {
-    color: $table-text-color;
-  }
-
-  tr {
-    width: 100%;
-    border: none;
+    padding: $padding;
   }
 
   th {
@@ -67,21 +30,25 @@ table {
 
   thead {
     text-align: left;
-    //vertical-align: bottom;
   }
 
-  &.table-selectable tbody {
-    * {
-      @include user-select(none);
-    }
+  tr {
+    background-color: transparent;
+  }
+
+  &.table-striped tr:nth-child(2n-1) {
+    background-color: $table-body-row-stripe-color;
+  }
+
+  &.table-selectable {
     tr:hover {
       cursor: pointer;
+      background-color: $table-body-row-hover-color;
+    }
+
+    tr:active {
+      background-color: $table-body-row-active-color;
     }
   }
-
-  @include set-table-row-color($table-body-row-color);
-  @include set-table-stripe-color($table-body-row-stripe-color);
-  @include set-table-row-hover-color($table-body-row-hover-color);
-  @include set-table-row-active-color($table-body-row-active-color);
 }
 

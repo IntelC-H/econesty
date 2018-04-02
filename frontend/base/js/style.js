@@ -18,6 +18,9 @@ var BaseStyles = {
     color:     "#555555",
     thickness: "0.5rem"
   },
+  deleteButton: {
+    color: "#000000"
+  },
   input: { // component styles for <Input /> & <Select />
     color:               "#000000",
     placeholderColor:    "#777777",
