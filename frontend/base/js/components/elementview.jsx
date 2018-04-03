@@ -10,10 +10,14 @@ class ElementView extends Component {
     collection: the API collection to load an element from
     elementID: the id of the element in the collection to load
     children: a representation of the page. Rendered w/ the prop `elementView`
-              which refers to the the enclosing ElementView.
+              which refers to the the enclosing ElementView. Alternatively, a child
+              can be a function which takes an elementView and returns JSX.
   */
   constructor(props) {
-    props.children = props.children.map(c => cloneElement(c, { elementView: this }));
+    props.children = props.children.filter(Boolean)
+                                   .map(c => c instanceof Function
+                                               ? c(this)
+                                               : cloneElement(c, { elementView: this }));
     super(props);
     this.reloadData = this.reloadData.bind(this);
     this.updateElement = this.updateElement.bind(this);
@@ -28,7 +32,10 @@ class ElementView extends Component {
   }
 
   componentWillUpdate(newProps) {
-    newProps.children = newProps.children.map(c => cloneElement(c, { elementView: this }));
+    newProps.children = newProps.children.filter(Boolean)
+                                         .map(c => c instanceof Function
+                                                     ? c(this)
+                                                     : cloneElement(c, { elementView: this }));
   }
 
   isLoading() {

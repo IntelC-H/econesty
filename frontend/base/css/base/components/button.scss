@@ -18,8 +18,7 @@ button {
   white-space: nowrap;
   text-align: center;
   cursor: pointer;
-  -webkit-user-drag: none;
-  user-select: none;
+  @include user-select(none);
   box-sizing: border-box;
   height: $element-height;
   padding: $padding (2 * $padding);

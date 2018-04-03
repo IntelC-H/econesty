@@ -15,6 +15,7 @@ table {
   $table-body-row-hover-color:    darken($table-body-row-color, 15) !default !global;
   $table-body-row-active-color:   darken($table-body-row-color, 20) !default !global;
 
+  table-layout: fixed; 
   width: 100%;
   border: $border-width solid $table-border-color;
   background-color: $table-body-row-color;

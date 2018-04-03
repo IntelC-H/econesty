@@ -13,6 +13,15 @@ const halfPadding = renderSize(fmapSize(a => a / 2, parseSize(BaseStyle.padding)
 
 const style = {
   text: {
+    primary: {
+      fontSize: BaseStyle.elementHeight
+    },
+    secondary: {
+      fontSize: renderSize(fmapSize(s => s / 2, parseSize(BaseStyle.elementHeight)))
+    },
+    tertiary: {
+      fontSize: renderSize(fmapSize(s => s / 3, parseSize(BaseStyle.elementHeight)))
+    },
     script: {
       fontFamily: "'Sacramento', cursive",
       fontStyle: "normal",
@@ -24,13 +33,6 @@ const style = {
       maxWidth: "100%",
       whiteSpace: "pre-wrap",
       wordBreak: "break-all"
-    },
-    vertical: {
-      transform: "rotate(180deg)",
-      textAlign: "center",
-      color: palette.accentColor,
-      writingMode: "vertical-lr",
-      width: "1em"
     },
     italic: {
       fontStyle: "italic"
@@ -63,9 +65,6 @@ const style = {
       color: palette.textColor,
       backgroundColor: "white",
       fontFamily: "'Lato', sans-serif"
-    },
-    privateKey: {
-      marginTop: 0
     }
   }
 };

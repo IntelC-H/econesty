@@ -6,6 +6,7 @@ import { h, Component, cloneElement } from 'preact';
 */
 
 // TODO: page state
+// TODO: Translate url patterns into regular expressions & cache them on each VNode
 
 class Router extends Component {
   constructor(props) {

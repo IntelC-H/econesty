@@ -8,7 +8,7 @@
 fieldset {
   margin: $padding;
 
-  & > input:not([type="hidden"]) {
+  & input:not([type="hidden"]) {
     // The last input when it's not the only input
     &:last-of-type:not(:first-of-type) {
       border-radius: 0 0 $border-radius $border-radius;
@@ -24,7 +24,7 @@ fieldset {
 
     // A middle input
     &:not(:first-of-type):not(:last-of-type):not(:focus) {
-      border-bottom: none;
+      //border-bottom: none;
       border-radius: 0;
     }
   }

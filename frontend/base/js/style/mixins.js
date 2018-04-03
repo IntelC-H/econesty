@@ -7,6 +7,7 @@ function noSelect() {
     MozUserSelect: "none",
     WebkitUserSelect: "none",
     WebkitTouchCallout: "none", // prevent callout sheets on iOS
+    WebkitUserDrag: "none", // prevent user drag
     msUserSelect: "none",
     userSelect: "none"
   };

@@ -40,12 +40,14 @@ class Collapsible extends Component {
     return nextState.contentVisible !== this.state.contentVisible || nextProps.children !== this.props.children;
   }
 
-  render({ children, label, className, preset, animateClose, animateOpen, ...props }, { contentVisible }) {
+  render({ children, label, className, preset, animateClose, animateOpen, labelStyle, ...props }, { contentVisible }) {
     return (
       <div {...props}>
-        <label onClick={this.toggle} style={styles.label}>
+        <label onClick={this.toggle} style={{ ...styles.label, ...labelStyle }}>
           <Motion style={{angle: spring(contentVisible ? 90 : 0, presets.wobbly)}}>
-            {({ angle }) => <span className="fa fa-caret-right" style={{...styles.disclosure, transform: "rotate(" + angle + 'deg)'}}/> }
+            {({ angle }) =>
+              <span className="fa fa-caret-right"
+                    style={{...styles.disclosure, transform: "rotate(" + angle + 'deg)'}}/>}
           </Motion>
           {label}
         </label>
@@ -63,8 +65,9 @@ class Collapsible extends Component {
 
 Collapsible.defaultProps = {
   preset: presets.wobbly,
-  animateClose: true,
-  animateOpen: true
+  animateClose: false,
+  animateOpen: false,
+  labelStyle: {}
 };
 
 export { Collapsible };

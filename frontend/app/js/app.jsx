@@ -10,6 +10,7 @@ import PageTemplate from 'app/pages/pageTemplate';
 import CreateTransaction from 'app/pages/createTransaction';
 import Login from 'app/pages/login';
 import Profile from 'app/pages/profile';
+import EditProfile from 'app/pages/editProfile';
 import Signup from 'app/pages/signup';
 import Home from 'app/pages/home';
 import Wallets from 'app/pages/wallets';
@@ -70,6 +71,7 @@ export default () =>
         makeRoute("/signup", Signup),
         makeRoute("/wallets", secure(Wallets)),
         makeRoute("/required", secure(RequiredOfMe)),
+        makeRoute("/profile/edit", secure(EditProfile)),
         makeRoute("/transaction/:id", secure(TransactionDetail)),
         makeRoute(containsMe, secure(replaceMeInPath)),
         makeRoute("/user/:id", secure(Profile)),

@@ -4,6 +4,39 @@ import { SideMargins } from 'app/common';
 import { Flex, Collapsible,
          CollectionView, API, Form, Input, FormGroup } from 'base/base';
 import style from 'app/style';
+import palette from 'app/palette';
+import BaseStyles from 'base/style';
+import { noSelect } from 'base/style/mixins';
+import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
+
+const walletStyles = {
+  keyInput: {
+    textAlign: "center"
+  },
+  walletRow: {
+    minHeight: renderSize(fmapSize(a => a * 2, parseSize(BaseStyles.elementHeight)))
+  },
+  testnetLabel: {
+    ...noSelect(),
+    transform: "rotate(180deg)",
+    textAlign: "center",
+    color: palette.accentColor,
+    writingMode: "vertical-lr",
+    width: "1em",
+    fontSize: "0.75rem",
+    margin: BaseStyles.padding
+  },
+  privateKey: {
+    marginTop: BaseStyles.padding,
+    marginBottom: BaseStyles.padding
+  },
+  address: {
+    margin: BaseStyles.padding
+  },
+  collapsible: {
+    margin: BaseStyles.padding
+  }
+};
 
 class WalletCreationControls extends Component {
   constructor(props) {
@@ -36,13 +69,13 @@ class WalletCreationControls extends Component {
         <Input hidden name="user_id" value={API.getUserID()}/>
         <Flex component={FormGroup} grow="2">
           <Input text required
-                 style={{ textAlign: "center" }}
+                 style={walletStyles.keyInput}
                  name="private_key"
                  placeholder="Wallet private key (WIF format)" />
         </Flex>
         <Flex container justifyContent="center" alignItems="center">
           <button action="submit"><i className="fa fa-save" /></button>
-          <button onClick={this.closeForm}><i className="fas fa-times" /></button>
+          <button type="button" onClick={this.closeForm}><i className="fas fa-times" /></button>
         </Flex>
       </Flex>
     );
@@ -52,8 +85,7 @@ class WalletCreationControls extends Component {
 function Wallets({}) {
   return (
     <SideMargins>
-      <Flex key="your_wallets"
-            component="h1" className="primary no-select"
+      <Flex component="h1" style={{ ...style.text.primary, ...noSelect() }}
             container justifyContent="center">
         Your Wallets
       </Flex>
@@ -62,16 +94,18 @@ function Wallets({}) {
         {collectionView =>
         <Table striped>
           {collectionView.getElements().map(w =>
-          <tr style={style.table.tr}>
+          <tr style={{ ...style.table.tr, ...walletStyles.walletRow }}>
             <Flex container component="td" style={style.table.td}>
               {w.is_testnet &&
-                <Flex component="p" className="no-select" style={style.text.vertical}
-                      align="center" marginRight marginLeft>TESTNET</Flex>}
+                <Flex component="p" align="center" style={walletStyles.testnetLabel}>TESTNET</Flex>}
               <Flex grow="2">
-                <p className="secondary" style={style.text.crypto}>{w.address}</p>
-                <Collapsible label="Private Key" animateClose={false}>
-                  <p className="teritary"
-                     style={{...style.text.crypto, ...style.element.privateKey}}>{w.private_key}</p>
+                <p style={{ ...style.text.secondary, ...style.text.crypto, ...walletStyles.address }}>
+                  {w.address}
+                </p>
+                <Collapsible label="Private Key" animateOpen style={walletStyles.collapsible}>
+                  <p style={{...style.text.secondary, ...style.text.crypto, ...walletStyles.privateKey }}>
+                    {w.private_key}
+                  </p>
                 </Collapsible>
               </Flex>
               <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
