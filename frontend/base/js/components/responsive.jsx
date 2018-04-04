@@ -31,7 +31,7 @@ class Responsive extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.children !== this.props.children // TODO: write a function for determining if the default react props (style, children, className, etc) changed
+    return nextProps.children !== this.props.children
         || nextState.sm !== this.state.sm
         || nextState.md !== this.state.md
         || nextState.lg !== this.state.lg

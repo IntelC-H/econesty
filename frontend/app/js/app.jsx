@@ -27,7 +27,7 @@ import RequiredOfMe from 'app/pages/requiredofme';
   - Better responsive tables!
     - Maybe it's just styles that can live in the frontend?
   - Fix borders around button in active state in Chrome
-  - Fix searchfield not routing right
+  - write a function for determining if the default react props (style, children, className, etc) changed
   - Image placeholders/Loading's to prevent abrupt page shifts
   - home.jsx
     - Show 3 blocks below signup (responsive Flex grid)
