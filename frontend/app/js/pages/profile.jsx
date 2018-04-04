@@ -58,10 +58,10 @@ function TransactionDirection({ transaction, userId }) {
   let user = null;
   if (transaction.sender.id === parseInt(userId)) {
     direction = "to";
-    user = transaction.sender;
+    user = transaction.recipient;
   } else if (transaction.recipient.id === parseInt(userId)) {
     direction = "from";
-    user = transaction.recipient;
+    user = transaction.sender;
   }
 
   if (direction && user) {

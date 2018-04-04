@@ -25,9 +25,10 @@ import RequiredOfMe from 'app/pages/requiredofme';
   - Retry failed transactions
     - test this functionality; hook it into ElementView's <Loading />
   - Better responsive tables!
+    - Maybe it's just styles that can live in the frontend?
+  - Fix borders around button in active state in Chrome
+  - Fix searchfield not routing right
   - Image placeholders/Loading's to prevent abrupt page shifts
-  - wallets.jsx
-    - make sure testnet label doesn't move with Collapsible
   - home.jsx
     - Show 3 blocks below signup (responsive Flex grid)
       - Total BTC sent

@@ -29,6 +29,7 @@ class Router extends Component {
   }
 
   static push(url) {
+    console.log("PUSH STATE", url);
     this.history.pushState(null, null, url);
     this.refreshState();
     return null;
@@ -46,12 +47,11 @@ class Router extends Component {
     return null;
   }
 
-  onPopState() {
+  onPopState(e) {
     this.setState({ url: Router.path });
   }
 
   componentDidMount() {
-    this.onPopState(null);
     window.addEventListener("popstate", this.onPopState);
   }
 
@@ -88,9 +88,7 @@ class Router extends Component {
     url = url.replace(/\?.+$/, ''); // remove query
 
     if (path instanceof RegExp) {
-      let res = path.exec(url);
-      if (!res) return false;
-      return res.groups;
+      return path.exec(url);
     }
 
     if (path instanceof Function) {
@@ -100,8 +98,8 @@ class Router extends Component {
       return {};
     }
 
-    var urlpath_comps = url.split('/').filter(Boolean);
-    var path_comps = path.split('/').filter(Boolean);
+    let urlpath_comps = url.split('/').filter(Boolean);
+    let path_comps = path.split('/').filter(Boolean);
 
     if (path_comps.length !== urlpath_comps.length) return false;
 
