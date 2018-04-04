@@ -22,10 +22,11 @@ import Header from './components/header';
 import Anchor from './components/anchor';
 import { Table, DeleteButton, Error } from './components/elements';
 import { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass } from './components/utilities';
+import SVGIcon from './components/svgicon';
 
 export { API, APICollection, DummyAPICollection, Collapsible, Drawer,
          FadeTransition, Form, FormGroup, FormElement, Select, Input,
          SearchField, CollectionView, ElementView, Header, Router, Anchor,
          doNotUpdate, Animations, Referencing, Flex, Loading,
          Responsive, prependFunc, makeClassName, inheritClass, cssSubclass,
-         Table, DeleteButton, Error };
+         Table, DeleteButton, Error, SVGIcon };

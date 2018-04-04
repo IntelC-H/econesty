@@ -84,22 +84,12 @@ function TransactionCollectionBody({ collectionView, userId }) {
       <Table striped selectable>
         <tbody>
           {es.map(obj =>
-            <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}>
-              <td>
-                # {obj.id}
-              </td>
-              <td>
-                <span><BTC/> {parseFloat(obj.amount)}</span>
-              </td>
-              <td>
-                <TransactionDirection transaction={obj} userId={userId} />
-              </td>
-              <td>
-                {obj.completed ?
-                   obj.success ? <GreenCheck /> : <Warning />
-                   :
-                   obj.rejected ? <RedX /> : null}
-              </td>
+            <tr key={obj.id}
+                onClick={() => Router.push("/transaction/" + obj.id)}
+                style={{ color: (obj.completed ? obj.success ? "green" : "yellow" : obj.rejected ? "red" : null)}}>
+              <td># {obj.id}</td>
+              <td><BTC/> {parseFloat(obj.amount)}</td>
+              <td><TransactionDirection transaction={obj} userId={userId} /></td>
             </tr>
           )}
         </tbody>
