@@ -29,7 +29,6 @@ function parseColor(c) {
   let rgbmatch = c.match(RGBA_REGEX);
   if (rgbmatch) {
     let hasAlpha = rgbmatch[1] === 'a';
-    console.log(rgbmatch);
     if (!hasAlpha && rgbmatch[6]) return null; // 7 is the number of groups (? check terminology) for a full RGBA match
 
     let obj = {
@@ -75,7 +74,7 @@ function mapComponents() {
 // `w` is how much `a` is used in the average, a float from 0 to 1.
 // `b`'s weight is `1.0 - w`.
 function _weightedAvg(a, b, w) {
-  return ((w * a) + ((1.0 - w) * b));
+  return w * a + (1.0 - w) * b;
 }
 
 function mixColors(c1, c2, weight) {

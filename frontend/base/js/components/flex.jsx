@@ -1,6 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { makeClassName } from './utilities';
 import BaseStyles from '../style.js';
 
 function measurement(props, propName, componentName) {

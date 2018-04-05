@@ -20,7 +20,8 @@ import Responsive from './components/responsive';
 import Referencing from './components/referencing';
 import Header from './components/header';
 import Anchor from './components/anchor';
-import { Table, DeleteButton, Error } from './components/elements';
+import DeleteButton from './components/deletebutton';
+import { Table, Error } from './components/elements';
 import { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass } from './components/utilities';
 import SVGIcon from './components/svgicon';
 

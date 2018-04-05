@@ -29,7 +29,6 @@ class Router extends Component {
   }
 
   static push(url) {
-    console.log("PUSH STATE", url);
     this.history.pushState(null, null, url);
     this.refreshState();
     return null;
@@ -47,7 +46,7 @@ class Router extends Component {
     return null;
   }
 
-  onPopState(e) {
+  onPopState() {
     this.setState({ url: Router.path });
   }
 

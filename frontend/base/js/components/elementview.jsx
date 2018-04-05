@@ -46,6 +46,10 @@ class ElementView extends Component {
     return this.state.element;
   }
 
+  setLoading(loading, clearElement=false) {
+    this.setState(st => ({ ...st, loading: loading, element: clearElement ? null : st.element }));
+  }
+
   setElement(element) {
     this.setState(st => ({
       ...st,

@@ -12,7 +12,6 @@ var BaseStyles = {
     width:  "0.1rem"
   },
   table: {
-    
   },
   loading: {
     color:     "#555555",

@@ -7,7 +7,7 @@ Provides styles for Econesty.
 
 import palette from 'app/palette';
 import BaseStyle from 'base/style';
-import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
+import { parseSize, renderSize, fmapSize } from 'base/style/sizing';
 
 const halfPadding = renderSize(fmapSize(a => a / 2, parseSize(BaseStyle.padding)));
 

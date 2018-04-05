@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, DeleteButton } from 'base/components/elements';
-import { Router, SearchField, DummyAPICollection, API,
+import { Table } from 'base/components/elements';
+import { Router, SearchField, DummyAPICollection, API, DeleteButton,
          CollectionView, Form, FormGroup, Input, Select, Flex } from 'base/base';
 import { FlexControlBlock, SideMargins, UserRow } from 'app/common';
 

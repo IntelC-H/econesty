@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import FormElement from '../formelement';
 import { prependFunc } from '../../utilities';
 import BaseStyles from 'base/style';
-import { parseSize, renderSize, fmapSize, reduceSizes } from '../../../style/sizing';
+import { parseSize, renderSize, fmapSize } from '../../../style/sizing';
 
 const halfHeight = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.elementHeight)));
 const styles = {
@@ -33,7 +33,6 @@ class Input extends FormElement {
     this.onFocus = this.onFocus.bind(this);
     this.state = { ...this.state, focused: false };
     if (this.getType() === "checkbox" && !this.value) this.state.value = false;
-        
   }
 
   get focused() {
@@ -75,8 +74,7 @@ class Input extends FormElement {
     if (checkbox) {
       props.style = { ...props.style, ...styles.checkbox };
       prependFunc(props, "onClick", this.onClick);
-    }
-    else if (!hidden) {
+    } else if (!hidden) {
       prependFunc(props, "onInput", this.onInput);
       prependFunc(props, "onFocus", this.onFocus);
       prependFunc(props, "onBlur", this.onBlur);

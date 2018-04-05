@@ -19,24 +19,33 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for UX redo:
-  - De-CSS `base` components.
-    - Config module which exports all styles
-    - All non-component styles should be refactored to use the config somehow
   - Retry failed transactions
     - test this functionality; hook it into ElementView's <Loading />
   - Better responsive tables!
-    - Maybe it's just styles that can live in the frontend?
-  - Fix borders around button in active state in Chrome
-  - write a function for determining if the default react props (style, children, className, etc) changed
   - Image placeholders/Loading's to prevent abrupt page shifts
   - home.jsx
     - Show 3 blocks below signup (responsive Flex grid)
       - Total BTC sent
       - Number of transactions
       - Number of requirements made
+  - createTransaction.jsx
+    - Make BTC field have a <BTC /> and default to 0
+    - Make BTC field less wide
   - requiredofme.jsx
+    - Fix padding
     - Place signing and acknowledging controls on the right half (bottom on mobile - flex)
     - Terms content can be to the left half
+  - Copyright
+  - Fail Whale 404
+
+  TODO for Base redo:
+  - Move styles into the app
+    - BaseStyles
+    - tables
+    - buttons
+    - fieldsets
+  - Remove margin and padding from Flex component
+  - Ensure all shouldComponentUpdate()'s work correctly
 */
 
 function makeRoute(path, Comp, wcs = {}) {

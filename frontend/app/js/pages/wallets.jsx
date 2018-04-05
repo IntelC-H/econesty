@@ -1,13 +1,13 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table, DeleteButton } from 'base/components/elements';
+import { Table } from 'base/components/elements';
 import { SideMargins } from 'app/common';
 import { Flex, Collapsible, CollectionView,
-         API, Form, Input, FormGroup, SVGIcon } from 'base/base';
+         API, Form, Input, FormGroup, SVGIcon, DeleteButton } from 'base/base';
 import style from 'app/style';
 import palette from 'app/palette';
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
-import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
+import { parseSize, renderSize, fmapSize } from 'base/style/sizing';
 
 const icons = {
   plus: {

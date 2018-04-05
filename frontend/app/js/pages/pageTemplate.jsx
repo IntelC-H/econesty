@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Flex, Anchor, Header, API, SearchField } from 'base/base';
+import { Flex, Anchor, API, SearchField } from 'base/base';
 import { UserRow } from 'app/common';
 import style from 'app/style';
 import palette from 'app/palette';

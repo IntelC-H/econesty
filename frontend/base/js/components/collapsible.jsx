@@ -1,6 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Motion, spring, presets } from 'preact-motion';
-import { makeClassName } from './utilities';
 import Drawer from './drawer';
 import { noSelect } from '../style/mixins';
 import { parseSize, renderSize, fmapSize } from '../style/sizing';
@@ -40,7 +39,7 @@ class Collapsible extends Component {
     return nextState.contentVisible !== this.state.contentVisible || nextProps.children !== this.props.children;
   }
 
-  render({ children, label, className, preset, animateClose, animateOpen, labelStyle, ...props }, { contentVisible }) {
+  render({ children, label, preset, animateClose, animateOpen, labelStyle, ...props }, { contentVisible }) {
     return (
       <div {...props}>
         <label onClick={this.toggle} style={{ ...styles.label, ...labelStyle }}>

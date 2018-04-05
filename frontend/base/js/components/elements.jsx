@@ -1,6 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { inheritClass, cssSubclass, makeClassName } from './utilities';
-import DeleteButton from './deletebutton';
+import { inheritClass, cssSubclass } from './utilities';
 
 const Error = inheritClass("div", "error");
 
@@ -9,10 +8,9 @@ const Table = cssSubclass('table', {
   striped: 'table-striped'
 });
 
-export { Table, Error, DeleteButton };
+export { Table, Error };
 
 export default {
   Table: Table,
-  Error: Error,
-  DeleteButton: DeleteButton
+  Error: Error
 };
