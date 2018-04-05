@@ -23,8 +23,8 @@ const tdStyles = {
   errorMessage: {
 
   },
-  transactionBlock: {
-
+  saveButton: {
+    margin: `0 ${BaseStyles.padding}`
   },
   table: {
 
@@ -102,7 +102,7 @@ function TransactionInfo({ elementView }) {
                     name="recipient_wallet_id"
                     transform={w => w.id}
                     faceTransform={w => w.private_key} />
-                <button action="submit"><i className="fa fa-save" /></button>
+                <button action="submit" style={tdStyles.saveButton}><i className="fa fa-save" /></button>
             </FlexControlBlock>
         </Form>}
         {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
@@ -113,7 +113,7 @@ function TransactionInfo({ elementView }) {
                    name="sender_wallet_id"
                    transform={w => w.id}
                    faceTransform={w => w.private_key} />
-               <button action="submit"><i className="fa fa-save" /></button>
+               <button action="submit" style={tdStyles.saveButton}><i className="fa fa-save" /></button>
             </FlexControlBlock>
         </Form>}
       </Flex>

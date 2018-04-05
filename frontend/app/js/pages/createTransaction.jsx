@@ -56,10 +56,6 @@ class RequirementCollection extends Component {
 
   render({ collectionView }, { showingCreate }) {
     let rs = collectionView.getElements();
-    let children = rs.map(r => h(Requirement, {
-                                 collectionView: collectionView,
-                                 element: r
-                               }));
     return (
       <Flex container wrap>
         <Flex container justifyContent="space-between" alignItems="center" grow="1" basis="100%" marginTop marginBottom>
@@ -68,8 +64,12 @@ class RequirementCollection extends Component {
         </Flex>
         <Flex grow="1" basis="100%">
           <Table striped>
-            {showingCreate && <Requirement key="non_collection" collectionView={collectionView} closeAction={this.hideCreate}/>}
-            {children}
+            {showingCreate &&
+            <Requirement key="non_collection" collectionView={collectionView} closeAction={this.hideCreate}/>}
+            {rs.map(r => h(Requirement, {
+                           collectionView: collectionView,
+                           element: r
+                         }))}
           </Table>
         </Flex>
       </Flex>
@@ -119,22 +119,16 @@ class CreateTransaction extends Component {
             <Input hidden name="recipient_id" value={recipient_id} />
 
             <Flex container wrap justifyContent="center">
-              <Flex container wrap alignItems="center" grow="1" marginLeft marginRight>
-                <Flex container justifyContent="flex-start" alignItems="center" basis="100%" marginTop marginBottom>How many BTC?</Flex>
-                <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
-                  <Input number required name="amount" step="0.0001" min="0" cols="7" />
-                </Flex>
-              </Flex>
-              <Flex container wrap alignItems="center" grow="1" marginLeft marginRight>
-                <Flex container justifyContent="flex-start" alignItems="center" basis="100%" marginTop marginBottom>{isSender ? "From Wallet" : "Into Wallet"}</Flex>
-                <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
-                  <Select
-                    options={this.makeWalletsPromise}
-                    name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
-                    transform={w => w.id}
-                    faceTransform={w => w.private_key} />
-                </Flex>
-              </Flex>
+              <FlexControlBlock label="How many BTC?">
+                <Input number required name="amount" step="0.0001" min="0" cols="7" />
+              </FlexControlBlock>
+              <FlexControlBlock label={isSender ? "From Wallet" : "Into Wallet"}>
+                <Select
+                  options={this.makeWalletsPromise}
+                  name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
+                  transform={w => w.id}
+                  faceTransform={w => w.private_key} />
+              </FlexControlBlock>
             </Flex>
             <CollectionView collection={this.dummyCollection}>
               <RequirementCollection />

@@ -4,9 +4,9 @@ import style from 'app/style';
 
 function FlexControlBlock({ label, children }) {
   return (
-    <Flex container row wrap alignItems="center" grow="1" marginTop marginBottom>
+    <Flex container row wrap alignItems="center" grow="1" margin>
       <Flex className="no-select" style={style.text.ellipsis}
-            container justifyContent="flex-start" alignItems="center" basis="100%" marginBottom>
+            container justifyContent="flex-start" alignItems="center" basis="100%" paddingBottom>
         {label}
       </Flex>
       <Flex container justifyContent="flex-start" alignItems="center" basis="100%">
