@@ -19,8 +19,6 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for UX redo:
-  - Retry failed transactions
-    - test this functionality; hook it into ElementView's <Loading />
   - Better responsive tables!
   - Image placeholders/Loading's to prevent abrupt page shifts
   - home.jsx
@@ -28,15 +26,10 @@ import RequiredOfMe from 'app/pages/requiredofme';
       - Total BTC sent
       - Number of transactions
       - Number of requirements made
+    - Copyright that auto-updates
   - createTransaction.jsx
     - Make BTC field have a <BTC /> and default to 0
     - Make BTC field less wide
-  - requiredofme.jsx
-    - Fix padding
-    - Place signing and acknowledging controls on the right half (bottom on mobile - flex)
-    - Terms content can be to the left half
-  - Copyright
-  - Fail Whale 404
 
   TODO for Base redo:
   - Move styles into the app
@@ -46,6 +39,11 @@ import RequiredOfMe from 'app/pages/requiredofme';
     - fieldsets
   - Remove margin and padding from Flex component
   - Ensure all shouldComponentUpdate()'s work correctly
+
+  TODO for next update
+  - transactiondetail.jsx
+    - test retry functionality
+  - Fail Whale Router notFound
 */
 
 function makeRoute(path, Comp, wcs = {}) {

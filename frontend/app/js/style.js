@@ -59,7 +59,8 @@ const style = {
   element: {
     frownMessage: {
       opacity: "0.4",
-      textAlign: "center"
+      textAlign: "center",
+      margin: BaseStyle.padding
     },
     page: {
       color: palette.textColor,

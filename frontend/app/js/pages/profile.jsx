@@ -8,17 +8,6 @@ import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
 import style from 'app/style';
 
-function NoTransactions({ userId }) {
-  let isMe = userId === API.getUserID();
-  return (
-    <Flex margin style={style.element.frownMessage}>
-      <Frown large />
-      {isMe && <p style={noSelect()}>No transactions...yet!</p>}
-      {!isMe && <p style={noSelect()}>No mutual transactions</p>}
-    </Flex>
-  );
-}
-
 const profileStyle = {
   primaryAvatar: {
     height: "7em",
@@ -86,7 +75,15 @@ function TransactionDirection({ transaction, userId }) {
 function TransactionCollectionBody({ collectionView, userId }) {
   let es = collectionView.getElements();
 
-  if (es.length === 0) return <NoTransactions userId={userId} />;
+  if (es.length === 0) {
+    let isMe = userId === API.getUserID();
+    return (
+      <div style={style.element.frownMessage}>
+        <Frown large />
+        <p style={noSelect()}>{isMe ? "No transactions...yet!" : "No mutual transactions..." }</p>
+      </div>
+    );
+  }
 
   return (
     <XOverflowable>
