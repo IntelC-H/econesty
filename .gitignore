@@ -130,5 +130,5 @@ pip-selfcheck.json
 .tern-port
 
 # CUSTOM
-webpack-build/
-static/
+/webpack-build/
+/static/
