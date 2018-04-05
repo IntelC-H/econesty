@@ -81,7 +81,7 @@ function TransactionInfo({ elementView }) {
         <p style={{ ...styles.text.primary, ...tdStyles.title, color: transactionColor }}>Transaction #{t.id}</p>
         <Flex container alignItems="center" justifyContent="center" style={tdStyles.cardinality}>
           <BTC />
-          <span>{parseFloat(transaction.amount)}</span>
+          <span>{parseFloat(t.amount)}</span>
           <span>&nbsp;</span>
           <small>{direction}</small>
           <span>&nbsp;</span>
