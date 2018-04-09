@@ -6,30 +6,26 @@ import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize, reduceSizes } from '../../../style/sizing';
 
 const halfHeight = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.elementHeight)));
-const doubleHeight = renderSize(fmapSize(v => v * 2, parseSize(BaseStyles.elementHeight)));
 const styles = {
   all: {
     color: BaseStyles.input.color,
     backgroundColor: BaseStyles.backgroundColor,
     border: `${BaseStyles.border.width} solid ${BaseStyles.input.borderColor}`,
-    borderRadius: `${BaseStyles.border.radius}`,
-    verticalAlign: "middle",
-    //margin: 0, // handled by reset.css
-    width: "100%",
-
+    borderRadius: BaseStyles.border.radius,
     height: BaseStyles.elementHeight,
     padding: BaseStyles.padding,
+    verticalAlign: "middle",
+    width: "100%",
     boxSizing: "border-box"
   },
   disabled: {
-    backgroundColor: "#EAEDED",
+    backgroundColor: BaseStyles.input.disabledBackgroundColor,
     color: BaseStyles.input.disabledColor
   },
   invalid: {
     color: BaseStyles.input.invalidBorderColor
   },
   focus: {
-    //outline: 0, // handled by reset.css
     borderColor: BaseStyles.input.selectedBorderColor
   },
   checkbox: {
@@ -46,6 +42,8 @@ const inputTypes = [
 
 // TODO: invalid states
 // TODO: style placeholder color to BaseStyles.input.placeholderColor
+// TODO: factor out checkbox
+// TODO: Replace types with a "secure" bool and a regex for validation, and an accepted charset.
 
 // TODO: better use of value prop
 class Input extends FormElement {
@@ -134,8 +132,7 @@ Input.propTypes = {
   tel: PropTypes.bool,
   search: PropTypes.bool,
   range: PropTypes.bool,
-  url: PropTypes.bool,
-  type: PropTypes.oneOf(inputTypes)
+  url: PropTypes.bool
 };
 
 Input.defaultProps = {
