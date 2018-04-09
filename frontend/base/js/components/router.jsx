@@ -3,30 +3,36 @@ import { h, Component, cloneElement } from 'preact';
 /*
   Router checks each of its children against window.location.pathname (See Router.path);
   if a child matches the current URL, it renders it.
+
+  TODO:
+  - Page state
 */
 
-// TODO: page state
-// TODO: Translate url patterns into regular expressions & cache them on each VNode
+// Backwards-compatible named-capture group regex
+function compilePathPattern(pat) {
+  let comps = pat.split('/').filter(Boolean);
 
-function patternToRegex(pat) {
-  let urlpath_comps = url.split('/').filter(Boolean);
-    let path_comps = path.split('/').filter(Boolean);
+  let names = [];
+  let regexStr = "^";
+  for (let c of comps) {
+    if (c[0] === ':') {
+      names.push(c.slice(1));
+      regexStr += "\/([^\/]+)";
+    } else regexStr += "\/" + c;
+  }
+  regexStr += "\/?$";
+  return {
+    names: names, // all names
+    regex: new RegExp(regexStr) // the regex
+  };
+}
 
-    if (path_comps.length !== urlpath_comps.length) return false;
-
-    let matches = {};
-
-    const iterlen = path_comps.length; // path_comps.length should === urlpath_comps.length
-    for (let i = 0; i < iterlen; i++) {
-      let upc = urlpath_comps[i];
-      let pc = path_comps[i];
-
-      if (pc[0] === ':') {
-        let wildcard = pc.slice(1);
-        if (wildcards && wildcard in wildcards && !wildcards[wildcard].includes(upc)) return false;
-        matches[wildcard] = upc;
-      } else if (pc !== upc) return false;
-    }
+function executePathPattern({ names, regex }, path) {
+  if (!names || !regex) return false;
+  if (names.length === 0) return regex.test(path);
+  let match = path.match(regex);
+  if (!match) return false;
+  return names.reduce((acc, name, idx) => (acc[name] = match[idx + 1]) && acc, {});
 }
 
 class Router extends Component {
@@ -35,6 +41,7 @@ class Router extends Component {
     this.state = { url: Router.path };
     this.onPopState = this.onPopState.bind(this);
     this.setState = this.setState.bind(this);
+    this.compilePaths();
     window.addEventListener("popstate", this.onPopState);
   }
 
@@ -62,24 +69,32 @@ class Router extends Component {
     return null;
   }
 
-  static setPath(url) {
-    this.history.replaceState(null, null, url);
-    this.refreshState();
-    return null;
+  onPopState() {
+    if (Router.path !== this.state.url) {
+      this.setState({ url: Router.path });
+    }
   }
 
-  onPopState() {
-    this.setState({ url: Router.path });
+  compilePaths(children = this.props.children) {
+    for (let c of children) {
+      if (typeof c.attributes.path === "string") {
+        c.attributes.compiledPath = compilePathPattern(c.attributes.path);
+      }
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     return nextState.url !== this.state.url;
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    this.compilePaths(nextProps.children);
+  }
+
   render({ children, notFound }, { url }) {
     for (let c of children) { // the children should all be routes
       if (c.attributes && "path" in c.attributes) {
-        let matches = this.test(c.attributes.path, url, c.attributes.wildcards);
+        let matches = this.test(c.attributes.path, c.attributes.compiledPath, url, c.attributes.wildcards);
         if (matches) {
           return cloneElement(c, {
             matches: matches,
@@ -97,40 +112,27 @@ class Router extends Component {
     return null;
   }
 
-  test(path, url, wildcards = null) {
-    url = url.replace(/\?.+$/, ''); // remove query
-
-    if (path instanceof RegExp) {
-      return path.exec(url);
-    }
-
-    if (path instanceof Function) {
+  test(path, compiledPath, url, wildcards = null) {
+    let matches = null;
+    if (compiledPath) {
+      matches = executePathPattern(compiledPath, url);
+    } else if (path instanceof RegExp) {
+      let rs = path.exec(url);
+      matches = rs ? rs.groups || {} : null;
+    } else if (path instanceof Function) {
       let res = path(url);
-      if (!res) return false;
-      if (res instanceof Object) return res;
-      return {};
+      if (res) matches = res instanceof Object ? res || {} : {}; // null is an object, technically
     }
 
-    let urlpath_comps = url.split('/').filter(Boolean);
-    let path_comps = path.split('/').filter(Boolean);
-
-    if (path_comps.length !== urlpath_comps.length) return false;
-
-    let matches = {};
-
-    const iterlen = path_comps.length; // path_comps.length should === urlpath_comps.length
-    for (let i = 0; i < iterlen; i++) {
-      let upc = urlpath_comps[i];
-      let pc = path_comps[i];
-
-      if (pc[0] === ':') {
-        let wildcard = pc.slice(1);
-        if (wildcards && wildcard in wildcards && !wildcards[wildcard].includes(upc)) return false;
-        matches[wildcard] = upc;
-      } else if (pc !== upc) return false;
+    if (matches) {
+      if (wildcards && wildcards instanceof Object) {
+        for (let [name, values] of Object.entries(wildcards)) {
+          if (!values.includes(matches[name])) return false;
+        }
+      }
+      return matches;
     }
-
-    return matches;
+    return false;
   }
 }
 

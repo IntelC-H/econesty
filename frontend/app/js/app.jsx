@@ -59,15 +59,11 @@ function secure(comp) {
 }
 
 function containsMe(u) {
-  return u.split("/").includes("me");
+  return /\/me(\/?)/.test(u);
 }
 
 function replaceMeInPath() {
-  const url = Router.path
-                    .split("/")
-                    .map(u => u === "me" ? String(API.getUserID()) : u)
-                    .join("/");
-  return Router.replace(url);
+  return Router.replace(Router.path.replace(/\/me(\/?)/, '/' + API.getUserID() + '/'));
 }
 
 export default () =>
