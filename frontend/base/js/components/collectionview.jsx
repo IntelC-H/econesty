@@ -1,8 +1,10 @@
 import { h, Component, cloneElement } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import Loading from './loading';
+import SVGIcon from './svgicon';
 import { FadeTransition } from './fadetransition';
 import Flex from './flex';
+import { noSelect } from '../style/mixins';
 
 // TODO: errors & error recovery
 class CollectionView extends Component {
@@ -151,7 +153,7 @@ class CollectionView extends Component {
     return (
       <FadeTransition {...props}>
         {loading && <Loading fadeOut fadeIn key="loading" delay={loadingDelay} />}
-	{!loading && <div fadeIn key="content" className="collection-content">
+	{!loading && <div fadeIn key="content">
                        {children.filter(Boolean).map(c =>
                          c instanceof Function ? c(this) : cloneElement(c, { collectionView: this }))}
                      </div>}
@@ -159,11 +161,11 @@ class CollectionView extends Component {
         <Flex fadeIn key="controls" container row justifyContent="space-around" alignItems="center">
           <button disabled={previousPage === null}
                   onClick={this.gotoPreviousPage}
-                  ><i className="fas fa-arrow-left" /></button>
-          <span className="no-select">{page} of {Math.ceil(count/10) || 1}</span>
+                  ><SVGIcon viewBox="0 0 448 512" path="M229.9 473.899l19.799-19.799c4.686-4.686 4.686-12.284 0-16.971L94.569 282H436c6.627 0 12-5.373 12-12v-28c0-6.627-5.373-12-12-12H94.569l155.13-155.13c4.686-4.686 4.686-12.284 0-16.971L229.9 38.101c-4.686-4.686-12.284-4.686-16.971 0L3.515 247.515c-4.686 4.686-4.686 12.284 0 16.971L212.929 473.9c4.686 4.686 12.284 4.686 16.971-.001z" /></button>
+          <span style={noSelect()}>{page} of {Math.ceil(count/10) || 1}</span>
           <button disabled={nextPage === null}
                   onClick={this.gotoNextPage}
-                  ><i className="fas fa-arrow-right" /></button>
+                  ><SVGIcon viewBox="0 0 448 512" path="M218.101 38.101L198.302 57.9c-4.686 4.686-4.686 12.284 0 16.971L353.432 230H12c-6.627 0-12 5.373-12 12v28c0 6.627 5.373 12 12 12h341.432l-155.13 155.13c-4.686 4.686-4.686 12.284 0 16.971l19.799 19.799c4.686 4.686 12.284 4.686 16.971 0l209.414-209.414c4.686-4.686 4.686-12.284 0-16.971L235.071 38.101c-4.686-4.687-12.284-4.687-16.97 0z" /></button>
         </Flex>}
       </FadeTransition>
     );

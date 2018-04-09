@@ -1,8 +1,11 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table } from 'base/components/elements';
-import { Router, SearchField, DummyAPICollection, API, DeleteButton,
+import { Router, DummyAPICollection, API, DeleteButton,
          CollectionView, Form, FormGroup, Input, Select, Flex } from 'base/base';
-import { FlexControlBlock, SideMargins, UserRow } from 'app/common';
+import { FlexControlBlock, SideMargins, UserRow, Save, Times, Plus } from 'app/common';
+import { SearchField } from 'app/components/searchfield';
+import style from 'app/style';
+import { noSelect } from 'base/style/mixins';
 
 function Requirement({ collectionView, closeAction, element }) {
   let r = element;
@@ -25,8 +28,8 @@ function Requirement({ collectionView, closeAction, element }) {
                                component={UserRow} />
                 </FlexControlBlock>
                 <Flex container row justifyContent="center">
-                  <button type="submit"><i className="fa fa-save" /></button>
-                  {closeAction && <button type="button" onClick={closeAction}><i className="fa fa-times" /></button>}
+                  <button type="submit"><Save /></button>
+                  {closeAction && <button type="button" onClick={closeAction}><Times /></button>}
                 </Flex>
               </Flex>
               { r && <DeleteButton onClick={() => collectionView.deleteElement(r.id)} /> }
@@ -60,7 +63,7 @@ class RequirementCollection extends Component {
       <Flex container wrap>
         <Flex container justifyContent="space-between" alignItems="center" grow="1" basis="100%" marginTop marginBottom>
           Requirements
-          {!showingCreate && <button onClick={this.showCreate}><i className="fas fa-plus"/></button>}
+          {!showingCreate && <button onClick={this.showCreate}><Plus /></button>}
         </Flex>
         <Flex grow="1" basis="100%">
           <Table striped>
@@ -111,7 +114,7 @@ class CreateTransaction extends Component {
     return (
       <SideMargins>
         <Flex container justifyContent="center">
-          <h1 className="primary no-select">{isSender ? "Send" : "Receive"} Bitcoin</h1>
+          <h1 style={{ ...style.text.primary, ...noSelect() }}>{isSender ? "Send" : "Receive"} Bitcoin</h1>
         </Flex>
         <Form onSubmit={this.onSubmit}>
           <FormGroup>

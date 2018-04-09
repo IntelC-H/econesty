@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Motion, spring, presets } from 'preact-motion';
 import Drawer from './drawer';
+import SVGIcon from './svgicon';
 import { noSelect } from '../style/mixins';
 import { parseSize, renderSize, fmapSize } from '../style/sizing';
 import BaseStyles from '../style';
@@ -45,7 +46,7 @@ class Collapsible extends Component {
         <label onClick={this.toggle} style={{ ...styles.label, ...labelStyle }}>
           <Motion style={{angle: spring(contentVisible ? 90 : 0, presets.wobbly)}}>
             {({ angle }) =>
-              <span className="fa fa-caret-right"
+              <SVGIcon viewBox="0 0 192 512" path="M0 384.662V127.338c0-17.818 21.543-26.741 34.142-14.142l128.662 128.662c7.81 7.81 7.81 20.474 0 28.284L34.142 398.804C21.543 411.404 0 402.48 0 384.662z"
                     style={{...styles.disclosure, transform: "rotate(" + angle + 'deg)'}}/>}
           </Motion>
           {label}

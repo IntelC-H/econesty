@@ -1,9 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table } from 'base/components/elements';
-import { BTC, SideMargins, XOverflowable, FlexControlBlock } from 'app/common';
-import { API, Flex, Anchor, CollectionView, ElementView,
-         Form, Select, Input } from 'base/base';
-import styles from 'app/style';
+import { BTC, SideMargins, XOverflowable, FlexControlBlock, Save } from 'app/common';
+import { API, Flex, Anchor, CollectionView, ElementView, Form, Select, Input } from 'base/base';
+import style from 'app/style';
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
 
@@ -17,7 +16,7 @@ const tdStyles = {
   },
   cardinality: {
     ...noSelect(),
-    ...styles.text.secondary,
+    ...style.text.secondary,
     margin: BaseStyles.padding
   },
   errorMessage: {
@@ -38,7 +37,7 @@ function makeWalletsPromise() {
 function UserLink({ user }) {
   return (
     <Anchor
-      className="secondary"
+      style={style.text.secondary}
       href={"/user/" + user.id}>
       {user.first_name} {user.last_name} (@{user.username})
     </Anchor>
@@ -78,7 +77,7 @@ function TransactionInfo({ elementView }) {
   return (
     <div>
       <Flex container column alignItems="center" style={tdStyles.headerBlock}>
-        <p style={{ ...styles.text.primary, ...tdStyles.title, color: transactionColor }}>Transaction #{t.id}</p>
+        <p style={{ ...style.text.primary, ...tdStyles.title, color: transactionColor }}>Transaction #{t.id}</p>
         <Flex container alignItems="center" justifyContent="center" style={tdStyles.cardinality}>
           <BTC />
           <span>{parseFloat(t.amount)}</span>
@@ -102,7 +101,7 @@ function TransactionInfo({ elementView }) {
                     name="recipient_wallet_id"
                     transform={w => w.id}
                     faceTransform={w => w.private_key} />
-                <button action="submit" style={tdStyles.saveButton}><i className="fa fa-save" /></button>
+                <button action="submit" style={tdStyles.saveButton}><Save /></button>
             </FlexControlBlock>
         </Form>}
         {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
@@ -113,7 +112,7 @@ function TransactionInfo({ elementView }) {
                    name="sender_wallet_id"
                    transform={w => w.id}
                    faceTransform={w => w.private_key} />
-               <button action="submit" style={tdStyles.saveButton}><i className="fa fa-save" /></button>
+               <button action="submit" style={tdStyles.saveButton}><Save /></button>
             </FlexControlBlock>
         </Form>}
       </Flex>

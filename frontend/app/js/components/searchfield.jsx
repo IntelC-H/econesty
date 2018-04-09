@@ -1,16 +1,9 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { APICollection } from '../api';
-import Input from './form/formelements/input';
-import FormElement from './form/formelement';
-import { Table } from './elements';
-import { CollectionView } from './collectionview';
-import { Router } from './router';
-import DeleteButton from './deletebutton';
-import { Flex } from './flex';
-import { Anchor } from './anchor';
-import BaseStyles from '../style.js';
-import { parseSize, renderSize, fmapSize, reduceSizes } from '../style/sizing';
+import { APICollection, Input, FormElement, CollectionView, Router, Anchor, Flex } from 'base/base';
+import { Table, DeleteButton } from 'base/base';
+import BaseStyles from 'base/style';
+import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
 
 const searchIconDimension = renderSize(reduceSizes((a, b) => a - b,
                              [parseSize(BaseStyles.elementHeight), fmapSize(s => s * 2, parseSize(BaseStyles.padding))]));
@@ -199,16 +192,15 @@ class SearchField extends FormElement {
   }
 
   render({ value, standalone, // eslint-disable-line no-unused-vars
-           api, component, className, ...props }, { focused, search }) {
+           api, component, ...props }, { focused, search }) {
     return (
-      <div className={className} style={styles.searchfield}>
+      <div style={styles.searchfield}>
         { this.showsObject &&
           <Flex container row alignItems="center">
             <Flex container alignItems="center" justifyContent="center"
                   component={Anchor}
                   href={api.baseURL + this.value.id}
-                  style={styles.valueLink}
-                  className="searchfield-value-link">
+                  style={styles.valueLink}>
               {h(component, { element: this.value })}
             </Flex>
             <DeleteButton onClick={this.reset} />

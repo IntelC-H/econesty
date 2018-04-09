@@ -26,15 +26,22 @@ function doNotUpdate(element) {
   }, {});
 }
 
+// Wrap a react class.
+function nonUpdating(Comp) {
+  return class nonUpdating extends Component {
+    shouldComponentUpdate() {
+      return false;
+    }
+
+    render(props) {
+      return <Comp {...props} />;
+    }
+  };
+}
+
 function makeClassName() {
   let ret = Array.from(arguments).filter(Boolean).join(' ');
   return ret.length === 0 ? undefined : ret;
-}
-
-function inheritClass(NodeName, cname) {
-  return ({className, ...props}) => {
-    return <NodeName className={makeClassName(cname, className)} {...props} />;
-  };
 }
 
 function choiceComponent(f) {
@@ -75,13 +82,13 @@ function cssSubclass(BaseComponent, // React component (functions, Component sub
   return f;
 }
 
-export { prependFunc, doNotUpdate, makeClassName, inheritClass, cssSubclass, choiceComponent };
+export { prependFunc, doNotUpdate, makeClassName, cssSubclass, choiceComponent, nonUpdating };
 
 export default {
   prependFunc: prependFunc,
   doNotUpdate: doNotUpdate,
+  nonUpdating: nonUpdating,
   makeClassName: makeClassName,
-  inheritClass: inheritClass,
   cssSubclass: cssSubclass,
   choiceComponent: choiceComponent
 };

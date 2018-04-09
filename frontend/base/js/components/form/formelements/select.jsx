@@ -3,6 +3,26 @@ import PropTypes from 'prop-types';
 import FormElement from '../formelement';
 import Loading from '../../loading';
 import { prependFunc } from '../../utilities';
+import { appearance } from '../../../style/mixins';
+import BaseStyles from 'base/style';
+import { parseSize, renderSize, fmapSize, reduceSizes } from '../../../style/sizing';
+
+const dropdownArrow = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0zMS4zIDE5MmgyNTcuM2MxNy44IDAgMjYuNyAyMS41IDE0LjEgMzQuMUwxNzQuMSAzNTQuOGMtNy44IDcuOC0yMC41IDcuOC0yOC4zIDBMMTcuMiAyMjYuMUM0LjYgMjEzLjUgMTMuNSAxOTIgMzEuMyAxOTJ6IiBjbGFzcz0iIj48L3BhdGg+PC9zdmc+";
+
+const styles = {
+  select: {
+    ...appearance("none"),
+    color: BaseStyles.input.color,
+    border: `${BaseStyles.border.width} solid ${BaseStyles.input.borderColor}`,
+    borderRadius: `${BaseStyles.border.radius}`,
+    verticalAlign: "middle",
+    width: "100%",
+    height: BaseStyles.elementHeight,
+    background: `url(${dropdownArrow}) calc(100% - ${BaseStyles.padding}) / ${BaseStyles.padding} no-repeat ${BaseStyles.input.backgroundColor}`,
+    paddingLeft: BaseStyles.padding,
+    paddingRight: renderSize(reduceSizes((a, b) => a + b, [parseSize(BaseStyles.padding), parseSize(BaseStyles.elementHeight)]))
+  }
+};
 
 const isFunc = x => typeof x === "function";
 
@@ -68,7 +88,7 @@ class Select extends FormElement {
   }
 
   render({ value, options, // eslint-disable-line no-unused-vars
-           transform, faceTransform, ...filteredProps }, { loading }) {
+           transform, faceTransform, style, ...filteredProps }, { loading }) {
     if (this.isAsync && loading) return <Loading />;
 
     prependFunc(filteredProps, "onChange", this.onInput);
@@ -86,6 +106,7 @@ class Select extends FormElement {
                  value={sprime}>{faceTransform(s)}</option>;
       });
     }
+    filteredProps.style = { ...styles.select, ...style };
     return h('select', filteredProps);
   }
 }

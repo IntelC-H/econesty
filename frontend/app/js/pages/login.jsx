@@ -1,6 +1,8 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Router, API, Form, Input, FormGroup, Flex } from 'base/base';
 import { FlexControlBlock } from 'app/common';
+import { noSelect } from 'base/style/mixins';
+import style from 'app/style';
 
 class Login extends Component {
   constructor(props) {
@@ -25,7 +27,7 @@ class Login extends Component {
   render() {
     return (
        <Flex container column alignItems="center">
-         <h1 className="no-select">Welcome Back!</h1>
+         <h1 style={{ ...style.text.primary, ...noSelect() }}>Welcome Back!</h1>
          <Form onSubmit={this.login} method="POST">
            {!!this.state.error && <p>{this.state.error.message}</p>}
            <FormGroup>

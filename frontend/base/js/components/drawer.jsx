@@ -43,7 +43,7 @@ class Drawer extends Component {
   render({children, contentStyle, preset, animateClose, animateOpen}, {open}) {
     let noUpdateChildren = children.map(doNotUpdate);
     return (
-      <div className="drawer" style={styles.drawer}>
+      <div style={styles.drawer}>
         <TransitionMotion
           willLeave={() => ({ xlate: animateClose ? spring(-100, preset) : -100 })}
           willEnter={() => ({ xlate: -100 })}
@@ -63,7 +63,6 @@ class Drawer extends Component {
               }
               return (
                 <div key={content.key}
-                     className="drawer-content"
                      style={{...contentStyle, ...styles.drawerContent, transform: "translateY(" + xlate + "%) scaleY(" + yscale + ")"}}>
                   {noUpdateChildren}
                 </div>

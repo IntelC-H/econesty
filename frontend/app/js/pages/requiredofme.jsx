@@ -32,7 +32,7 @@ function RequirementRow({ collectionView, element }) {
       <td>
         <Flex container row alignItems="center">
           <p style={{ ...rsStyle.reqTitle, color: element.rejected ? "red" : element.fulfilled ? "green" : null }}>
-            Transaction <Anchor className="secondary" href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Anchor>
+            Transaction <Anchor style={style.text.secondary} href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Anchor>
           </p>
         </Flex>
         <Flex container justifyContent="space-between" alignItems="center">

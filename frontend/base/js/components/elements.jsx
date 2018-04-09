@@ -1,16 +1,13 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { inheritClass, cssSubclass } from './utilities';
-
-const Error = inheritClass("div", "error");
+import { cssSubclass } from './utilities';
 
 const Table = cssSubclass('table', {
   selectable: 'table-selectable',
   striped: 'table-striped'
 });
 
-export { Table, Error };
+export { Table };
 
 export default {
-  Table: Table,
-  Error: Error
+  Table: Table
 };
