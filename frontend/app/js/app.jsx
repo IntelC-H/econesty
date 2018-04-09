@@ -18,19 +18,6 @@ import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
-  TODO for UX redo:
-  - Better responsive tables!
-  - Image placeholders/Loading's to prevent abrupt page shifts
-  - home.jsx
-    - Show 3 blocks below signup (responsive Flex grid)
-      - Total BTC sent
-      - Number of transactions
-      - Number of requirements made
-    - Copyright that auto-updates
-  - createTransaction.jsx
-    - Make BTC field have a <BTC /> and default to 0
-    - Make BTC field less wide
-
   TODO for Base redo:
   - Move styles into the app
     - BaseStyles
@@ -44,6 +31,16 @@ import RequiredOfMe from 'app/pages/requiredofme';
   - transactiondetail.jsx
     - test retry functionality
   - Fail Whale Router notFound
+  - Better responsive tables!
+  - home.jsx
+    - Show 3 blocks below signup (responsive Flex grid)
+      - Total BTC sent
+      - Number of transactions
+      - Number of requirements made
+    - Copyright that auto-updates
+  - createTransaction.jsx
+    - Make BTC field have a <BTC /> and default to 0
+    - Make BTC field less wide
 */
 
 function makeRoute(path, Comp, wcs = {}) {
