@@ -28,5 +28,4 @@ export { Collapsible, Drawer, Table, DeleteButton, Loading,
          API, APICollection, DummyAPICollection, FadeTransition,
          Form, FormGroup, FormElement, Select, Input, CollectionView,
          ElementView, Router, Anchor, doNotUpdate, Animations, Referencing,
-         Flex, Responsive, prependFunc, makeClassName, cssSubclass,
-         SVGIcon, nonUpdating };
+         Flex, Responsive, prependFunc, cssSubclass, SVGIcon, nonUpdating };
