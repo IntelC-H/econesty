@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table } from 'base/components/elements';
 import { BTC, SideMargins, XOverflowable, FlexControlBlock } from 'app/common';
 import { API, Flex, Anchor, CollectionView, ElementView,
-         Form, FormGroup, Select, Input } from 'base/base';
+         Form, Select, Input } from 'base/base';
 import styles from 'app/style';
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
@@ -130,9 +130,9 @@ function TransactionDetail({ matches }) {
       <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
         {collectionView => {
          let rs = collectionView.getElements();
-         
+
          if (rs.length === 0) return null; // TODO: warning about selecting a wallet and BTC transferring
-         
+
          return (
            <XOverflowable>
              <Table striped horizontal>

@@ -87,8 +87,8 @@ class Router extends Component {
     return nextState.url !== this.state.url;
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    this.compilePaths(nextProps.children);
+  componentWillUpdate({ children }) {
+    this.compilePaths(children);
   }
 
   render({ children, notFound }, { url }) {
