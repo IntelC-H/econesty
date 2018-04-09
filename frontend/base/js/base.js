@@ -12,7 +12,7 @@ import Input from './components/form/formelements/input';
 import SearchField from './components/searchfield';
 import CollectionView from './components/collectionview';
 import ElementView from './components/elementview';
-import Router from './components/routing';
+import Router from './components/router';
 import Animations from './components/animations';
 import Loading from './components/loading';
 import Flex from './components/flex';

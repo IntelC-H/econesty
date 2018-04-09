@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import { Router } from './routing';
+import { Router } from './router';
 
 const anchorDefaultStyle = {
   display: "inline",

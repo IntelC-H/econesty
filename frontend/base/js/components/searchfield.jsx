@@ -5,7 +5,7 @@ import Input from './form/formelements/input';
 import FormElement from './form/formelement';
 import { Table } from './elements';
 import { CollectionView } from './collectionview';
-import { Router } from './routing';
+import { Router } from './router';
 import DeleteButton from './deletebutton';
 import { Flex } from './flex';
 import { Anchor } from './anchor';

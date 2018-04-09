@@ -8,12 +8,34 @@ import { h, Component, cloneElement } from 'preact';
 // TODO: page state
 // TODO: Translate url patterns into regular expressions & cache them on each VNode
 
+function patternToRegex(pat) {
+  let urlpath_comps = url.split('/').filter(Boolean);
+    let path_comps = path.split('/').filter(Boolean);
+
+    if (path_comps.length !== urlpath_comps.length) return false;
+
+    let matches = {};
+
+    const iterlen = path_comps.length; // path_comps.length should === urlpath_comps.length
+    for (let i = 0; i < iterlen; i++) {
+      let upc = urlpath_comps[i];
+      let pc = path_comps[i];
+
+      if (pc[0] === ':') {
+        let wildcard = pc.slice(1);
+        if (wildcards && wildcard in wildcards && !wildcards[wildcard].includes(upc)) return false;
+        matches[wildcard] = upc;
+      } else if (pc !== upc) return false;
+    }
+}
+
 class Router extends Component {
   constructor(props) {
     super(props);
     this.state = { url: Router.path };
     this.onPopState = this.onPopState.bind(this);
     this.setState = this.setState.bind(this);
+    window.addEventListener("popstate", this.onPopState);
   }
 
   static get history() {
@@ -48,14 +70,6 @@ class Router extends Component {
 
   onPopState() {
     this.setState({ url: Router.path });
-  }
-
-  componentDidMount() {
-    window.addEventListener("popstate", this.onPopState);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("popstate", this.onPopState);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
