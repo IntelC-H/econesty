@@ -17,6 +17,10 @@ var BaseStyles = {
     color:     "#555555",
     thickness: "0.5rem"
   },
+  button: {
+    color: "#333333",
+    backgroundColor: "#E6E6E6"
+  },
   deleteButton: {
     color: "#000000"
   },

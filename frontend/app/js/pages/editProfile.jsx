@@ -19,7 +19,7 @@ function EditProfile(props) {
           <Input text name="username" autocomplete="username" placeholder="Username" value={user.username} />
           <Input text name="email" autocomplete="email" placeholder="email" value={user.email} />
         </FormGroup>
-        <button action="submit">Save</button>
+        <Button action="submit">Save</Button>
       </Flex>
     </Flex>
   );

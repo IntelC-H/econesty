@@ -81,4 +81,8 @@ function mixColors(c1, c2, weight) {
   return mapComponents((a, b) => _weightedAvg(a, b, weight), c1, c2);
 }
 
-export { parseColor, renderColor, mixColors };
+function darken(c1, perc) {
+  return mapComponents(c => c * ((100 - perc) / 100), c1);
+}
+
+export { parseColor, renderColor, mixColors, darken };

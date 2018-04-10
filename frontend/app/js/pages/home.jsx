@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Flex, Anchor } from 'base/base';
+import { Flex, Anchor, Button } from 'base/base';
 
 import styles from 'app/style';
 import BaseStyles from 'base/style';
@@ -29,8 +29,8 @@ const Home = () =>
       <p style={{ ...styles.text.secondary, ...noSelect(), ...homeStyle.tagline }}>Transaction assurance and wallet management for BitCoin</p>
       <p style={{ ...noSelect() }}>Join now and start using bitcoin with peace of mind!</p>
       <Flex container column justifyContent="center" alignItems="center" style={homeStyle.signinSubblock}>
-        <Anchor useRouter component='button' href="/signup">Sign Up</Anchor>
-        <p style={{ ...styles.text.tertiary, ...noSelect() }}>or <Anchor useRouter href="/login">log in</Anchor></p>
+        <Button href="/signup">Sign Up</Button>
+        <p style={{ ...styles.text.tertiary, ...noSelect() }}>or <Anchor href="/login">log in</Anchor></p>
       </Flex>
     </Flex>
   </Flex>

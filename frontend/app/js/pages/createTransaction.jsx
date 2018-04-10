@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table } from 'base/components/elements';
-import { Router, DummyAPICollection, API, DeleteButton,
+import { Router, DummyAPICollection, API, DeleteButton, Button,
          CollectionView, Form, FormGroup, Input, Select, Flex } from 'base/base';
 import { FlexControlBlock, SideMargins, UserRow, Save, Times, Plus } from 'app/common';
 import { SearchField } from 'app/components/searchfield';
@@ -28,8 +28,8 @@ function Requirement({ collectionView, closeAction, element }) {
                                component={UserRow} />
                 </FlexControlBlock>
                 <Flex container row justifyContent="center">
-                  <button type="submit"><Save /></button>
-                  {closeAction && <button type="button" onClick={closeAction}><Times /></button>}
+                  <Button type="submit"><Save /></Button>
+                  {closeAction && <Button onClick={closeAction}><Times /></Button>}
                 </Flex>
               </Flex>
               { r && <DeleteButton onClick={() => collectionView.deleteElement(r.id)} /> }
@@ -63,7 +63,7 @@ class RequirementCollection extends Component {
       <Flex container wrap>
         <Flex container justifyContent="space-between" alignItems="center" grow="1" basis="100%" marginTop marginBottom>
           Requirements
-          {!showingCreate && <button onClick={this.showCreate}><Plus /></button>}
+          {!showingCreate && <Button onClick={this.showCreate}><Plus /></Button>}
         </Flex>
         <Flex grow="1" basis="100%">
           <Table striped>
@@ -136,7 +136,7 @@ class CreateTransaction extends Component {
             <CollectionView collection={this.dummyCollection}>
               <RequirementCollection />
             </CollectionView>
-            <button action="submit" type="submit">CREATE</button>
+            <Button action="submit" type="submit">CREATE</Button>
           </FormGroup>
         </Form>
       </SideMargins>

@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table } from 'base/components/elements';
 import { BTC, SideMargins, XOverflowable, FlexControlBlock, Save } from 'app/common';
-import { API, Flex, Anchor, CollectionView, ElementView, Form, Select, Input } from 'base/base';
+import { API, Flex, Anchor, CollectionView, ElementView, Form, Select, Input, Button } from 'base/base';
 import style from 'app/style';
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
@@ -89,7 +89,7 @@ function TransactionInfo({ elementView }) {
         {t.completed && !t.success &&
         <Flex container alignItems="center">
           <p style={tdStyles.errorMessage}>{t.error ? "BitCoin Error: " + t.error : "Unknown BitCoin Error"}</p>
-          <button onClick={() => attemptFinalize(t, elementView)}>Retry</button>
+          <Button onClick={() => attemptFinalize(t, elementView)}>Retry</Button>
         </Flex>}
       </Flex>
       <Flex container column alignItems="center" style={tdStyles.titleBlock}>
@@ -101,7 +101,7 @@ function TransactionInfo({ elementView }) {
                     name="recipient_wallet_id"
                     transform={w => w.id}
                     faceTransform={w => w.private_key} />
-                <button action="submit" style={tdStyles.saveButton}><Save /></button>
+                <Button action="submit" style={tdStyles.saveButton}><Save /></Button>
             </FlexControlBlock>
         </Form>}
         {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
@@ -112,7 +112,7 @@ function TransactionInfo({ elementView }) {
                    name="sender_wallet_id"
                    transform={w => w.id}
                    faceTransform={w => w.private_key} />
-               <button action="submit" style={tdStyles.saveButton}><Save /></button>
+               <Button action="submit" style={tdStyles.saveButton}><Save /></Button>
             </FlexControlBlock>
         </Form>}
       </Flex>

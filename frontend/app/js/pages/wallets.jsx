@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table } from 'base/components/elements';
 import { SideMargins, Save, Times, Plus } from 'app/common';
 import { Flex, Collapsible, CollectionView,
-         API, Form, Input, FormGroup, SVGIcon, DeleteButton } from 'base/base';
+         API, Form, Input, FormGroup, SVGIcon, DeleteButton, Button } from 'base/base';
 import style from 'app/style';
 import palette from 'app/palette';
 import BaseStyles from 'base/style';
@@ -58,8 +58,8 @@ class WalletCreationControls extends Component {
     if (!formVisible) {
       return (
         <Flex container row wrap margin justifyContent="center">
-          <button onClick={() => collectionView.listMethod("POST", "generate", {})}>Generate</button>
-          <button onClick={this.openForm}><Plus /></button>
+          <Button onClick={() => collectionView.listMethod("POST", "generate", {})}>Generate</Button>
+          <Button onClick={this.openForm}><Plus /></Button>
         </Flex>
       );
     }
@@ -74,8 +74,8 @@ class WalletCreationControls extends Component {
                  placeholder="Wallet private key (WIF format)" />
         </Flex>
         <Flex container justifyContent="center" alignItems="center">
-          <button action="submit"><Save /></button>
-          <button type="button" onClick={this.closeForm}><Times /></button>
+          <Button action="submit"><Save /></Button>
+          <Button onClick={this.closeForm}><Times /></Button>
         </Flex>
       </Flex>
     );

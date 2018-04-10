@@ -21,11 +21,12 @@ import Flex from './components/flex';
 import Responsive from './components/responsive';
 import Referencing from './components/referencing';
 import Anchor from './components/anchor';
+import Button from './components/button';
 import SVGIcon from './components/svgicon';
 import { prependFunc, doNotUpdate, cssSubclass, nonUpdating } from './components/utilities';
 
 export { Collapsible, Drawer, Table, DeleteButton, Loading,
-         API, APICollection, DummyAPICollection, FadeTransition,
+         API, APICollection, DummyAPICollection, FadeTransition, Button,
          Form, FormGroup, FormElement, Select, Input, CollectionView,
          ElementView, Router, Anchor, doNotUpdate, Animations, Referencing,
          Flex, Responsive, prependFunc, cssSubclass, SVGIcon, nonUpdating };

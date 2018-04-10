@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { XOverflowable, Frown, BTC, SideMargins } from 'app/common';
 import { Table } from 'base/components/elements';
-import { Anchor, Router, API, CollectionView, ElementView, Flex } from 'base/base';
+import { Anchor, Button, Router, API, CollectionView, ElementView, Flex } from 'base/base';
 
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
@@ -100,34 +100,30 @@ function Profile({ matches }) {
         <Flex container column grow="1" basis="100%" style={{maxWidth:"100%", width: "100%"}}>
           <Flex container row justifyContent="center" wrap>
             {!isAuthenticatedUser &&
-              <Anchor
-                component='button'
+              <Button
                 href={API.user.baseURL + userId + "/transaction/send"}
-              >Send BTC</Anchor>}
+              >Send BTC</Button>}
               {!isAuthenticatedUser &&
-              <Anchor
-                component='button'
+              <Button
                 href={API.user.baseURL + userId + "/transaction/receive"}
-              >Receive BTC</Anchor>}
+              >Receive BTC</Button>}
               {isAuthenticatedUser &&
-              <Anchor
-                component='button'
+              <Button
                 href="/wallets"
-              >Wallets</Anchor>}
+              >Wallets</Button>}
               {isAuthenticatedUser &&
-              <Anchor
-                component='button'
+              <Button
                 href="/required"
-              >Required</Anchor>}
+              >Required</Button>}
               {isAuthenticatedUser &&
-               <button
+               <Button
                  onClick={() => {
                    API.networking("DELETE", "/token/clear", {}, {}).then(() => {
                      API.clearAuth();
                      Router.push("/");
                    });
                  }}
-               >Log Out</button>}
+               >Log Out</Button>}
           </Flex>
           <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
             <TransactionCollectionBody userId={userId} />

@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Table } from 'base/components/elements';
-import { Anchor, Flex, Form, Input, CollectionView, API } from 'base/base';
+import { Anchor, Flex, Form, Input, CollectionView, API, Button } from 'base/base';
 import { SideMargins, Frown } from 'app/common';
 import style from 'app/style';
 import BaseStyle from 'base/style';
@@ -44,7 +44,7 @@ function RequirementRow({ collectionView, element }) {
           <Form key={element.id + "-ack"} onSubmit={collectionView.saveElement}>
             <Input hidden name="id" value={element.id} />
             <Input hidden name="acknowledged" value={true} />
-            <button action="submit">Acknowledge</button>
+            <Button action="submit">Acknowledge</Button>
           </Form>}
           {element.acknowledged && !element.rejected &&
           <Flex container column alignItems="flex-start" justifyContent="center">
@@ -56,8 +56,8 @@ function RequirementRow({ collectionView, element }) {
                       text
                       placeholder="Sign/type your name"
                       name="signature" value={element.signature} />
-                <button action="submit">SIGN</button>
-                <button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</button>
+                <Button action="submit">SIGN</Button>
+                <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>
               </Flex>
             </Form>}
           </Flex>}

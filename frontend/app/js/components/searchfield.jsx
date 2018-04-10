@@ -1,6 +1,6 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { APICollection, Input, FormElement, CollectionView, Router, Anchor, Flex } from 'base/base';
+import { APICollection, Input, FormElement, CollectionView, Router, Button, Flex } from 'base/base';
 import { Table, DeleteButton } from 'base/base';
 import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
@@ -198,7 +198,7 @@ class SearchField extends FormElement {
         { this.showsObject &&
           <Flex container row alignItems="center">
             <Flex container alignItems="center" justifyContent="center"
-                  component={Anchor}
+                  component={Button}
                   href={api.baseURL + this.value.id}
                   style={styles.valueLink}>
               {h(component, { element: this.value })}

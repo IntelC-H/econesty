@@ -14,7 +14,8 @@ const styles = {
     height: "auto",
     top: 0,
     backgroundColor: palette.primaryColor,
-    borderBottom: `${BaseStyles.border.width} solid ${palette.borderColor}`
+    borderBottom: `${BaseStyles.border.width} solid ${palette.borderColor}`,
+    padding: BaseStyles.padding
   },
   heading: {
     lineHeight: "100%",
@@ -22,7 +23,6 @@ const styles = {
     color: "#FFFFFF",
     fontFamily: "'Hammersmith One', sans-serif",
     fontSize: BaseStyles.elementHeight,
-    margin: BaseStyles.padding,
     ...noSelect()
   }
 };
@@ -55,9 +55,9 @@ class PageTemplate extends Component {
   render(props, { authenticated }) {
     return (
       <div style={style.element.page}>
-        <Flex container wrap justifyContent="space-between" alignItems="center" style={styles.header}>
+        <Flex container wrap row justifyContent="space-between" alignItems="center" style={styles.header}>
           <Anchor href="/" style={styles.heading}>Econe$ty</Anchor>
-          <Flex container wrap row alignItems="center" margin>
+          <Flex container wrap row alignItems="center">
            {authenticated && <SearchField
                     standalone
                     api={API.user}
