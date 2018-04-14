@@ -3,8 +3,8 @@ import Preact, { h, render } from 'preact';
 
 require('preact/debug');
 
-const {whyDidYouUpdate} = require('why-did-you-update');
-whyDidYouUpdate(Preact);
+//const {whyDidYouUpdate} = require('why-did-you-update');
+//whyDidYouUpdate(Preact);
 
 let externalStylesheets = [
   '//fonts.googleapis.com/css?family=Hammersmith+One|Inconsolata|Lato|Sacramento'

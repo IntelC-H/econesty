@@ -11,44 +11,42 @@ const profileStyle = {
   primaryAvatar: {
     height: "7em",
     width: "7em",
-    backgroundColor: "gray",
-    borderRadius: BaseStyles.border.radius
+    borderRadius: BaseStyles.border.radius,
+    objectFit: "contain",
+    margin: BaseStyles.padding
+  },
+  userFullName: {
+    ...style.text.primary,
+    marginBottom: BaseStyles.padding,
+    marginLeft: BaseStyles.padding,
+    width: "content"
+  },
+  userUsername: {
+    ...style.text.secondary,
+    margin: BaseStyles.padding
+  },
+  userEditProfile: {
+    ...style.text.tertiary,
+    margin: BaseStyles.padding
   }
 };
 
 function User({ elementView }) {
-  let user = elementView.getElement();
+  let { avatar_url, first_name, last_name, username, is_me } = elementView.getElement();
   return (
     <Flex container row alignItems="center">
-      <Flex margin component='img' objectFit="contain" src={user.avatar_url} style={profileStyle.primaryAvatar} />
-      <Flex margin>
-        <div style={{ ...style.text.primary, marginBottom: BaseStyles.padding, marginLeft: BaseStyles.padding }}>{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
-        <div style={{ ...style.text.secondary, margin: BaseStyles.padding }}>@{user.username}</div>
-        {user.is_me && <Anchor href="/profile/edit" style={{ ...style.text.tertiary, margin: BaseStyles.padding }}>Edit Profile</Anchor>}
+      <Flex component='img' src={avatar_url} style={profileStyle.primaryAvatar} />
+      <Flex>
+        <div style={profileStyle.userFullName}>{first_name || "First Name"} {last_name || "Last Name"}</div>
+        <div style={profileStyle.userUsername}>@{username}</div>
+        {is_me && <Anchor href="/profile/edit" style={profileStyle.userEditProfile}>Edit Profile</Anchor>}
       </Flex>
     </Flex>
   );
 }
 
-function TransactionDirection({ transaction, userId }) {
-  let direction = null;
-  let user = null;
-  if (transaction.sender.id === parseInt(userId)) {
-    direction = "to";
-    user = transaction.recipient;
-  } else if (transaction.recipient.id === parseInt(userId)) {
-    direction = "from";
-    user = transaction.sender;
-  }
-
-  if (direction && user) {
-    return (
-      <Flex container alignItems="center" style={style.text.secondary}>
-        <small>{direction}</small><span>&nbsp;{user.first_name} {user.last_name} (@{user.username})</span>
-      </Flex>
-    );
-  }
-  return null;
+function transactionColor({ completed, success, rejected }) {
+  return completed ? success ? "green" : "yellow" : rejected ? "red" : null;
 }
 
 function TransactionCollectionBody({ collectionView, userId }) {
@@ -65,21 +63,37 @@ function TransactionCollectionBody({ collectionView, userId }) {
   }
 
   return (
-    <XOverflowable>
-      <Table striped selectable>
-        <tbody>
-          {es.map(obj =>
-            <tr key={obj.id}
-                onClick={() => Router.push("/transaction/" + obj.id)}
-                style={{ color: obj.completed ? obj.success ? "green" : "yellow" : obj.rejected ? "red" : null }}>
-              <td># {obj.id}</td>
-              <Flex container component='td' alignItems="center"><BTC/><span>{parseFloat(obj.amount)}</span></Flex>
-              <td><TransactionDirection transaction={obj} userId={userId} /></td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
-    </XOverflowable>
+      <Flex container column style={style.table.base}>
+        {es.map((obj, i) => {
+          let isOdd = (i % 2) === 1;
+          let direction = null;
+          let user = null;
+          if (obj.sender.id === parseInt(userId)) {
+            direction = "to";
+            user = obj.recipient;
+          } else if (obj.recipient.id === parseInt(userId)) {
+            direction = "from";
+            user = obj.sender;
+          }
+          return (
+            <Flex container row alignItems="center" justifyContent="space-between" component={Button}
+                  key={obj.id}
+                  disableBaseStyles
+                  href={"/transaction/" + obj.id}
+                  hoverStyle={style.table.rowHover}
+                  activeStyle={style.table.rowActive}
+                  style={{
+                    ...style.table.row,
+                    ...isOdd ? style.table.oddRow : {},
+                    color: transactionColor(obj) }}>
+              <Flex style={style.table.column}># {obj.id}</Flex>
+              <Flex container alignItems="center" style={style.table.column}><BTC/><span>{parseFloat(obj.amount)}</span></Flex>
+              {direction && <small style={style.table.column}>{direction}</small>}
+              {user && <p style={style.table.column}>{user.first_name} {user.last_name} (@{user.username})</p>}
+            </Flex>
+          );
+      })}
+      </Flex>
   );
 }
 
@@ -87,18 +101,12 @@ function Profile({ matches }) {
   const userId = parseInt(matches.id);
   const isAuthenticatedUser = userId === API.getUserID();
   return (
-    <SideMargins>
       <Flex container column alignItems="center">
-        <Flex basis="50%">
-          <ElementView collection={API.user} elementID={userId}>
-            {elementView => {
-              // if (elementView.getElement().is_me) return <EditableUser elementView={elementView} />;
-              return <User elementView={elementView} />;
-             }}
-          </ElementView>
-        </Flex>
-        <Flex container column grow="1" basis="100%" style={{maxWidth:"100%", width: "100%"}}>
-          <Flex container row justifyContent="center" wrap>
+        <ElementView collection={API.user} elementID={userId}>
+          <User />
+        </ElementView>
+        <Flex container column style={{maxWidth:"100%", width: "100%"}}>
+          <Flex container row wrap justifyContent="center">
             {!isAuthenticatedUser &&
               <Button
                 href={API.user.baseURL + userId + "/transaction/send"}
@@ -130,7 +138,6 @@ function Profile({ matches }) {
           </CollectionView>
         </Flex>
       </Flex>
-    </SideMargins>
   );
 }
 

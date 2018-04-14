@@ -6,21 +6,22 @@ Provides styles for Econesty.
 */
 
 import palette from 'app/palette';
-import BaseStyle from 'base/style';
+import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize } from 'base/style/sizing';
+import { darken, parseColor, renderColor } from 'base/style/colors';
 
-const halfPadding = renderSize(fmapSize(a => a / 2, parseSize(BaseStyle.padding)));
+const halfPadding = renderSize(fmapSize(a => a / 2, parseSize(BaseStyles.padding)));
 
 const style = {
   text: {
     primary: {
-      fontSize: BaseStyle.elementHeight
+      fontSize: BaseStyles.elementHeight
     },
     secondary: {
-      fontSize: renderSize(fmapSize(s => s / 2, parseSize(BaseStyle.elementHeight)))
+      fontSize: renderSize(fmapSize(s => s / 2, parseSize(BaseStyles.elementHeight)))
     },
     tertiary: {
-      fontSize: renderSize(fmapSize(s => s / 3, parseSize(BaseStyle.elementHeight)))
+      fontSize: renderSize(fmapSize(s => s / 3, parseSize(BaseStyles.elementHeight)))
     },
     script: {
       fontFamily: "'Sacramento', cursive",
@@ -49,18 +50,34 @@ const style = {
     }
   },
   table: {
-    tr: {
-
+    base: {
+      border: `${BaseStyles.border.width} solid ${BaseStyles.border.color}`,
+      overflowX: "auto",
+      boxSizing: "border-box",
+      backgroundColor: "transparent"
     },
-    td: {
-      padding: `${halfPadding} ${BaseStyle.padding}`
+    column: {
+      padding: BaseStyles.padding
+    },
+    row: {
+      textAlign: "left",
+      backgroundColor: "white"
+    },
+    rowHover: {
+      backgroundColor: renderColor(darken(parseColor("white"), 10))
+    },
+    rowActive: {
+      backgroundColor: renderColor(darken(parseColor("white"), 15))
+    },
+    oddRow: {
+      backgroundColor: renderColor(darken(parseColor("white"), 5))
     }
   },
   element: {
     frownMessage: {
       opacity: "0.4",
       textAlign: "center",
-      margin: BaseStyle.padding
+      margin: BaseStyles.padding
     },
     page: {
       color: palette.textColor,

@@ -9,9 +9,8 @@ var BaseStyles = {
   padding:       "0.5rem",
   border: {
     radius: "0.25rem",
-    width:  "0.1rem"
-  },
-  table: {
+    width:  "0.1rem",
+    color: "#CBCBCB"
   },
   loading: {
     color:     "#555555",

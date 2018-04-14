@@ -3,6 +3,7 @@
 */
 
 const NAMED_COLORS = {
+  transparent: "rgba(0, 0, 0, 0)",
   aliceblue: "#F0F8FF",
   antiquewhite: "#FAEBD7",
   aqua: "#00FFFF",
@@ -194,7 +195,7 @@ function parseColor(c) {
     return obj;
   }
 
-  let namedColor = NAMED_COLORS[c.toLower()];
+  let namedColor = NAMED_COLORS[c.toLowerCase()];
   if (namedColor) {
     return parseColor(namedColor);
   }

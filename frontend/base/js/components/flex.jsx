@@ -13,7 +13,7 @@ function measurement(props, propName, componentName) {
 function Flex({ style, component,
                 container, justifyContent, row, rowReverse, column, columnReverse, // container props
                 wrap, nowrap, wrapReverse, alignContent, alignItems,               // more container props
-                order, grow, shrink, basis, align,                                 // item props
+                order, grow, shrink, basis, align, justify,                        // item props
                 height, width,                                                     // sizing props
                 paddingLeft, paddingRight, paddingTop, paddingBottom, padding,     // padding
                 marginLeft, marginRight, marginTop, marginBottom, margin,          // margin
@@ -42,6 +42,7 @@ function Flex({ style, component,
     if (hasBasis) stylep.flexBasis = basis;
   }
   if (align !== null && align !== undefined) stylep.alignSelf = align;
+  if (justify !== null && justify !== undefined) stylep.justifySelf = justify;
   if (height !== null && height !== undefined) stylep.height = height;
   if (width !== null && width !== undefined) stylep.width = width;
 

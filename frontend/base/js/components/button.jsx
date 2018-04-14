@@ -5,25 +5,21 @@ import BaseStyles from '../style';
 import { parseSize, renderSize, fmapSize } from '../style/sizing';
 import { parseColor, renderColor, darken } from '../style/colors';
 
-const localPathRegex = /^\/([^\/]|$)/;
-
-// GIANT HACK
-window.addEventListener("mouseup", function(e) {
-  let b = getClickTarget();
-  if (b && b.state.mouseDown && !b.state.hover) {
-    b.setState(st => ({ ...st, mouseDown: false }));
-  }
-});
-
-function setClickTarget(t) {
-  window.__button_click_target = t;
-}
-
-function getClickTarget() {
-  return window.__button_click_target;
-}
+// TODO: touches on mobile
 
 class Button extends Component {
+  get clicked() {
+    return window.__button_click_target;
+  }
+
+  set clicked(b) {
+    window.__button_click_target = b;
+  }
+
+  get hasClicked() {
+    return Boolean(Button.clicked);
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -42,14 +38,14 @@ class Button extends Component {
       this.props.onClick();
     }
     if (href) {
-      let useRouter = href ? Boolean(href.match(localPathRegex)) : false;
+      let useRouter = href ? Boolean(href.match(/^\/([^\/]|$)/)) : false; // 
       if (useRouter) Router.push(href);
       else window.location.assign(href);
     }
   }
 
   onMouseDown(e) {
-    setClickTarget(this);
+    Button.clicked = this;
     e.preventDefault();
     if (parseInt(e.which) === 1) {
       this.setState(st => ({ ...st, mouseDown: true }));
@@ -58,39 +54,37 @@ class Button extends Component {
   }
 
   onMouseUp(e) {
-    setClickTarget(null);
     e.preventDefault();
-    if (parseInt(e.which) === 1) {
+    if (parseInt(e.which) === 1 && Button.clicked === this) {
       this.clickAction();
-      this.setState(st => ({ ...st, mouseDown: false }));
     }
     return false;
   }
 
   onMouseEnter(e) {
     e.preventDefault();
-    let clickedButton = window.__button_click_target;
-    if (clickedButton === this) this.setState(st => ({ ...st, mouseDown: true, hover: true }));
+    if (Button.clicked === this) this.setState(st => ({ ...st, mouseDown: true, hover: true }));
     else this.setState(st => ({ ...st, hover: true }));
     return false;
   }
 
   onMouseLeave(e) {
     e.preventDefault();
-    this.setState(st => ({ ...st, mouseDown: false, hover: false }));
+    this.setState(st => ({ ...st, hover: false }));
     return false;
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  /*shouldComponentUpdate(nextProps, nextState) {
     if (nextState.hover !== this.state.hover) return true;
     if (nextState.mouseDown !== this.state.mouseDown) return true;
+    if (nextProps.disableBaseStyles !== this.props.disableBaseStyles) return true;
     return false;
-  }
+  }*/
 
   getStyle() {
     const { style, hoverStyle, activeStyle, primaryStyle, disabledStyle, disableStateStyles, disableBaseStyles } = this.props;
 
-    let isClickTarget = getClickTarget() === this;
+    let isClickTarget = !Button.clicked || (Button.clicked === this);
 
     let baseStyle = {
       ...isClickTarget ? { cursor: "pointer" } : {},
@@ -118,7 +112,6 @@ class Button extends Component {
 
     let baseDisabledStyle = {
       border: "none",
-      backgroundImage: "none",
       opacity: "0.4",
       cursor: "not-allowed",
       pointerEvents: "none",
@@ -126,7 +119,7 @@ class Button extends Component {
     };
 
     let baseActiveStyle = {
-      boxShadow: "0 0 0 1px rgba(0,0,0,0.15) inset, 0 0 0.5rem rgba(0,0,0,0.2) inset",
+      ...disableBaseStyles ? {} : { boxShadow: "0 0 0 1px rgba(0,0,0,0.15) inset, 0 0 0.5rem rgba(0,0,0,0.2) inset" },
       ...activeStyle
     };
 
@@ -138,7 +131,7 @@ class Button extends Component {
     };
   }
 
-  render({ style, hoverStyle, activeStyle, disabledStyle, primaryStyle, component, onClick, href, type, ...props }) {
+  render({ style, hoverStyle, activeStyle, disabledStyle, primaryStyle, component, onClick, href, type, disableBaseStyles, disableStyleStyles, ...props }) {
     return h(component || 'button', {
       ...props,
       type: component ? type : type || 'button', // Prevent buttons from silently automatically submitting forms
@@ -150,6 +143,14 @@ class Button extends Component {
     });
   }
 }
+
+// GIANT HACK
+window.addEventListener("mouseup", function(e) {
+  if (Button.clicked) {
+    Button.clicked.setState(st => ({ ...st, mouseDown: false }));
+  }
+  Button.clicked = null;
+});
 
 Button.defaultProps = {
   disableStateStyles: false,
