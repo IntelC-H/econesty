@@ -4,6 +4,7 @@ import { APICollection, Input, FormElement, CollectionView, Router, Button, Flex
 import { Table, DeleteButton } from 'base/base';
 import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
+import style from 'app/style';
 
 const searchIconDimension = renderSize(reduceSizes((a, b) => a - b,
                              [parseSize(BaseStyles.elementHeight), fmapSize(s => s * 2, parseSize(BaseStyles.padding))]));
@@ -74,24 +75,24 @@ function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
   if (elements.length === 0) return <Flex style={styles.noResults} container alignItems="center" justifyContent="center">No Results</Flex>;
   return (
-    <Flex style={{ backgroundColor: "transparent" }}>
+    <Flex container column style={{ backgroundColor: "transparent" }}>
       {elements.map((element, idx) =>
-        <tr onMouseDown={e => e.preventDefault()}
-            onMouseUp={e => {
-              if (e.which !== 3) {
+      <Flex component={Button} style={{ ...style.table.row,
+                     ...idx % 2 ? style.table.oddRow : {},
+                     ...style.table.column}}
+            disableBaseStyles
+            hoverStyle={style.table.rowHover}
+            activeStyle={style.table.rowActive}
+            onClick={() => {
                 let onClick = searchField.getClickAction();
-                if (onClick) onClick(e);
+                if (onClick) onClick();
                 searchField.selectElement(element);
                 if (searchField.isStandalone()) {
                   searchField.reset();
                   searchField.blur();
-                }
-              }
-            }}>
-          <td>
-            {h(searchField.getLinkComponent(), { element: element })}
-          </td>
-        </tr>)}
+                }}}>
+        {h(searchField.getLinkComponent(), { element: element })}
+      </Flex>)}
     </Flex>
   );
 }
