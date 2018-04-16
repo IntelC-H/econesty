@@ -10,10 +10,9 @@ import { parseSize, renderSize, fmapSize } from 'base/style/sizing';
 
 const walletStyles = {
   keyInput: {
-    textAlign: "center"
-  },
-  walletRow: {
-    minHeight: renderSize(fmapSize(a => a * 2, parseSize(BaseStyles.elementHeight)))
+    textAlign: "center",
+    width: undefined,
+    margin: `${BaseStyles.padding}`
   },
   testnetLabel: {
     ...noSelect(),
@@ -46,10 +45,12 @@ class WalletCreationControls extends Component {
   }
 
   openForm() {
+    console.log("Open Form");
     this.setState(st => ({ ...st, formVisible: true }));
   }
 
   closeForm() {
+    console.log("Close Form");
     this.setState(st => ({ ...st, formVisible: false }));
   }
 
@@ -66,16 +67,13 @@ class WalletCreationControls extends Component {
       <Flex component={Form} onSubmit={collectionView.saveElement}
             container row wrap margin justifyContent="center" alignItems="stretch">
         <Input hidden name="user_id" value={API.getUserID()}/>
-        <Flex grow="2">
-          <Input text required
-                 style={walletStyles.keyInput}
-                 name="private_key"
-                 placeholder="Wallet private key (WIF format)" />
-        </Flex>
-        <Flex container justifyContent="center" alignItems="center">
-          <Button type="submit"><Save /></Button>
-          <Button onClick={this.closeForm}><Times /></Button>
-        </Flex>
+        <Flex component={Input} grow="2"
+              text required
+              style={walletStyles.keyInput}
+              name="private_key"
+              placeholder="Wallet private key (WIF format)" />
+        <Button type="submit"><Save /></Button>
+        <Button onClick={this.closeForm}><Times /></Button>
       </Flex>
     );
   }
@@ -93,7 +91,9 @@ function Wallets({}) {
         {collectionView =>
         <Flex container column style={style.table.base}>
           {collectionView.getElements().map((w, idx) =>
-            <Flex container style={{...style.table.row, ...idx % 2 ? style.table.oddRow : {},...walletStyles.walletRow}}>
+            <Flex container style={{ ...style.table.row,
+                                     ...idx % 2 ? style.table.oddRow : {},
+                                     ...style.table.column}}>
               {w.is_testnet &&
                 <Flex align="flex-start" style={walletStyles.testnetLabel}>TESTNET</Flex>}
               <Flex grow="2">

@@ -17,6 +17,8 @@ Custom CSS Reset based on normalize.css v8.0.0 (github.com/necolas/normalize.css
   line-height: 1; /* set a uniform line height */
   text-decoration: none;
 
+  -webkit-tap-highlight-color: transparent;
+
   -webkit-text-size-adjust: 100%; /* iOS: prevent adjustments of font size after orientation changes */
 
   -webkit-margin-before: 0;

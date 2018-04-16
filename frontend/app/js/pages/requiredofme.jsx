@@ -1,5 +1,4 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table } from 'base/components/elements';
 import { Anchor, Flex, Form, Input, CollectionView, API, Button } from 'base/base';
 import { SideMargins, Frown } from 'app/common';
 import style from 'app/style';
@@ -26,47 +25,6 @@ const rsStyle = {
   }
 };
 
-function RequirementRow({ collectionView, element }) {
-  return (
-    <tr>
-      <td>
-        <Flex container row alignItems="center">
-          <p style={{ ...rsStyle.reqTitle, color: element.rejected ? "red" : element.fulfilled ? "green" : null }}>
-            Transaction <Anchor style={style.text.secondary} href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Anchor>
-          </p>
-        </Flex>
-        <Flex container justifyContent="space-between" alignItems="center">
-          <div>
-            <p style={rsStyle.terms}>{Boolean(element.text) ? element.text : "No written terms."}</p>
-            {element.fulfilled && <p style={rsStyle.signature}>{element.signature}</p>}
-          </div>
-          {!element.acknowledged &&
-          <Form key={element.id + "-ack"} onSubmit={collectionView.saveElement}>
-            <Input hidden name="id" value={element.id} />
-            <Input hidden name="acknowledged" value={true} />
-            <Button action="submit">Acknowledge</Button>
-          </Form>}
-          {element.acknowledged && !element.rejected &&
-          <Flex container column alignItems="flex-start" justifyContent="center">
-            {!element.fulfilled && <Form key={element.id + "-sign"}
-                    onSubmit={collectionView.saveElement}>
-              <Flex container row alignItems="center">
-                <Input hidden name="id" value={element.id} />
-                <Flex component={Input} margin
-                      text
-                      placeholder="Sign/type your name"
-                      name="signature" value={element.signature} />
-                <Button action="submit">SIGN</Button>
-                <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>
-              </Flex>
-            </Form>}
-          </Flex>}
-        </Flex>
-      </td>
-    </tr>
-  );
-}
-
 function RequirementsCollection({ collectionView }) {
   if (collectionView.getElements().length === 0) {
     return (
@@ -77,10 +35,43 @@ function RequirementsCollection({ collectionView }) {
     );
   }
   return (
-    <Table striped>
-      {collectionView.getElements().map(e =>
-      <RequirementRow collectionView={collectionView} element={e} />)}
-    </Table>
+    <Flex container column style={style.table.base}>
+      {collectionView.getElements().map((element, idx) =>
+        <Flex container style={{...style.table.row, ...idx % 2 ? style.table.oddRow : {}, ...style.table.column}} column>
+          <Flex container row alignItems="center">
+            <p style={{ ...rsStyle.reqTitle, color: element.rejected ? "red" : element.fulfilled ? "green" : null }}>
+              Transaction <Anchor style={style.text.secondary} href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Anchor>
+            </p>
+          </Flex>
+          <Flex container justifyContent="space-between" alignItems="center">
+            <div>
+              <p style={rsStyle.terms}>{Boolean(element.text) ? element.text : "No written terms."}</p>
+              {element.fulfilled && <p style={rsStyle.signature}>{element.signature}</p>}
+            </div>
+            {!element.acknowledged &&
+            <Form key={element.id + "-ack"} onSubmit={collectionView.saveElement}>
+              <Input hidden name="id" value={element.id} />
+              <Input hidden name="acknowledged" value={true} />
+              <Button action="submit">Acknowledge</Button>
+            </Form>}
+            {element.acknowledged && !element.rejected &&
+            <Flex container column alignItems="flex-start" justifyContent="center">
+              {!element.fulfilled && <Form key={element.id + "-sign"}
+                      onSubmit={collectionView.saveElement}>
+                <Flex container row alignItems="center">
+                  <Input hidden name="id" value={element.id} />
+                  <Flex component={Input} margin
+                        text
+                        placeholder="Sign/type your name"
+                        name="signature" value={element.signature} />
+                  <Button action="submit">SIGN</Button>
+                  <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>
+                </Flex>
+              </Form>}
+            </Flex>}
+          </Flex>
+        </Flex>)}
+    </Flex>
   );
 }
 

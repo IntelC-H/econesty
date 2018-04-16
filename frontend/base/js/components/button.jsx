@@ -4,22 +4,12 @@ import { noSelect } from '../style/mixins';
 import BaseStyles from '../style';
 import { parseSize, renderSize, fmapSize } from '../style/sizing';
 import { parseColor, renderColor, darken } from '../style/colors';
+import { appearance } from '../style/mixins';
 
 // TODO: touches on mobile
+// TODO: Fix onMouseEnter bug
 
 class Button extends Component {
-  get clicked() {
-    return window.__button_click_target;
-  }
-
-  set clicked(b) {
-    window.__button_click_target = b;
-  }
-
-  get hasClicked() {
-    return Boolean(Button.clicked);
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -33,7 +23,7 @@ class Button extends Component {
   }
 
   clickAction() {
-    const { onClick, href } = this.props;
+    const { onClick, href, type } = this.props;
     if (onClick) onClick();
     if (href) {
       let useRouter = href ? Boolean(href.match(/^\/([^\/]|$)/)) : false;
@@ -43,8 +33,9 @@ class Button extends Component {
   }
 
   onMouseDown(e) {
-    Button.clicked = this;
+    console.log("Button Down", this);
     e.preventDefault();
+    e.stopPropagation();
     if (parseInt(e.which) === 1) {
       this.setState(st => ({ ...st, mouseDown: true }));
     }
@@ -53,21 +44,27 @@ class Button extends Component {
 
   onMouseUp(e) {
     e.preventDefault();
-    if (parseInt(e.which) === 1 && Button.clicked === this) {
+    e.stopPropagation();
+    console.log("BUTTON UP: ", this);
+    if (this.state.mouseDown) { // Centralize logic in onMouseDown for what constitutes a click
       this.clickAction();
+      this.setState(st => ({ ...st, mouseDown: false })); //
     }
     return false;
   }
 
   onMouseEnter(e) {
+    console.log("Button Enter", this.state, this.props);
     e.preventDefault();
-    if (Button.clicked === this) this.setState(st => ({ ...st, mouseDown: true, hover: true }));
-    else this.setState(st => ({ ...st, hover: true }));
+    e.stopPropagation();
+    this.setState(st => ({ ...st, hover: true }));
     return false;
   }
 
   onMouseLeave(e) {
+    console.log("Button Leave", this);
     e.preventDefault();
+    e.stopPropagation();
     this.setState(st => ({ ...st, hover: false }));
     return false;
   }
@@ -85,6 +82,7 @@ class Button extends Component {
     let isClickTarget = !Button.clicked || Button.clicked === this;
 
     let baseStyle = {
+      ...appearance("none"),
       ...isClickTarget ? { cursor: "pointer" } : {},
       ...disableBaseStyles ? {} : {
         ...noSelect(),
@@ -129,11 +127,11 @@ class Button extends Component {
     };
   }
 
-  render({ style, hoverStyle, activeStyle, disabledStyle, primaryStyle,  onClick, href, type, disableBaseStyles, disableStyleStyles, // eslint-disable-line no-unused-vars
+  render({ style, hoverStyle, activeStyle, disabledStyle, primaryStyle, onClick, href, type, disableBaseStyles, disableStyleStyles, // eslint-disable-line no-unused-vars
            component, ...props }) {
     return h(component || 'button', {
       ...props,
-      type: type || 'button', // Prevent buttons from silently automatically submitting forms
+      type: component ? type : type || 'button', // Prevent buttons from silently automatically submitting forms
       style: this.getStyle(),
       onMouseUp: this.onMouseUp,
       onMouseDown: this.onMouseDown,
@@ -142,14 +140,6 @@ class Button extends Component {
     });
   }
 }
-
-// GIANT HACK
-window.addEventListener("mouseup", function() {
-  if (Button.clicked) {
-    Button.clicked.setState(st => ({ ...st, mouseDown: false }));
-  }
-  Button.clicked = null;
-});
 
 Button.defaultProps = {
   disableStateStyles: false,

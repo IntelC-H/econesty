@@ -64,37 +64,35 @@ const styles = {
   valueLink: {
     margin: 0,
     height: BaseStyles.elementHeight
+  },
+  noResults: {
+    margin: `${BaseStyles.padding} 0`
   }
 };
 
 function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
+  if (elements.length === 0) return <Flex style={styles.noResults} container alignItems="center" justifyContent="center">No Results</Flex>;
   return (
-    <Table striped selectable style={styles.table}>
-      <tbody>
-        {elements.length === 0 &&
-            <Flex container alignItems="center" justifyContent="center" marginTop marginBottom>
-              No Results
-            </Flex>}
-        {elements.length > 0 && elements.map(element =>
-          <tr onMouseDown={e => e.preventDefault()}
-              onMouseUp={e => {
-                if (e.which !== 3) {
-                  let onClick = searchField.getClickAction();
-                  if (onClick) onClick(e);
-                  searchField.selectElement(element);
-                  if (searchField.isStandalone()) {
-                    searchField.reset();
-                    searchField.blur();
-                  }
+    <Flex style={{ backgroundColor: "transparent" }}>
+      {elements.map((element, idx) =>
+        <tr onMouseDown={e => e.preventDefault()}
+            onMouseUp={e => {
+              if (e.which !== 3) {
+                let onClick = searchField.getClickAction();
+                if (onClick) onClick(e);
+                searchField.selectElement(element);
+                if (searchField.isStandalone()) {
+                  searchField.reset();
+                  searchField.blur();
                 }
-              }}>
-            <td>
-              {h(searchField.getLinkComponent(), { element: element })}
-            </td>
-          </tr>)}
-      </tbody>
-    </Table>
+              }
+            }}>
+          <td>
+            {h(searchField.getLinkComponent(), { element: element })}
+          </td>
+        </tr>)}
+    </Flex>
   );
 }
 
