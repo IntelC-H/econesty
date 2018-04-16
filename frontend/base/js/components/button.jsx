@@ -7,7 +7,7 @@ import { parseColor, renderColor, darken } from '../style/colors';
 import { appearance } from '../style/mixins';
 
 // TODO: touches on mobile
-// TODO: Fix onMouseEnter bug
+// TODO: re-implement global button state
 
 class Button extends Component {
   constructor(props) {
@@ -33,7 +33,6 @@ class Button extends Component {
   }
 
   onMouseDown(e) {
-    console.log("Button Down", this);
     e.preventDefault();
     e.stopPropagation();
     if (parseInt(e.which) === 1) {
@@ -45,7 +44,6 @@ class Button extends Component {
   onMouseUp(e) {
     e.preventDefault();
     e.stopPropagation();
-    console.log("BUTTON UP: ", this);
     if (this.state.mouseDown) { // Centralize logic in onMouseDown for what constitutes a click
       this.clickAction();
       this.setState(st => ({ ...st, mouseDown: false })); //
@@ -54,7 +52,6 @@ class Button extends Component {
   }
 
   onMouseEnter(e) {
-    console.log("Button Enter", this.state, this.props);
     e.preventDefault();
     e.stopPropagation();
     this.setState(st => ({ ...st, hover: true }));
@@ -62,7 +59,6 @@ class Button extends Component {
   }
 
   onMouseLeave(e) {
-    console.log("Button Leave", this);
     e.preventDefault();
     e.stopPropagation();
     this.setState(st => ({ ...st, hover: false }));

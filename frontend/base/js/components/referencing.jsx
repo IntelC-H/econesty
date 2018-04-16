@@ -13,14 +13,21 @@ class Referencing extends Component {
     this.refreshReferences();
   }
 
+  get refs() {
+    return Object.values(this.refMap);
+  }
+
   shouldReference(cmp) { // eslint-disable-line no-unused-vars
     return true;
   }
 
   // TODO: how to handle null refs (that signify the non-existence of an element)?
-  reference(cmp) {
+  reference(refid, cmp) {
+    console.log("reference()", refid, cmp);
     if (cmp && this.shouldReference(cmp)) {
-      this.refs.push(cmp);
+      this.refMap[refid] = cmp;
+    } else if (cmp && cmp._component && this.shouldReference(cmp._component)) {
+      this.refMap[refid] = cmp._component;
     }
   }
 
@@ -32,14 +39,16 @@ class Referencing extends Component {
   recursiveRef(c) {
     if (c && c instanceof Object) {
       c.attributes = c.attributes || {};
-      prependFunc(c.attributes, "ref", this.reference);
+      let curRefID = this.refId++;
+      prependFunc(c.attributes, "ref", x => this.reference(curRefID, x));
       if (c.children) c.children.forEach(this.recursiveRef);
     }
     return c;
   }
 
   refreshReferences(children = this.props.children) {
-    this.refs = [];
+    this.refId = 1;
+    this.refMap = {};
     children.forEach(this.recursiveRef);
   }
 
