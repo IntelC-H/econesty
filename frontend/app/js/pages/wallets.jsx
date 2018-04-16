@@ -67,14 +67,14 @@ class WalletCreationControls extends Component {
       <Flex component={Form} onSubmit={collectionView.saveElement}
             container row wrap margin justifyContent="center" alignItems="stretch">
         <Input hidden name="user_id" value={API.getUserID()}/>
-        <Flex component={FormGroup} grow="2">
+        <Flex grow="2">
           <Input text required
                  style={walletStyles.keyInput}
                  name="private_key"
                  placeholder="Wallet private key (WIF format)" />
         </Flex>
         <Flex container justifyContent="center" alignItems="center">
-          <Button action="submit"><Save /></Button>
+          <Button type="submit"><Save /></Button>
           <Button onClick={this.closeForm}><Times /></Button>
         </Flex>
       </Flex>
@@ -92,12 +92,11 @@ function Wallets({}) {
       <CollectionView collection={API.wallet.withParams({ user__id: API.getUserID() })}>
         <WalletCreationControls />
         {collectionView =>
-        <Table striped>
-          {collectionView.getElements().map(w =>
-          <tr style={{ ...style.table.tr, ...walletStyles.walletRow }}>
-            <Flex container component="td" style={style.table.td}>
+        <Flex container column style={style.table.base}>
+          {collectionView.getElements().map((w, idx) =>
+            <Flex container style={{...style.table.row, ...(idx % 2) === 1 ? style.table.oddRow : {},...walletStyles.walletRow}}>
               {w.is_testnet &&
-                <Flex component="p" align="flex-start" style={walletStyles.testnetLabel}>TESTNET</Flex>}
+                <Flex align="flex-start" style={walletStyles.testnetLabel}>TESTNET</Flex>}
               <Flex grow="2">
                 <p style={{ ...style.text.secondary, ...style.text.crypto, ...walletStyles.address }}>
                   {w.address}
@@ -109,9 +108,8 @@ function Wallets({}) {
                 </Collapsible>
               </Flex>
               <DeleteButton onClick={() => collectionView.deleteElement(w.id)} />
-            </Flex>
-          </tr>)}
-        </Table>}
+            </Flex>)}
+        </Flex>}
       </CollectionView>
     </SideMargins>
   );

@@ -63,37 +63,40 @@ function TransactionCollectionBody({ collectionView, userId }) {
   }
 
   return (
-      <Flex container column style={style.table.base}>
-        {es.map((obj, i) => {
-          let isOdd = (i % 2) === 1;
-          let direction = null;
-          let user = null;
-          if (obj.sender.id === parseInt(userId)) {
-            direction = "to";
-            user = obj.recipient;
-          } else if (obj.recipient.id === parseInt(userId)) {
-            direction = "from";
-            user = obj.sender;
-          }
-          return (
-            <Flex container row alignItems="center" justifyContent="space-between" component={Button}
-                  key={obj.id}
-                  disableBaseStyles
-                  href={"/transaction/" + obj.id}
-                  hoverStyle={style.table.rowHover}
-                  activeStyle={style.table.rowActive}
-                  style={{
-                    ...style.table.row,
-                    ...isOdd ? style.table.oddRow : {},
-                    color: transactionColor(obj) }}>
-              <Flex style={style.table.column}># {obj.id}</Flex>
-              <Flex container alignItems="center" style={style.table.column}><BTC/><span>{parseFloat(obj.amount)}</span></Flex>
-              {direction && <small style={style.table.column}>{direction}</small>}
-              {user && <p style={style.table.column}>{user.first_name} {user.last_name} (@{user.username})</p>}
+    <Flex container column style={style.table.base}>
+      {es.map((obj, i) => {
+        let isOdd = (i % 2) === 1;
+        let direction = null;
+        let user = null;
+        if (obj.sender.id === parseInt(userId)) {
+          direction = "to";
+          user = obj.recipient;
+        } else if (obj.recipient.id === parseInt(userId)) {
+          direction = "from";
+          user = obj.sender;
+        }
+        return (
+          <Flex container row alignItems="center" justifyContent="space-between" component={Button}
+                key={obj.id}
+                disableBaseStyles
+                href={"/transaction/" + obj.id}
+                hoverStyle={style.table.rowHover}
+                activeStyle={style.table.rowActive}
+                style={{
+                  ...style.table.row,
+                  ...isOdd ? style.table.oddRow : {},
+                  color: transactionColor(obj) }}>
+            <Flex style={style.table.column}># {obj.id}</Flex>
+            <Flex container alignItems="center" style={style.table.column} basis={0}>
+              <BTC style={{ fontSize: "1.5em" }} />
+              <span>&nbsp;{parseFloat(obj.amount)}</span>
+              {direction && <small style={{ padding: BaseStyles.padding}}>{direction}</small>}
+              {user && <span>{user.first_name} {user.last_name} (@{user.username})</span>}
             </Flex>
-          );
-      })}
-      </Flex>
+          </Flex>
+        );
+    })}
+    </Flex>
   );
 }
 

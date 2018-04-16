@@ -134,7 +134,7 @@ class Button extends Component {
   render({ style, hoverStyle, activeStyle, disabledStyle, primaryStyle, component, onClick, href, type, disableBaseStyles, disableStyleStyles, ...props }) {
     return h(component || 'button', {
       ...props,
-      type: component ? type : type || 'button', // Prevent buttons from silently automatically submitting forms
+      type: type || 'button', // Prevent buttons from silently automatically submitting forms
       style: this.getStyle(),
       onMouseUp: this.onMouseUp,
       onMouseDown: this.onMouseDown,
