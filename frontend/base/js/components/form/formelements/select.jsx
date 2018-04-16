@@ -5,7 +5,7 @@ import Loading from '../../loading';
 import { prependFunc } from '../../utilities';
 import { appearance } from '../../../style/mixins';
 import BaseStyles from 'base/style';
-import { parseSize, renderSize, fmapSize, reduceSizes } from '../../../style/sizing';
+import { parseSize, renderSize, reduceSizes } from '../../../style/sizing';
 
 const dropdownArrow = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0zMS4zIDE5MmgyNTcuM2MxNy44IDAgMjYuNyAyMS41IDE0LjEgMzQuMUwxNzQuMSAzNTQuOGMtNy44IDcuOC0yMC41IDcuOC0yOC4zIDBMMTcuMiAyMjYuMUM0LjYgMjEzLjUgMTMuNSAxOTIgMzEuMyAxOTJ6IiBjbGFzcz0iIj48L3BhdGg+PC9zdmc+";
 

@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import { Button } from './button';
 
 function Anchor({ style, hoverStyle, ...props }) {

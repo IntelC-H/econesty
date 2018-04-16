@@ -2,15 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CompressionPlugin = require('compression-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const EasyStylelintPlugin = require('easy-stylelint-plugin');
 
 const pkg = require('./package.json');
-
-const extractStyle = new ExtractTextPlugin({
-  filename: 'code/[name].css',
-  allChunks: true
-});
 
 function filesIn(dir, acc = []) {
   let dirp = dir.endsWith('/') ? dir : dir + '/';
@@ -36,8 +29,6 @@ if (pkg.vendorDirectory) {
   });
 }
 
-let appJSDir =  path.resolve(pkg.browser.substring(0, pkg.browser.lastIndexOf('/')));
-
 module.exports = {
   mode: "development",
   stats: {
@@ -52,8 +43,7 @@ module.exports = {
   },
   entry: {
     app: [
-      path.resolve(pkg.browser), // app JS entry point
-      path.resolve("./frontend/base/css/base.scss")
+      path.resolve(pkg.browser) // app JS entry point
     ].concat(vendored)
   },
   output: {
@@ -71,14 +61,6 @@ module.exports = {
         use: ["babel-loader", "eslint-loader"]
       },
       {
-        test: /\.scss$/,
-        loader: extractStyle.extract({ use: [ "css-loader", "sass-loader" ]})
-      },
-      {
-        test: /\.css$/,
-        loader: extractStyle.extract({ use: ["css-loader"]})
-      },
-      {
         test: /\.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
         loader: 'file-loader',
         options: {
@@ -92,7 +74,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      app: appJSDir,
+      app: path.resolve(pkg.browser.substring(0, pkg.browser.lastIndexOf('/'))),
       base: path.resolve('./frontend/base/js/')
     },
     extensions: [".js", ".jsx", ".json", ".scss", ".css", ".ttf", ".otf", ".eot", ".svg", ".woff", ".woff2"],
@@ -121,15 +103,11 @@ module.exports = {
     }
   },
   plugins: [
-    extractStyle,
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",
       threshold: 10240, // 10KiB
       minRatio: 0.8
-    }),
-    new EasyStylelintPlugin({
-      syntax: 'scss'
     })
   ]
 };

@@ -1,5 +1,5 @@
 import App from 'app/app';
-import Preact, { h, render } from 'preact';
+import /*Preact, */{ h, render } from 'preact';
 
 require('preact/debug');
 

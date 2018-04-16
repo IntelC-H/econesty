@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import FormElement from '../formelement';
 import { prependFunc } from '../../utilities';
 import BaseStyles from 'base/style';
-import { parseSize, renderSize, fmapSize, reduceSizes } from '../../../style/sizing';
+import { parseSize, renderSize, fmapSize } from '../../../style/sizing';
 
 const halfHeight = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.elementHeight)));
 const styles = {
@@ -108,9 +108,9 @@ class Input extends FormElement {
 
     props.style = {
       ...styles.all,
-      ...(checkbox ? styles.checkbox : {}),
-      ...(this.focused ? { ...styles.focus, ...focusStyle } : unfocusedStyle),
-      ...(props.disabled ? styles.disabled : {}),
+      ...checkbox ? styles.checkbox : {},
+      ...this.focused ? { ...styles.focus, ...focusStyle } : unfocusedStyle,
+      ...props.disabled ? styles.disabled : {},
       ...style
     };
 

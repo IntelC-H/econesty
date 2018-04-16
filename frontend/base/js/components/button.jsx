@@ -34,11 +34,9 @@ class Button extends Component {
 
   clickAction() {
     const { onClick, href } = this.props;
-    if (this.props.onClick) {
-      this.props.onClick();
-    }
+    if (onClick) onClick();
     if (href) {
-      let useRouter = href ? Boolean(href.match(/^\/([^\/]|$)/)) : false; // 
+      let useRouter = href ? Boolean(href.match(/^\/([^\/]|$)/)) : false;
       if (useRouter) Router.push(href);
       else window.location.assign(href);
     }
@@ -84,7 +82,7 @@ class Button extends Component {
   getStyle() {
     const { style, hoverStyle, activeStyle, primaryStyle, disabledStyle, disableStateStyles, disableBaseStyles } = this.props;
 
-    let isClickTarget = !Button.clicked || (Button.clicked === this);
+    let isClickTarget = !Button.clicked || Button.clicked === this;
 
     let baseStyle = {
       ...isClickTarget ? { cursor: "pointer" } : {},
@@ -131,7 +129,8 @@ class Button extends Component {
     };
   }
 
-  render({ style, hoverStyle, activeStyle, disabledStyle, primaryStyle, component, onClick, href, type, disableBaseStyles, disableStyleStyles, ...props }) {
+  render({ style, hoverStyle, activeStyle, disabledStyle, primaryStyle,  onClick, href, type, disableBaseStyles, disableStyleStyles, // eslint-disable-line no-unused-vars
+           component, ...props }) {
     return h(component || 'button', {
       ...props,
       type: type || 'button', // Prevent buttons from silently automatically submitting forms
@@ -145,7 +144,7 @@ class Button extends Component {
 }
 
 // GIANT HACK
-window.addEventListener("mouseup", function(e) {
+window.addEventListener("mouseup", function() {
   if (Button.clicked) {
     Button.clicked.setState(st => ({ ...st, mouseDown: false }));
   }

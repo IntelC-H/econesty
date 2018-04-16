@@ -1,8 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table } from 'base/components/elements';
 import { SideMargins, Save, Times, Plus } from 'app/common';
 import { Flex, Collapsible, CollectionView,
-         API, Form, Input, FormGroup, SVGIcon, DeleteButton, Button } from 'base/base';
+         API, Form, Input, DeleteButton, Button } from 'base/base';
 import style from 'app/style';
 import palette from 'app/palette';
 import BaseStyles from 'base/style';
@@ -94,7 +93,7 @@ function Wallets({}) {
         {collectionView =>
         <Flex container column style={style.table.base}>
           {collectionView.getElements().map((w, idx) =>
-            <Flex container style={{...style.table.row, ...(idx % 2) === 1 ? style.table.oddRow : {},...walletStyles.walletRow}}>
+            <Flex container style={{...style.table.row, ...idx % 2 ? style.table.oddRow : {},...walletStyles.walletRow}}>
               {w.is_testnet &&
                 <Flex align="flex-start" style={walletStyles.testnetLabel}>TESTNET</Flex>}
               <Flex grow="2">

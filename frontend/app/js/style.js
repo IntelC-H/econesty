@@ -10,8 +10,6 @@ import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize } from 'base/style/sizing';
 import { darken, parseColor, renderColor } from 'base/style/colors';
 
-const halfPadding = renderSize(fmapSize(a => a / 2, parseSize(BaseStyles.padding)));
-
 const style = {
   text: {
     primary: {

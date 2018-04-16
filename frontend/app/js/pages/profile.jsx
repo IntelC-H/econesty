@@ -1,6 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { XOverflowable, Frown, BTC, SideMargins } from 'app/common';
-import { Table } from 'base/components/elements';
+import { Frown, BTC } from 'app/common';
 import { Anchor, Button, Router, API, CollectionView, ElementView, Flex } from 'base/base';
 
 import BaseStyles from 'base/style';
@@ -65,7 +64,7 @@ function TransactionCollectionBody({ collectionView, userId }) {
   return (
     <Flex container column style={style.table.base}>
       {es.map((obj, i) => {
-        let isOdd = (i % 2) === 1;
+        let isOdd = Boolean(i % 2);
         let direction = null;
         let user = null;
         if (obj.sender.id === parseInt(userId)) {
