@@ -6,7 +6,6 @@ import style from 'app/style';
 import palette from 'app/palette';
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
-import { parseSize, renderSize, fmapSize } from 'base/style/sizing';
 
 const walletStyles = {
   keyInput: {
@@ -45,12 +44,10 @@ class WalletCreationControls extends Component {
   }
 
   openForm() {
-    console.log("Open Form");
     this.setState(st => ({ ...st, formVisible: true }));
   }
 
   closeForm() {
-    console.log("Close Form");
     this.setState(st => ({ ...st, formVisible: false }));
   }
 

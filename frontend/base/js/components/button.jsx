@@ -23,7 +23,7 @@ class Button extends Component {
   }
 
   clickAction() {
-    const { onClick, href, type } = this.props;
+    const { onClick, href } = this.props;
     if (onClick) onClick();
     if (href) {
       let useRouter = href ? Boolean(href.match(/^\/([^\/]|$)/)) : false;

@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Frown, BTC } from 'app/common';
+import { Frown, BTC, SideMargins } from 'app/common';
 import { Anchor, Button, Router, API, CollectionView, ElementView, Flex } from 'base/base';
 
 import BaseStyles from 'base/style';
@@ -85,8 +85,8 @@ function TransactionCollectionBody({ collectionView, userId }) {
                   ...style.table.row,
                   ...isOdd ? style.table.oddRow : {},
                   color: transactionColor(obj) }}>
-            <Flex style={style.table.column}># {obj.id}</Flex>
-            <Flex container alignItems="center" style={style.table.column} basis={0}>
+            <Flex shrink="0" style={style.table.column}># {obj.id}</Flex>
+            <Flex shrink="1" wrap container alignItems="center" justifyContent="flex-end" style={style.table.column}>
               <BTC style={{ fontSize: "1.5em" }} />
               <span>&nbsp;{parseFloat(obj.amount)}</span>
               {direction && <small style={{ padding: BaseStyles.padding}}>{direction}</small>}
@@ -103,6 +103,7 @@ function Profile({ matches }) {
   const userId = parseInt(matches.id);
   const isAuthenticatedUser = userId === API.getUserID();
   return (
+    <SideMargins>
       <Flex container column alignItems="center">
         <ElementView collection={API.user} elementID={userId}>
           <User />
@@ -140,6 +141,7 @@ function Profile({ matches }) {
           </CollectionView>
         </Flex>
       </Flex>
+    </SideMargins>
   );
 }
 

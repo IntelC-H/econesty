@@ -23,7 +23,6 @@ class Referencing extends Component {
 
   // TODO: how to handle null refs (that signify the non-existence of an element)?
   reference(refid, cmp) {
-    console.log("reference()", refid, cmp);
     if (cmp && this.shouldReference(cmp)) {
       this.refMap[refid] = cmp;
     } else if (cmp && cmp._component && this.shouldReference(cmp._component)) {

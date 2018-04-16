@@ -1,7 +1,7 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { APICollection, Input, FormElement, CollectionView, Router, Button, Flex } from 'base/base';
-import { Table, DeleteButton } from 'base/base';
+import { DeleteButton } from 'base/base';
 import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
 import style from 'app/style';
@@ -90,7 +90,8 @@ function SearchResultsView({ searchField, collectionView }) {
                 if (searchField.isStandalone()) {
                   searchField.reset();
                   searchField.blur();
-                }}}>
+                }
+            }}>
         {h(searchField.getLinkComponent(), { element: element })}
       </Flex>)}
     </Flex>
