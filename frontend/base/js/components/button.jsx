@@ -20,6 +20,10 @@ class Button extends Component {
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseLeave = this.onMouseLeave.bind(this);
+    this.onTouchesBegan = this.onTouchesBegan.bind(this);
+    this.onTouchesMoved = this.onTouchesMoved.bind(this);
+    this.onTouchesEnded = this.onTouchesEnded.bind(this);
+    this.onTouchesCancelled = this.onTouchesCancelled.bind(this);
   }
 
   clickAction() {
@@ -30,6 +34,50 @@ class Button extends Component {
       if (useRouter) Router.push(href);
       else window.location.assign(href);
     }
+  }
+
+  onTouchesBegan(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState(st => ({ ...st, mouseDown: true, hover: true }));
+    return false;
+  }
+
+  touchInButton(t) {
+    let rect = t.target.getBoundingClientRect();
+    return t.clientX < rect.right && t.clientX > rect.left && t.clientY < rect.bottom && t.clientY > rect.top;
+  }
+
+  onTouchesMoved(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.touchInButton(e.touches[0])) {
+      if (!this.state.mouseDown) {
+        this.setState(st => ({ ...st, mouseDown: true, hover: true }));
+      }
+    } else if (this.state.mouseDown) {
+      this.setState(st => ({ ...st, mouseDown: false, hover: false }));
+    }
+    return false;
+  }
+
+  onTouchesEnded(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.state.mouseDown) {
+      this.clickAction();
+      this.setState(st => ({ ...st, mouseDown: false, hover: false })); //
+    }
+    return false;
+  }
+
+  onTouchesCancelled(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.state.mouseDown) {
+      this.setState(st => ({ ...st, mouseDown: false, hover: false })); //
+    }
+    return false;
   }
 
   onMouseDown(e) {
@@ -132,7 +180,11 @@ class Button extends Component {
       onMouseUp: this.onMouseUp,
       onMouseDown: this.onMouseDown,
       onMouseEnter: this.onMouseEnter,
-      onMouseLeave: this.onMouseLeave
+      onMouseLeave: this.onMouseLeave,
+      onTouchStart: this.onTouchesBegan,
+      onTouchEnd: this.onTouchesEnded,
+      onTouchMove: this.onTouchesMoved,
+      onTouchCancel: this.onTouchesCancelled
     });
   }
 }

@@ -17,6 +17,8 @@ import Wallets from 'app/pages/wallets';
 import TransactionDetail from 'app/pages/transactiondetail';
 import RequiredOfMe from 'app/pages/requiredofme';
 
+import { Button } from 'base/base';
+
 /*
   TODO for Base redo:
   - Move styles into the app
@@ -67,6 +69,7 @@ export default () =>
   <PageTemplate>
     <Router notFound={NotFound}>
       {[
+        makeRoute("/buttontest", () => <Button onClick={() => console.log("onClick!!!")}>Click Me!</Button>),
         makeRoute("/", authBranch(() => Router.replace("/user/" + API.getUserID()), Home)),
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
