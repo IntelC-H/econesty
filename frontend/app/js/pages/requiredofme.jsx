@@ -22,6 +22,10 @@ const rsStyle = {
   },
   terms: {
     padding: `${BaseStyle.padding} 0`
+  },
+  signatureField: {
+    margin: BaseStyle.padding,
+    minWidth: "12.5rem"
   }
 };
 
@@ -37,37 +41,32 @@ function RequirementsCollection({ collectionView }) {
   return (
     <Flex container column style={style.table.base}>
       {collectionView.getElements().map((element, idx) =>
-        <Flex container style={{...style.table.row, ...idx % 2 ? style.table.oddRow : {}, ...style.table.column}} column>
+        <Flex container column style={{...style.table.row, ...idx % 2 ? style.table.oddRow : {}, ...style.table.column}}>
           <Flex container row alignItems="center">
             <p style={{ ...rsStyle.reqTitle, color: element.rejected ? "red" : element.fulfilled ? "green" : null }}>
               Transaction <Anchor style={style.text.secondary} href={"/transaction/" + element.transaction.id}>#{element.transaction.id}</Anchor>
             </p>
           </Flex>
-          <Flex container justifyContent="space-between" alignItems="center">
-            <div>
+          <Flex container wrap justifyContent="space-between" alignItems="center">
+            <Flex basis="auto">
               <p style={rsStyle.terms}>{Boolean(element.text) ? element.text : "No written terms."}</p>
               {element.fulfilled && <p style={rsStyle.signature}>{element.signature}</p>}
-            </div>
+            </Flex>
             {!element.acknowledged &&
             <Form key={element.id + "-ack"} onSubmit={collectionView.saveElement}>
               <Input hidden name="id" value={element.id} />
               <Input hidden name="acknowledged" value={true} />
               <Button action="submit">Acknowledge</Button>
             </Form>}
-            {element.acknowledged && !element.rejected &&
-            <Flex container column alignItems="flex-start" justifyContent="center">
-              {!element.fulfilled && <Form key={element.id + "-sign"}
-                      onSubmit={collectionView.saveElement}>
-                <Flex container row alignItems="center">
-                  <Input hidden name="id" value={element.id} />
-                  <Flex component={Input} margin
-                        text
-                        placeholder="Sign/type your name"
-                        name="signature" value={element.signature} />
-                  <Button action="submit">SIGN</Button>
-                  <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>
-                </Flex>
-              </Form>}
+
+            {/* Fix width/sizing of text input. It wants to be too wide! */}
+            {element.acknowledged && !element.rejected && !element.fulfilled && 
+            <Flex component={Form} onSubmit={collectionView.saveElement}
+                  container row wrap alignItems="center" justifyContent="flex-end">
+              <Input hidden name="id" value={element.id} />
+              <Input text placeholder="Sign/type your name" name="signature" value={element.signature} style={rsStyle.signatureField} />
+              <Button action="submit">SIGN</Button>
+              <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>
             </Flex>}
           </Flex>
         </Flex>)}

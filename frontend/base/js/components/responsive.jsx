@@ -42,9 +42,7 @@ class Responsive extends Component {
     prependFunc(props, "onResize", this.onResize);
     return (
       <div key="responsive_wrapper" {...props}>
-        {children.map(c => {
-          return typeof c === "function" ? c(this.state) : cloneElement(c, this.state);
-        })}
+        {children.map(c => typeof c === "function" ? c(this.state) : cloneElement(c, this.state) )}
       </div>
     );
   }
