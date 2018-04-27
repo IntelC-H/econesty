@@ -15,7 +15,6 @@ const styles = {
     height: BaseStyles.elementHeight,
     padding: BaseStyles.padding,
     verticalAlign: "middle",
-    width: "100%",
     boxSizing: "border-box"
   },
   disabled: {

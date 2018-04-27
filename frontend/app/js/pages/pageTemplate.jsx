@@ -23,6 +23,7 @@ const styles = {
     color: "#FFFFFF",
     fontFamily: "'Hammersmith One', sans-serif",
     fontSize: BaseStyles.elementHeight,
+    marginRight: BaseStyles.padding,
     ...noSelect()
   }
 };

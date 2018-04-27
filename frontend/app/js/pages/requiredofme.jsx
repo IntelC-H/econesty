@@ -25,7 +25,7 @@ const rsStyle = {
   },
   signatureField: {
     margin: BaseStyle.padding,
-    minWidth: "12.5rem"
+    flexGrow: "2"
   }
 };
 
@@ -53,16 +53,10 @@ function RequirementsCollection({ collectionView }) {
               {element.fulfilled && <p style={rsStyle.signature}>{element.signature}</p>}
             </Flex>
             {!element.acknowledged &&
-            <Form key={element.id + "-ack"} onSubmit={collectionView.saveElement}>
-              <Input hidden name="id" value={element.id} />
-              <Input hidden name="acknowledged" value={true} />
-              <Button action="submit">Acknowledge</Button>
-            </Form>}
-
-            {/* Fix width/sizing of text input. It wants to be too wide! */}
+            <Button onClick={() => collectionView.updateElement(element.id, {acknowledged: true})}>Acknowledge</Button>}
             {element.acknowledged && !element.rejected && !element.fulfilled && 
             <Flex component={Form} onSubmit={collectionView.saveElement}
-                  container row wrap alignItems="center" justifyContent="flex-end">
+                  container row wrap alignItems="center" justifyContent="center">
               <Input hidden name="id" value={element.id} />
               <Input text placeholder="Sign/type your name" name="signature" value={element.signature} style={rsStyle.signatureField} />
               <Button action="submit">SIGN</Button>
