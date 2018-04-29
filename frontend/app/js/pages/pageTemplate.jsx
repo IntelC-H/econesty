@@ -25,6 +25,10 @@ const styles = {
     fontSize: BaseStyles.elementHeight,
     marginRight: BaseStyles.padding,
     ...noSelect()
+  },
+  copyright: {
+    padding: BaseStyles.padding,
+    color: "#555555"
   }
 };
 
@@ -55,7 +59,7 @@ class PageTemplate extends Component {
 
   render(props, { authenticated }) {
     return (
-      <div style={style.element.page}>
+      <Flex container column style={style.element.page}>
         <Flex container wrap row justifyContent="space-between" alignItems="center" style={styles.header}>
           <Anchor href="/" style={styles.heading}>Econe$ty</Anchor>
           <Flex container wrap row alignItems="center">
@@ -68,7 +72,8 @@ class PageTemplate extends Component {
           </Flex>
         </Flex>
         <Flex margin {...props} />
-      </div>
+        <Flex container justifyContent="center" alignItems="flex-end" grow="1" style={styles.copyright}>© {(new Date()).getFullYear()} Nathaniel Symer</Flex>
+      </Flex>
     );
   }
 }

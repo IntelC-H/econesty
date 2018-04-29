@@ -80,7 +80,8 @@ const style = {
     page: {
       color: palette.textColor,
       backgroundColor: "white",
-      fontFamily: "'Lato', sans-serif"
+      fontFamily: "'Lato', sans-serif",
+      minHeight: "100vh"
     }
   }
 };

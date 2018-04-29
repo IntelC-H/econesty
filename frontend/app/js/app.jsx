@@ -20,26 +20,19 @@ import RequiredOfMe from 'app/pages/requiredofme';
 import { Button } from 'base/base';
 
 /*
-  TODO for Base redo:
-  - Move styles into the app
-    - BaseStyles
-    - tables
-    - buttons
-    - fieldsets
+  TODO for next update:
   - Remove margin and padding from Flex component
   - Ensure all shouldComponentUpdate()'s work correctly
-
-  TODO for next update
   - transactiondetail.jsx
     - test retry functionality
   - Fail Whale Router notFound
-  - Better responsive tables!
+  - transactiondetail.jsx
+    - Fix table using flexbox like profile.jsx
   - home.jsx
     - Show 3 blocks below signup (responsive Flex grid)
       - Total BTC sent
       - Number of transactions
       - Number of requirements made
-    - Copyright that auto-updates
   - createTransaction.jsx
     - Make BTC field have a <BTC /> and default to 0
     - Make BTC field less wide
