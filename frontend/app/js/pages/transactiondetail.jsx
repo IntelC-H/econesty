@@ -133,18 +133,22 @@ function TransactionDetail({ matches }) {
          if (rs.length === 0) return null; // TODO: warning about selecting a wallet and BTC transferring
 
          return (
-           <XOverflowable>
-             <Table striped horizontal>
-               <tbody>
-                 {rs.map(r =>
-                 <tr key={r.id} style={{ color: r.fulfilled ? "green" : r.rejected ? "red" : null }}>
-                   <td>{r.text}</td>
-                   <td><UserLink user={r.user} /></td>
-                 </tr>
-                 )}
-               </tbody>
-             </Table>
-           </XOverflowable>
+           <FlexControlBlock label="Requirements">
+             <Flex grow="1" style={style.table.base} column>
+               {rs.map((r, idx) =>
+               <Flex key={r.id} style={{
+                 ...style.table.row,
+                 ...(idx % 2 ? style.table.oddRow : {}),
+                 minHeight: BaseStyles.elementHeight,
+                 color: r.fulfilled ? "green" : r.rejected ? "red" : null }} container row alignItems="center" justifyContent="space-between">
+                 <Flex shrink="0" style={style.table.column}>{r.text}</Flex>
+                 <Flex shrink="1" wrap container alignItems="center" justifyContent="flex-end" style={style.table.column}>
+                   <UserLink user={r.user} />
+                 </Flex>
+               </Flex>
+               )}
+             </Flex>
+           </FlexControlBlock>
          );
         }}
       </CollectionView>

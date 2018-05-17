@@ -54,6 +54,7 @@ class RequirementCollection extends Component {
     this.setState(st => ({ ...st, showingCreate: true }));
   }
 
+  // FIXME: deleting an element causes the requirement creator to hide
   render({ collectionView }, { showingCreate }) {
     let rs = collectionView.getElements();
     return (

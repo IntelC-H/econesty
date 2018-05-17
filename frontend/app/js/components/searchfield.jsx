@@ -10,6 +10,7 @@ function getStyles() {
   let searchIconDimension = renderSize(reduceSizes((a, b) => a - b, [
     parseSize(BaseStyles.elementHeight), fmapSize(s => s * 2, parseSize(BaseStyles.padding))
   ]));
+  const halfBorder = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.border.width)));
   return {
     searchfield: {
       position: "relative",
@@ -45,7 +46,7 @@ function getStyles() {
       zIndex: "100",
       position: "absolute",
       width: "100%",
-      borderWidth: BaseStyles.border.width,
+      borderWidth: halfBorder,
       borderStyle: "solid",
       borderColor: BaseStyles.input.selectedBorderColor,
       borderBottomLeftRadius: BaseStyles.border.radius,

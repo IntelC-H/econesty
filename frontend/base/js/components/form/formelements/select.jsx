@@ -5,7 +5,7 @@ import Loading from '../../loading';
 import { prependFunc } from '../../utilities';
 import { appearance } from '../../../style/mixins';
 import BaseStyles from 'base/style';
-import { parseSize, renderSize, reduceSizes } from '../../../style/sizing';
+import { parseSize, renderSize, fmapSize, reduceSizes } from '../../../style/sizing';
 
 const dropdownArrow = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0zMS4zIDE5MmgyNTcuM2MxNy44IDAgMjYuNyAyMS41IDE0LjEgMzQuMUwxNzQuMSAzNTQuOGMtNy44IDcuOC0yMC41IDcuOC0yOC4zIDBMMTcuMiAyMjYuMUM0LjYgMjEzLjUgMTMuNSAxOTIgMzEuMyAxOTJ6IiBjbGFzcz0iIj48L3BhdGg+PC9zdmc+";
 
@@ -73,10 +73,11 @@ class Select extends FormElement {
   }
 
   getStyle() {
+    const halfBorder = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.border.width)));
     return {
       ...appearance("none"),
       color: BaseStyles.input.color,
-      border: `${BaseStyles.border.width} solid ${BaseStyles.input.borderColor}`,
+      border: `${halfBorder} solid ${BaseStyles.input.borderColor}`,
       borderRadius: `${BaseStyles.border.radius}`,
       verticalAlign: "middle",
       width: "100%",

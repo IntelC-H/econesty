@@ -59,11 +59,12 @@ class Input extends FormElement {
 
   getStyle() {
     const halfHeight = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.elementHeight)));
+    const halfBorder = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.border.width)));
   
     let s = {
       color: BaseStyles.input.color,
       backgroundColor: BaseStyles.backgroundColor,
-      border: `${BaseStyles.border.width} solid ${BaseStyles.input.borderColor}`,
+      border: `${halfBorder} solid ${BaseStyles.input.borderColor}`,
       borderRadius: BaseStyles.border.radius,
       height: BaseStyles.elementHeight,
       padding: BaseStyles.padding,
