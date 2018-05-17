@@ -5,35 +5,6 @@ import { prependFunc } from '../../utilities';
 import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize } from '../../../style/sizing';
 
-const halfHeight = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.elementHeight)));
-const styles = {
-  all: {
-    color: BaseStyles.input.color,
-    backgroundColor: BaseStyles.backgroundColor,
-    border: `${BaseStyles.border.width} solid ${BaseStyles.input.borderColor}`,
-    borderRadius: BaseStyles.border.radius,
-    height: BaseStyles.elementHeight,
-    padding: BaseStyles.padding,
-    verticalAlign: "middle",
-    boxSizing: "border-box"
-  },
-  disabled: {
-    backgroundColor: BaseStyles.input.disabledBackgroundColor,
-    color: BaseStyles.input.disabledColor
-  },
-  invalid: {
-    color: BaseStyles.input.invalidBorderColor
-  },
-  focus: {
-    borderColor: BaseStyles.input.selectedBorderColor
-  },
-  checkbox: {
-    margin: halfHeight + " 0",
-    height: halfHeight,
-    width: halfHeight
-  }
-};
-
 const inputTypes = [
   "hidden", "text", "checkbox", "password", "email",
   "url", "number", "search", "range", "time", "tel"
@@ -86,6 +57,53 @@ class Input extends FormElement {
     return nextState.focused !== this.state.focused || super.shouldComponentUpdate(nextProps, nextState);
   }
 
+  getStyle() {
+    const halfHeight = renderSize(fmapSize(v => v / 2, parseSize(BaseStyles.elementHeight)));
+  
+    let s = {
+      color: BaseStyles.input.color,
+      backgroundColor: BaseStyles.backgroundColor,
+      border: `${BaseStyles.border.width} solid ${BaseStyles.input.borderColor}`,
+      borderRadius: BaseStyles.border.radius,
+      height: BaseStyles.elementHeight,
+      padding: BaseStyles.padding,
+      verticalAlign: "middle",
+      boxSizing: "border-box"
+    };
+  
+    if (this.props.checkbox) {
+      s = {
+        ...s,
+        margin: halfHeight + " 0",
+        height: halfHeight,
+        width: halfHeight
+      };
+    }
+  
+    // TODO: implement me!
+    let invalid = false;
+
+    if (this.props.disabled) {
+      s = {
+        ...s,
+        backgroundColor: BaseStyles.input.disabledBackgroundColor,
+        color: BaseStyles.input.disabledColor
+      };
+    } else if (this.focused) {
+      s = {
+        ...s,
+        borderColor: BaseStyles.input.selectedBorderColor
+      };
+    } else if (invalid) {
+      s = {
+        ...s,
+        color: BaseStyles.input.invalidBorderColor
+      };
+    }
+  
+    return s;
+  }
+
   render({type, search, range, // eslint-disable-line no-unused-vars
           hidden, text, time, // eslint-disable-line no-unused-vars
           password, tel, email, url, // eslint-disable-line no-unused-vars
@@ -105,13 +123,7 @@ class Input extends FormElement {
       }
     }
 
-    props.style = {
-      ...styles.all,
-      ...checkbox ? styles.checkbox : {},
-      ...this.focused ? { ...styles.focus, ...focusStyle } : unfocusedStyle,
-      ...props.disabled ? styles.disabled : {},
-      ...style
-    };
+    props.style = { ...this.getStyle(), ...style };
 
     return h('input', props);
   }

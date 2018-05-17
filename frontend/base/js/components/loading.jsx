@@ -6,24 +6,6 @@ import { Flex } from './flex';
 import { parseColor, renderColor, mixColors } from '../style/colors.js';
 import BaseStyles from '../style.js';
 
-const styles = {
-  loadingContainer: {
-    width: "100%"
-  },
-  loadingBar: {
-    position: "relative",
-    width: "10rem",
-    height: BaseStyles.loading.thickness,
-    margin: BaseStyles.padding,
-    backgroundColor: renderColor(mixColors(parseColor(BaseStyles.loading.color), parseColor("#FFFFFF"), 0.5))
-  },
-  progress: {
-    height: "100%",
-    position: "absolute",
-    backgroundColor: BaseStyles.loading.color
-  }
-};
-
 class Loading extends Component {
   constructor(props) {
     super(props);
@@ -60,17 +42,35 @@ class Loading extends Component {
     clearTimeout(this.timeout);
   }
 
+  getLoadingBarStyle() {
+    return {
+      position: "relative",
+      width: "10rem",
+      height: BaseStyles.loading.thickness,
+      margin: BaseStyles.padding,
+      backgroundColor: renderColor(mixColors(parseColor(BaseStyles.loading.color), parseColor("#FFFFFF"), 0.5))
+    };
+  }
+
+  getProgressBaseStyle() {
+    return {
+      height: "100%",
+      position: "absolute",
+      backgroundColor: BaseStyles.loading.color
+    };
+  }
+
   render({ delay, style, ...props}, { shouldShow }) { // eslint-disable-line no-unused-vars
     if (!shouldShow) return null;
-    let containerStyle = { ...styles.loadingContainer, ...style };
+    let containerStyle = { width: "100%", ...style };
+    let loadingBarStyle = this.getLoadingBarStyle();
+    let progressBaseStyle = this.getProgressBaseStyle();
     return (
       <Flex {...props} container justifyContent="center" style={containerStyle}>
-        <Animations
-          animations={this.animations}
-          repeat>
+        <Animations repeat animations={this.animations}>
           {({width, left}) =>
-            <div style={styles.loadingBar}>
-               <div style={{ ...styles.progress, width: `${width}%`, left: `${left}%` }} />
+            <div style={loadingBarStyle}>
+               <div style={{ ...progressBaseStyle, width: `${width}%`, left: `${left}%` }} />
             </div>
           }
         </Animations>
@@ -88,3 +88,4 @@ Loading.propTypes = {
 
 export { Loading };
 export default Loading;
+

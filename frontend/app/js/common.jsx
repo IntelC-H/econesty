@@ -6,7 +6,7 @@ import { noSelect } from 'base/style/mixins';
 function FlexControlBlock({ label, children }) {
   return (
     <Flex container row wrap alignItems="center" grow="1" margin>
-      <Flex style={{ ...style.text.ellipsis, ...noSelect }}
+      <Flex style={{ ...style.text.ellipsis, ...noSelect() }}
             container justifyContent="flex-start" alignItems="center" basis="100%" paddingBottom>
         {label}
       </Flex>

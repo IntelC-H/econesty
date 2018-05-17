@@ -6,9 +6,6 @@ import { parseSize, renderSize, fmapSize } from '../style/sizing';
 import { parseColor, renderColor, darken } from '../style/colors';
 import { appearance } from '../style/mixins';
 
-// TODO: touches on mobile
-// TODO: re-implement global button state
-
 class Button extends Component {
   constructor(props) {
     super(props);
@@ -51,7 +48,7 @@ class Button extends Component {
   onTouchesMoved(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (this.touchInButton(e.touches[0])) {
+    if (this.touchInButton(e.targetTouches[0])) {
       if (!this.state.mouseDown) {
         this.setState(st => ({ ...st, mouseDown: true, hover: true }));
       }
@@ -112,13 +109,6 @@ class Button extends Component {
     this.setState(st => ({ ...st, hover: false }));
     return false;
   }
-
-  /*shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.hover !== this.state.hover) return true;
-    if (nextState.mouseDown !== this.state.mouseDown) return true;
-    if (nextProps.disableBaseStyles !== this.props.disableBaseStyles) return true;
-    return false;
-  }*/
 
   getStyle() {
     const { style, hoverStyle, activeStyle, primaryStyle, disabledStyle, disableStateStyles, disableBaseStyles } = this.props;

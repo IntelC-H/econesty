@@ -14,9 +14,9 @@ class Animations extends Component {
   }
 
   onRest() {
-    this.setState(st => ({...st,
-                          index: this.props.repeat
-                           ? st.index >= this.props.animations.length - 1
+    this.setState((st, { repeat, animations }) => ({...st,
+                          index: repeat
+                           ? st.index >= animations.length - 1
                                ? 0
                                : st.index + 1
                            : st.index }));

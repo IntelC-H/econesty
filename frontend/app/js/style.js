@@ -49,8 +49,7 @@ const style = {
   },
   table: {
     base: {
-      border: `${BaseStyles.border.width} solid ${BaseStyles.border.color}`,
-      overflowX: "auto",
+      outline: `${BaseStyles.border.width} solid ${BaseStyles.border.color}`,
       boxSizing: "border-box",
       backgroundColor: "transparent"
     },

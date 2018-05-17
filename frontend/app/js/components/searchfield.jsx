@@ -1,79 +1,79 @@
 import { h } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
-import { APICollection, Input, FormElement, CollectionView, Router, Button, Flex } from 'base/base';
+import { APICollection, Input, FormElement, CollectionView, Router, Button, Anchor, Flex } from 'base/base';
 import { DeleteButton } from 'base/base';
 import BaseStyles from 'base/style';
 import { parseSize, renderSize, fmapSize, reduceSizes } from 'base/style/sizing';
 import style from 'app/style';
 
-const searchIconDimension = renderSize(reduceSizes((a, b) => a - b,
-                             [parseSize(BaseStyles.elementHeight), fmapSize(s => s * 2, parseSize(BaseStyles.padding))]));
-const styles = {
-  searchfield: {
-    position: "relative",
-    width: "100%"
-  },
-  table: {
-    border: "none"
-  },
-  dropdownContainer: { // A zero-height container designed to prevent the dropdown from taking up space in the HTML document
-    padding: 0,
-    margin: 0,
-    position: "relative",
-    height: 0,
-    overflow: "visible",
-    width: "100%"
-  },
-  input: {
-    paddingRight: searchIconDimension,
-    outlineOffset: 0,
-    width: "100%",
-    boxSizing: "border-box"
-  },
-  inputFocused: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottom: "none",
-    marginBottom: 0,
-    paddingBottom: renderSize(reduceSizes((acc, s) => acc + s, [parseSize(BaseStyles.border.width), parseSize(BaseStyles.padding)]))
-  },
-  dropdown: { // The dropdown in which search results are displayed
-    boxSizing: "border-box",
-    overflow: "hidden",
-    zIndex: "100",
-    position: "absolute",
-    width: "100%",
-    borderWidth: BaseStyles.border.width,
-    borderStyle: "solid",
-    borderColor: BaseStyles.input.selectedBorderColor,
-    borderBottomLeftRadius: BaseStyles.border.radius,
-    borderBottomRightRadius: BaseStyles.border.radius,
-    borderTop: "none",
-    backgroundColor: BaseStyles.input.backgroundColor
-  },
-  searchIcon: {
-    pointerEvents: "none",
-    cursor: "default",
-    position: "absolute",
-    left: "auto",
-    top: BaseStyles.padding,
-    bottom: BaseStyles.padding,
-    right: BaseStyles.padding,
-    height: searchIconDimension,
-    color: BaseStyles.input.placeholderColor
-  },
-  valueLink: {
-    margin: 0,
-    height: BaseStyles.elementHeight
-  },
-  noResults: {
-    margin: `${BaseStyles.padding} 0`
-  }
-};
+function getStyles() {
+  let searchIconDimension = renderSize(reduceSizes((a, b) => a - b, [
+    parseSize(BaseStyles.elementHeight), fmapSize(s => s * 2, parseSize(BaseStyles.padding))
+  ]));
+  return {
+    searchfield: {
+      position: "relative",
+      width: "100%"
+    },
+    table: {
+      border: "none"
+    },
+    dropdownContainer: { // A zero-height container designed to prevent the dropdown from taking up space in the HTML document
+      padding: 0,
+      margin: 0,
+      position: "relative",
+      height: 0,
+      overflow: "visible",
+      width: "100%"
+    },
+    input: {
+      paddingRight: searchIconDimension,
+      outlineOffset: 0,
+      width: "100%",
+      boxSizing: "border-box"
+    },
+    inputFocused: {
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      borderBottom: "none",
+      marginBottom: 0,
+      paddingBottom: renderSize(reduceSizes((acc, s) => acc + s, [parseSize(BaseStyles.border.width), parseSize(BaseStyles.padding)]))
+    },
+    dropdown: { // The dropdown in which search results are displayed
+      boxSizing: "border-box",
+      overflow: "hidden",
+      zIndex: "100",
+      position: "absolute",
+      width: "100%",
+      borderWidth: BaseStyles.border.width,
+      borderStyle: "solid",
+      borderColor: BaseStyles.input.selectedBorderColor,
+      borderBottomLeftRadius: BaseStyles.border.radius,
+      borderBottomRightRadius: BaseStyles.border.radius,
+      borderTop: "none",
+      backgroundColor: BaseStyles.input.backgroundColor
+    },
+    searchIcon: {
+      pointerEvents: "none",
+      cursor: "default",
+      position: "absolute",
+      left: "auto",
+      top: BaseStyles.padding,
+      bottom: BaseStyles.padding,
+      right: BaseStyles.padding,
+      height: searchIconDimension,
+      color: BaseStyles.input.placeholderColor
+    },
+    valueLink: {
+      margin: 0,
+      height: BaseStyles.elementHeight
+    }
+  };
+}
 
 function SearchResultsView({ searchField, collectionView }) {
   let elements = collectionView.getElements();
-  if (elements.length === 0) return <Flex style={styles.noResults} container alignItems="center" justifyContent="center">No Results</Flex>;
+  if (elements.length === 0) return <Flex style={{ margin: `${BaseStyles.padding} 0` }} container alignItems="center" justifyContent="center">No Results</Flex>;
   return (
     <Flex container column style={{ backgroundColor: "transparent" }}>
       {elements.map((element, idx) =>
@@ -193,12 +193,13 @@ class SearchField extends FormElement {
 
   render({ value, standalone, // eslint-disable-line no-unused-vars
            api, component, ...props }, { focused, search }) {
+    let styles = getStyles();
     return (
       <div style={styles.searchfield}>
         { this.showsObject &&
           <Flex container row alignItems="center">
             <Flex container alignItems="center" justifyContent="center"
-                  component={Button}
+                  component={Anchor}
                   href={api.baseURL + this.value.id}
                   style={styles.valueLink}>
               {h(component, { element: this.value })}

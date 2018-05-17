@@ -1,5 +1,4 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Table } from 'base/components/elements';
 import { Router, DummyAPICollection, API, DeleteButton, Button,
          CollectionView, Form, FormGroup, Input, Select, Flex } from 'base/base';
 import { FlexControlBlock, SideMargins, UserRow, Save, Times, Plus } from 'app/common';
@@ -7,18 +6,17 @@ import { SearchField } from 'app/components/searchfield';
 import style from 'app/style';
 import { noSelect } from 'base/style/mixins';
 
-function Requirement({ collectionView, closeAction, element }) {
+function Requirement({ collectionView, closeAction, element, odd }) {
   let r = element;
   return (
-    <tr style={{width: "100%"}}>
-      <td>
+    <Flex style={{...style.table.row, ...odd ? style.table.oddRow : {}}} column>
         <Form onSubmit={collectionView.saveElement}>
           { r && <Input hidden name="id" value={r.id} /> }
           <FormGroup>
             <Flex container>
               <Flex container column grow="1">
                 <FlexControlBlock label="Terms">
-                  <Input text name="text" {...(r && {value: r.text})} />
+                  <Input text name="text" {...(r && {value: r.text})} style={{ width: "100%" }} />
                 </FlexControlBlock>
                 <FlexControlBlock label="Onus Upon">
                   <SearchField name="user"
@@ -27,7 +25,7 @@ function Requirement({ collectionView, closeAction, element }) {
                                placeholder="find a user"
                                component={UserRow} />
                 </FlexControlBlock>
-                <Flex container row justifyContent="center">
+                <Flex container row justifyContent="center" align="flex-start">
                   <Button type="submit"><Save /></Button>
                   {closeAction && <Button onClick={closeAction}><Times /></Button>}
                 </Flex>
@@ -36,8 +34,7 @@ function Requirement({ collectionView, closeAction, element }) {
             </Flex>
           </FormGroup>
         </Form>
-      </td>
-    </tr>
+    </Flex>
   );
 }
 
@@ -61,20 +58,21 @@ class RequirementCollection extends Component {
     let rs = collectionView.getElements();
     return (
       <Flex container wrap>
-        <Flex container justifyContent="space-between" alignItems="center" grow="1" basis="100%" marginTop marginBottom>
+        <Flex container justifyContent="space-between" alignItems="center" grow="1" basis="100%" marginTop marginBottom style={noSelect()}>
           Requirements
           {!showingCreate && <Button onClick={this.showCreate}><Plus /></Button>}
         </Flex>
-        <Flex grow="1" basis="100%">
-          <Table striped>
+	{(showingCreate || rs.length > 0) &&
+        <Flex grow="1" style={style.table.base} column>
             {showingCreate &&
             <Requirement key="non_collection" collectionView={collectionView} closeAction={this.hideCreate}/>}
-            {rs.map(r => h(Requirement, {
+            {rs.map((r, idx) => h(Requirement, {
                            collectionView: collectionView,
-                           element: r
+                           element: r,
+                           key: idx,
+                           odd: Boolean(((idx + (showingCreate ? 1 : 0)) % 2))
                          }))}
-          </Table>
-        </Flex>
+        </Flex>}
       </Flex>
     );
   }
@@ -121,7 +119,7 @@ class CreateTransaction extends Component {
             <Input hidden name="sender_id" value={sender_id} />
             <Input hidden name="recipient_id" value={recipient_id} />
 
-            <Flex container wrap justifyContent="center">
+            <Flex container wrap justifyContent="center" row>
               <FlexControlBlock label="How many BTC?">
                 <Input number required name="amount" step="0.0001" min="0" cols="7" />
               </FlexControlBlock>
