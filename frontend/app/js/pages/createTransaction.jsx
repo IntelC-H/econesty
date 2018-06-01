@@ -6,6 +6,9 @@ import { SearchField } from 'app/components/searchfield';
 import style from 'app/style';
 import { noSelect } from 'base/style/mixins';
 
+import * as ActionCreators from 'app/redux/actionCreators';
+import { connect } from 'preact-redux';
+
 function Requirement({ collectionView, closeAction, element, odd }) {
   let r = element;
   return (
@@ -79,13 +82,17 @@ class RequirementCollection extends Component {
   }
 }
 
-class CreateTransaction extends Component {
+class BasicCreateTransaction extends Component {
   constructor(props) {
     super(props);
     this.state = {};
     this.onSubmit = this.onSubmit.bind(this);
     this.dummyCollection = new DummyAPICollection();
     this.makeWalletsPromise = this.makeWalletsPromise.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.reloadWallets();
   }
 
   makeWalletsPromise() {
@@ -104,7 +111,7 @@ class CreateTransaction extends Component {
                    .then(t => Router.replace(API.transaction.baseURL + t.id));
   }
 
-  render({ matches }) {
+  render({ matches, loadingWallets, walletError, wallets }) {
     let act = matches.action;
     let isSender = act === "send";
     let sender_id = isSender ? API.getUserID() : parseInt(matches.id);
@@ -124,13 +131,16 @@ class CreateTransaction extends Component {
               <FlexControlBlock label="How many BTC?">
                 <Input number required name="amount" step="0.0001" min="0" cols="7" />
               </FlexControlBlock>
+              { loadingWallets && <Loading /> }
+              { !loadingWallets && walletError && <span>{walletError}</span>}
+              { !loadingWallets && !walletError &&
               <FlexControlBlock label={isSender ? "From Wallet" : "Into Wallet"}>
                 <Select
-                  options={this.makeWalletsPromise}
+                  options={wallets}
                   name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
                   transform={w => w.id}
                   faceTransform={w => w.private_key} />
-              </FlexControlBlock>
+              </FlexControlBlock>}
             </Flex>
             <CollectionView collection={this.dummyCollection}>
               <RequirementCollection />
@@ -143,4 +153,20 @@ class CreateTransaction extends Component {
   }
 }
 
-export default CreateTransaction;
+const mapStateToProps = (state, ownProps) => {
+  return {
+    ...ownProps,
+    loadingWallets: state.wallets.loading,
+    walletError: state.wallets.error,
+    wallets: state.wallets.wallets
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    ...ownProps,
+    reloadWallets: () => dispatch(ActionCreators.reloadWallets())
+  };
+};
+
+export default connect()(BasicCreateTransaction);

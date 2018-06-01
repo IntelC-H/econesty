@@ -4,6 +4,12 @@ import { Router, API } from 'base/base';
 import 'app/apiCollections';
 import 'app/basestyleoverrides';
 
+import { Provider } from 'preact-redux';
+import { createStore, applyMiddleware } from 'redux';
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
+import { root } from './redux/reducers';
+
 // Pages
 import NotFound from 'app/pages/notFound';
 import PageTemplate from 'app/pages/pageTemplate';
@@ -21,6 +27,7 @@ import { Button } from 'base/base';
 
 /*
   TODO for next update:
+  - REDUX
   - Remove margin and padding from Flex component
   - Ensure all shouldComponentUpdate()'s work correctly
   - transactiondetail.jsx
@@ -58,22 +65,27 @@ function replaceMeInPath() {
   return Router.replace(Router.path.replace(/\/me(\/?)/, '/' + API.getUserID() + '/'));
 }
 
+const middleware = applyMiddleware(thunk, logger);
+const store = createStore(root, middleware);
+
 export default () =>
-  <PageTemplate>
-    <Router notFound={NotFound}>
-      {[
-        makeRoute("/buttontest", () => <Button onClick={() => console.log("onClick!!!")}>Click Me!</Button>),
-        makeRoute("/", authBranch(() => Router.replace("/user/" + API.getUserID()), Home)),
-        makeRoute("/login", Login),
-        makeRoute("/signup", Signup),
-        makeRoute("/wallets", secure(Wallets)),
-        makeRoute("/required", secure(RequiredOfMe)),
-        makeRoute("/profile/edit", secure(EditProfile)),
-        makeRoute("/transaction/:id", secure(TransactionDetail)),
-        makeRoute(containsMe, secure(replaceMeInPath)),
-        makeRoute("/user/:id", secure(Profile)),
-        makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["send", "receive"] })
-      ]}
-    </Router>
-  </PageTemplate>
+  <Provider store={store}>
+    <PageTemplate>
+      <Router notFound={NotFound}>
+        {[
+          makeRoute("/buttontest", () => <Button onClick={() => console.log("onClick!!!")}>Click Me!</Button>),
+          makeRoute("/", authBranch(() => Router.replace("/user/" + API.getUserID()), Home)),
+          makeRoute("/login", Login),
+          makeRoute("/signup", Signup),
+          makeRoute("/wallets", secure(Wallets)),
+          makeRoute("/required", secure(RequiredOfMe)),
+          makeRoute("/profile/edit", secure(EditProfile)),
+          makeRoute("/transaction/:id", secure(TransactionDetail)),
+          makeRoute(containsMe, secure(replaceMeInPath)),
+          makeRoute("/user/:id", secure(Profile)),
+          makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["send", "receive"] })
+        ]}
+      </Router>
+    </PageTemplate>
+  </Provider>
 ;

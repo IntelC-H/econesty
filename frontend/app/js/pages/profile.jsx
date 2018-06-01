@@ -1,6 +1,9 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Frown, BTC, SideMargins } from 'app/common';
-import { Anchor, Button, Router, API, CollectionView, ElementView, Flex } from 'base/base';
+import { Frown, BTC, SideMargins, LeftArrow, RightArrow } from 'app/common';
+import { Anchor, Button, Router, API, Flex, Loading, FadeTransition } from 'base/base';
+import { connect } from 'preact-redux';
+
+import * as ActionCreators from '../redux/actionCreators';
 
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
@@ -30,73 +33,142 @@ const profileStyle = {
   }
 };
 
-function User({ elementView }) {
-  let { avatar_url, first_name, last_name, username, is_me } = elementView.getElement();
-  return (
-    <Flex container row alignItems="center">
-      <Flex component='img' src={avatar_url} style={profileStyle.primaryAvatar} />
-      <Flex>
-        <div style={profileStyle.userFullName}>{first_name || "First Name"} {last_name || "Last Name"}</div>
-        <div style={profileStyle.userUsername}>@{username}</div>
-        {is_me && <Anchor href="/profile/edit" style={profileStyle.userEditProfile}>Edit Profile</Anchor>}
-      </Flex>
-    </Flex>
-  );
-}
+const User_mapStateToProps = (state, ownProps) => {
+  return {
+    ...ownProps,
+    ...(state.users[ownProps.userId] || {})
+  };
+};
 
-function transactionColor({ completed, success, rejected }) {
-  return completed ? success ? "green" : "yellow" : rejected ? "red" : null;
-}
+const User_mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    ...ownProps,
+    reloadUser: () => dispatch(ActionCreators.reloadUser(ownProps.userId))
+  };
+};
 
-function TransactionCollectionBody({ collectionView, userId }) {
-  let es = collectionView.getElements();
-
-  if (es.length === 0) {
-    let isMe = userId === API.getUserID();
-    return (
-      <div style={style.element.frownMessage}>
-        <Frown large />
-        <p style={noSelect()}>{isMe ? "No transactions...yet!" : "No mutual transactions..." }</p>
-      </div>
-    );
+const User = connect(User_mapStateToProps, User_mapDispatchToProps)(class User extends Component {
+  componentDidMount() {
+    console.log(this.props);
+    this.props.reloadUser();
   }
 
-  return (
-    <Flex container column style={style.table.base}>
-      {es.map((obj, i) => {
-        let isOdd = Boolean(i % 2);
-        let direction = null;
-        let user = null;
-        if (obj.sender.id === parseInt(userId)) {
-          direction = "to";
-          user = obj.recipient;
-        } else if (obj.recipient.id === parseInt(userId)) {
-          direction = "from";
-          user = obj.sender;
-        }
-        return (
-          <Flex container row alignItems="center" justifyContent="space-between" component={Button}
-                key={obj.id}
-                disableBaseStyles
-                href={"/transaction/" + obj.id}
-                hoverStyle={style.table.rowHover}
-                activeStyle={style.table.rowActive}
-                style={{
-                  ...style.table.row,
-                  ...isOdd ? style.table.oddRow : {},
-                  color: transactionColor(obj) }}>
-            <Flex shrink="0" style={style.table.column}># {obj.id}</Flex>
-            <Flex shrink="1" wrap container alignItems="center" justifyContent="flex-end" style={style.table.column}>
-              <BTC style={{ fontSize: "1.5em" }} />
-              <span>&nbsp;{parseFloat(obj.amount)}</span>
-              {direction && <small style={{ padding: BaseStyles.padding}}>{direction}</small>}
-              {user && <span>{user.first_name} {user.last_name} (@{user.username})</span>}
-            </Flex>
-          </Flex>
-        );
-    })}
-    </Flex>
-  );
+  render() {
+    if (this.props.loading || !this.props.user) return <Loading />;
+
+    let { avatar_url, first_name, last_name, username, is_me } = this.props.user;
+    return (
+      <Flex container row alignItems="center">
+        <Flex component='img' src={avatar_url} style={profileStyle.primaryAvatar} />
+        <Flex>
+          <div style={profileStyle.userFullName}>{first_name || "First Name"} {last_name || "Last Name"}</div>
+          <div style={profileStyle.userUsername}>@{username}</div>
+          {is_me && <Anchor href="/profile/edit" style={profileStyle.userEditProfile}>Edit Profile</Anchor>}
+        </Flex>
+      </Flex>
+    );
+  }
+});
+
+const Transactions_mapStateToProps = (state, ownProps) => {
+  return {
+    ...ownProps,
+    ...(state.transactions[ownProps.userId] || {})
+  };
+};
+
+const Transactions_mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    ...ownProps,
+    reloadTransactions: (page) => dispatch(ActionCreators.reloadTransactions(ownProps.userId, page || 1))
+  };
+};
+
+const Transactions = connect(Transactions_mapStateToProps, Transactions_mapDispatchToProps)(class Transactions extends Component {
+  constructor(props) {
+    super(props);
+    this.gotoPage = this.gotoPage.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.reloadTransactions(this.props.page || 1);
+  }
+
+  colorFor({ completed, success, rejected }) {
+    return completed ? success ? "green" : "yellow" : rejected ? "red" : null;
+  }
+
+  gotoPage(page) {
+    console.log("GOTO PAGE", page);
+    this.props.reloadTransactions(page);
+  }
+
+  render() {
+    let loading = !this.props.transactions || this.props.loading;
+    let errored = !loading && this.props.error;
+    let succeeded = !loading && !this.props.error;
+    let userId = parseInt(this.props.userId);
+    let hasTransactions = this.props.transactions && this.props.transactions.length > 0;
+    return (
+      <FadeTransition>
+        {loading && <Loading fadeOut />}
+        {succeeded && !hasTransactions && <div fadeIn style={style.element.frownMessage}>
+            <Frown large />
+            <p style={noSelect()}>{userId === API.getUserID() ? "No transactions...yet!" : "No mutual transactions..." }</p>
+          </div>}
+        {succeeded && hasTransactions && <Flex fadeIn container column style={style.table.base}>
+          { this.props.transactions.map((obj, i) => {
+            let isOdd = Boolean(i % 2);
+            let direction = null;
+            let user = null;
+            if (obj.sender.id === userId) {
+              direction = "to";
+              user = obj.recipient;
+            } else if (obj.recipient.id === userId) {
+              direction = "from";
+              user = obj.sender;
+            }
+            return (
+              <Flex container row alignItems="center" justifyContent="space-between" component={Button}
+                    key={obj.id}
+                    disableBaseStyles
+                    href={"/transaction/" + obj.id}
+                    hoverStyle={style.table.rowHover}
+                    activeStyle={style.table.rowActive}
+                    style={{
+                      ...style.table.row,
+                      ...isOdd ? style.table.oddRow : {},
+                      color: this.colorFor(obj) }}>
+                <Flex shrink="0" style={style.table.column}># {obj.id}</Flex>
+                <Flex shrink="1" wrap container alignItems="center" justifyContent="flex-end" style={style.table.column}>
+                  <BTC style={{ fontSize: "1.5em" }} />
+                  <span>&nbsp;{parseFloat(obj.amount)}</span>
+                  {direction && <small style={{ padding: BaseStyles.padding}}>{direction}</small>}
+                  {user && <span>{user.first_name} {user.last_name} (@{user.username})</span>}
+                </Flex>
+              </Flex>
+            );
+        })}
+        </Flex>}
+        {succeeded && hasTransactions && <Flex fadeIn key="controls" container row justifyContent="space-around" alignItems="center">
+          <Button disabled={this.props.previousPage === null}
+                  onClick={() => this.gotoPage(this.props.previousPage)}
+                  ><LeftArrow /></Button>
+          <span style={noSelect()}>{this.props.page} of {Math.ceil(this.props.count/10) || 1}</span>
+          <Button disabled={this.props.nextPage === null}
+                  onClick={() => this.gotoPage(this.props.nextPage)}
+                  ><RightArrow /></Button>
+        </Flex>}
+      </FadeTransition>
+    );
+  }
+});
+
+function logOut() {
+  API.networking("DELETE", "/token/clear", {}, {}).then(() => {
+    API.clearAuth();
+    Router.push("/");
+  });
 }
 
 function Profile({ matches }) {
@@ -105,40 +177,16 @@ function Profile({ matches }) {
   return (
     <SideMargins>
       <Flex container column alignItems="center">
-        <ElementView collection={API.user} elementID={userId}>
-          <User />
-        </ElementView>
+        <User userId={userId} />
         <Flex container column style={{maxWidth:"100%", width: "100%"}}>
           <Flex container row wrap justifyContent="center">
-            {!isAuthenticatedUser &&
-              <Button
-                href={API.user.baseURL + userId + "/transaction/send"}
-              >Send BTC</Button>}
-              {!isAuthenticatedUser &&
-              <Button
-                href={API.user.baseURL + userId + "/transaction/receive"}
-              >Receive BTC</Button>}
-              {isAuthenticatedUser &&
-              <Button
-                href="/wallets"
-              >Wallets</Button>}
-              {isAuthenticatedUser &&
-              <Button
-                href="/required"
-              >Required</Button>}
-              {isAuthenticatedUser &&
-               <Button
-                 onClick={() => {
-                   API.networking("DELETE", "/token/clear", {}, {}).then(() => {
-                     API.clearAuth();
-                     Router.push("/");
-                   });
-                 }}
-               >Log Out</Button>}
+            {!isAuthenticatedUser && <Button href={`/user/${userId}/transaction/send`}>Send BTC</Button>}
+            {!isAuthenticatedUser && <Button href={`/user/${userId}/transaction/receive`}>Receive BTC</Button>}
+            {isAuthenticatedUser && <Button href="/wallets">Wallets</Button>}
+            {isAuthenticatedUser && <Button href="/required">Required</Button>}
+            {isAuthenticatedUser && <Button onClick={logOut}>Log Out</Button>}
           </Flex>
-          <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
-            <TransactionCollectionBody userId={userId} />
-          </CollectionView>
+          <Transactions userId={userId} />
         </Flex>
       </Flex>
     </SideMargins>

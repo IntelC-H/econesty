@@ -1,6 +1,7 @@
 import App from 'app/app';
 import /*Preact, */{ h, render } from 'preact';
 
+
 require('preact/debug');
 
 //const {whyDidYouUpdate} = require('why-did-you-update');

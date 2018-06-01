@@ -1,5 +1,7 @@
 // API.js: Promise-based REST API access
 
+import 'abortcontroller-polyfill';
+
 class API {
   static get storage() {
     return window.localStorage;
@@ -43,6 +45,16 @@ class API {
       }
     };
 
+    let abort = undefined;
+    
+    if (AbortController) {
+      let abortController = new AbortController();
+      opts.signal = abortController.signal;
+      abort = () => abortController.abort();
+    } else {
+      abort = () => undefined;
+    }
+
     if (body) opts.body = JSON.stringify(body);
 
     let token = this.getToken();
@@ -54,7 +66,7 @@ class API {
     url += "?" + Object.entries({...urlparams, format: "json"})
                        .map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
                        .join("&");
-    return fetch(url, opts).then(res =>
+    let p = fetch(url, opts).then(res =>
       res.text().then(text => {
         let obj = text.length === 0 ? null : JSON.parse(text);
         if (res.ok) return obj;
@@ -65,6 +77,8 @@ class API {
         throw err;
       })
     );
+    p.abort = abort;
+    return p;
   }
 }
 
