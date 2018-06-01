@@ -99,7 +99,6 @@ const Transactions = connect(Transactions_mapStateToProps, Transactions_mapDispa
   }
 
   gotoPage(page) {
-    console.log("GOTO PAGE", page);
     this.props.reloadTransactions(page);
   }
 

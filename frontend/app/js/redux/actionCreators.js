@@ -48,25 +48,43 @@ const _loadTransactionsAbort = (userId) => ({ type: ActionTypes.LOAD_TRANSACTION
 const _loadTransactionsComplete = (userId, fetched, error, transactions, page, nextPage, previousPage, count) => ({ type: ActionTypes.LOAD_TRANSACTIONS_COMPLETE, userId, fetched, error, transactions, page, nextPage, previousPage, count });
 
 export function reloadTransactions(userId, page, refetchInterval = 3600000) {
-  console.log("CREATING RELOAD TRANSACTIONS ACTION");
   return (dispatch, getState) => {
     let transactions = getState().transactions[userId];
-    console.log("INSIDE THUNK", !transactions || (transactions.fetched + refetchInterval < new Date().getTime()));
     if (!transactions || page !== transactions.page || (transactions.fetched + refetchInterval < new Date().getTime())) {
-      console.log("Placing promise");
       let p = API.user.append("/" + userId + "/transactions").list(page);
       dispatch(_loadTransactionsStart(userId, p.abort));
       p.catch(err => {
          if (err.name === "AbortError") {
            dispatch(_loadTransactionsAbort(userId));
          } else {
-           dispatch(_loadTransactionsComplete(userId, new Date().getTime(), err, null, null));
+           dispatch(_loadTransactionsComplete(userId, new Date().getTime(), err, null, null, null, null, null));
          }
        }).then(res  => {
          dispatch(_loadTransactionsComplete(userId, new Date().getTime(), null, res.results, page, res.next, res.previous, res.count));
        });
-    } else {
-      console.log("Skipping", transactions);
+    }
+  };
+}
+
+const _loadRequirementsStart = (stopLoading) => ({ type: ActionTypes.LOAD_REQUIREMENTS_START, stopLoading });
+const _loadRequirementsAbort = () => ({ type: ActionTypes.LOAD_REQUIREMENTS_ABORT });
+const _loadRequirementsComplete = (fetched, error, requirements, page, nextPage, previousPage, count) => ({ type: ActionTypes.LOAD_REQUIREMENTS_COMPLETE, fetched, error, requirements, page, nextPage, previousPage, count});
+
+export function reloadRequirements(page, refetchInterval = 3600000) {
+  return (dispatch, getState) => {
+    let rs = getState().requirements;
+    if (!rs || rs.page !== page || (rs.fetched + refetchInterval < new Date().getTime())) {
+      let p = API.requirement.withParams({ user__id: API.getUserID() }).list(page);
+      dispatch(_loadRequirementsStart(p.abort));
+      p.catch(err => {
+         if (err.name === "AbortError") {
+           dispatch(_loadRequirementsAbort());
+         } else {
+           dispatch(_loadRequirementsComplete(new Date().getTime(), err, null, null, null, null, null));
+         }
+       }).then(res  => {
+         dispatch(_loadRequirementsComplete(new Date().getTime(), null, res.results, page, res.next, res.previous, res.count));
+       });
     }
   };
 }

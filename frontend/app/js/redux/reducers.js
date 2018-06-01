@@ -8,6 +8,8 @@
       stopLoading: <fn>
       error: <string>,
       page: <int>,
+      previousPage: <int>,
+      nextPage: <int>,
       requirements: []
     },
     wallets: {
@@ -24,6 +26,8 @@
         stopLoading: <fn>,
         error: <string>,
         page: <int>,
+        previousPage: <int>,
+        nextPage: <int>,
         transactions: []
       }
     },
@@ -41,6 +45,8 @@
         <query>: {
           results: [],
           page: <int>,
+          previousPage: <int>,
+          nextPage: <int>,
           error: <string>,
           stopLoading: <fn>,
           loading: false,
@@ -55,8 +61,17 @@
 import { combineReducers } from 'redux';
 import * as ActionTypes from './actionTypes';
 
-const requirements = (state = {}, action) => {
-  return state;
+const requirements = (state = {}, { type, fetched, stopLoading, error, requirements, page }) => {
+  switch (type) {
+    case ActionTypes.LOAD_REQUIREMENTS_START:
+      return { ...state, loading: true, stopLoading };
+    case ActionTypes.LOAD_REQUIREMENTS_ABORT:
+      return { ...state, loading: false, stopLoading: () => undefined };
+    case ActionTypes.LOAD_REQUIREMENTS_COMPLETE:
+      return { loading: false, stopLoading: () => undefined, fetched, error, page, requirements };
+    default:
+      return state;
+  }
 };
 
 const wallets = (state = { fetched: -1, loading: false, error: null, wallets: [], stopLoading: () => undefined }, { type, error, wallets, fetched, stopLoading }) => {
