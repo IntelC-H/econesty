@@ -1,9 +1,11 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
-import { Anchor, Flex, Form, Input, CollectionView, API, Button } from 'base/base';
+import { connect } from 'preact-redux';
+import { Anchor, Flex, Form, Input, FadeTransition, Loading, API, Button } from 'base/base';
 import { SideMargins, Frown } from 'app/common';
 import style from 'app/style';
 import BaseStyle from 'base/style';
 import { noSelect } from 'base/style/mixins';
+import { reloadRequirements, saveRequirement } from 'app/redux/actionCreators';
 
 const rsStyle = {
   pageTitle: {
@@ -29,8 +31,8 @@ const rsStyle = {
   }
 };
 
-function RequirementsCollection({ collectionView }) {
-  if (collectionView.getElements().length === 0) {
+function RequirementsCollection({ requirements, save }) {
+  if (requirements.length === 0) {
     return (
       <div style={style.element.frownMessage}>
         <Frown large />
@@ -40,7 +42,7 @@ function RequirementsCollection({ collectionView }) {
   }
   return (
     <Flex container column style={style.table.base}>
-      {collectionView.getElements().map((element, idx) =>
+      {requirements.map((element, idx) =>
         <Flex container column style={{...style.table.row, ...idx % 2 ? style.table.oddRow : {}, ...style.table.column}}>
           <Flex container row alignItems="center">
             <p style={{ ...rsStyle.reqTitle, color: element.rejected ? "red" : element.fulfilled ? "green" : null }}>
@@ -53,14 +55,14 @@ function RequirementsCollection({ collectionView }) {
               {element.fulfilled && <p style={rsStyle.signature}>{element.signature}</p>}
             </Flex>
             {!element.acknowledged &&
-            <Button onClick={() => collectionView.updateElement(element.id, {acknowledged: true})}>Acknowledge</Button>}
+            <Button onClick={() => save({ id: element.id, acknowledged: true})}>Acknowledge</Button>}
             {element.acknowledged && !element.rejected && !element.fulfilled && 
-            <Flex component={Form} onSubmit={collectionView.saveElement}
+            <Flex component={Form} onSubmit={save}
                   container row wrap alignItems="center" justifyContent="center">
               <Input hidden name="id" value={element.id} />
               <Input text placeholder="Sign/type your name" name="signature" value={element.signature} style={rsStyle.signatureField} />
               <Button action="submit">SIGN</Button>
-              <Button onClick={() => collectionView.updateElement(element.id, { rejected: true, signature: null}) }>REJECT</Button>
+              <Button onClick={() => save({ id: element.id, rejected: true, signature: null}) }>REJECT</Button>
             </Flex>}
           </Flex>
         </Flex>)}
@@ -68,17 +70,40 @@ function RequirementsCollection({ collectionView }) {
   );
 }
 
-function RequiredOfMe(props) { // eslint-disable-line no-unused-vars
-  return (
-    <SideMargins>
-      <Flex container column alignItems="center" margin>
-        <p style={rsStyle.pageTitle}>My Requirements</p>
-      </Flex>
-      <CollectionView collection={API.requirement.withParams({ user__id: API.getUserID() })}>
-        <RequirementsCollection />
-      </CollectionView>
-    </SideMargins>
-  );
+function mapStateToProps(state, ownProps) {
+  return {
+    ...ownProps,
+    ...state.requirements
+  };
 }
 
-export default RequiredOfMe;
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    ...ownProps,
+    reloadRequirements: () => dispatch(reloadRequirements()),
+    saveRequirement: (r) => dispatch(saveRequirement(r))
+  };
+}
+
+export default connect()(class RequiredOfMe extends Component {
+  componentDidMount() {
+    this.props.reloadRequirements();
+  }
+
+  render() {
+    const { error, loading, requirements, saveRequirement } = this.props;
+    return (
+      <SideMargins>
+        <Flex container column alignItems="center" margin>
+          <p style={rsStyle.pageTitle}>My Requirements</p>
+        </Flex>
+        <FadeTransition>
+          {loading && <Loading fadeIn fadeOut key="loading" />}
+          {!loading && error && <span fadeIn key="error">{error}</span>}
+          {!loading && !error && <RequirementsCollection fadeIn key="requirements" requirements={requirements} save={saveRequirement} />}
+        </FadeTransition>
+      </SideMargins>
+    );
+  }
+});
+

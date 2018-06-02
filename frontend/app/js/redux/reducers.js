@@ -61,27 +61,33 @@
 import { combineReducers } from 'redux';
 import * as ActionTypes from './actionTypes';
 
-const requirements = (state = {}, { type, fetched, stopLoading, error, requirements, page }) => {
+const requirements = (state = {}, { type, fetched, stopLoading, error, requirements, page, requirement }) => {
   switch (type) {
-    case ActionTypes.LOAD_REQUIREMENTS_START:
+    case ActionTypes.REQUIREMENTS_START_LOAD:
       return { ...state, loading: true, stopLoading };
-    case ActionTypes.LOAD_REQUIREMENTS_ABORT:
+    case ActionTypes.REQUIREMENTS_ABORT_LOAD:
       return { ...state, loading: false, stopLoading: () => undefined };
     case ActionTypes.LOAD_REQUIREMENTS_COMPLETE:
       return { loading: false, stopLoading: () => undefined, fetched, error, page, requirements };
+    case ActionTypes.SAVE_REQUIREMENT_COMPLETE:
+      return { loading: false, stopLoading: () => undefined, error, requirements: state.requirements.filter(r => r.id !== requirement.id).concat(requirement) };
     default:
       return state;
   }
 };
 
-const wallets = (state = { fetched: -1, loading: false, error: null, wallets: [], stopLoading: () => undefined }, { type, error, wallets, fetched, stopLoading }) => {
+const wallets = (state = { fetched: -1, loading: false, error: null, wallets: [], stopLoading: () => undefined }, { type, error, wallets, fetched, stopLoading, wallet }) => {
   switch (type) {
-    case ActionTypes.LOAD_WALLETS_START:
+    case ActionTypes.WALLETS_START_LOAD:
       return { ...state, loading: true, stopLoading };
+    case ActionTypes.WALLETS_ABORT_LOAD:
+      return { ...state, loading: false, stopLoading: () => undefined };
     case ActionTypes.LOAD_WALLETS_COMPLETE:
       return { ...state, loading: false, stopLoading: () => undefined, fetched, error, wallets };
-    case ActionTypes.LOAD_WALLETS_ABORT:
-      return { ...state, loading: false, stopLoading: () => undefined };
+    case ActionTypes.CREATE_WALLET_COMPLETE:
+      return { ...state, loading: false, stopLoading: () => undefined, error, wallets: state.wallets.concat([wallet]) };
+    case ActionTypes.DELETE_WALLET_COMPLETE:
+      return { ...state, loading: false, stopLoading: () => undefined, error, wallets: state.wallets.filter(w => w.id !== wallet.id) };
     default:
       return state;
   }

@@ -1,10 +1,13 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
+import { connect } from 'preact-redux';
 import { Table } from 'base/components/elements';
 import { BTC, SideMargins, XOverflowable, FlexControlBlock, Save } from 'app/common';
-import { API, Flex, Anchor, CollectionView, ElementView, Form, Select, Input, Button } from 'base/base';
+import { API, Flex, Anchor, CollectionView, ElementView,
+         Form, Select, Input, Button, Loading, FadeTransition } from 'base/base';
 import style from 'app/style';
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
+import { reloadWallets } from 'app/redux/actionCreators';
 
 const tdStyles = {
   headerBlock: {
@@ -30,10 +33,6 @@ const tdStyles = {
   }
 };
 
-function makeWalletsPromise() {
-  return API.wallet.withParams({ user__id: API.getUserID() }).listAll();
-}
-
 function UserLink({ user }) {
   return (
     <Anchor
@@ -49,76 +48,115 @@ function attemptFinalize(transaction, elementView) {
   API.transaction.instanceMethod("POST", "finalize", transaction.id).then(elementView.setElement);
 }
 
-function TransactionInfo({ elementView }) {
-  let t = elementView.getElement();
+function TI_mapStateToProps(state, ownProps) {
+  return {
+    ...ownProps,
+    wallets: state.wallets.wallets,
+    walletsError: state.wallets.error,
+    walletsLoading: state.wallets.loading
+  };
+}
 
-  let userId = parseInt(API.getUserID());
+function TI_mapDispatchToProps(dispatch, ownProps) {
+  return {
+    ...ownProps,
+    reloadWallets: () => dispatch(reloadWallets())
+  };
+}
 
-  let needsRecipientWallet = t.recipient_wallet === null || t.recipient_wallet === undefined;
-  let needsSenderWallet = t.sender_wallet === null || t.sender_wallet === undefined;
-  let isSender = t.sender.id === API.getUserID();
-  let isRecipient = t.recipient.id === API.getUserID();
-  let transactionColor = t.completed
-           ? t.success ? "green" : "yellow"
-           : t.rejected ? "red" : null;
-
-  let direction = null;
-  let user = null;
-  if (t.sender.id === userId) {
-    direction = "to";
-    user = t.recipient;
-  } else if (t.recipient.id === userId) {
-    direction = "from";
-    user = t.sender;
+const TransactionInfo = connect(TI_mapStateToProps, TI_mapDispatchToProps)(class TransactionInfo extends Component {
+  componentDidMount() {
+    let t = this.props.elementView.getElement();
+    let needsRecipientWallet = t.recipient_wallet === null || t.recipient_wallet === undefined;
+    let needsSenderWallet = t.sender_wallet === null || t.sender_wallet === undefined;
+    if (needsRecipientWallet || needsSenderWallet) {
+      this.props.reloadWallets();
+    }
   }
 
-  if (!user || !direction) return null; // TODO: invalid transaction page
+  render() {
+    const { elementView, wallets, walletsError, walletsLoading } = this.props;
 
-  return (
-    <div>
-      <Flex container column alignItems="center" style={tdStyles.headerBlock}>
-        <p style={{ ...style.text.primary, ...tdStyles.title, color: transactionColor }}>Transaction #{t.id}</p>
-        <Flex container alignItems="center" justifyContent="center" style={tdStyles.cardinality}>
-          <BTC />
-          <span>{parseFloat(t.amount)}</span>
-          <span>&nbsp;</span>
-          <small>{direction}</small>
-          <span>&nbsp;</span>
-          <UserLink user={user} />
+    let t = elementView.getElement();
+   
+    let userId = parseInt(API.getUserID());
+   
+    let needsRecipientWallet = t.recipient_wallet === null || t.recipient_wallet === undefined;
+    let needsSenderWallet = t.sender_wallet === null || t.sender_wallet === undefined;
+    let isSender = t.sender.id === API.getUserID();
+    let isRecipient = t.recipient.id === API.getUserID();
+    let transactionColor = t.completed
+             ? t.success ? "green" : "yellow"
+             : t.rejected ? "red" : null;
+   
+    let direction = null;
+    let user = null;
+    if (t.sender.id === userId) {
+      direction = "to";
+      user = t.recipient;
+    } else if (t.recipient.id === userId) {
+      direction = "from";
+      user = t.sender;
+    }
+   
+    if (!user || !direction) return null; // TODO: invalid transaction page
+   
+    return (
+      <div>
+        <Flex container column alignItems="center" style={tdStyles.headerBlock}>
+          <p style={{ ...style.text.primary, ...tdStyles.title, color: transactionColor }}>Transaction #{t.id}</p>
+          <Flex container alignItems="center" justifyContent="center" style={tdStyles.cardinality}>
+            <BTC />
+            <span>{parseFloat(t.amount)}</span>
+            <span>&nbsp;</span>
+            <small>{direction}</small>
+            <span>&nbsp;</span>
+            <UserLink user={user} />
+          </Flex>
+          {t.completed && !t.success &&
+          <Flex container alignItems="center">
+            <p style={tdStyles.errorMessage}>{t.error ? "BitCoin Error: " + t.error : "Unknown BitCoin Error"}</p>
+            <Button onClick={() => attemptFinalize(t, elementView)}>Retry</Button>
+          </Flex>}
         </Flex>
-        {t.completed && !t.success &&
-        <Flex container alignItems="center">
-          <p style={tdStyles.errorMessage}>{t.error ? "BitCoin Error: " + t.error : "Unknown BitCoin Error"}</p>
-          <Button onClick={() => attemptFinalize(t, elementView)}>Retry</Button>
-        </Flex>}
-      </Flex>
-      <Flex container column alignItems="center" style={tdStyles.titleBlock}>
-        {needsRecipientWallet && isRecipient && <Form onSubmit={elementView.updateElement}>
-            <Input hidden name="id" value={t.id} />
-            <FlexControlBlock label="Add your Wallet">
-                <Select
-                    options={makeWalletsPromise}
-                    name="recipient_wallet_id"
-                    transform={w => w.id}
-                    faceTransform={w => w.private_key} />
-                <Button action="submit" style={tdStyles.saveButton}><Save /></Button>
-            </FlexControlBlock>
-        </Form>}
-        {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
-            <Input hidden name="id" value={t.id} />
-            <FlexControlBlock label="Add your Wallet">
-               <Select
-                   options={makeWalletsPromise}
-                   name="sender_wallet_id"
-                   transform={w => w.id}
-                   faceTransform={w => w.private_key} />
-               <Button action="submit" style={tdStyles.saveButton}><Save /></Button>
-            </FlexControlBlock>
-        </Form>}
-      </Flex>
-    </div>
-  );
-}
+        <Flex container column alignItems="center" style={tdStyles.titleBlock}>
+          {needsRecipientWallet && isRecipient && <Form onSubmit={elementView.updateElement}>
+              <Input hidden name="id" value={t.id} />
+              <FlexControlBlock label="Add your Wallet">
+                <FadeTransition>
+                   {walletsLoading && <Loading />}
+                   {!walletsLoading && walletsError && <span>{walletsError}</span>}
+                   {!walletsLoading && !walletsError &&
+                   <Select
+                       options={wallets}
+                       name="recipient_wallet_id"
+                       transform={w => w.id}
+                       faceTransform={w => w.private_key} />}
+                   {!walletsLoading && !walletsError && <Button action="submit" style={tdStyles.saveButton}><Save /></Button>}
+                </FadeTransition>
+              </FlexControlBlock>
+          </Form>}
+          {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
+              <Input hidden name="id" value={t.id} />
+              <FlexControlBlock label="Add your Wallet">
+                <FadeTransition>
+                   {walletsLoading && <Loading />}
+                   {!walletsLoading && walletsError && <span>{walletsError}</span>}
+                   {!walletsLoading && !walletsError &&
+                   <Select
+                       options={wallets}
+                       name="sender_wallet_id"
+                       transform={w => w.id}
+                       faceTransform={w => w.private_key} />}
+                   {!walletsLoading && !walletsError && <Button action="submit" style={tdStyles.saveButton}><Save /></Button>}
+                </FadeTransition>
+              </FlexControlBlock>
+          </Form>}
+        </Flex>
+      </div>
+    );
+  }
+});
 
 function TransactionDetail({ matches }) {
   return (
