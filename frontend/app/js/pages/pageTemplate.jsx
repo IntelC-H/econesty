@@ -28,7 +28,8 @@ const styles = {
   },
   copyright: {
     padding: BaseStyles.padding,
-    color: "#555555"
+    color: "#555555",
+    ...noSelect()
   }
 };
 

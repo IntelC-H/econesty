@@ -164,6 +164,9 @@ class SearchField extends FormElement {
       Router.push(this.collectionView.getCollection().baseURL + v.id);
     } else {
       this.setState(st => ({ ...st, search: null, value: v }));
+      if (this.props.onValue) {
+        this.props.onValue(v);
+      }
     }
   }
 

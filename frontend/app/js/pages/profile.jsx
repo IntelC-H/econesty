@@ -43,14 +43,19 @@ const User_mapStateToProps = (state, ownProps) => {
 const User_mapDispatchToProps = (dispatch, ownProps) => {
   return {
     ...ownProps,
-    reloadUser: () => dispatch(ActionCreators.reloadUser(ownProps.userId))
+    reloadUser: (userId) => dispatch(ActionCreators.reloadUser(userId))
   };
 };
 
 const User = connect(User_mapStateToProps, User_mapDispatchToProps)(class User extends Component {
   componentDidMount() {
-    console.log(this.props);
-    this.props.reloadUser();
+    this.props.reloadUser(this.props.userId);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.userId !== nextProps.userId) {
+      nextProps.reloadUser(nextProps.userId);
+    }
   }
 
   render() {
@@ -92,6 +97,12 @@ const Transactions = connect(Transactions_mapStateToProps, Transactions_mapDispa
 
   componentDidMount() {
     this.props.reloadTransactions(this.props.page || 1);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.userId !== nextProps.userId) {
+      nextProps.reloadTransactions(nextProps.page || 1);
+    }
   }
 
   colorFor({ completed, success, rejected }) {

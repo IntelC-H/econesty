@@ -2,6 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Flex, SVGIcon, doNotUpdate } from 'base/base';
 import style from 'app/style';
 import { noSelect } from 'base/style/mixins';
+import { Button } from 'base/base';
 
 export function FlexControlBlock({ label, children }) {
   return (
@@ -16,6 +17,13 @@ export function FlexControlBlock({ label, children }) {
     </Flex>
   );
 }
+
+export const PageSeekControls = ({ previousPage, nextPage, page, count, setPage }) =>
+  <Flex container row justifyContent="space-around" alignItems="center">
+    <Button disabled={previousPage === null} onClick={() => setPage(previousPage)}><LeftArrow /></Button>
+    <span style={noSelect()}>{page} of {Math.ceil(count/10) || 1}</span>
+    <Button disabled={nextPage === null} onClick={() => setPage(nextPage)}><RightArrow /></Button>
+  </Flex>;
 
 export const SideMargins = ({ children, ...props }) =>
       <Flex key="sm-container" container justifyContent="center">

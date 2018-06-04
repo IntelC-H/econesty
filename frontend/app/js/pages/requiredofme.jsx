@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { connect } from 'preact-redux';
 import { Anchor, Flex, Form, Input, FadeTransition, Loading, API, Button } from 'base/base';
-import { SideMargins, Frown } from 'app/common';
+import { SideMargins, Frown, LeftArrow, RightArrow, PageSeekControls } from 'app/common';
 import style from 'app/style';
 import BaseStyle from 'base/style';
 import { noSelect } from 'base/style/mixins';
@@ -61,7 +61,7 @@ function RequirementsCollection({ requirements, save }) {
                   container row wrap alignItems="center" justifyContent="center">
               <Input hidden name="id" value={element.id} />
               <Input text placeholder="Sign/type your name" name="signature" value={element.signature} style={rsStyle.signatureField} />
-              <Button action="submit">SIGN</Button>
+              <Button type="submit">SIGN</Button>
               <Button onClick={() => save({ id: element.id, rejected: true, signature: null}) }>REJECT</Button>
             </Flex>}
           </Flex>
@@ -80,18 +80,18 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     ...ownProps,
-    reloadRequirements: () => dispatch(reloadRequirements()),
+    reloadRequirements: (page) => dispatch(reloadRequirements(page)),
     saveRequirement: (r) => dispatch(saveRequirement(r))
   };
 }
 
-export default connect()(class RequiredOfMe extends Component {
+export default connect(mapStateToProps, mapDispatchToProps)(class RequiredOfMe extends Component {
   componentDidMount() {
-    this.props.reloadRequirements();
+    this.props.reloadRequirements(this.props.page || 1);
   }
 
   render() {
-    const { error, loading, requirements, saveRequirement } = this.props;
+    const { error, loading, requirements, count, page, nextPage, previousPage, saveRequirement } = this.props;
     return (
       <SideMargins>
         <Flex container column alignItems="center" margin>
@@ -100,7 +100,15 @@ export default connect()(class RequiredOfMe extends Component {
         <FadeTransition>
           {loading && <Loading fadeIn fadeOut key="loading" />}
           {!loading && error && <span fadeIn key="error">{error}</span>}
-          {!loading && !error && <RequirementsCollection fadeIn key="requirements" requirements={requirements} save={saveRequirement} />}
+          {!loading && !error && requirements && <RequirementsCollection fadeIn key="requirements" requirements={requirements} save={saveRequirement} />}
+          {!loading && !error && requirements &&
+          <PageSeekControls
+            fadeIn key="controls"
+            previousPage={previousPage}
+            nextPage={nextPage}
+            page={page}
+            count={count}
+            setPage={this.props.reloadRequirements} />}
         </FadeTransition>
       </SideMargins>
     );

@@ -114,8 +114,14 @@ export function reloadRequirements(page, refetchInterval = 3600000) {
 export function saveRequirement(r) {
   return (dispatch, getState) => {
     let p = API.requirement.withParams({ user__id: API.getUserID() }).save(r);
-    dispatch(_requirementsStartLoad());
-    p.catch(err => dispatch(err.name === "AbortError" ? _requirementsAbortLoad() : _saveRequirementComplete(null, err))).then(req => dispatch(_saveRequirementComplete(req, null)));
-
+    dispatch(_requirementsStartLoad(p.abort));
+    p.catch(err => dispatch(err.name === "AbortError" ? _requirementsAbortLoad() : _saveRequirementComplete(null, err)))
+     .then(req => dispatch(_saveRequirementComplete(req, null)));
   };
 }
+
+export const tipUpdate = (sender_id, recipient_id, update) => ({ type: ActionTypes.TIP_UPDATE, sender_id, recipient_id, update });
+export const tipDelete = (sender_id, recipient_id) => ({ type: ActionTypes.TIP_DELETE, sender_id, recipient_id });
+export const tipStartRequirement = (sender_id, recipient_id) => tipUpdateRequirement(sender_id, recipient_id, {});
+export const tipUpdateRequirement = (sender_id, recipient_id, update, index = -1) => ({ type: ActionTypes.TIP_UPDATE_REQUIREMENT, sender_id, recipient_id, update, index });
+export const tipRemoveRequirement = (sender_id, recipient_id, index) => ({ type: ActionTypes.TIP_REMOVE_REQUIREMENT, sender_id, recipient_id, index });

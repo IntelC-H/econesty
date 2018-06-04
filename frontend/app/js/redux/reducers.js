@@ -40,6 +40,11 @@
 	user: {},
       }
     },
+    transactions_in_progress: {
+      "<sender_id>_<recipient_id>": {
+        ...transactionShape
+      }
+    },
     searches: {
       <collection name>: {
         <query>: {
@@ -61,16 +66,76 @@
 import { combineReducers } from 'redux';
 import * as ActionTypes from './actionTypes';
 
-const requirements = (state = {}, { type, fetched, stopLoading, error, requirements, page, requirement }) => {
+function replaceByIdPure(xs, obj) {
+  return xs.map(x => x.id === obj.id ? obj : x);
+}
+
+function removeByIdPure(xs, id) {
+  return xs.filter(x => x.id !== id);
+}
+
+function removeByIndexPure(xs, idx) {
+  return xs.filter((x, i) => i !== idx);
+}
+
+const transaction_in_progress = (state = {}, { type, sender_id, recipient_id, ...actionRemaining }) => {
+  let key = `${sender_id}_${recipient_id}`;
+  switch (type) {
+    case ActionTypes.TIP_REMOVE_REQUIREMENT: {
+      const { index } = actionRemaining;
+      let newState = Object.assign({}, state);
+      let t = state[key] || {};
+      newState[key] = { ...t, requirements: removeByIndexPure(t.requirements || [], index) };
+      return newState;
+    }
+    case ActionTypes.TIP_UPDATE_REQUIREMENT: {
+      const { update, index } = actionRemaining;
+
+      let diff = { ...update };
+      if (diff.user) diff.user_id = diff.user.id;
+
+      let newState = {};
+      for (let k in state) {
+        if (k === key) {
+          let { requirements, ...xs } = state[k];
+          let rs = (requirements || []);
+          if (index === -1) rs.push(diff);
+          else {
+            rs[index] = { ...(rs[index] || {}), ...diff };
+          }
+          newState[k] = { ...xs, requirements: rs };
+        } else newState[k] = state[k];
+      }
+      return newState;
+    }
+    case ActionTypes.TIP_UPDATE: {
+      const { update } = actionRemaining;
+      let obj = {};
+      obj[key] = { sender_id, recipient_id, requirements: [], ...(state[key] || {}), ...update };
+      return { ...state, ...obj };
+    }
+    case ActionTypes.TIP_DELETE: {
+      let newState = {};
+      for (let k in state) {
+        if (k !== key) newState[k] = state[k];
+      }
+      return newState;
+    }
+    default:
+      return state;
+  }
+};
+
+const requirements = (state = {}, { type, fetched, stopLoading, error, requirements, page, nextPage, previousPage, requirement }) => {
   switch (type) {
     case ActionTypes.REQUIREMENTS_START_LOAD:
       return { ...state, loading: true, stopLoading };
     case ActionTypes.REQUIREMENTS_ABORT_LOAD:
       return { ...state, loading: false, stopLoading: () => undefined };
     case ActionTypes.LOAD_REQUIREMENTS_COMPLETE:
-      return { loading: false, stopLoading: () => undefined, fetched, error, page, requirements };
+      return { ...state, loading: false, stopLoading: () => undefined, fetched, error, nextPage, previousPage, page, requirements };
     case ActionTypes.SAVE_REQUIREMENT_COMPLETE:
-      return { loading: false, stopLoading: () => undefined, error, requirements: state.requirements.filter(r => r.id !== requirement.id).concat(requirement) };
+      return { ...state, loading: false, stopLoading: () => undefined, error, requirements: replaceByIdPure(state.requirements, requirement) };
     default:
       return state;
   }
@@ -141,5 +206,6 @@ export const root = combineReducers({
   requirements,
   wallets,
   users,
-  transactions
+  transactions,
+  transaction_in_progress
 });
