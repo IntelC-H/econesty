@@ -19,6 +19,9 @@
       error: <string>,
       wallets: []
     },
+    transactionsCache: {
+      <tid>: { ...transaction... }
+    }
     transactions: {
       <user_id>: {
         fetched: <unix epoch offset>,
@@ -202,10 +205,18 @@ const transactions = (state = {}, { type, userId, transactions, page, nextPage, 
   }
 };
 
+const transactionCache = (state = {}, { type }) => {
+  switch (type) {
+
+    default: return state;
+  };
+};
+
 export const root = combineReducers({
   requirements,
   wallets,
   users,
   transactions,
+  transactionCache,
   transaction_in_progress
 });

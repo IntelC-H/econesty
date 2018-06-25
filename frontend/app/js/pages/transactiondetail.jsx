@@ -7,7 +7,7 @@ import { API, Flex, Anchor, CollectionView, ElementView,
 import style from 'app/style';
 import BaseStyles from 'base/style';
 import { noSelect } from 'base/style/mixins';
-import { reloadWallets } from 'app/redux/actionCreators';
+import { reloadWallets, fetchTransaction } from 'app/redux/actionCreators';
 
 const tdStyles = {
   headerBlock: {
@@ -124,9 +124,8 @@ const TransactionInfo = connect(TI_mapStateToProps, TI_mapDispatchToProps)(class
               <Input hidden name="id" value={t.id} />
               <FlexControlBlock label="Add your Wallet">
                 <FadeTransition>
-                   {walletsLoading && <Loading />}
-                   {!walletsLoading && walletsError && <span>{walletsError}</span>}
-                   {!walletsLoading && !walletsError &&
+                   {walletsLoading ? <Loading /> :
+                    walletsError ? <span>{walletsError}</span> :
                    <Select
                        options={wallets}
                        name="recipient_wallet_id"
@@ -140,9 +139,8 @@ const TransactionInfo = connect(TI_mapStateToProps, TI_mapDispatchToProps)(class
               <Input hidden name="id" value={t.id} />
               <FlexControlBlock label="Add your Wallet">
                 <FadeTransition>
-                   {walletsLoading && <Loading />}
-                   {!walletsLoading && walletsError && <span>{walletsError}</span>}
-                   {!walletsLoading && !walletsError &&
+                   {walletsLoading ? <Loading /> :
+                    walletsError ? <span>{walletsError}</span> :
                    <Select
                        options={wallets}
                        name="sender_wallet_id"
@@ -158,40 +156,46 @@ const TransactionInfo = connect(TI_mapStateToProps, TI_mapDispatchToProps)(class
   }
 });
 
-function TransactionDetail({ matches }) {
-  return (
-    <SideMargins>
-      <ElementView collection={API.transaction} elementID={matches.id}>
-        <TransactionInfo />
-      </ElementView>
-      <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
-        {collectionView => {
-         let rs = collectionView.getElements();
+class TransactionDetail extends Component {
+  componentDidMount() {
+    //fetchTransactions(this.props.matches.id)
+  }
 
-         if (rs.length === 0) return null; // TODO: warning about selecting a wallet and BTC transferring
-
-         return (
-           <FlexControlBlock label="Requirements">
-             <Flex grow="1" style={style.table.base} column>
-               {rs.map((r, idx) =>
-               <Flex key={r.id} style={{
-                 ...style.table.row,
-                 ...(idx % 2 ? style.table.oddRow : {}),
-                 minHeight: BaseStyles.elementHeight,
-                 color: r.fulfilled ? "green" : r.rejected ? "red" : null }} container row alignItems="center" justifyContent="space-between">
-                 <Flex shrink="0" style={style.table.column}>{r.text}</Flex>
-                 <Flex shrink="1" wrap container alignItems="center" justifyContent="flex-end" style={style.table.column}>
-                   <UserLink user={r.user} />
+  render({ matches }) {
+    return (
+      <SideMargins>
+        <ElementView collection={API.transaction} elementID={matches.id}>
+          <TransactionInfo />
+        </ElementView>
+        <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
+          {collectionView => {
+           let rs = collectionView.getElements();
+    
+           if (rs.length === 0) return null; // TODO: warning about selecting a wallet and BTC transferring
+    
+           return (
+             <FlexControlBlock label="Requirements">
+               <Flex grow="1" style={style.table.base} column>
+                 {rs.map((r, idx) =>
+                 <Flex key={r.id} style={{
+                   ...style.table.row,
+                   ...(idx % 2 ? style.table.oddRow : {}),
+                   minHeight: BaseStyles.elementHeight,
+                   color: r.fulfilled ? "green" : r.rejected ? "red" : null }} container row alignItems="center" justifyContent="space-between">
+                   <Flex shrink="0" style={style.table.column}>{r.text}</Flex>
+                   <Flex shrink="1" wrap container alignItems="center" justifyContent="flex-end" style={style.table.column}>
+                     <UserLink user={r.user} />
+                   </Flex>
                  </Flex>
+                 )}
                </Flex>
-               )}
-             </Flex>
-           </FlexControlBlock>
-         );
-        }}
-      </CollectionView>
-    </SideMargins>
-  );
+             </FlexControlBlock>
+           );
+          }}
+        </CollectionView>
+      </SideMargins>
+    );
+  }
 }
 
 export default TransactionDetail;

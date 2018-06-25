@@ -1,6 +1,8 @@
 import API from 'base/api';
 import * as ActionTypes from './actionTypes';
 
+const _now = () => new Date().getTime();
+
 const _walletsStartLoad = (stopLoading) => ({ type: ActionTypes.WALLETS_START_LOAD, stopLoading });
 const _walletsAbortLoad = () => ({ type: ActionTypes.WALLETS_ABORT_LOAD });
 const _loadWalletsComplete = (fetched, error, wallets) => ({ type: ActionTypes.LOAD_WALLETS_COMPLETE, fetched, error, wallets });
@@ -10,11 +12,11 @@ const _deleteWalletComplete = (wallet, error) => ({ type: ActionTypes.DELETE_WAL
 export function reloadWallets(refetchInterval = 3600000) {
    return (dispatch, getState) => {
      let fetched = getState().wallets.fetched;
-     if (fetched + refetchInterval < new Date().getTime()) {
+     if (fetched + refetchInterval < _now()) {
        let p = API.wallet.withParams({ user__id: API.getUserID() }).listAll();
        dispatch(_walletsStartLoad(p.abort));
-       p.catch(err => dispatch(err.name === "AbortError" ? _walletsAbortLoad() : _loadWalletsComplete(new Date().getTime(), err, []))
-       ).then( res  => dispatch(_loadWalletsComplete(new Date().getTime(), null, res)));
+       p.catch(err => dispatch(err.name === "AbortError" ? _walletsAbortLoad() : _loadWalletsComplete(_now(), err, []))
+       ).then( res  => dispatch(_loadWalletsComplete(_now(), null, res)));
      }
    };
 }
@@ -48,17 +50,17 @@ const _loadUserComplete = (userId, fetched, error, user) => ({ type: ActionTypes
 export function reloadUser(userId, refetchInterval = 3600000) {
   return (dispatch, getState) => {
     let user = getState().users[userId];
-     if (!user || user.error || (user.fetched + refetchInterval < new Date().getTime())) {
+     if (!user || user.error || (user.fetched + refetchInterval < _now())) {
        let p = API.user.read(userId);
        dispatch(_loadUserStart(userId, p.abort));
        p.catch(err => {
          if (err.name === "AbortError") {
            dispatch(_loadUserAbort(userId));
          } else {
-           dispatch(_loadUserComplete(userId, new Date().getTime(), err, null));
+           dispatch(_loadUserComplete(userId, _now(), err, null));
          }
        }).then(res  => {
-         dispatch(_loadUserComplete(userId, new Date().getTime(), null, res));
+         dispatch(_loadUserComplete(userId, _now(), null, res));
        });
      }
   };
@@ -71,17 +73,17 @@ const _loadTransactionsComplete = (userId, fetched, error, transactions, page, n
 export function reloadTransactions(userId, page, refetchInterval = 3600000) {
   return (dispatch, getState) => {
     let transactions = getState().transactions[userId];
-    if (!transactions || page !== transactions.page || (transactions.fetched + refetchInterval < new Date().getTime())) {
+    if (!transactions || page !== transactions.page || (transactions.fetched + refetchInterval < _now())) {
       let p = API.user.append("/" + userId + "/transactions").list(page);
       dispatch(_loadTransactionsStart(userId, p.abort));
       p.catch(err => {
          if (err.name === "AbortError") {
            dispatch(_loadTransactionsAbort(userId));
          } else {
-           dispatch(_loadTransactionsComplete(userId, new Date().getTime(), err, null, null, null, null, null));
+           dispatch(_loadTransactionsComplete(userId, _now(), err, null, null, null, null, null));
          }
        }).then(res  => {
-         dispatch(_loadTransactionsComplete(userId, new Date().getTime(), null, res.results, page, res.next, res.previous, res.count));
+         dispatch(_loadTransactionsComplete(userId, _now(), null, res.results, page, res.next, res.previous, res.count));
        });
     }
   };
@@ -95,17 +97,17 @@ const _saveRequirementComplete = (requirement, error) => ({ type: ActionTypes.SA
 export function reloadRequirements(page, refetchInterval = 3600000) {
   return (dispatch, getState) => {
     let rs = getState().requirements;
-    if (!rs || rs.page !== page || (rs.fetched + refetchInterval < new Date().getTime())) {
+    if (!rs || rs.page !== page || (rs.fetched + refetchInterval < _now())) {
       let p = API.requirement.withParams({ user__id: API.getUserID() }).list(page);
       dispatch(_requirementsStartLoad(p.abort));
       p.catch(err => {
          if (err.name === "AbortError") {
            dispatch(_requirementsAbortLoad());
          } else {
-           dispatch(_loadRequirementsComplete(new Date().getTime(), err, null, null, null, null, null));
+           dispatch(_loadRequirementsComplete(_now(), err, null, null, null, null, null));
          }
        }).then(res  => {
-         dispatch(_loadRequirementsComplete(new Date().getTime(), null, res.results, page, res.next, res.previous, res.count));
+         dispatch(_loadRequirementsComplete(_now(), null, res.results, page, res.next, res.previous, res.count));
        });
     }
   };
@@ -125,3 +127,26 @@ export const tipDelete = (sender_id, recipient_id) => ({ type: ActionTypes.TIP_D
 export const tipStartRequirement = (sender_id, recipient_id) => tipUpdateRequirement(sender_id, recipient_id, {});
 export const tipUpdateRequirement = (sender_id, recipient_id, update, index = -1) => ({ type: ActionTypes.TIP_UPDATE_REQUIREMENT, sender_id, recipient_id, update, index });
 export const tipRemoveRequirement = (sender_id, recipient_id, index) => ({ type: ActionTypes.TIP_REMOVE_REQUIREMENT, sender_id, recipient_id, index });
+
+const _isAbort = e => e.name === "AbortError";
+
+const _fetchTransactionStart = (abort) => ({ type: ActionTypes.FETCH_TRANSACTION_START, abort });
+const _fetchTransactionComplete = (requirements, transaction, fetched, error = null) => ({ type: ActionTypes.FETCH_TRANSACTION_COMPLETE, error, requirements, fetched, ...transaction });
+const _fetchTransactionAbort = () => ({ type: ActionTypes.FETCH_TRANSACTION_ABORT });
+
+export function fetchTransaction(transactionId, refetchInterval = 3600000) {
+  return (dispatch, getState) => {
+    let t = getState().transactionsCache[transactionId];
+    if (!t || !t.requirements || (!t.fetched + refetchInterval < _now()) && !(t && t.loading)) {
+      let p = API.transaction.read(transactionId);
+      dispatch(_fetchTransactionStart(p.abort));
+      p.catch(err => dispatch(_fetchTransactionComplete(null, null, null, err)))
+       .then(t => API.requirement.withParams({ transaction__id: transactionId })
+                                 .listAll()
+                                 .catch(err => _isAbort(err) ? dispatch(_fetchTransactionAbort()) : dispatch(_fetchTransactionComplete(null, null, _now(), err)))
+                                 .then(rs => {
+        dispatch(_fetchTransactionComplete(rs, t, _now()));
+      }));
+    }
+  };
+}
