@@ -2,7 +2,11 @@ import os
 import mimetypes
 
 from django.conf import settings
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponse, Http404
+from django.shortcuts import render
+
+def index(request):
+  return render(request, 'frontend.html', {}, content_type='text/html')
 
 def file_exists(path):
   try:
@@ -13,14 +17,23 @@ def file_exists(path):
   except os.error:
     return False
 
-def frontend(request, path):
-  full_path = os.path.join(settings.FRONTEND_PATH, path)
+def make_path(base, *exts):
+  fp = os.path.join(base, *exts)
+  if fp.endswith("/"):
+    fp = fp[:-1]
+  return fp
 
-  if full_path.endswith("/"):
-    full_path = full_path[:-1]
+def frontend(request, path):
+  print("HERE!")
+  if settings.DEBUG:
+    full_path = make_path(settings.BASE_PATH, "webpack-build", path)
+  else:
+    full_path = make_path(settings.STATIC_ROOT, path)
+
+  print("FULL_PATH", full_path)
 
   if not file_exists(full_path):
-    full_path = os.path.join(settings.FRONTEND_PATH, 'index.html')
+    raise Http404
 
   if file_exists(full_path + ".gz"):
     full_path += ".gz";

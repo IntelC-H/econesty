@@ -1,0 +1,25 @@
+{
+    "rules": {
+      "function-calc-no-unspaced-operator": true,
+      "block-no-empty": null,
+      "color-no-invalid-hex": true,
+      "unit-no-unknown": true,
+      "property-no-unknown": true,
+      "keyframe-declaration-no-important": true,
+      "no-duplicate-selectors": true,
+      "no-descending-specificity": true,
+      "selector-pseudo-class-no-unknown": true,
+      "selector-pseudo-element-no-unknown": true,
+      "selector-type-no-unknown": true,
+      "declaration-colon-space-after": "always",
+      "indentation": 2,
+      "max-empty-lines": 2,
+      "unit-whitelist": [
+        "em",
+        "rem",
+        "%",
+        "s",
+        "deg"
+      ]
+    }
+  }
