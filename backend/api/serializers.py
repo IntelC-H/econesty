@@ -71,6 +71,7 @@ class WalletSerializer(BaseSerializer):
   user_id = writing_field(amodels.User, "user")
   private_key = WIFPrivateKeySerializerField(user_field="user")
   address = serializers.ReadOnlyField()
+  is_testnet = serializers.ReadOnlyField()
   class Meta:
     model = models.Wallet
     fields = '__all__'
@@ -92,6 +93,7 @@ class TransactionSerializer(BaseSerializer):
   recipient_wallet = WalletSerializer(read_only=True)
   recipient_wallet_id = writing_field(models.Wallet, "recipient_wallet", required=False, allow_null=True)
   completed = serializers.ReadOnlyField()
+  rejected = serializers.ReadOnlyField()
 
   class Meta:
     model = models.Transaction
