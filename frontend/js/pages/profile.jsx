@@ -2,7 +2,7 @@ import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import { Link, Router } from 'app/components/routing';
 import { API } from 'app/api';
 
-import { Button, Grid, GridUnit, Image, Table } from 'app/components/elements';
+import { Button, Grid, GridUnit, Table, XOverflowable, Frown } from 'app/components/elements';
 import { CollectionView, ElementView } from 'app/components/api';
 import { Form, FormGroup, Input } from 'app/components/forms';
 
@@ -11,23 +11,35 @@ const formatDate = x => new Date(x).toLocaleString(navigator.language, dateOpts)
 
 function BriefUserInfo({ user }) {
   return (
-    <span
-      className="secondary">
+    <span className="secondary">
       {user.first_name} {user.last_name} (@{user.username})
     </span>
   );
 }
 
-function TransactionCollectionBody({ collectionView }) {
+function NoTransactions({ userId }) {
+  let isMe = userId === API.getUserID();
   return (
-    <div className="collection">
-      <Table striped horizontal>
+    <div className="frown-message">
+      <Frown large />
+      {isMe && <p>No transactions yet!</p>}
+      {!isMe && <p>No transactions with this user yet!</p>}
+    </div>
+  );
+}
+
+function TransactionCollectionBody({ collectionView, userId }) {
+  let es = collectionView.getElements();
+
+  return (
+    <XOverflowable>
+      <Table striped selectable>
         <thead>
           <tr><th>#</th><th>Amount</th><th>Sender</th><th>Recipient</th></tr>
         </thead>
-        <tbody>
-          {collectionView.getElements().map(obj =>
-            <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}> {/* TODO: highlight on hover */}
+        {es.length > 0 && <tbody>
+          {es.map(obj =>
+            <tr key={obj.id} onClick={() => Router.push("/transaction/" + obj.id)}>
               <td>
                 {obj.id}
               </td>
@@ -42,9 +54,10 @@ function TransactionCollectionBody({ collectionView }) {
               </td>
             </tr>
           )}
-        </tbody>
+        </tbody>}
       </Table>
-    </div>
+      {es.length === 0 && <NoTransactions userId={userId} />}
+    </XOverflowable>
   );
 }
 
@@ -57,7 +70,7 @@ function UserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <div className="user">
-      <Image src={user.avatar_url} />
+      <img src={user.avatar_url} />
       <div className="primary">{user.first_name || "First Name"} {user.last_name || "Last Name"}</div>
       <div className="tertiary">(@{user.username})</div>
       <div className="secondary">User #{user.id}, since {formatDate(user.date_joined)}</div>
@@ -69,28 +82,18 @@ function EditableUserRepresentation({ elementView }) {
   let user = elementView.getElement();
   return (
     <div className="user editable">
-      <Image src={user.avatar_url} />
-      <Form aligned onSubmit={elementView.updateElement}>
+      <img src={user.avatar_url} />
+      <Form onSubmit={elementView.updateElement}>
         <FormGroup>
-          <Input name="first_name" value={user.first_name} />
-          <Input name="last_name" value={user.last_name} />
+          <Input text name="first_name" autocomplete="given-name" placeholder="First name" value={user.first_name} />
+          <Input text name="last_name" autocomplete="family-name" placeholder="Last name" value={user.last_name} />
         </FormGroup>
         <FormGroup>
-          <Input name="username" value={user.username} />
-          <Input name="email" value={user.email} />
+          <Input text name="username" placeholder="Username" value={user.username} />
+          <Input text name="email" autocomplete="email" placeholder="email" value={user.email} />
         </FormGroup>
         <Button action="submit">Save</Button>
       </Form>
-      <Link
-        component={Button}
-        className="margined raised"
-        href="/wallets"
-      >Wallets</Link>
-      <Link
-        component={Button}
-        className="margined raised"
-        href="/required"
-      >Required</Link>
       <Button
         onClick={() => {
           API.networking("DELETE", "/token/clear", {}, {}).then(() => {
@@ -98,15 +101,13 @@ function EditableUserRepresentation({ elementView }) {
             Router.push("/");
           });
         }}
-        className="margined raised"
       >LOG OUT</Button>
     </div>
   );
 }
 
 function Profile(props) {
-  const userId = props.matches.id;
-
+  const userId = parseInt(props.matches.id);
   return (
     <Grid>
       <GridUnit size="1" sm="1-4">
@@ -116,19 +117,29 @@ function Profile(props) {
       </GridUnit>
       <GridUnit size="1" sm="17-24">
         <div className="profile-button-group">
+          {userId !== API.getUserID() &&
           <Link
             component={Button}
-            className="margined raised"
             href={API.user.baseURL + userId + "/transaction/send"}
-          >Send BTC</Link>
+          >Send BTC</Link>}
+          {userId !== API.getUserID() &&
           <Link
             component={Button}
-            className="margined raised"
             href={API.user.baseURL + userId + "/transaction/receive"}
-          >Receive BTC</Link>
+          >Receive BTC</Link>}
+          {userId === API.getUserID() &&
+          <Link
+            component={Button}
+            href="/wallets"
+          >Wallets</Link>}
+          {userId === API.getUserID() &&
+          <Link
+            component={Button}
+            href="/required"
+          >Required</Link>}
         </div>
         <CollectionView collection={API.user.append("/" + userId + "/transactions")}>
-          <TransactionCollectionBody />
+          <TransactionCollectionBody userId={userId} />
         </CollectionView>
       </GridUnit>
       <GridUnit size="1" sm="1-24" />

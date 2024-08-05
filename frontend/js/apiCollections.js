@@ -1,5 +1,5 @@
 // Definitions of REST API collections
-import { API, APICollection, APIActionCollection } from 'app/api';
+import { API, APICollection } from 'app/api';
 import PropTypes from 'prop-types';
 
 const baseShape = {
@@ -22,10 +22,7 @@ API.user.shape = PropTypes.shape({
   avatar_url: PropTypes.string
 });
 
-API.token = new APIActionCollection("token", res => {
-  API.setToken(res.token);
-  API.setUserID(res.user.id);
-});
+API.token = new APICollection("token");
 API.token.shape = PropTypes.shape({
   user: API.user.shape,
   key: PropTypes.string

@@ -1,26 +1,20 @@
 import { h, Component } from 'preact'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import { Loading } from 'app/components/elements';
-import { sizeProp, sizingClasses, makeClassName } from 'app/components/utilities';
 
 function prependFunc(obj, fname, newf) {
   let oldf = obj[fname];
   if (!oldf) obj[fname] = newf;
   else obj[fname] = function() {
     newf.apply(obj, arguments);
-    if (oldf) oldf.apply(obj, arguments);
+    oldf.apply(obj, arguments);
   };
   return obj;
 }
 
-function walkObject(obj, k) {
-  if (!obj[k]) obj[k] = {};
-  return obj[k];
-}
-
 function setKeypath(obj, kp, value) {
   let [key, ...keys] = kp.split('.').filter(e => e && e.length > 0);
-  keys.reduce(walkObject, obj)[key] = value;
+  keys.reduce((o, k) => o[k] ? o[k] : o[k] = {}, obj)[key] = value;
 }
 
 // Provides a mechanism for referencing children
@@ -54,11 +48,9 @@ class ReferencingComponent extends Component {
    *  @param {VNode} c  A (JSX) Node whose ref will be modified.
    */
   recursiveRef(c) {
-    if (c) {
-      if (c instanceof Object) {
-        if (!c.attributes) c.attributes = {};
-        prependFunc(c.attributes, "ref", this.reference);
-      }
+    if (c && c instanceof Object) {
+      if (!c.attributes) c.attributes = {};
+      prependFunc(c.attributes, "ref", this.reference);
       if (c.children) c.children.forEach(this.recursiveRef);
     }
     return c;
@@ -86,7 +78,9 @@ class Form extends ReferencingComponent {
   }
 
   set(obj, ref) {
-    if (ref.base && ref.base.parentNode && ref.value !== undefined) { // if (ref is mounted && has value) {
+    // If the ref is mounted, shouldn't be ignored, and has a value
+    if (ref.base && ref.base.parentNode
+     && !ref.ignore && ref.value !== undefined) {
       let kp = (ref.context.groups || []).map(g => g.keypath);
       kp.push(ref.name);
       setKeypath(obj, kp.join('.'), ref.value);
@@ -109,16 +103,8 @@ class Form extends ReferencingComponent {
     return false;
   }
 
-  render(props) {
+  render({ onSubmit, ...filteredProps }) {
     this.makeReferences();
-
-    let { aligned, stacked, className, onSubmit, ...filteredProps } = props;
-    let cns = ["pure-form"];
-    if (aligned) cns.push("pure-form-aligned");
-    if (stacked) cns.push("pure-form-stacked");
-    if (className) cns.push(className);
-
-    filteredProps.className = makeClassName.apply(this, cns);
 
     if (onSubmit) {
       filteredProps.action = "javascript" + ":"; // appease JSLint
@@ -131,19 +117,14 @@ class Form extends ReferencingComponent {
 
 Form.propTypes = {
   onSubmit: PropTypes.func,
-  object: PropTypes.object,
-  aligned: PropTypes.bool,
-  stacked: PropTypes.bool
+  object: PropTypes.object
 };
 
 Form.defaultProps = {
   onSubmit: null,
-  object: null,
-  aligned: false,
-  stacked: false
+  object: null
 };
 
-// fieldset/legend wrapper
 class FormGroup extends Component {
   get keypath() { return this.props.keypath; } // eslint-disable-line brace-style
 
@@ -151,11 +132,9 @@ class FormGroup extends Component {
     return { groups: (this.context.groups || []).concat([this]) };
   }
 
-  render() {
-    const { className, ...filteredProps } = this.props;
-    filteredProps.className = makeClassName(className, "form-group");
-    delete filteredProps.keypath;
-    return h('fieldset', filteredProps);
+  render({ keypath, // eslint-disable-line no-unused-vars
+           ...props}) {
+    return h('fieldset', props);
   }
 }
 
@@ -176,16 +155,25 @@ class FormElement extends Component {
   constructor(props) {
     super(props);
     this.state = { value: props.value };
-    this.onInput = this.onInput.bind(this);
     this.setState = this.setState.bind(this);
   }
 
-  onInput(e) {
-    this.value = e.target.value;
+  static isValid(c) {
+    return c && c.name && "value" in c;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.value !== nextProps.value || nextProps.value !== this.state.value) {
+      this.setState(st => ({ ...st, value: nextProps.value }));
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.name !== nextProps.name) return true;
+    if (this.state.value !== nextState.value) return true;
+    return false;
   }
 }
-
-FormElement.isValid = c => c && c.name && "value" in c;
 
 FormElement.propTypes = {
   name: PropTypes.string.isRequired,
@@ -202,11 +190,13 @@ FormElement.defaultProps = {
 class Input extends FormElement {
   constructor(props) {
     super(props);
-    if (this.type === "checkbox" && !this.value) this.state.value = false;
+    this.onInput = this.onInput.bind(this);
+    this.toggleCheckbox = this.toggleCheckbox.bind(this);
+    if (this.getType() === "checkbox" && !this.value) this.state.value = false;
   }
 
   // TODO: cache this
-  get type() {
+  getType() {
     const { type, hidden, text,
             checkbox, password,
             email, url, number,
@@ -228,44 +218,45 @@ class Input extends FormElement {
 
   onInput(e) {
     const inpt = e.target;
-    if (inpt.type === "checkbox")     this.value = inpt.checked || false;
-    else if (!inpt.value)             this.value = undefined;
-    else if (inpt.value.length === 0) this.value = null;
+    if (inpt.type === "checkbox")     this.value = Boolean(inpt.checked);
     else if (inpt.type === "hidden")  this.value = JSON.parse(inpt.value);
     else                              this.value = inpt.value;
   }
 
-  render(props) {
-    const {className, placeholder,
-           type, search, range, // eslint-disable-line no-unused-vars
-           hidden, text, time, // eslint-disable-line no-unused-vars
-           checkbox, password, tel, // eslint-disable-line no-unused-vars
-           email, url, number, // eslint-disable-line no-unused-vars
-           size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
-           children, // eslint-disable-line no-unused-vars
-           ...filteredProps} = props;
+  toggleCheckbox() {
+    if (!this.props.disabled) {
+      this.value = !this.value;
+    }
+  }
 
-    filteredProps.type = this.type;
-    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', props)));
+  render({type, search, range, // eslint-disable-line no-unused-vars
+          hidden, text, time, // eslint-disable-line no-unused-vars
+          password, tel, email, url, // eslint-disable-line no-unused-vars
+          number, value, ignore, // eslint-disable-line no-unused-vars
+          checkbox,
+          // TODO: sizing classes
+          // size, sm, md, lg, xl, // eslint-disable-line no-unused-vars
+          ...props}) {
+    props.type = this.getType();
 
-    const isCheck = this.type === "checkbox";
-
-    if (this.value !== undefined && !props.ignore) {
-      if (isCheck)         filteredProps.checked = !!this.value;
-      else if (this.value) filteredProps.value   = this.type === "hidden" ? JSON.stringify(this.value) : this.value;
+    if (checkbox) props.checked = Boolean(this.value);
+    else if (this.value !== undefined) {
+      if (hidden) props.value = JSON.stringify(this.value);
+      else        props.value = this.value;
     }
 
-    prependFunc(filteredProps, isCheck ? "onClick" : "onInput", this.onInput);
+    prependFunc(props, checkbox ? "onClick" : "onInput", this.onInput);
 
-    if (isCheck && placeholder && placeholder.length > 0) {
-      filteredProps.id = filteredProps.id || Math.random().toString(); // TODO: use a GUID instead. More optimal collision rates.
+    if (checkbox && props.placeholder && props.placeholder.length > 0) {
       return (
-        <label className="checkbox">{placeholder + " "}<input {...filteredProps} /></label>
+        <label className="checkbox">
+          <span onClick={this.toggleCheckbox}>{props.placeholder + " "}</span>
+          <input {...props} />
+        </label>
       );
     }
 
-    filteredProps.placeholder = placeholder;
-    return h('input', filteredProps);
+    return h('input', props);
   }
 }
 
@@ -284,13 +275,7 @@ Input.propTypes = {
   url: PropTypes.bool,
   type: PropTypes.oneOf(["hidden", "text", "checkbox", "password",
                          "email", "url", "number", "time", "tel",
-                         "search", "range"]),
-
-  size: sizeProp,
-  sm: sizeProp,
-  md: sizeProp,
-  lg: sizeProp,
-  xl: sizeProp
+                         "search", "range"])
 };
 
 Input.defaultProps = {
@@ -311,42 +296,64 @@ Input.defaultProps = {
 class Select extends FormElement {
   constructor(props) {
     super(props);
-    this.state = {
-      value: props.value || (!this.isAsync && props.options.length > 0 ? props.transform(props.options[0]) : null),
-      loading: false,
-      options: this.isAsync ? [] : props.options
-    };
+    this.state = this.applyPropsToState({ ...this.state, loading: false }, props);
   }
 
   get isAsync() {
-    return typeof this.props.options === "function";
+    return this.state.loadOptions !== undefined;
+  }
+
+  applyPropsToState(state, { value, options, transform }) {
+    let async = typeof options === "function";
+    return {
+      ...state,
+      value: value || (!async && options.length > 0 ? transform(options[0]) : null),
+      options: async ? [] : options,
+      loadOptions: async ? options : undefined
+    };
+  }
+
+  reloadData() {
+    this.setState(st => ({ ...st, loading: true }));
+    this.state.loadOptions().then(es =>
+      this.setState(st => ({
+        ...st,
+        loading: false,
+        value: st.value || (es.length > 0 ? this.props.transform(es[0]) : null),
+        options: es
+      }))
+    );
   }
 
   componentWillMount() {
     if (this.isAsync) {
-      if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
-      this.props.options().then(es => {
-        this.setState(st => {
-          let hasValue = st.value !== null && st.value !== undefined;
-          return {
-            ...st,
-            loading: false,
-            value: es.length === 0 || hasValue ? st.value : this.props.transform(es[0]),
-            options: es
-          };
-        });
-      });
+      this.reloadData();
     }
   }
 
-  render(props, { loading }) {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (super.shouldComponentUpdate(nextProps, nextState)) return true;
+    if (this.state.options !== nextState.options) return true;
+    if (this.state.loading !== nextState.loading) return true;
+  //  if (this.state.value !== nextState.value) return true; // Is this necessary?
+    return false;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
+    this.setState(st => this.applyPropsToState(st, nextProps));
+  }
+
+  onInput(e) {
+    this.value = e.target.value;
+  }
+
+  render({ value, options, // eslint-disable-line no-unused-vars
+           transform, faceTransform, ...filteredProps }, { loading }) {
     if (this.isAsync && loading) return <Loading />;
 
-    const { value, options, // eslint-disable-line no-unused-vars
-            transform, faceTransform, className, ...filteredProps } = props;
-
     prependFunc(filteredProps, "onChange", this.onInput);
-    filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
+  //  filteredProps.className = makeClassName.apply(this, [className].concat(sizingClasses('pure-input', filteredProps)));
 
     if (!this.state.options || this.state.options.length === 0) {
       filteredProps.disabled = true;

@@ -11,9 +11,9 @@ class CollectionView extends Component {
     children: a representation of the collection. Rendered w/ the prop
               `collectionView` which refers to the the enclosing CollectionView.
   */
+
   constructor(props) {
     super(props);
-    this.setState = this.setState.bind(this);
     this.reloadData = this.reloadData.bind(this);
     this.setPage = this.setPage.bind(this);
     this.gotoNextPage = this.gotoNextPage.bind(this);
@@ -23,6 +23,8 @@ class CollectionView extends Component {
     this.saveElement = this.saveElement.bind(this);
     this.getElements = this.getElements.bind(this);
     this.state = {
+      search: props.search, // the current search string
+      collection: props.collection, // the collection to load elements from
       page: 1, // the current page
       count: 0, // the number of elements in the whole collection
       nextPage: null, // the next page number or null if no next page
@@ -34,17 +36,17 @@ class CollectionView extends Component {
 
   // Reloads the collection's current page from the server.
   reloadData() {
-    if (!this.state.loading) this.setState(st => ({ ...st, loading: true }));
-    this.props.collection.list(this.state.page,
-                               this.props.search)
-                         .then(ps => {
-      this.setState(st => ({ ...st,
-                             loading: false,
-                             elements: ps.results,
-                             nextPage: ps.next,
-                             previousPage: ps.previous,
-                             count: ps.count}));
-    });
+    const { collection, page, search } = this.state;
+    this.setState(st => ({ ...st, loading: true }));
+    collection.list(page, search).then(res => this.setState(st => this._updateStateFromAPI(res, st)));
+  }
+
+  _updateStateFromAPI(res, st) {
+    if (Array.isArray(res)) {
+      return {...st, loading: false, elements: res, nextPage: null, previousPage: null, count: res.count };
+    }
+
+    return { ...st, loading: false, elements: res.results, nextPage: res.next, previousPage: res.previous, count: res.count };
   }
 
   saveElement(object) {
@@ -54,25 +56,25 @@ class CollectionView extends Component {
   }
 
   createElement(object) {
-    this.setState(st => ({ ...st, loading: true,
-                                  page: 1 }), () => {
-      this.props.collection.create(object)
-                           .then(() => this.reloadData());
-    });
+    this.setState(st => ({ ...st, loading: true, page: 1 }));
+    this.state.collection.create(object)
+                         .then(this.reloadData);
   }
 
   updateElement(id, object) {
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.update(id, object)
-                           .then(() => this.reloadData());
-    });
+    this.setState(st => ({ ...st, loading: true }));
+    this.state.collection.update(id, object)
+                         .then(this.reloadData);
   }
 
   deleteElement(id, soft = false) {
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.delete(id, soft)
-                           .then(() => this.reloadData());
-    });
+    this.setState(st => ({ ...st, loading: true }));
+    this.state.collection.delete(id, soft)
+                         .then(this.reloadData);
+  }
+
+  isLoaded() {
+    return !this.state.loading;
   }
 
   getElements() {
@@ -84,7 +86,7 @@ class CollectionView extends Component {
   }
 
   setPage(page) {
-    this.setState(st => ({ ...st, page: page }), () => this.reloadData());
+    this.setState(st => ({ ...st, page: page }), this.reloadData);
   }
 
   gotoPreviousPage() {
@@ -99,47 +101,67 @@ class CollectionView extends Component {
     this.reloadData();
   }
 
-  render({ className, children, ...props}, state) {
-    if (state.loading) return <Loading
-                                className={(className || "") + " collection"} />;
+  componentWillReceiveProps(nextProps) {
+    let newSearch = nextProps.search !== this.state.search;
+    let newCollection = nextProps.collection !== this.state.collection;
+    if (newSearch || newCollection) {
+      this.setState((st, props) => ({
+        ...st,
+        search: (newSearch ? nextProps : props).search,
+        collection: (newCollection ? nextProps : props).collection
+      }), this.reloadData);
+    }
+  }
 
-    const prevPage = this.state.previousPage;
-    const nextPage = this.state.nextPage;
+  shouldComponentUpdate(nextProps, nextState) {
+    const { count, elements, loading } = this.state;
+    if (nextState.loading !== loading) return true;
+    if (nextState.count !== count) return true;
+    if (nextState.elements !== elements) return true;
+    if (nextProps.showsControls !== this.props.showsControls) return true;
+    if (nextProps.children !== this.props.children) return true;
+    return false;
+  }
+
+  render({ children, showsControls,
+           collection, search, // eslint-disable-line no-unused-vars
+           ...props},
+         { loading, page, count, nextPage, previousPage }) {
+    if (loading) return <div {...props}><Loading /></div>;
+
+    let childPropsDiff = { collectionView: this };
+
     return (
-      <div className={(className || "") + " collection"} {...props}>
-	{children.map(c => cloneElement(c, { collectionView: this }))}
-
+      <div {...props}>
+	{children.map(c => cloneElement(c, childPropsDiff))}
+        {showsControls && count > 0 &&
         <Grid className="collection-controls">
-          <GridUnit className="center collection-control" size="1-3">
-            <Button key={"previous-" + prevPage}
-                    disabled={prevPage === null}
-                    className="margined raised"
+          <GridUnit className="collection-control" size="1-3">
+            <Button disabled={previousPage === null}
                     onClick={this.gotoPreviousPage}
-                    >{"❮"}</Button>
+                    >❮</Button>
           </GridUnit>
-          <GridUnit className="center collection-control" size="1-3">
-            <div className="collection-page-indicator">
-              <span>{this.state.page} of {Math.ceil(this.state.count/10) || 1}</span>
-            </div>
+          <GridUnit className="collection-control collection-page-indicator" size="1-3">
+            <span>{page} of {Math.ceil(count/10) || 1}</span>
           </GridUnit>
-          <GridUnit className="center collection-control" size="1-3">
-            <Button key={"next-" + nextPage}
-                    disabled={nextPage === null}
-                    className="margined raised"
+          <GridUnit className="collection-control" size="1-3">
+            <Button disabled={nextPage === null}
                     onClick={this.gotoNextPage}
-                    >{"❯"}</Button>
+                    >❯</Button>
           </GridUnit>
-        </Grid>
+        </Grid>}
       </div>
     );
   }
 }
 
 CollectionView.propTypes = {
+  showsControls: PropTypes.bool,
   search: PropTypes.string,
   collection: PropTypes.object.isRequired
 };
 CollectionView.defaultProps = {
+  showsControls: true,
   search: null
 };
 
@@ -168,10 +190,16 @@ class CollectionCreation extends Component {
 
   render({ children, collectionView, createText, cancelText }) {
     if (this.state.visible) {
+      if (children.length === 0) return null;
+
+      let childProps = {
+        collectionView: collectionView,
+        CancelButton: () => <Button onClick={() => this.setVisible(false)}>{cancelText}</Button>
+      };
+
       return (
         <div>
-          {children.map(c => cloneElement(c, { collectionView: collectionView }))}
-          <Button onClick={() => this.setVisible(false)}>{cancelText}</Button>
+          {children.map(c => cloneElement(c, childProps))}
         </div>
       );
     }
@@ -199,8 +227,11 @@ class ElementView extends Component {
   */
   constructor(props) {
     super(props);
+    this.reloadData = this.reloadData.bind(this);
     this.updateElement = this.updateElement.bind(this);
     this.state = {
+      collection: props.collection,
+      elementID: props.elementID,
       loading: true,
       element: null
     };
@@ -211,34 +242,52 @@ class ElementView extends Component {
   }
 
   reloadData() {
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.read(this.props.elementID)
-                           .then(element => {
-        this.setState(st => ({
-          ...st,
-          element: element,
-          loading: false
-        }));
-      });
-    });
+    this.setState(st => ({ ...st, element: null, loading: true }));
+    this.state.collection.read(this.state.elementID)
+                         .then(element => this.setState(st => ({
+      ...st,
+      element: element,
+      loading: false
+    })));
   }
 
   updateElement(obj) {
-    const { id, ...xs } = obj; // eslint-disable-line no-unused-vars
-    this.setState(st => ({ ...st, loading: true }), () => {
-      this.props.collection.update(this.getElement().id, obj)
-                           .then(newObj => {
-        this.setState(st => ({
-          ...st,
-          element: newObj,
-          loading: false
-        }));
-      });
-    });
+    this.setState(st => ({ ...st, element: null, loading: true }));
+    this.state.collection.save({ id: this.state.elementID, ...obj }).then(newObj =>
+      this.setState(st => ({
+        ...st,
+        element: newObj,
+        loading: false
+      }))
+    );
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let newEID = nextProps.elementID !== this.state.elementID;
+    let newCollection = nextProps.collection !== this.state.collection;
+    if (newEID || newCollection) {
+      this.setState((st, props) => ({
+        ...st,
+        elementID: (newEID ? nextProps : props).elementID,
+        collection: (newCollection ? nextProps : props).collection
+      }), this.reloadData);
+    }
   }
 
   componentWillMount() {
     this.reloadData();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { elementID, collection, children } = this.props;
+    if (nextProps.elementID !== elementID) return true;
+    if (nextProps.collection.resource !== collection.resource) return true;
+    if (nextProps.collection.urlParams !== collection.urlParams) return true;
+    if (nextProps.children !== children) return true;
+    const { element, loading } = this.state;
+    if (nextState.element !== element) return true;
+    if (nextState.loading !== loading) return true;
+    return false;
   }
 
   render({ children, collection, elementID, ...props }, { loading }) {  // eslint-disable-line no-unused-vars
@@ -250,6 +299,12 @@ class ElementView extends Component {
     );
   }
 }
+
+ElementView.propTypes = {
+  collection: PropTypes.object.isRequired,
+  elementID: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+};
+ElementView.defaultProps = {};
 
 export { CollectionView, CollectionCreation, ElementView };
 export default {

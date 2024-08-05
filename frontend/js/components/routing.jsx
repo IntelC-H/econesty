@@ -1,7 +1,7 @@
 import { h, Component, cloneElement } from 'preact';
+//import PropTypes from 'prop-types';
 
 /*
-  Supports the same API as preact-router.
   Router checks each of its children with a path
   attribute: if it matches the current URL, it renders it.
 */
@@ -19,6 +19,27 @@ class Router extends Component {
     this.state = { url: document.location.pathname };
     this.update = this.update.bind(this);
     this.setState = this.setState.bind(this);
+  }
+
+  static push(url) {
+    history.pushState(null, null, url);
+    updateSubscribers(url);
+    return null;
+  }
+
+  static replace(url) {
+    history.replaceState(null, null, url);
+    updateSubscribers(url);
+    return null;
+  }
+
+  static setURL(url) {
+    history.replaceState(null, null, url);
+    return null;
+  }
+
+  static getPath() {
+    return document.location.pathname;
   }
 
   update(url) {
@@ -97,36 +118,17 @@ class Router extends Component {
   }
 }
 
-window.addEventListener("popstate", () => updateSubscribers(document.location.pathname));
+Router.propTypes = {};
+Router.defaultProps = {};
+
+window.addEventListener("popstate", () => updateSubscribers(Router.getPath()));
 
 // TODO: page state
 
-Router.getPath = () => {
-  return document.location.pathname;
-}
-
-Router.push = url => {
-  history.pushState(null, null, url);
-  updateSubscribers(url);
-  return null;
-}
-
-Router.replace = url => {
-  history.replaceState(null, null, url);
-  updateSubscribers(url);
-  return null;
-}
-
-Router.setURL = url => {
-  history.replaceState(null, null, url);
-  return null;
-}
-
-const Link = props => {
-  const { href, component, onClick, ...filteredProps} = props;
-  return h(component || 'a', { ...filteredProps, onClick: e => {
-    (onClick || (() => undefined))(e);
-    Router.push(href);
+function Link({ href, component, onMouseUp, ...props}) {
+  return h(component || 'a', { ...props, onMouseUp: e => {
+    if (onMouseUp) onMouseUp(e);
+    if (href) Router.push(href);
   }});
 }
 
@@ -134,4 +136,4 @@ export { Router, Link };
 export default {
   Router: Router,
   Link: Link
-}
+};

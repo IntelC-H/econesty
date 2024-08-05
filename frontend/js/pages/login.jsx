@@ -18,6 +18,7 @@ class Login extends Component {
     }).then(tok => {
       if (tok) {
         API.setToken(tok.key);
+        API.setUserID(tok.user.id);
         Router.push("/user/me");
       }
     });
@@ -26,7 +27,7 @@ class Login extends Component {
   render() {
     return (
      <SideMargins>
-       <Form aligned onSubmit={this.login} method="POST">
+       <Form onSubmit={this.login} method="POST">
          {!!this.state.error &&
            <Error>
              <p>{this.state.error.message}</p>
@@ -38,7 +39,9 @@ class Login extends Component {
            <Labelled label="Password">
              <Input password required name="password" />
            </Labelled>
-           <Button type="submit">LOGIN</Button>
+           <div className="centered">
+             <Button type="submit">LOGIN</Button>
+           </div>
          </FormGroup>
        </Form>
       </SideMargins>

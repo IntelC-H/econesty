@@ -1,98 +1,75 @@
 from rest_framework import viewsets, mixins, pagination
 from rest_framework.response import Response
 from .permissions import Sensitive
+from .pagination import EconestyPagination
+from functools import reduce
 
-class EconestyPagination(pagination.PageNumberPagination):
-  def get_paginated_response(self, data):
-    next_page = self.page.next_page_number() if self.page.has_next() else None
-    previous_page = self.page.previous_page_number() if self.page.has_previous() else None
-    if next_page is not None:
-      current_page = next_page - 1
-    elif previous_page is not None:
-      current_page = previous_page + 1
-    else:
-      current_page = 1
-    return Response({
-      'next': next_page,
-      'previous': previous_page,
-      'page': current_page,
-      'count': self.page.paginator.count,
-      'results': data
-    })
+class OptionalPaginationMixin(object):
+  """
+  Allow pagination to be disabled with a URL param.
+  """
+  optional_pagination_param = "paginate"
 
-class PaginationHelperMixin(object):
-  def paginated_response(self, queryset, serializer = None, transform = (lambda x: x)):
-    serializer_p = serializer or getattr(type(self), "serializer_class")
-    return self.get_paginated_response(
-      serializer_p(
-        transform(self.paginate_queryset(queryset) or queryset),
-        many=True,
-        context=self.get_serializer_context()
-      ).data
-    )
+  def paginate_queryset(self, queryset):
+    param = self.request.query_params.get(self.optional_pagination_param, True)
+    if param in [True, 'True', 'true', '1', 't', 'y', 'yes']:
+      return super().paginate_queryset(queryset)
+    return None
 
-  def unpaginated_response(self, queryset, serializer = None, transform = (lambda x: x)):
-    serializer_p = serializer or getattr(type(self), "serializer_class")
-    queryset_p = transform(queryset)
-    return Response({
-      'count': queryset_p.count(),
-      'results': serializer_p(
-                   queryset_p,
-                   many=True,
-                   context=self.get_serializer_context()).data
-    })
-
-  def signleton_response(self, queryset, serializer = None):
-    serializer_p = serializer or getattr(type(self), "serializer_class")
-    return Response(
-             serializer_p(
-               queryset,
-               many=False,
-               context=self.get_serializer_context()).data)
-
-# TODO: set nested
-class AuthOwnershipMixin(object):
+class ImpliedOwnershipMixin(object):
+  """
+  Allow the authenticated user to automatically own model objects.
+  Given a field named by the attr `owner_field` on a view set and an
+  authenticated user, whenever an object is created by the viewset,
+  set `obj.<owner_field>` to the authenticated user if `obj.<owner_field>`
+  is `None` or does not exist.
+  """
   def perform_create(self, serializer):
-    user_fields = getattr(type(self), 'user_fields', None)
+    owner_field = getattr(type(self), 'owner_field', None)
     u = self.request.user
-    if not u.is_authenticated or user_fields is None:
+    if not u.is_authenticated or owner_field is None:
       serializer.save()
     else:
       save_dict = serializer.validated_data
-      for x in user_fields:
-        if not '__' in x:
-          save_dict[x] = u
+      *init, last = owner_field.split('__')
+      d = reduce(lambda d, k: d and d.get(k, None), init)
+
+      if d is not None and d.get(last, None) is None:
+        d[last] = u
 
       serializer.save(**save_dict)
 
-class WriteOnlyViewset(mixins.CreateModelMixin,
-                       mixins.DestroyModelMixin,
-                       viewsets.GenericViewSet):
-  pass
+class CreateUpdateHookMixin(object):
+  """
+  Add hooks to create/update/partial_update that enable
+  changes to the object in question. Any changes to the
+  `obj` parameter in `on_update` or `on_create` are reflected
+  in responses.
+  """
+  def on_update(self, obj):
+    pass
 
-class EconestyBaseViewset(PaginationHelperMixin,
+  def on_create(self, obj):
+    pass
+
+  def perform_create(self, serializer):
+    super().perform_create(serializer)
+    self.on_create(serializer.instance)
+
+  def perform_update(self, serializer):
+    super().perform_update(serializer)
+    self.on_update(serializer.instance)
+
+class EconestyBaseViewset(CreateUpdateHookMixin,
+                          ImpliedOwnershipMixin,
+                          OptionalPaginationMixin,
                           viewsets.ModelViewSet):
   pagination_class = EconestyPagination
   permission_classes = (Sensitive,)
 
-  def on_update(self, request, obj, partial):
-    pass
-
-  def on_create(self, request, obj):
-    pass
-  
-  def create(self, request):
-    v = super().create(request)
-    new_res = self.on_create(request, v.data["id"])
-    return new_res or v
-
-  def update(self, request, pk = None):
-    v = super().update(request, pk)
-    new_res = self.on_update(request, pk, False)
-    return new_res or v
-
-  def partial_update(self, request, pk = None):
-    v = super().update(request, pk, partial=True)
-    new_res = self.on_update(request, pk, True)
-    return new_res or v
-
+class WriteOnlyViewset(CreateUpdateHookMixin,
+                       mixins.CreateModelMixin,
+                       mixins.DestroyModelMixin,
+                       ImpliedOwnershipMixin,
+                       viewsets.GenericViewSet):
+  pass

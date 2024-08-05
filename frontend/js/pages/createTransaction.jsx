@@ -5,51 +5,43 @@ import { Form, FormGroup, Input, Select } from 'app/components/forms';
 import { CollectionView, CollectionCreation } from 'app/components/api';
 import { API, DummyAPICollection } from 'app/api';
 import SearchField from 'app/components/searchfield';
+import UserRow from 'app/components/searchfielduserrow';
 import { Router } from 'app/components/routing';
 
-function RequirementCreationForm({ collectionView }) {
+function Requirement({ collectionView, CancelButton, element }) {
+  let r = element;
   return (
-    <Form aligned onSubmit={collectionView.saveElement}>
+    <Form onSubmit={collectionView.saveElement} className="section">
+      { r && <DeleteButton onClick={() => collectionView.deleteElement(r.id)} /> }
+      { r && <Input hidden name="id" value={r.id} /> }
       <FormGroup>
         <Labelled label="Terms">
-          <Input text name="text" />
+          <Input text name="text" {...(r && {value: r.text})} />
         </Labelled>
-        <Labelled label="Responsible User">
+        <Labelled label="Onus upon">
           <SearchField name="user"
                        api={API.user}
-                       placeholder="find a user..."
-                       component={props => props.element.username} />
+                       {...(r && {value: r.user})}
+                       placeholder="find a user"
+                       component={UserRow} />
         </Labelled>
       </FormGroup>
-      <Button action="submit">CREATE</Button>
+      <div className="centered">
+        <Button action="submit">{r ? "SAVE" : "ADD"}</Button>
+        {CancelButton && <CancelButton />}
+      </div>
     </Form>
   );
 }
 
 function RequirementCollection({ collectionView }) {
   let rs = collectionView.getElements();
-  return (
-   <div>
-   {rs.map(r =>
-       <Form aligned onSubmit={collectionView.saveElement}>
-         <DeleteButton onClick={() => collectionView.deleteElement(r.id)} />
-         <FormGroup>
-           {r.id !== null && r.id !== undefined && <Input hidden name="id" value={r.id} /> }
-           <Labelled label="Terms">
-             <Input text name="text" value={r.text} />
-           </Labelled>
-           <Labelled label="Responsible User">
-             <SearchField name="user"
-                          api={API.user}
-                          value={r.user}
-                          placeholder="find a user..."
-                          component={props => props.element.username} />
-           </Labelled>
-         </FormGroup>
-         <Button action="submit">SAVE</Button>
-       </Form>)}
-    </div>
-  );
+  if (rs.length === 0) return null;
+  let children = rs.map(r => h(Requirement, {
+                               collectionView: collectionView,
+                               element: r
+                             }));
+  return h('div', {}, children);
 }
 
 class CreateTransaction extends Component {
@@ -62,8 +54,7 @@ class CreateTransaction extends Component {
   }
 
   makeWalletsPromise() {
-    return API.user.append("/" + API.getUserID() + "/all_wallets")
-                   .list(-1).then(({ results }) => results);
+    return API.wallet.withParams({ user__id: API.getUserID() }).listAll();
   }
 
   onSubmit(obj) {
@@ -88,32 +79,35 @@ class CreateTransaction extends Component {
       <Grid>
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
-          <div className="informational">
-            <h3>Create a Transaction</h3>
-            <p>This is the page you use to create a transaction.</p>
+          <div className="section">
+            <h1 className="primary">{isSender ? "Send" : "Receive"} Bitcoin</h1>
           </div>
-          <Form aligned onSubmit={this.onSubmit}>
-            <Input hidden name="sender_id" value={sender_id} />
-            <Input hidden name="recipient_id" value={recipient_id} />
+          <Form onSubmit={this.onSubmit}>
+            <FormGroup>
+              <Input hidden name="sender_id" value={sender_id} />
+              <Input hidden name="recipient_id" value={recipient_id} />
 
-            <Labelled label="Your Wallet">
-              <Select
-                options={this.makeWalletsPromise}
-                name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
-                transform={w => w.id}
-                faceTransform={w => w.private_key} />
-            </Labelled>
+              <Labelled label="How many BTC?">
+                <Input number required name="amount" step="0.0001" min="0" cols="7" />
+              </Labelled>
 
-            <Labelled label="How much?">
-              <Input number required name="amount" step="0.0001" min="0" cols="7" />
-            </Labelled>
-            <CollectionView collection={this.dummyCollection}>
-              <CollectionCreation createText="+ Requirement">
-                <RequirementCreationForm />
-              </CollectionCreation>
-              <RequirementCollection />
-            </CollectionView>
-            <Button action="submit">CREATE</Button>
+              <Labelled label="From wallet">
+                <Select
+                  options={this.makeWalletsPromise}
+                  name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
+                  transform={w => w.id}
+                  faceTransform={w => w.private_key} />
+              </Labelled>
+
+              <h2>With Requirements:</h2>
+              <CollectionView collection={this.dummyCollection}>
+                <CollectionCreation createText="+ Requirement">
+                  <Requirement />
+                </CollectionCreation>
+                <RequirementCollection />
+              </CollectionView>
+              <Button action="submit">CREATE</Button>
+            </FormGroup>
           </Form>
         </GridUnit>
         <GridUnit size="1" sm="4-24"/>
