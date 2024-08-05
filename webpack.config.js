@@ -4,12 +4,36 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const fs = require('fs');
 const pkg = require('./package.json');
 
 const extractStyle = new ExtractTextPlugin({
   filename: 'code/[name].css',
   allChunks: true
 });
+
+function filesIn(dir, acc = []) {
+  let dirp = dir.endsWith('/') ? dir : dir + '/';
+  fs.readdirSync(dirp).forEach(file => {
+    if (fs.statSync(dirp + file).isDirectory()) {
+      filesIn(dirp + file, acc);
+    } else {
+      acc.push(dirp + file);
+    }
+  });
+  return acc;
+}
+
+let vendored = pkg.vendorOrder ? pkg.vendorOrder : []; // first load the files that need to be bundled in order.
+
+// Then load everything else
+if (pkg.vendorDirectory) {
+  filesIn(pkg.vendorDirectory).forEach(file => {
+    if (!vendored.includes(file)) {
+      vendored.push(file);
+    }
+  });
+}
 
 module.exports = {
   stats: {
@@ -35,9 +59,13 @@ module.exports = {
   entry: {
     app: [
       path.resolve(pkg.browser),
+      path.resolve("frontend/base/css/base.scss"),
       path.resolve(pkg.style)
     ],
-    vendor: Object.keys(pkg.dependencies).concat(pkg.additionalFiles)
+    base: [
+      path.resolve("frontend/base/js/base.js")
+    ],
+    vendor: Object.keys(pkg.dependencies).concat(vendored)
   },
   output: {
     path: path.resolve(pkg.files),
@@ -83,8 +111,10 @@ module.exports = {
   },
   resolve: {
     alias: {
-      app: path.resolve('./frontend/js/'),
-      style: path.resolve('./frontend/css/')
+      app: path.resolve('./frontend/app/js'),
+      appStyle: path.resolve('./frontend/app/css/'),
+      base: path.resolve('./frontend/base/js/'),
+      baseStyle: path.resolve('./frontend/base/css/')
     },
     extensions: [".js", ".jsx", ".json", ".scss", ".css", ".ttf", ".otf", ".eot", ".svg", ".woff", ".woff2"],
     mainFields: ["browser", "module", "main", "style"]

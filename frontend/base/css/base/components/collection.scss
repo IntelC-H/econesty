@@ -1,0 +1,10 @@
+/*
+  <CollectionView /> component
+*/
+
+@import "../mixins";
+
+.collection-controls {
+  text-align: center;
+  @include flex-vh-center;
+}
