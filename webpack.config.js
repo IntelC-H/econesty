@@ -1,48 +1,55 @@
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const StyleLintPlugin = require('stylelint-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+
 const pkg = require('./package.json');
 
-const extractStyle = new ExtractTextPlugin({
-  filename: 'code/[name].css',
-  allChunks: true
-});
+function filesIn(dir, acc = []) {
+  let dirp = dir.endsWith('/') ? dir : dir + '/';
+  fs.readdirSync(dirp).forEach(file => {
+    if (fs.statSync(dirp + file).isDirectory()) {
+      filesIn(dirp + file, acc);
+    } else {
+      acc.push(dirp + file);
+    }
+  });
+  return acc;
+}
+
+// first load the files that need to be bundled in order.
+let vendored = pkg.vendorOrder ? pkg.vendorOrder : []; 
+
+// Then load everything else
+if (pkg.vendorDirectory) {
+  filesIn(path.resolve(pkg.vendorDirectory)).forEach(file => {
+    if (!vendored.includes(file)) {
+      vendored.push(file);
+    }
+  });
+}
 
 module.exports = {
+  mode: "development",
   stats: {
-    assets: false,
+    entrypoints: false,
     performance: true,
     children: false,
-    modulesSort: "size",
     modules: false,
-    excludeAssets: /.*/,
-    assetsSort: "ext",
-    publicPath: false,
+    excludeAssets: /\.(map|gz)$/,
+    assetsSort: "name",
     version: false,
-    hash: true,
-    timings: false
-  },
-  performance: {
-    hints: false,
-    maxAssetSize: 90000,
-    assetFilter: function(assetFilename) {
-      return assetFilename.endsWith('.js');
-    }
+    hash: false
   },
   entry: {
     app: [
-      path.resolve(pkg.browser),
-      path.resolve(pkg.style)
-    ],
-    vendor: Object.keys(pkg.dependencies).concat(pkg.additionalFiles)
+      path.resolve(pkg.browser) // app JS entry point
+    ].concat(vendored)
   },
   output: {
-    path: path.resolve(pkg.files),
+    path: path.resolve("./webpack-build/"),
     filename: "code/[name].js",
-    publicPath: '/',
+    publicPath: '/static/',
     strictModuleExceptionHandling: true
   },
   devtool: 'source-map',
@@ -51,23 +58,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: "babel-loader"
-          },
-          {
-            loader: "eslint-loader",
-            options: pkg.eslint
-          }
-        ]
-      },
-      {
-        test: /\.scss$/,
-        loader: extractStyle.extract({ use: ["css-loader", "sass-loader"] })
-      },
-      {
-        test: /\.css$/,
-        loader: extractStyle.extract({ use: ["css-loader"]})
+        use: ["babel-loader", "eslint-loader"]
       },
       {
         test: /\.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
@@ -79,49 +70,44 @@ module.exports = {
     ]
   },
   watchOptions: {
-    ignored: /^((?!frontend).)*$/ // only watch code in ./frontend/
+    ignored: /^((?![\\/]frontend[\\/]).)*$/ // only watch code in ./frontend/
   },
   resolve: {
     alias: {
-      app: path.resolve('./frontend/js/'),
-      style: path.resolve('./frontend/css/')
+      app: path.resolve(pkg.browser.substring(0, pkg.browser.lastIndexOf('/'))),
+      base: path.resolve('./frontend/base/js/')
     },
     extensions: [".js", ".jsx", ".json", ".scss", ".css", ".ttf", ".otf", ".eot", ".svg", ".woff", ".woff2"],
     mainFields: ["browser", "module", "main", "style"]
   },
+  optimization: {
+    noEmitOnErrors: true,
+    runtimeChunk: {
+      name: "runtime"
+    },
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: 'initial',
+          name: 'vendor',
+          test: /([\\/]node_modules[\\/]|[\\/]frontend[\\/]vendor[\\/])/,
+          enforce: true
+        },
+        base: {
+          chunks: 'initial',
+          name: 'base',
+          test: /[\\/]frontend[\\/](base[\\/]|config.scss)/,
+          enforce: true
+        }
+      }
+    }
+  },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor",
-      minChunks: Infinity
-    }),
-    extractStyle,
     new CompressionPlugin({
       asset: "[path].gz[query]",
       algorithm: "gzip",
-      threshold: 10240,
+      threshold: 10240, // 10KiB
       minRatio: 0.8
-    }),
-    new StyleLintPlugin({
-      syntax: 'scss'
-    }),
-    new HtmlWebpackPlugin({
-      cache: true,
-      title: "Econesty",
-      filename: "index.html",
-      xhtml: true,
-      inject: false,
-      template: require('html-webpack-template'),
-      meta: [
-        {
-          name: "viewport",
-          content: "width=320, initial-scale=1.0, maximum-scale=1.0"
-        }
-      ],
-      minify: {
-        caseSensitive: true,
-        collapseWhitespace: true
-      }
     })
   ]
 };

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -6,6 +7,8 @@ from django.contrib.postgres.fields import JSONField
 from .fields import WIFPrivateKeyField
 
 from safedelete.models import SafeDeleteModel
+
+import bit
 
 import uuid
 from hashlib import sha1
@@ -43,7 +46,7 @@ class Token(BaseModel):
     token = None
     if 'HTTP_AUTHORIZATION' in request.META:
       token = read_token(request.META['HTTP_AUTHORIZATION'])
-    elif "Authorization" in request.COOKIES:
+    elif settings.DEBUG and "Authorization" in request.COOKIES:
       token = read_token(request.COOKIES["Authorization"])
 
     try:
@@ -65,6 +68,10 @@ class Wallet(BaseModel):
   def balance(self):
     return self.private_key.get_balance('btc')
 
+  @property
+  def is_testnet(self):
+    return type(self.private_key) is bit.PrivateKeyTestnet
+
 class Transaction(BaseModel):
   sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_sender")
   recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="api_trans_recipient")
@@ -81,6 +88,10 @@ class Transaction(BaseModel):
     if not self.sender_wallet or not self.recipient_wallet:
       return False
     return Requirement.fulfilled_queryset().filter(transaction__id=self.id).exists()
+
+  @property
+  def rejected(self):
+    return Requirement.rejected_queryset().filter(transaction__id=self.id).exists()
 
   def finalize(self):
     amount = float(self.amount)
@@ -102,11 +113,16 @@ class Requirement(BaseModel):
   transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='api_req_transaction')
   signature = models.TextField(blank=True, null=True) # just a string for now
   acknowledged = models.BooleanField(default=False)
+  rejected = models.BooleanField(default=False)
 
   @property
   def fulfilled(self):
-    return self.acknowledged and bool(self.signature)
+    return self.acknowledged and bool(self.signature) and not self.rejected
 
   @classmethod
   def fulfilled_queryset(cls):
-    return cls.objects.filter(signature__isnull=False, acknowledged=True)
+    return cls.objects.filter(signature__isnull=False, acknowledged=True, rejected=False)
+
+  @classmethod
+  def rejected_queryset(cls):
+    return cls.objects.filter(rejected=True)
