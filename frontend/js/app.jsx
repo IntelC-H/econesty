@@ -19,32 +19,28 @@ import RequiredOfMe from 'app/pages/requiredofme';
 
 /*
   TODO for MVP:
-  - test bitcoin implementation
-  - make look purdy
-  - make groups in forms look better
-    -  light backgrounds?
-    -  position the delete buttons right
-  - SearchField overlay allow clicking in textfield
-  - Fix SearchField search icon in forms with screen width < 400
-  - Tooltips
-    - Usernames
-    - created ats
+    Both
+    - Prettier empty CollectionView's
+    - Make inputs have gridding capabilities
+    CSS
+    - Color scheme
+    - make FormGroups look better
+      - light backgrounds?
 */
 
 function secure(comp) {
   return props => API.isAuthenticated ? h(comp, props) : Router.replace("/login");
 }
 
-// TODO: make this wrap a components.
 // This function exists because JS's regex
 // implementation doesn't support bidirectional lookaround.
-function replacePath(comp, gen, guard = () => true) {
+function replacePath(pathcomp, gen, guard = () => true) {
   return secure(() => {
     if (guard()) {
       const v = gen();
       const url = Router.getPath()
                         .split("/")
-                        .map(u => u === comp ? v : u)
+                        .map(u => u === pathcomp ? v : u)
                         .join("/");
       return Router.replace(url);
     }
@@ -59,7 +55,7 @@ function makeRoute(path, Comp, wcs) {
 function redirectOnAuth(path, FallbackComp) {
   return props => {
     if (API.isAuthenticated) return Router.replace(path);
-    return <FallbackComp {...props} />;
+    return h(FallbackComp, props);
   };
 }
 
@@ -70,10 +66,10 @@ export default () =>
         makeRoute("/", redirectOnAuth("/user/me", Home)),
         makeRoute(u => u.split("/").indexOf("me") !== -1,
                   replacePath("me", () => API.getUserID(),
-                                    () => !!API.getUserID())),
+                                    () => API.isAuthenticated)),
         makeRoute("/login", Login),
         makeRoute("/signup", Signup),
-        makeRoute("/user/:id", Profile), // view a profile
+        makeRoute("/user/:id", secure(Profile)), // view a profile
         makeRoute("/user/:id/transaction/:action", secure(CreateTransaction), { action: ["send", "receive"] }), // create transaction's
         makeRoute("/wallets", secure(Wallets)), // manage payment_data's
         makeRoute("/transaction/:id", secure(TransactionDetail)), // your transactions

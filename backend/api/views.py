@@ -44,9 +44,9 @@ class UserViewSet(EconestyBaseViewset):
     me_id = request.user.id
 
     man = models.Transaction.objects
-    qs = man.filter(sender__id=me_id) | man.filter(recipient__id=me_id)
-    if user_id is not me_id:
-      qs = qs & (man.filter(sender__id=user_id) | man.filter(recipient__id=user_id))
+    qs = man.filter(sender__id=user_id) | man.filter(recipient__id=user_id)
+    if user_id != me_id:
+      qs = qs & (man.filter(sender__id=me_id) | man.filter(recipient__id=me_id))
 
     return self.paginated_response(
       qs.order_by("-created_at"),
@@ -163,10 +163,23 @@ class TokenViewSet(WriteOnlyViewset):
   serializer_class = serializers.TokenSerializer
   queryset = models.Token.objects.all()
 
+  def create(self, request):
+    res = super().create(request)
+
+    if settings.DEBUG:
+      res.set_cookie("Authorization", "Token " + res.data["key"], path="/api")
+
+    return res
+
   @list_route(methods=["DELETE"])
   def clear(self, request):
+    res = None
     if request.auth:
       request.auth.delete()
-      return Response({}, status=204)
+      res = Response({}, status=204)
     else:
-      return Response({}, status=401)
+      res = Response({}, status=401)
+
+    if settings.DEBUG:
+      res.set_cookie("Authorization", max_age=-99999999)
+    return res

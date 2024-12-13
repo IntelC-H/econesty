@@ -46,11 +46,11 @@ class API {
   static clearAuth() {
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
-    document.cookie = "Authorization=;";
   }
 
   static get isAuthenticated() {
-    return API.getToken() !== null;
+    let t = API.getToken();
+    return t !== null && t !== undefined;
   }
 
   static getToken() {
@@ -59,7 +59,6 @@ class API {
 
   static setToken(token) {
     localStorage.setItem("token", token || null);
-    document.cookie = "Authorization=Token " + token + "; Path=/api";
   }
 
   static getUserID() {
@@ -71,7 +70,8 @@ class API {
   }
 
   static networking(method, path, urlparams, body) {
-    var opts  = {
+    let opts  = {
+      credentials: "same-origin", // enable backend to set cookies
       method: method,
       redirect: "follow",
       headers: {
@@ -80,19 +80,15 @@ class API {
       }
     };
 
-    if (body) {
-      opts.body = JSON.stringify(body);
-    }
+    if (body) opts.body = JSON.stringify(body);
 
-    var token = this.getToken();
-    if (token) {
-      opts.headers.Authorization = "Token " + token;
-    }
+    let token = this.getToken();
+    if (token) opts.headers.Authorization = "Token " + token;
 
-    var ups = urlparams;
+    let ups = urlparams;
     ups.format = "json";
 
-    var url = window.location.protocol + "//" + window.location.host + "/api" + path;
+    let url = window.location.protocol + "//" + window.location.host + "/api" + path;
     if (!url.endsWith("/")) url = url + "/";
 
     url += "?" + Object.keys(ups)
@@ -101,12 +97,13 @@ class API {
                        .join("&");
 
     return fetch(url, opts)
-             .then(res => res.text().then(t => ({text: t, res: res})))
-             .then(({text, res}) => {
-      let obj = text.length === 0 ? null : JSON.parse(text);
-      if (res.ok) return obj;
-      throw new Error((obj ? obj.detail : null) || res.statusText);
-    });
+             .then(res =>
+      res.text().then(text => {
+        let obj = text.length === 0 ? null : JSON.parse(text);
+        if (res.ok) return obj;
+        throw new Error((obj ? obj.detail : null) || res.statusText);
+      })
+    );
   }
 
   static paginate(promise, collection) {
@@ -223,7 +220,7 @@ class APICollection {
 
   save(body) {
     const { id, ...filteredBody } = body;
-    if (id !== null && id !== undefined) return this.create(body);
+    if (id === null || id === undefined) return this.create(body);
     return this.update(id, filteredBody);
   }
 

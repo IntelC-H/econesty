@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "browser": "frontend/js/index.js",
   "style": "frontend/css/app.scss",
-  "main": "frontend/js/appjsx",
+  "main": "frontend/js/app.jsx",
   "files": "dist/",
   "scripts": {
     "build": "./node_modules/.bin/webpack"
   },
+  "vendorDirectory": "./frontend/vendor/",
+  "vendorOrder": [
+    "./frontend/vendor/purecss-grids.css",
+    "./frontend/vendor/purecss-grids-responsive.css"
+  ],
   "private": true,
   "stylelint": {
     "rules": {
@@ -186,16 +191,11 @@
       "wrap-regex": 0
     }
   },
-  "additionalFiles": [
-    "./node_modules/purecss/build/grids-responsive.css"
-  ],
   "dependencies": {
     "font-awesome": "^4.7.0",
-    "linkref": "^1.0.1",
-    "linkstate": "^1.1.0",
+    "normalize.css": "^8.0.0",
     "preact": "^8.2.5",
-    "prop-types": "^15.5.10",
-    "purecss": "^1.0.0"
+    "prop-types": "^15.5.10"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

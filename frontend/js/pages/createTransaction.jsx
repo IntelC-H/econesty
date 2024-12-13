@@ -7,46 +7,54 @@ import { API, DummyAPICollection } from 'app/api';
 import SearchField from 'app/components/searchfield';
 import { Router } from 'app/components/routing';
 
-function RequirementCreationForm({ collectionView }) {
+function RequirementCreationForm({ collectionView, CancelButton }) {
   return (
-    <Form aligned onSubmit={collectionView.saveElement}>
+    <Form onSubmit={collectionView.saveElement} className="section">
       <FormGroup>
         <Labelled label="Terms">
           <Input text name="text" />
         </Labelled>
-        <Labelled label="Responsible User">
+        <Labelled label="Onus upon">
           <SearchField name="user"
                        api={API.user}
-                       placeholder="find a user..."
+                       placeholder="find a user"
                        component={props => props.element.username} />
         </Labelled>
       </FormGroup>
-      <Button action="submit">CREATE</Button>
+      <div className="centered">
+        <Button action="submit">ADD</Button>
+        <CancelButton />
+      </div>
     </Form>
   );
 }
 
 function RequirementCollection({ collectionView }) {
   let rs = collectionView.getElements();
+  if (rs.length === 0) return (
+                         <h3 className="secondary">No Requirements</h3>
+                       );
   return (
    <div>
    {rs.map(r =>
-       <Form aligned onSubmit={collectionView.saveElement}>
+       <Form onSubmit={collectionView.saveElement}>
          <DeleteButton onClick={() => collectionView.deleteElement(r.id)} />
          <FormGroup>
            {r.id !== null && r.id !== undefined && <Input hidden name="id" value={r.id} /> }
            <Labelled label="Terms">
              <Input text name="text" value={r.text} />
            </Labelled>
-           <Labelled label="Responsible User">
+           <Labelled label="Onus upon">
              <SearchField name="user"
                           api={API.user}
                           value={r.user}
-                          placeholder="find a user..."
+                          placeholder="find a user"
                           component={props => props.element.username} />
            </Labelled>
          </FormGroup>
-         <Button action="submit">SAVE</Button>
+         <div className="centered">
+           <Button action="submit">SAVE</Button>
+         </div>
        </Form>)}
     </div>
   );
@@ -88,15 +96,19 @@ class CreateTransaction extends Component {
       <Grid>
         <GridUnit size="1" sm="4-24"/>
         <GridUnit size="1" sm="16-24">
-          <div className="informational">
-            <h3>Create a Transaction</h3>
-            <p>This is the page you use to create a transaction.</p>
+          <div className="section">
+            <h1 className="primary">{isSender ? "Send" : "Receive"} Bitcoin</h1>
           </div>
-          <Form aligned onSubmit={this.onSubmit}>
+          <Form onSubmit={this.onSubmit}>
+            <FormGroup>
             <Input hidden name="sender_id" value={sender_id} />
             <Input hidden name="recipient_id" value={recipient_id} />
 
-            <Labelled label="Your Wallet">
+            <Labelled label="How many BTC?">
+              <Input number required name="amount" step="0.0001" min="0" cols="7" />
+            </Labelled>
+
+            <Labelled label="From wallet">
               <Select
                 options={this.makeWalletsPromise}
                 name={isSender ? "sender_wallet_id" : "recipient_wallet_id"}
@@ -104,9 +116,7 @@ class CreateTransaction extends Component {
                 faceTransform={w => w.private_key} />
             </Labelled>
 
-            <Labelled label="How much?">
-              <Input number required name="amount" step="0.0001" min="0" cols="7" />
-            </Labelled>
+            <h2>With Requirements:</h2>
             <CollectionView collection={this.dummyCollection}>
               <CollectionCreation createText="+ Requirement">
                 <RequirementCreationForm />
@@ -114,6 +124,7 @@ class CreateTransaction extends Component {
               <RequirementCollection />
             </CollectionView>
             <Button action="submit">CREATE</Button>
+            </FormGroup>
           </Form>
         </GridUnit>
         <GridUnit size="1" sm="4-24"/>

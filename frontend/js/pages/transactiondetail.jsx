@@ -13,7 +13,7 @@ function makeWalletsPromise() {
 function UserLink({ user }) {
   return (
     <Link
-      className="inline secondary"
+      className="userlink secondary"
       href={"/user/" + user.id}>
       {user.first_name} {user.last_name} (@{user.username})
     </Link>
@@ -35,7 +35,7 @@ function TransactionInfo({ elementView }) {
       <h3 className="secondary"><UserLink user={t.recipient} /> is sending BTC {parseFloat(t.amount)} to <UserLink user={t.sender}/></h3>
       {t.error && <p>{t.error}</p>}
 
-      {needsRecipientWallet && isRecipient && <Form aligned onSubmit={elementView.updateElement}>
+      {needsRecipientWallet && isRecipient && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
           <Labelled label="Recipient's Wallet">
@@ -45,11 +45,11 @@ function TransactionInfo({ elementView }) {
               transform={w => w.id}
               faceTransform={w => w.private_key} />
           </Labelled>
-          <Button className="margined raised" action="submit">SAVE WALLET</Button>
+          <Button action="submit">SAVE WALLET</Button>
         </FormGroup>
       </Form>}
 
-      {needsSenderWallet && isSender && <Form aligned onSubmit={elementView.updateElement}>
+      {needsSenderWallet && isSender && <Form onSubmit={elementView.updateElement}>
         <FormGroup>
           <Input hidden name="id" value={t.id} />
           <Labelled label="Sender's Wallet">
@@ -99,7 +99,8 @@ function TransactionDetail({ matches }) {
         <ElementView collection={API.transaction} elementID={matches.id}>
           <TransactionInfo />
         </ElementView>
-        <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}>
+        <CollectionView collection={API.requirement.withParams({transaction__id: matches.id})}
+                        empty={null}>
           <TransactionRequirements />
         </CollectionView>
       </GridUnit>
