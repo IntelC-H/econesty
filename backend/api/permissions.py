@@ -16,7 +16,7 @@ class Sensitive(permissions.BasePermission):
     if type(obj) is User:
       return True
 
-    for field in getattr(view, "user_fields", []):
+    for field in getattr(view, "visible_to", []):
       user = reduce(safe_getattr, field.split('__'), obj)
       if user and user.id is request.user.id:
         return True
